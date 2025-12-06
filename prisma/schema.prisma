@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId       Int       @id @default(autoincrement()) @map("user_id")
+  name         String    @db.VarChar(255)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @db.VarChar(255) @map("password_hash")
+  role         UserRole
+  profileImage String?   @db.VarChar(500) @map("profile_image")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  coordinator  FYPCoordinator?
+  supervisor   FYPSupervisor?
+  student      Student?
+
+  @@map("users")
+}
+
+model Campus {
+  campusId     Int      @id @default(autoincrement()) @map("campus_id")
+  name         String   @db.VarChar(255)
+  location     String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  coordinators FYPCoordinator[]
+  supervisors  FYPSupervisor[]
+  students     Student[]
+
+  @@map("campuses")
+}
+
+model FYPCoordinator {
+  coordinatorId Int      @id @default(autoincrement()) @map("coordinator_id")
+  userId        Int      @unique @map("user_id")
+  campusId      Int      @map("campus_id")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  campus Campus @relation(fields: [campusId], references: [campusId])
+
+  @@map("fyp_coordinators")
+}
+
+model FYPSupervisor {
+  supervisorId   Int      @id @default(autoincrement()) @map("supervisor_id")
+  userId         Int      @unique @map("user_id")
+  campusId       Int      @map("campus_id")
+  description    String?  @db.Text
+  specialization String?  @db.VarChar(255)
+  domains        String?  @db.Text
+  skills         String?  @db.Text
+  achievements   String?  @db.Text
+  maxGroups      Int      @default(3) @map("max_groups")
+  totalGroups    Int      @default(0) @map("total_groups")
+  revertedBy     Int?     @map("reverted_by")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  campus Campus @relation(fields: [campusId], references: [campusId])
+
+  @@map("fyp_supervisors")
+}
+
+model Group {
+  groupId    Int      @id @default(autoincrement()) @map("group_id")
+  groupName  String?  @db.VarChar(255) @map("group_name")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  students Student[]
+
+  @@map("groups")
+}
+
+model Student {
+  studentId  Int      @id @default(autoincrement()) @map("student_id")
+  userId     Int      @unique @map("user_id")
+  rollNumber String   @unique @db.VarChar(50) @map("roll_number")
+  batch      String?  @db.VarChar(20)
+  campusId   Int      @map("campus_id")
+  groupId    Int?     @map("group_id")
+  gpa        Float?
+  skills     String?  @db.Text
+  interests  String?  @db.Text
+  bio        String?  @db.Text
+  linkedin   String?  @db.VarChar(255)
+  github     String?  @db.VarChar(255)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  campus Campus  @relation(fields: [campusId], references: [campusId])
+  group  Group?  @relation(fields: [groupId], references: [groupId])
+
+  @@map("students")
+}
+
+model Notification {
+  notificationId Int      @id @default(autoincrement()) @map("notification_id")
+  title          String   @db.VarChar(255)
+  message        String   @db.Text
+  type           NotificationType @default(general)
+  targetType     NotificationTarget @map("target_type")
+  createdById    Int      @map("created_by_id")
+  campusId       Int      @map("campus_id")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  recipients NotificationRecipient[]
+
+  @@map("notifications")
+}
+
+model NotificationRecipient {
+  id             Int      @id @default(autoincrement())
+  notificationId Int      @map("notification_id")
+  userId         Int      @map("user_id")
+  isRead         Boolean  @default(false) @map("is_read")
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [notificationId], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@map("notification_recipients")
+}
+
+enum NotificationType {
+  general
+  urgent
+  announcement
+  reminder
+}
+
+enum NotificationTarget {
+  all_users
+  all_students
+  all_supervisors
+  specific_users
+}
+
+enum UserRole {
+  student
+  supervisor
+  coordinator
+}
+
+// Chat/Messaging System
+model Conversation {
+  conversationId Int      @id @default(autoincrement()) @map("conversation_id")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             Int      @id @default(autoincrement())
+  conversationId Int      @map("conversation_id")
+  userId         Int      @map("user_id")
+  lastReadAt     DateTime? @map("last_read_at")
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  messageId      Int      @id @default(autoincrement()) @map("message_id")
+  conversationId Int      @map("conversation_id")
+  senderId       Int      @map("sender_id")
+  content        String   @db.Text
+  isRead         Boolean  @default(false) @map("is_read")
+  // Attachment fields
+  attachmentUrl  String?  @db.VarChar(500) @map("attachment_url")
+  attachmentType String?  @db.VarChar(50) @map("attachment_type") // image, file
+  attachmentName String?  @db.VarChar(255) @map("attachment_name")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// Projects System
+model Project {
+  projectId     Int            @id @default(autoincrement()) @map("project_id")
+  title         String         @db.VarChar(255)
+  description   String         @db.Text
+  abstractText  String?        @db.Text @map("abstract_text") // Extracted from document
+  category      String?        @db.VarChar(100)
+  status        ProjectStatus  @default(in_progress)
+  visibility    ProjectVisibility @default(private)
+  thumbnailUrl  String?        @db.VarChar(500) @map("thumbnail_url")
+  documentUrl   String?        @db.VarChar(500) @map("document_url")
+  documentName  String?        @db.VarChar(255) @map("document_name")
+  repositoryUrl String?        @db.VarChar(500) @map("repository_url")
+  demoUrl       String?        @db.VarChar(500) @map("demo_url")
+  embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Qdrant point ID
+  isUnique      Boolean        @default(false) @map("is_unique") // True if passed similarity check
+  similarityScore Float?       @map("similarity_score") // Score when checked
+  createdById   Int            @map("created_by_id")
+  groupId       Int?           @map("group_id")
+  campusId      Int            @map("campus_id")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  idea
+  in_progress
+  completed
+  archived
+}
+
+enum ProjectVisibility {
+  public
+  private
+}
