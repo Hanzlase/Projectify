@@ -354,67 +354,52 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-[800] tracking-tight text-slate-900 leading-[1.1]">
-            <span className="block">
-              <AnimatedText 
-                text="The Management S" 
-                delay={0.4}
-                staggerDelay={0.05}
-              />
-            </span>
-            <span className="block">
-              <AnimatedText 
-                text="ystem" 
-                delay={0.5}
-                staggerDelay={0.05}
-                className="sm:hidden"
-              />
-              <span className="hidden sm:inline">
-                <AnimatedText 
-                  text="ystem" 
-                  delay={0.6}
-                  staggerDelay={0.05}
-                />
-              </span>
-            </span>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-[800] tracking-tight text-slate-900 leading-[1.15]">
             <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-              className="block sm:inline-block mt-2 sm:mt-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="block"
             >
-              for
+              The Management System
             </motion.span>
-            <br className="sm:hidden" />
-            <span className="text-[#1a5d1a] block sm:inline-block relative sm:ml-3 mt-1 sm:mt-0">
-              <TypewriterText 
-                words={["Final Year Projects", "Academic Excellence", "Team Collaboration", "Research Success"]}
-                typingSpeed={160}
-                deletingSpeed={80}
-                delayBetweenWords={4000}
-              />
-              <motion.svg 
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ duration: 1.2, delay: 1.8 }}
-                className="absolute w-full h-3 -bottom-1 left-0 text-green-200 -z-10 origin-left" 
-                viewBox="0 0 100 10" 
-                preserveAspectRatio="none"
-              >
-                <path 
-                  d="M0 5 Q 50 10 100 5" 
-                  stroke="currentColor" 
-                  strokeWidth="8" 
-                  fill="none"
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="block mt-1 sm:mt-2"
+            >
+              <span className="text-slate-900">for </span>
+              <span className="text-[#1a5d1a] relative">
+                <TypewriterText 
+                  words={["Final Year Projects", "Academic Excellence", "Team Collaboration", "Research Success"]}
+                  typingSpeed={120}
+                  deletingSpeed={60}
+                  delayBetweenWords={3000}
                 />
-              </motion.svg>
-            </span>
+                <motion.svg 
+                  initial={{ scaleX: 0, opacity: 0 }}
+                  animate={{ scaleX: 1, opacity: 1 }}
+                  transition={{ duration: 1.0, delay: 1.2 }}
+                  className="absolute w-full h-2 sm:h-3 -bottom-0.5 sm:-bottom-1 left-0 text-green-200 -z-10 origin-left" 
+                  viewBox="0 0 100 10" 
+                  preserveAspectRatio="none"
+                >
+                  <path 
+                    d="M0 5 Q 50 10 100 5" 
+                    stroke="currentColor" 
+                    strokeWidth="8" 
+                    fill="none"
+                  />
+                </motion.svg>
+              </span>
+            </motion.span>
           </h1>
 
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 2.0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
             className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed px-4"
           >
             Projectify handles the chaos of FYP management. From team formation to final submission, keep everything in one synchronized workspace.
@@ -423,7 +408,7 @@ const HeroSection = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 2.2 }}
+            transition={{ duration: 0.8, delay: 1.0 }}
             className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-4"
           >
             <motion.div
@@ -441,13 +426,13 @@ const HeroSection = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2.4, duration: 1.2 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
             className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500 px-4"
           >
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 2.6, duration: 0.8 }}
+              transition={{ delay: 1.3, duration: 0.5 }}
               className="flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4 text-green-600" />
@@ -456,7 +441,7 @@ const HeroSection = () => {
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 2.8, duration: 0.8 }}
+              transition={{ delay: 1.4, duration: 0.5 }}
               className="flex items-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 text-green-600" />
@@ -465,7 +450,7 @@ const HeroSection = () => {
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 3.0, duration: 0.8 }}
+              transition={{ delay: 1.5, duration: 0.5 }}
               className="flex items-center gap-2"
             >
               <Zap className="w-4 h-4 text-green-600" />
@@ -478,14 +463,14 @@ const HeroSection = () => {
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.6, delay: 2.0 }}
+          transition={{ duration: 1.0, delay: 1.2 }}
           className="mt-12 sm:mt-20 relative mx-auto max-w-5xl hidden md:block"
         >
           {/* Floating Elements around dashboard */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 2.4, duration: 1.2 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
             className="absolute -left-16 top-24 z-20 hidden lg:block"
           >
             <div className="bg-white p-4 rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-100 flex items-center gap-3 hover:scale-105 transition-transform cursor-default">
@@ -503,7 +488,7 @@ const HeroSection = () => {
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 2.6, duration: 1.2 }}
+            transition={{ delay: 1.6, duration: 0.8 }}
             className="absolute -right-8 top-40 z-20 hidden lg:block"
           >
             <div className="bg-white p-3 rounded-xl shadow-2xl shadow-slate-200/50 border border-slate-100 hover:scale-105 transition-transform cursor-default">

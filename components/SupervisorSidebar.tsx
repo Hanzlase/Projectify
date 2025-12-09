@@ -86,7 +86,10 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       className="hidden md:flex w-56 bg-white flex-col fixed h-full z-20 shadow-sm"
     >
       <div className="p-5 pb-8">
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate('/supervisor/dashboard')}
+        >
           <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>

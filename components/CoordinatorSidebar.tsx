@@ -99,7 +99,10 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
     <>
       {/* Logo */}
       <div className="p-5 pb-8">
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate('/coordinator/dashboard')}
+        >
           <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
@@ -195,7 +198,10 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
           
-          <div className="flex items-center gap-2">
+          <div 
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/coordinator/dashboard')}
+          >
             <div className="w-8 h-8 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
