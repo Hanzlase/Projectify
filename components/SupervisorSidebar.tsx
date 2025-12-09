@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, memo, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,7 +44,15 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [isPending, startTransition] = useTransition();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Smooth navigation with useTransition
+  const navigate = useCallback((path: string) => {
+    startTransition(() => {
+      router.push(path);
+    });
+  }, [router]);
 
   const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard' },
@@ -95,7 +103,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               icon={item.icon}
               label={item.label}
               active={isActive(item.path)}
-              onClick={() => router.push(item.path)}
+              onClick={() => navigate(item.path)}
             />
           ))}
         </div>
@@ -110,7 +118,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               icon={item.icon}
               label={item.label}
               active={isActive(item.path)}
-              onClick={() => router.push(item.path)}
+              onClick={() => navigate(item.path)}
             />
           ))}
           <button

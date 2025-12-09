@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -57,9 +57,17 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [isPending, startTransition] = useTransition();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Smooth navigation with useTransition
+  const navigate = useCallback((path: string) => {
+    startTransition(() => {
+      router.push(path);
+    });
+  }, [router]);
 
   // Check if mobile on mount and resize - debounced
   useEffect(() => {
@@ -145,7 +153,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
               icon={item.icon}
               label={item.label}
               active={isActive(item.path)}
-              onClick={() => router.push(item.path)}
+              onClick={() => navigate(item.path)}
             />
           ))}
         </div>
@@ -160,7 +168,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
             return (
               <button
                 key={item.label}
-                onClick={() => router.push(item.path)}
+                onClick={() => navigate(item.path)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-all"
               >
                 <Icon className="w-[18px] h-[18px]" />
@@ -183,7 +191,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
         <div className="px-3 pb-4 border-t border-gray-100 pt-4">
           <div 
             className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 rounded-xl transition-all"
-            onClick={() => router.push('/student/profile')}
+            onClick={() => navigate('/student/profile')}
           >
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold overflow-hidden">
               {profileImage ? (
@@ -225,7 +233,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
             <NotificationBell />
             <div 
               className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer"
-              onClick={() => router.push('/student/profile')}
+              onClick={() => navigate('/student/profile')}
             >
               {profileImage ? (
                 <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight,
   Menu,
@@ -34,6 +34,127 @@ function cn(...inputs: ClassValue[]) {
 const useRouter = () => ({
   push: (path: string) => { window.location.href = path; }
 });
+
+// ============================================
+// TYPEWRITER ANIMATION COMPONENT
+// ============================================
+
+const TypewriterText = ({ 
+  words, 
+  className = "",
+  typingSpeed = 100,
+  deletingSpeed = 50,
+  delayBetweenWords = 2000 
+}: { 
+  words: string[]; 
+  className?: string;
+  typingSpeed?: number;
+  deletingSpeed?: number;
+  delayBetweenWords?: number;
+}) => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing
+        if (currentText.length < currentWord.length) {
+          setCurrentText(currentWord.slice(0, currentText.length + 1));
+        } else {
+          // Word complete, wait then start deleting
+          setTimeout(() => setIsDeleting(true), delayBetweenWords);
+        }
+      } else {
+        // Deleting
+        if (currentText.length > 0) {
+          setCurrentText(currentText.slice(0, -1));
+        } else {
+          // Move to next word
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, isDeleting ? deletingSpeed : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, delayBetweenWords]);
+
+  return (
+    <span className={className}>
+      {currentText}
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        className="inline-block w-[3px] h-[0.9em] bg-[#1a5d1a] ml-1 align-middle"
+      />
+    </span>
+  );
+};
+
+// Character-by-character reveal animation
+const AnimatedText = ({ 
+  text, 
+  className = "",
+  delay = 0,
+  staggerDelay = 0.03
+}: { 
+  text: string; 
+  className?: string;
+  delay?: number;
+  staggerDelay?: number;
+}) => {
+  const characters = useMemo(() => text.split(''), [text]);
+  
+  const container = {
+    hidden: { opacity: 0 },
+    visible: (i = 1) => ({
+      opacity: 1,
+      transition: { staggerChildren: staggerDelay, delayChildren: delay },
+    }),
+  };
+
+  const child = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      filter: "blur(10px)"
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200,
+      },
+    },
+  };
+
+  return (
+    <motion.span
+      className={cn("inline-flex flex-wrap", className)}
+      variants={container}
+      initial="hidden"
+      animate="visible"
+    >
+      {characters.map((char, index) => (
+        <motion.span
+          key={index}
+          variants={child}
+          className="inline-block"
+          style={{ whiteSpace: char === ' ' ? 'pre' : 'normal' }}
+        >
+          {char === ' ' ? '\u00A0' : char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
 
 // ============================================
 // UI COMPONENTS (Enhanced)
@@ -234,20 +355,60 @@ const HeroSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-[800] tracking-tight text-slate-900 leading-[1.1]">
-            The Management System for <br className="hidden md:block" />
+            <AnimatedText 
+              text="The Management System" 
+              delay={0.2}
+              staggerDelay={0.025}
+            />
+            <br className="hidden md:block" />
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.8 }}
+              className="inline-block"
+            >
+              for{' '}
+            </motion.span>
             <span className="text-[#1a5d1a] inline-block relative">
-              Final Year Projects
-              <svg className="absolute w-full h-3 -bottom-1 left-0 text-green-200 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-              </svg>
+              <TypewriterText 
+                words={["Final Year Projects", "Academic Excellence", "Team Collaboration", "Research Success"]}
+                typingSpeed={80}
+                deletingSpeed={40}
+                delayBetweenWords={2500}
+              />
+              <motion.svg 
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 1.2 }}
+                className="absolute w-full h-3 -bottom-1 left-0 text-green-200 -z-10 origin-left" 
+                viewBox="0 0 100 10" 
+                preserveAspectRatio="none"
+              >
+                <path 
+                  d="M0 5 Q 50 10 100 5" 
+                  stroke="currentColor" 
+                  strokeWidth="8" 
+                  fill="none"
+                />
+              </motion.svg>
             </span>
           </h1>
 
-          <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed px-4">
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed px-4"
+          >
             Projectify handles the chaos of FYP management. From team formation to final submission, keep everything in one synchronized workspace.
-          </p>
+          </motion.p>
 
-          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-4"
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
@@ -257,27 +418,42 @@ const HeroSection = () => {
                 Get Started Free
               </Button>
             </motion.div>
-          </div>
+          </motion.div>
           
           {/* Trust Indicators */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
             className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500 px-4"
           >
-            <div className="flex items-center gap-2">
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.3, duration: 0.4 }}
+              className="flex items-center gap-2"
+            >
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <span>Free for students</span>
-            </div>
-            <div className="flex items-center gap-2">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.4, duration: 0.4 }}
+              className="flex items-center gap-2"
+            >
               <ShieldCheck className="w-4 h-4 text-green-600" />
               <span>Secure & Private</span>
-            </div>
-            <div className="flex items-center gap-2">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.5, duration: 0.4 }}
+              className="flex items-center gap-2"
+            >
               <Zap className="w-4 h-4 text-green-600" />
               <span>AI-Powered</span>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -285,14 +461,14 @@ const HeroSection = () => {
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
           className="mt-12 sm:mt-20 relative mx-auto max-w-5xl hidden md:block"
         >
           {/* Floating Elements around dashboard */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
             className="absolute -left-16 top-24 z-20 hidden lg:block"
           >
             <div className="bg-white p-4 rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-100 flex items-center gap-3 hover:scale-105 transition-transform cursor-default">
@@ -310,7 +486,7 @@ const HeroSection = () => {
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 1.3, duration: 0.6 }}
             className="absolute -right-8 top-40 z-20 hidden lg:block"
           >
             <div className="bg-white p-3 rounded-xl shadow-2xl shadow-slate-200/50 border border-slate-100 hover:scale-105 transition-transform cursor-default">
@@ -452,18 +628,18 @@ const LogoMarquee = () => {
   return (
     <section className="py-8 sm:py-12 bg-white border-b border-slate-100 overflow-hidden">
       <div className="text-center text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-widest mb-6 sm:mb-8 px-4">Built for FAST NUCES Campuses</div>
-      <div className="relative flex overflow-x-hidden">
-        <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee">
+      <div className="relative flex overflow-x-hidden group">
+        <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee group-hover:animate-marquee-slow">
           {[...logos, ...logos, ...logos].map((logo, i) => (
-            <div key={i} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale">
+            <div key={i} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300">
               <logo.icon className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-sm sm:text-lg font-bold">{logo.name}</span>
             </div>
           ))}
         </div>
-        <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee2 absolute top-0">
+        <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee2 group-hover:animate-marquee2-slow absolute top-0">
           {[...logos, ...logos, ...logos].map((logo, i) => (
-            <div key={`dup-${i}`} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale">
+            <div key={`dup-${i}`} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300">
               <logo.icon className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-sm sm:text-lg font-bold">{logo.name}</span>
             </div>
@@ -480,10 +656,14 @@ const LogoMarquee = () => {
           100% { transform: translateX(0%); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 50s linear infinite;
         }
         .animate-marquee2 {
-          animation: marquee2 30s linear infinite;
+          animation: marquee2 50s linear infinite;
+        }
+        .group:hover .animate-marquee,
+        .group:hover .animate-marquee2 {
+          animation-duration: 150s;
         }
       `}</style>
     </section>

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 
 function NotificationBell() {
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
@@ -33,12 +34,14 @@ function NotificationBell() {
     const pathParts = pathname.split('/');
     const role = pathParts[1]; // student, coordinator, or supervisor
     
-    if (role === 'student' || role === 'coordinator' || role === 'supervisor') {
-      router.push(`/${role}/notifications`);
-    } else {
-      // Default to student notifications
-      router.push('/student/notifications');
-    }
+    startTransition(() => {
+      if (role === 'student' || role === 'coordinator' || role === 'supervisor') {
+        router.push(`/${role}/notifications`);
+      } else {
+        // Default to student notifications
+        router.push('/student/notifications');
+      }
+    });
   }, [pathname, router]);
 
   return (
