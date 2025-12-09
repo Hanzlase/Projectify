@@ -11,7 +11,7 @@ import {
   Check, CheckCheck, Info,
   Smile, Paperclip, Image as ImageIcon, Circle, ChevronLeft,
   Sparkles, Users, Clock, X, Download, GraduationCap,
-  Plus, Pin, PinOff, UserPlus, Crown, AlertCircle
+  Plus, Pin, PinOff, UserPlus, Crown, AlertCircle, Trash2, MoreVertical
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
@@ -121,6 +121,8 @@ function ChatPageContent() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
+  const [showMessageMenu, setShowMessageMenu] = useState<number | null>(null);
   
   // Group creation state
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
@@ -288,6 +290,30 @@ function ChatPageContent() {
       console.error('Failed to fetch messages:', error);
     } finally {
       if (!silent) setLoadingMessages(false);
+    }
+  };
+
+  const deleteMessage = async (messageId: number) => {
+    if (deletingMessageId) return;
+    
+    setDeletingMessageId(messageId);
+    setShowMessageMenu(null);
+    
+    try {
+      const response = await fetch(`/api/chat/${selectedConversation}/message/${messageId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Remove message from local state
+        setMessages(prev => prev.filter(msg => msg.messageId !== messageId));
+      } else {
+        console.error('Failed to delete message');
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    } finally {
+      setDeletingMessageId(null);
     }
   };
 
@@ -1220,7 +1246,6 @@ function ChatPageContent() {
                               otherUser.name?.charAt(0).toUpperCase() || 'U'
                             )}
                           </div>
-                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></div>
                         </div>
                         
                         <div>
@@ -1228,10 +1253,6 @@ function ChatPageContent() {
                           <div className="flex items-center gap-2">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                               {otherUser.role}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-emerald-600">
-                              <Circle className="w-2 h-2 fill-emerald-500" />
-                              Online
                             </span>
                           </div>
                         </div>
@@ -1407,6 +1428,21 @@ function ChatPageContent() {
                                         <Check className="w-4 h-4 text-gray-300" />
                                       )
                                     )}
+                                    {/* Delete button for own messages */}
+                                    {message.isOwn && (
+                                      <button
+                                        onClick={() => deleteMessage(message.messageId)}
+                                        disabled={deletingMessageId === message.messageId}
+                                        className="ml-1 p-1 rounded-full hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                        title="Delete message"
+                                      >
+                                        {deletingMessageId === message.messageId ? (
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : (
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        )}
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -1525,13 +1561,13 @@ function ChatPageContent() {
                         {showEmojiPicker && (
                           <div 
                             ref={emojiPickerRef}
-                            className="absolute bottom-12 right-0 z-50 shadow-xl rounded-xl overflow-hidden"
+                            className="absolute bottom-12 right-0 sm:right-0 z-50 shadow-xl rounded-xl overflow-hidden max-sm:fixed max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto max-sm:bottom-20"
                           >
                             <EmojiPicker 
                               onEmojiClick={onEmojiClick} 
                               theme={Theme.LIGHT}
-                              width={320}
-                              height={400}
+                              width={window.innerWidth < 640 ? Math.min(320, window.innerWidth - 32) : 320}
+                              height={350}
                               searchPlaceHolder="Search emoji..."
                               previewConfig={{ showPreview: false }}
                             />

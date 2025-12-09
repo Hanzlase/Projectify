@@ -11,7 +11,7 @@ import {
   MessageCircle, Loader2, Send, Search, User,
   Check, CheckCheck, MoreVertical, Info,
   Smile, Paperclip, Image as ImageIcon, Mic, Circle, ChevronLeft,
-  Sparkles, Users, Clock, X, FileText, Download, GraduationCap
+  Sparkles, Users, Clock, X, FileText, Download, GraduationCap, Trash2
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
@@ -78,6 +78,7 @@ function ChatPageContent() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -211,6 +212,30 @@ function ChatPageContent() {
       console.error('Failed to fetch messages:', error);
     } finally {
       if (!silent) setLoadingMessages(false);
+    }
+  };
+
+  const deleteMessage = async (messageId: number) => {
+    if (!selectedConversation || deletingMessageId) return;
+    
+    setDeletingMessageId(messageId);
+    try {
+      const response = await fetch(`/api/chat/${selectedConversation}/message/${messageId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete message');
+      }
+
+      // Remove the message from local state
+      setMessages(prev => prev.filter(msg => msg.messageId !== messageId));
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+      alert('Failed to delete message');
+    } finally {
+      setDeletingMessageId(null);
     }
   };
 
@@ -571,10 +596,6 @@ function ChatPageContent() {
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                           {otherUser.role}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-emerald-600">
-                          <Circle className="w-2 h-2 fill-emerald-500" />
-                          Online
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -709,6 +730,16 @@ function ChatPageContent() {
                                     )}
                                   </div>
                                   <div className={`flex items-center gap-1.5 mt-1 px-1 ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
+                                    {message.isOwn && (
+                                      <button
+                                        onClick={() => deleteMessage(message.messageId)}
+                                        disabled={deletingMessageId === message.messageId}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded"
+                                        title="Delete message"
+                                      >
+                                        <Trash2 className={`w-3.5 h-3.5 ${deletingMessageId === message.messageId ? 'text-slate-300 animate-pulse' : 'text-red-500'}`} />
+                                      </button>
+                                    )}
                                     <span className="text-[11px] text-slate-400">
                                       {formatMessageTime(message.createdAt)}
                                     </span>
@@ -831,7 +862,7 @@ function ChatPageContent() {
                         {showEmojiPicker && (
                           <div 
                             ref={emojiPickerRef}
-                            className="absolute bottom-12 right-0 z-50 shadow-xl rounded-xl overflow-hidden"
+                            className="absolute bottom-12 right-0 z-50 shadow-xl rounded-xl overflow-hidden max-sm:fixed max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:bottom-20"
                           >
                             <EmojiPicker 
                               onEmojiClick={onEmojiClick} 

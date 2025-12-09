@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { decryptMessage } from '@/lib/encryption';
 
 // GET - Get all conversations for the current user
 export async function GET(request: NextRequest) {
@@ -88,7 +89,10 @@ export async function GET(request: NextRequest) {
       return {
         conversationId: conv.conversationId,
         otherUser,
-        lastMessage: conv.messages[0] || null,
+        lastMessage: conv.messages[0] ? {
+          ...conv.messages[0],
+          content: decryptMessage(conv.messages[0].content) // Decrypt last message
+        } : null,
         unreadCount: unreadMap.get(conv.conversationId) || 0,
         updatedAt: conv.updatedAt
       };

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { encryptMessage, decryptMessage } from '@/lib/encryption';
 
 // GET - Get messages for a conversation
 export async function GET(
@@ -59,6 +60,7 @@ export async function GET(
 
     const messagesWithSender = messages.map((msg: any) => ({
       ...msg,
+      content: decryptMessage(msg.content), // Decrypt message content
       sender: senderMap.get(msg.senderId) || null,
       isOwn: msg.senderId === userId
     }));
@@ -159,7 +161,7 @@ export async function POST(
     const messageData: any = {
       conversationId,
       senderId: userId,
-      content: content?.trim() || '',
+      content: content?.trim() ? encryptMessage(content.trim()) : '', // Encrypt message content
     };
 
     // Add attachment fields if provided
@@ -193,6 +195,7 @@ export async function POST(
 
     return NextResponse.json({
       ...message,
+      content: decryptMessage(message.content), // Decrypt for response
       sender,
       isOwn: true
     });
