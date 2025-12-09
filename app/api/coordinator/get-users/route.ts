@@ -36,15 +36,7 @@ export async function GET(request: Request) {
         campusId: campusId,
       },
       include: {
-        user: {
-          select: {
-            userId: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-          },
-        },
+        user: true,
       },
     });
 
@@ -54,24 +46,17 @@ export async function GET(request: Request) {
         campusId: campusId,
       },
       include: {
-        user: {
-          select: {
-            userId: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-          },
-        },
+        user: true,
       },
     });
 
     // Format students
-    const formattedStudents = students.map(s => ({
+    const formattedStudents = students.map((s: any) => ({
       userId: s.user.userId,
       name: s.user.name,
       email: s.user.email,
       role: s.user.role,
+      status: s.user.status || 'ACTIVE',
       createdAt: s.user.createdAt,
       student: {
         rollNumber: s.rollNumber,
@@ -80,11 +65,12 @@ export async function GET(request: Request) {
     }));
 
     // Format supervisors
-    const formattedSupervisors = supervisors.map(s => ({
+    const formattedSupervisors = supervisors.map((s: any) => ({
       userId: s.user.userId,
       name: s.user.name,
       email: s.user.email,
       role: s.user.role,
+      status: s.user.status || 'ACTIVE',
       createdAt: s.user.createdAt,
       supervisor: {
         specialization: s.specialization,

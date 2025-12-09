@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FYP Sync - Final Year Project Management",
+  title: "Projectify - Final Year Project Management",
   description: "Manage your final year projects efficiently",
 };
 

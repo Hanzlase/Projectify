@@ -3,19 +3,27 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, GraduationCap, UserCheck, Search, ArrowLeft, UserPlus, Filter, TrendingUp, MoreVertical, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import CanvasParticles from '@/components/CanvasParticles';
+import { 
+  Users, GraduationCap, UserCheck, Search, UserPlus, Filter,
+  MoreVertical, Edit, Trash2, Eye, ChevronLeft, ChevronRight, MessageCircle,
+  X, AlertTriangle, CheckCircle2, UserX, Save, Mail,
+  ShieldCheck, Loader2
+} from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import CoordinatorSidebar from '@/components/CoordinatorSidebar';
+import LoadingScreen from '@/components/LoadingScreen';
 
 interface User {
   userId: number;
   name: string;
   email: string;
   role: string;
+  status: string;
   createdAt: string;
   student?: {
     rollNumber: string;
@@ -37,9 +45,25 @@ export default function ManageUsersPage() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'student' | 'supervisor'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'ACTIVE' | 'SUSPENDED'>('all');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  
+  // Modal states
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [actionType, setActionType] = useState<'suspend' | 'activate' | 'delete'>('suspend');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionSuccess, setActionSuccess] = useState('');
+  const [actionError, setActionError] = useState('');
+  
+  // Edit form states
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editRollNumber, setEditRollNumber] = useState('');
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -49,7 +73,7 @@ export default function ManageUsersPage() {
       return;
     }
 
-    if (session.user.role !== 'coordinator') {
+    if ((session.user as any).role !== 'coordinator') {
       router.push('/login');
       return;
     }
@@ -64,6 +88,7 @@ export default function ManageUsersPage() {
       if (response.ok) {
         const data = await response.json();
         setCampusName(data.campus || '');
+        setProfileImage(data.profileImage || null);
       }
     } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -88,12 +113,12 @@ export default function ManageUsersPage() {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchQuery, roleFilter]);
+  }, [users, searchQuery, roleFilter, statusFilter]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, roleFilter]);
+  }, [searchQuery, roleFilter, statusFilter]);
 
   const filterUsers = () => {
     let filtered = users;
@@ -101,6 +126,11 @@ export default function ManageUsersPage() {
     // Filter by role
     if (roleFilter !== 'all') {
       filtered = filtered.filter(u => u.role === roleFilter);
+    }
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(u => (u.status || 'ACTIVE') === statusFilter);
     }
 
     // Filter by search query
@@ -118,6 +148,7 @@ export default function ManageUsersPage() {
 
   const studentCount = users.filter(u => u.role === 'student').length;
   const supervisorCount = users.filter(u => u.role === 'supervisor').length;
+  const suspendedCount = users.filter(u => (u.status || 'ACTIVE') === 'SUSPENDED').length;
 
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -125,13 +156,138 @@ export default function ManageUsersPage() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
-  if (loading) {
+  // Open edit modal
+  const handleEditClick = (user: User) => {
+    setSelectedUser(user);
+    setEditName(user.name);
+    setEditEmail(user.email);
+    setEditRollNumber(user.student?.rollNumber || '');
+    setActionError('');
+    setActionSuccess('');
+    setShowEditModal(true);
+  };
+
+  // Open action modal (suspend/activate/delete)
+  const handleActionClick = (user: User, action: 'suspend' | 'activate' | 'delete') => {
+    setSelectedUser(user);
+    setActionType(action);
+    setActionError('');
+    setActionSuccess('');
+    setShowActionModal(true);
+  };
+
+  // Handle edit submit
+  const handleEditSubmit = async () => {
+    if (!selectedUser) return;
+    setActionLoading(true);
+    setActionError('');
+    setActionSuccess('');
+
+    try {
+      const res = await fetch('/api/coordinator/manage-user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUser.userId,
+          name: editName,
+          email: editEmail,
+          rollNumber: editRollNumber || undefined
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setActionSuccess('User updated successfully!');
+        await fetchUsers();
+        setTimeout(() => {
+          setShowEditModal(false);
+          setSelectedUser(null);
+        }, 1500);
+      } else {
+        setActionError(data.error || 'Failed to update user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      setActionError('Failed to update user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle action (suspend/activate/delete)
+  const handleActionSubmit = async () => {
+    if (!selectedUser) return;
+    setActionLoading(true);
+    setActionError('');
+    setActionSuccess('');
+
+    try {
+      if (actionType === 'delete') {
+        const res = await fetch(`/api/coordinator/manage-user?userId=${selectedUser.userId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          setActionSuccess('User deleted successfully!');
+          await fetchUsers();
+          setTimeout(() => {
+            setShowActionModal(false);
+            setSelectedUser(null);
+          }, 1500);
+        } else {
+          setActionError(data.error || 'Failed to delete user');
+        }
+      } else {
+        const res = await fetch('/api/coordinator/manage-user', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: selectedUser.userId,
+            action: actionType
+          })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          setActionSuccess(`User ${actionType === 'suspend' ? 'suspended' : 'activated'} successfully!`);
+          await fetchUsers();
+          setTimeout(() => {
+            setShowActionModal(false);
+            setSelectedUser(null);
+          }, 1500);
+        } else {
+          setActionError(data.error || `Failed to ${actionType} user`);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setActionError(`Failed to ${actionType} user`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Get status badge
+  const getStatusBadge = (userStatus: string) => {
+    const s = (userStatus || 'ACTIVE').toUpperCase();
+    if (s === 'SUSPENDED') {
+      return (
+        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg bg-red-100 text-red-800">
+          Suspended
+        </span>
+      );
+    }
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-        <CanvasParticles />
-        <div className="text-xl text-gray-600 relative z-10">Loading users...</div>
-      </div>
+      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg bg-green-100 text-green-800">
+        Active
+      </span>
     );
+  };
+
+  if (loading) {
+    return <LoadingScreen message="Loading users..." />;
   }
 
   if (!session) {
@@ -139,180 +295,206 @@ export default function ManageUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 relative overflow-hidden">
-      <CanvasParticles />
-      
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
-        >
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Manage Users</h1>
-            <p className="text-gray-600">View and manage all users in {campusName || 'your'} campus</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button 
-                onClick={() => router.push('/coordinator/add-student')}
-                className="shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-11"
+    <div className="min-h-screen bg-[#f5f5f7] flex">
+      {/* Sidebar */}
+      <CoordinatorSidebar profileImage={profileImage} />
+
+      {/* Main Content */}
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        {/* Header */}
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.push('/coordinator/chat')}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
               >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Student
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button 
-                onClick={() => router.push('/coordinator/add-supervisor')}
-                className="shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 h-11"
+                <MessageCircle className="w-5 h-5 text-gray-500" />
+              </button>
+              <NotificationBell />
+              
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                onClick={() => router.push('/coordinator/profile')}
               >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Supervisor
-              </Button>
-            </motion.div>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/coordinator/dashboard')}
-              className="shadow-md hover:shadow-lg transition-all duration-300 group h-11"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-              Dashboard
-            </Button>
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    session?.user?.name?.charAt(0).toUpperCase() || 'C'
+                  )}
+                </div>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </header>
 
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-        >
-          <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-            <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-gray-600 text-sm font-medium uppercase tracking-wide">Total Users</CardTitle>
-                    <p className="text-4xl font-bold text-gray-900 mt-2">{users.length}</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-7 h-7 text-white" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Registered in system</span>
-                  <div className="flex items-center text-green-600 font-semibold">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    <span>100%</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setRoleFilter('all')}
-                  className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center group-hover:underline"
+        <main className="p-4 md:p-6">
+          {/* Page Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Users</h1>
+              <p className="text-sm text-gray-500">View and manage all users in {campusName || 'your'} campus</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  onClick={() => router.push('/coordinator/add-student')}
+                  className="shadow-sm transition-all duration-300 bg-[#1a5d1a] hover:bg-[#145214] h-10 rounded-xl text-sm"
                 >
-                  View All Users
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-            <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-gray-600 text-sm font-medium uppercase tracking-wide">Students</CardTitle>
-                    <p className="text-4xl font-bold text-gray-900 mt-2">{studentCount}</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <GraduationCap className="w-7 h-7 text-white" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Active students</span>
-                  <div className="flex items-center text-green-600 font-semibold">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    <span>{users.length > 0 ? Math.round((studentCount / users.length) * 100) : 0}%</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setRoleFilter('student')}
-                  className="mt-3 text-green-600 hover:text-green-700 text-sm font-semibold flex items-center group-hover:underline"
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Student
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  onClick={() => router.push('/coordinator/add-supervisor')}
+                  className="shadow-sm transition-all duration-300 bg-[#2d7a2d] hover:bg-[#248924] h-10 rounded-xl text-sm"
                 >
-                  View Students
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Supervisor
+                </Button>
+              </motion.div>
+            </div>
+          </div>
 
-          <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-            <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-600"></div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-gray-600 text-sm font-medium uppercase tracking-wide">Supervisors</CardTitle>
-                    <p className="text-4xl font-bold text-gray-900 mt-2">{supervisorCount}</p>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Total Users</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{users.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
                   </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <UserCheck className="w-7 h-7 text-white" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Available supervisors</span>
-                  <div className="flex items-center text-green-600 font-semibold">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    <span>{users.length > 0 ? Math.round((supervisorCount / users.length) * 100) : 0}%</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setRoleFilter('supervisor')}
-                  className="mt-3 text-purple-600 hover:text-purple-700 text-sm font-semibold flex items-center group-hover:underline"
-                >
-                  View Supervisors
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <button
+                    onClick={() => { setRoleFilter('all'); setStatusFilter('all'); }}
+                    className="text-[#1a5d1a] hover:text-[#145214] text-sm font-medium flex items-center"
+                  >
+                    View All
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <Card className="mb-6 bg-white shadow-lg border border-gray-200 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 border-b border-gray-200">
-              <div className="flex items-center justify-between">
+            <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Students</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{studentCount}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-[#2d7a2d] rounded-xl flex items-center justify-center">
+                      <GraduationCap className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <button
+                    onClick={() => setRoleFilter('student')}
+                    className="text-[#2d7a2d] hover:text-[#248924] text-sm font-medium flex items-center"
+                  >
+                    View Students
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Supervisors</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{supervisorCount}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-[#2d7a2d] rounded-xl flex items-center justify-center">
+                      <UserCheck className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <button
+                    onClick={() => setRoleFilter('supervisor')}
+                    className="text-[#2d7a2d] hover:text-[#248924] text-sm font-medium flex items-center"
+                  >
+                    View Supervisors
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Suspended</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{suspendedCount}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                      <UserX className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <button
+                    onClick={() => setStatusFilter('SUSPENDED')}
+                    className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
+                  >
+                    View Suspended
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Filters */}
+          <Card className="mb-6 bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 bg-white">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                     <Search className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-gray-900 text-lg">Search & Filter</CardTitle>
+                    <CardTitle className="text-gray-900 text-base md:text-lg">Search & Filter</CardTitle>
                     <CardDescription className="text-sm">
-                      Find users quickly by name, email, or roll number
+                      Find users quickly
                     </CardDescription>
                   </div>
                 </div>
@@ -320,17 +502,18 @@ export default function ManageUsersPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  className="text-[#1a5d1a] hover:text-[#145214] hover:bg-[#1a5d1a]/10 w-fit"
                 >
                   <Filter className="w-4 h-4 mr-2" />
                   {showAdvancedFilters ? 'Hide' : 'Show'} Filters
                 </Button>
               </div>
             </CardHeader>
+            {showAdvancedFilters && (
             <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="search" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="search" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Search className="w-4 h-4" />
                     Search Users
                   </Label>
@@ -339,16 +522,16 @@ export default function ManageUsersPage() {
                     <Input
                       id="search"
                       type="text"
-                      placeholder="Type to search..."
+                      placeholder="Name, email or roll number..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-12 pl-10 pr-4 border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base"
+                      className="h-11 pl-10 pr-4 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 transition-all duration-200 rounded-xl"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="roleFilter" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="roleFilter" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     Filter by Role
                   </Label>
@@ -358,7 +541,7 @@ export default function ManageUsersPage() {
                       id="roleFilter"
                       value={roleFilter}
                       onChange={(e) => setRoleFilter(e.target.value as any)}
-                      className="w-full h-12 pl-10 pr-10 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 bg-white appearance-none cursor-pointer transition-all duration-200 text-base font-medium hover:border-gray-300"
+                      className="w-full h-11 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
                     >
                       <option value="all">All Users</option>
                       <option value="student">Students Only</option>
@@ -371,56 +554,58 @@ export default function ManageUsersPage() {
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {showAdvancedFilters && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-6 pt-6 border-t border-gray-200"
-                >
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-800 font-medium">
-                      <Filter className="w-4 h-4 inline mr-2" />
-                      Advanced filters coming soon! Filter by join date, status, department, and more.
-                    </p>
+                <div className="space-y-2">
+                  <Label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4" />
+                    Filter by Status
+                  </Label>
+                  <div className="relative">
+                    <ShieldCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
+                    <select
+                      id="statusFilter"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value as any)}
+                      className="w-full h-11 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="ACTIVE">Active</option>
+                      <option value="SUSPENDED">Suspended</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </div>
 
               <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-gray-600">
                   Showing <span className="font-semibold text-gray-900">{paginatedUsers.length}</span> of{' '}
                   <span className="font-semibold text-gray-900">{filteredUsers.length}</span> users
                 </span>
-                {searchQuery && (
+                {(searchQuery || roleFilter !== 'all' || statusFilter !== 'all') && (
                   <button
-                    onClick={() => setSearchQuery('')}
-                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                    onClick={() => { setSearchQuery(''); setRoleFilter('all'); setStatusFilter('all'); }}
+                    className="text-[#1a5d1a] hover:text-[#145214] font-medium flex items-center gap-1"
                   >
-                    Clear search
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    Clear Filters
+                    <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
             </CardContent>
+            )}
           </Card>
-        </motion.div>
 
-        {/* Users List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          <Card className="bg-white shadow-lg border border-gray-200 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+          {/* Users List */}
+          <Card className="bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 bg-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-gray-900 text-xl flex items-center gap-2">
+                  <CardTitle className="text-gray-900 text-base md:text-lg flex items-center gap-2">
                     {roleFilter === 'all' ? (
                       <><Users className="w-5 h-5" /> All Users</>
                     ) : roleFilter === 'student' ? (
@@ -428,84 +613,84 @@ export default function ManageUsersPage() {
                     ) : (
                       <><UserCheck className="w-5 h-5" /> Supervisors</>
                     )}
-                    <span className="ml-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                    <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
                       {filteredUsers.length}
                     </span>
                   </CardTitle>
-                  <CardDescription className="mt-1">
-                    Users registered in {campusName || 'N/A'} Campus
+                  <CardDescription className="mt-1 text-sm">
+                    Users in {campusName || 'N/A'} Campus
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
               {filteredUsers.length === 0 ? (
-                <div className="text-center py-16 text-gray-500">
-                  <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <p className="text-lg font-medium text-gray-700">No users found</p>
-                  <p className="text-sm mt-2">Try adjusting your search or filter criteria</p>
+                <div className="text-center py-12 text-gray-500">
+                  <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <p className="text-base font-medium text-gray-700">No users found</p>
+                  <p className="text-sm mt-1">Try adjusting your search</p>
                 </div>
               ) : (
                 <>
                   {/* Table for larger screens */}
                   <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-gray-50 border-b-2 border-gray-200">
+                      <thead className="bg-gray-50 border-b border-gray-100">
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             User
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Role
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Details
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-white divide-y divide-gray-100">
                         {paginatedUsers.map((u, index) => (
                           <motion.tr
                             key={u.userId}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
+                            transition={{ delay: index * 0.03 }}
                             className="hover:bg-gray-50 transition-colors duration-150"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div
-                                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
+                                  className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
                                     u.role === 'student'
-                                      ? 'bg-gradient-to-br from-blue-500 to-blue-600'
-                                      : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                      ? 'bg-[#2d7a2d]'
+                                      : 'bg-[#64748b]'
                                   }`}
                                 >
                                   {u.name.charAt(0).toUpperCase()}
                                 </div>
-                                <div className="ml-4">
+                                <div className="ml-3">
                                   <div className="text-sm font-semibold text-gray-900">{u.name}</div>
                                   <div className="text-xs text-gray-500">
-                                    Joined {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                    {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                                   </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
-                                className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg ${
                                   u.role === 'student'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-purple-100 text-purple-800'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-slate-100 text-slate-800'
                                 }`}
                               >
                                 {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
@@ -518,7 +703,7 @@ export default function ManageUsersPage() {
                               {u.role === 'student' && u.student && (
                                 <div className="text-sm">
                                   <span className="text-gray-600">Roll: </span>
-                                  <span className="font-mono text-blue-600 font-semibold">{u.student.rollNumber}</span>
+                                  <span className="font-mono text-[#1a5d1a] font-semibold">{u.student.rollNumber}</span>
                                 </div>
                               )}
                               {u.role === 'supervisor' && u.supervisor && (
@@ -531,26 +716,37 @@ export default function ManageUsersPage() {
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
-                              </span>
+                              {getStatusBadge(u.status)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <div className="flex items-center justify-end gap-2">
+                              <div className="flex items-center justify-end gap-1">
                                 <button
-                                  className="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="View Details"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                <button
-                                  className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                  onClick={() => handleEditClick(u)}
+                                  className="text-gray-600 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition-colors"
                                   title="Edit User"
                                 >
                                   <Edit className="w-4 h-4" />
                                 </button>
+                                {(u.status || 'ACTIVE') === 'ACTIVE' ? (
+                                  <button
+                                    onClick={() => handleActionClick(u, 'suspend')}
+                                    className="text-gray-600 hover:text-[#1a5d1a] p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                    title="Suspend User"
+                                  >
+                                    <UserX className="w-4 h-4" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleActionClick(u, 'activate')}
+                                    className="text-gray-600 hover:text-green-600 p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                    title="Activate User"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  </button>
+                                )}
                                 <button
-                                  className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                  onClick={() => handleActionClick(u, 'delete')}
+                                  className="text-gray-600 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors"
                                   title="Delete User"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -564,49 +760,78 @@ export default function ManageUsersPage() {
                   </div>
 
                   {/* Card layout for mobile */}
-                  <div className="md:hidden divide-y divide-gray-200">
+                  <div className="md:hidden divide-y divide-gray-100">
                     {paginatedUsers.map((u, index) => (
                       <motion.div
                         key={u.userId}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
+                        transition={{ delay: index * 0.03 }}
                         className="p-4 hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <div
-                              className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold ${
                                 u.role === 'student'
-                                  ? 'bg-gradient-to-br from-blue-500 to-blue-600'
-                                  : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                  ? 'bg-[#2d7a2d]'
+                                  : 'bg-[#64748b]'
                               }`}
                             >
                               {u.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900">{u.name}</h3>
-                              <span
-                                className={`px-2 py-0.5 inline-flex text-xs font-semibold rounded-full ${
-                                  u.role === 'student'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-purple-100 text-purple-800'
-                                }`}
-                              >
-                                {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2 py-0.5 inline-flex text-xs font-semibold rounded-lg ${
+                                    u.role === 'student'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-slate-100 text-slate-800'
+                                  }`}
+                                >
+                                  {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                                </span>
+                                {getStatusBadge(u.status)}
+                              </div>
                             </div>
                           </div>
-                          <button className="text-gray-400 hover:text-gray-600">
-                            <MoreVertical className="w-5 h-5" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleEditClick(u)}
+                              className="text-gray-500 hover:text-blue-600 p-1.5 hover:bg-blue-50 rounded-lg"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {(u.status || 'ACTIVE') === 'ACTIVE' ? (
+                              <button
+                                onClick={() => handleActionClick(u, 'suspend')}
+                                className="text-gray-500 hover:text-[#1a5d1a] p-1.5 hover:bg-green-50 rounded-lg"
+                              >
+                                <UserX className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleActionClick(u, 'activate')}
+                                className="text-gray-500 hover:text-green-600 p-1.5 hover:bg-green-50 rounded-lg"
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleActionClick(u, 'delete')}
+                              className="text-gray-500 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-1 text-sm">
                           <p className="text-gray-600">{u.email}</p>
                           {u.role === 'student' && u.student && (
                             <p>
                               <span className="text-gray-600">Roll: </span>
-                              <span className="font-mono text-blue-600 font-semibold">{u.student.rollNumber}</span>
+                              <span className="font-mono text-[#1a5d1a] font-semibold">{u.student.rollNumber}</span>
                             </p>
                           )}
                           {u.role === 'supervisor' && u.supervisor && (
@@ -622,11 +847,11 @@ export default function ManageUsersPage() {
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div className="bg-gray-50 px-4 md:px-6 py-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-3">
                       <div className="text-sm text-gray-700">
                         Showing <span className="font-semibold">{startIndex + 1}</span> to{' '}
                         <span className="font-semibold">{Math.min(endIndex, filteredUsers.length)}</span> of{' '}
-                        <span className="font-semibold">{filteredUsers.length}</span> results
+                        <span className="font-semibold">{filteredUsers.length}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
@@ -634,19 +859,19 @@ export default function ManageUsersPage() {
                           size="sm"
                           onClick={() => setCurrentPage(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="h-9"
+                          className="h-9 rounded-xl"
                         >
                           <ChevronLeft className="w-4 h-4" />
-                          Previous
+                          <span className="hidden sm:inline ml-1">Previous</span>
                         </Button>
                         <div className="flex items-center gap-1">
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((page) => (
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                              className={`w-9 h-9 rounded-xl text-sm font-medium transition-colors ${
                                 currentPage === page
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-[#1a5d1a] text-white'
                                   : 'text-gray-700 hover:bg-gray-100'
                               }`}
                             >
@@ -659,9 +884,9 @@ export default function ManageUsersPage() {
                           size="sm"
                           onClick={() => setCurrentPage(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className="h-9"
+                          className="h-9 rounded-xl"
                         >
-                          Next
+                          <span className="hidden sm:inline mr-1">Next</span>
                           <ChevronRight className="w-4 h-4" />
                         </Button>
                       </div>
@@ -671,8 +896,224 @@ export default function ManageUsersPage() {
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </main>
       </div>
+
+      {/* Edit User Modal */}
+      <AnimatePresence>
+        {showEditModal && selectedUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => setShowEditModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5 bg-[#1a5d1a] flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Edit className="w-5 h-5" /> Edit User
+                </h3>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {actionError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    {actionError}
+                  </div>
+                )}
+                {actionSuccess && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    {actionSuccess}
+                  </div>
+                )}
+
+                <div>
+                  <Label htmlFor="editName" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Users className="w-4 h-4" /> Name
+                  </Label>
+                  <Input
+                    id="editName"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="mt-1.5 h-11 rounded-xl"
+                    placeholder="Enter name"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="editEmail" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Mail className="w-4 h-4" /> Email
+                  </Label>
+                  <Input
+                    id="editEmail"
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="mt-1.5 h-11 rounded-xl"
+                    placeholder="Enter email"
+                  />
+                </div>
+
+                {selectedUser.role === 'student' && (
+                  <div>
+                    <Label htmlFor="editRollNumber" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" /> Roll Number
+                    </Label>
+                    <Input
+                      id="editRollNumber"
+                      value={editRollNumber}
+                      onChange={(e) => setEditRollNumber(e.target.value)}
+                      className="mt-1.5 h-11 rounded-xl font-mono"
+                      placeholder="Enter roll number"
+                    />
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setShowEditModal(false)}
+                    variant="outline"
+                    className="flex-1 h-11 rounded-xl"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleEditSubmit}
+                    disabled={actionLoading}
+                    className="flex-1 h-11 rounded-xl bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="w-4 h-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Action Confirmation Modal */}
+      <AnimatePresence>
+        {showActionModal && selectedUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => setShowActionModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={`p-5 flex items-center justify-between ${
+                actionType === 'delete' ? 'bg-red-600' : 'bg-[#1a5d1a]'
+              }`}>
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" />
+                  {actionType === 'delete' ? 'Delete User' :
+                   actionType === 'suspend' ? 'Suspend User' : 'Activate User'}
+                </h3>
+                <button
+                  onClick={() => setShowActionModal(false)}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                {actionError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    {actionError}
+                  </div>
+                )}
+                {actionSuccess && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    {actionSuccess}
+                  </div>
+                )}
+
+                <p className="text-gray-600 mb-4">
+                  {actionType === 'delete' 
+                    ? `Are you sure you want to permanently delete ${selectedUser.name}? This action cannot be undone.`
+                    : actionType === 'suspend'
+                    ? `Are you sure you want to suspend ${selectedUser.name}? They will not be able to log in.`
+                    : `Are you sure you want to activate ${selectedUser.name}? They will be able to log in again.`
+                  }
+                </p>
+
+                <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold ${
+                      selectedUser.role === 'student' ? 'bg-[#2d7a2d]' : 'bg-[#64748b]'
+                    }`}>
+                      {selectedUser.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{selectedUser.name}</p>
+                      <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                      <p className="text-sm text-gray-500 capitalize">Role: {selectedUser.role}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setShowActionModal(false)}
+                    variant="outline"
+                    className="flex-1 h-11 rounded-xl"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleActionSubmit}
+                    disabled={actionLoading}
+                    className={`flex-1 h-11 rounded-xl text-white ${
+                      actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#1a5d1a] hover:bg-[#145214]'
+                    }`}
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : actionType === 'delete' ? (
+                      <Trash2 className="w-4 h-4 mr-2" />
+                    ) : actionType === 'suspend' ? (
+                      <UserX className="w-4 h-4 mr-2" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                    )}
+                    {actionType === 'delete' ? 'Delete' : actionType === 'suspend' ? 'Suspend' : 'Activate'}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -15,6 +15,9 @@ import {
   MessageCircle, Trash2, Check, MoreVertical
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import dynamic from 'next/dynamic';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
 interface Notification {
   id: number;
@@ -266,79 +269,12 @@ export default function StudentNotificationsPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex">
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-56 bg-white flex flex-col fixed h-full z-20 shadow-sm"
-      >
-        <div className="p-5 pb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900">Projectify</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 px-3">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
-          <div className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="px-3 pb-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
-          <div className="space-y-1">
-            {bottomSidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut className="w-[18px] h-[18px]" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </motion.aside>
+      <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
-      <div className="flex-1 ml-56">
-        {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        {/* Header - Hidden on mobile since StudentSidebar has mobile header */}
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">

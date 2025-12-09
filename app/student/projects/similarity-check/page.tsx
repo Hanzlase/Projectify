@@ -6,6 +6,10 @@ import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import NotificationBell from '@/components/NotificationBell';
+import dynamic from 'next/dynamic';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+
 import {
   ArrowLeft,
   CheckCircle2,
@@ -217,83 +221,15 @@ export default function SimilarityCheckPage() {
       </div>
 
       {/* Sidebar */}
-      <div className="w-72 bg-white border-r border-gray-200 flex flex-col fixed h-full z-20">
-        {/* Logo */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-xl font-bold text-gray-900">Projectify</span>
-              <p className="text-xs text-gray-500">Student Portal</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => router.push(item.href)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                item.active
-                  ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/20'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* User Profile Section */}
-        <div className="p-4 border-t border-gray-100">
-          <button
-            onClick={() => router.push('/student/profile')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all"
-          >
-            <Settings className="w-5 h-5" />
-            Settings
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
-          >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
-        </div>
-
-        {/* User Card */}
-        <div className="p-4 border-t border-gray-100">
-          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-full flex items-center justify-center overflow-hidden">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-white font-medium">
-                  {session?.user?.name?.charAt(0) || 'S'}
-                </span>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name}</p>
-              <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
-      <div className="flex-1 ml-72">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-          <div className="px-8 py-4">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+          <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={handleGoBack}
                   className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
@@ -301,11 +237,11 @@ export default function SimilarityCheckPage() {
                   <ArrowLeft className="w-5 h-5 text-gray-600" />
                 </button>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Similarity Check</h1>
-                  <p className="text-sm text-gray-500">Review your project's uniqueness</p>
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900">Similarity Check</h1>
+                  <p className="text-xs md:text-sm text-gray-500">Review your project's uniqueness</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="hidden md:flex items-center gap-4">
                 <NotificationBell />
                 <button
                   onClick={() => router.push('/student/profile')}
@@ -325,13 +261,13 @@ export default function SimilarityCheckPage() {
         </div>
 
         {/* Content */}
-        <div className="p-8 max-w-4xl mx-auto">
+        <div className="p-4 md:p-8 max-w-4xl mx-auto">
           {/* Status Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className={`bg-white rounded-2xl p-8 mb-6 shadow-sm border ${
+            className={`bg-white rounded-2xl p-6 sm:p-8 mb-6 shadow-sm border ${
               result.isUnique 
                 ? 'border-[#1a5d1a]/20' 
                 : 'border-amber-200'
@@ -356,7 +292,7 @@ export default function SimilarityCheckPage() {
               </div>
               
               {/* Title */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 {result.isUnique ? 'Project is Unique!' : 'Similar Projects Found'}
               </h1>
               
@@ -370,9 +306,9 @@ export default function SimilarityCheckPage() {
 
               {/* Info Badge for non-unique */}
               {!result.isUnique && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-full">
-                  <Info className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm text-amber-700 font-medium">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-amber-50 border border-amber-200 rounded-full text-center">
+                  <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span className="text-xs sm:text-sm text-amber-700 font-medium">
                     Projects must be at least 50% unique to be automatically approved
                   </span>
                 </div>
@@ -385,9 +321,9 @@ export default function SimilarityCheckPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6"
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6"
           >
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
@@ -467,14 +403,14 @@ export default function SimilarityCheckPage() {
                     className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
                   >
                     <div 
-                      className="p-5 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                      className="p-4 sm:p-5 cursor-pointer hover:bg-gray-50/50 transition-colors"
                       onClick={() => setExpandedProject(expandedProject === project.projectId ? null : project.projectId)}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-gray-900">{project.title}</h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <h3 className="font-semibold text-gray-900 break-words">{project.title}</h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap self-start ${
                               project.similarityScore >= 0.5 
                                 ? 'bg-red-100 text-red-700'
                                 : 'bg-[#1a5d1a]/10 text-[#1a5d1a]'
@@ -484,7 +420,7 @@ export default function SimilarityCheckPage() {
                           </div>
                           <p className="text-sm text-gray-500 line-clamp-2">{project.description}</p>
                         </div>
-                        <button className="ml-4 p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <button className="ml-2 sm:ml-4 p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
                           {expandedProject === project.projectId ? (
                             <ChevronUp className="w-5 h-5 text-gray-400" />
                           ) : (
@@ -550,9 +486,9 @@ export default function SimilarityCheckPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6"
+              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6"
             >
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
                   <Lightbulb className="w-5 h-5 text-white" />
                 </div>
@@ -609,11 +545,11 @@ export default function SimilarityCheckPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex justify-end gap-3 pt-4"
+            className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4"
           >
             <button
               onClick={handleGoBack}
-              className="px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
+              className="px-4 sm:px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors text-center"
             >
               {result.isUnique ? 'Cancel' : 'Go Back'}
             </button>
@@ -622,7 +558,7 @@ export default function SimilarityCheckPage() {
               <button
                 onClick={handleSubmitAnyway}
                 disabled={submitting}
-                className="px-6 py-2.5 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] hover:from-[#155115] hover:to-[#256d25] text-white rounded-xl font-medium transition-all shadow-lg shadow-[#1a5d1a]/25 disabled:opacity-50 flex items-center gap-2"
+                className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] hover:from-[#155115] hover:to-[#256d25] text-white rounded-xl font-medium transition-all shadow-lg shadow-[#1a5d1a]/25 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>

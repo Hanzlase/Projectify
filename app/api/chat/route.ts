@@ -104,8 +104,110 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
+    // Get group conversations for this user
+    const groupChats = await (prisma as any).groupChat.findMany({
+      include: {
+        group: {
+          include: {
+            students: {
+              include: {
+                user: {
+                  select: {
+                    userId: true,
+                    name: true,
+                    email: true,
+                    profileImage: true,
+                    role: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Filter group chats where user is a participant
+    const userGroupConversationIds = groupChats
+      .filter((gc: any) => {
+        const memberUserIds = gc.group.students.map((s: any) => s.user.userId);
+        const supervisorId = gc.group.supervisorId;
+        return memberUserIds.includes(userId) || supervisorId === userId;
+      })
+      .map((gc: any) => gc.conversationId);
+
+    // Get group conversation details
+    const groupConversations = await (prisma as any).conversation.findMany({
+      where: {
+        conversationId: { in: userGroupConversationIds }
+      },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    // Build group conversation details
+    const groupConversationsWithDetails = await Promise.all(
+      groupConversations.map(async (conv: any) => {
+        const groupChat = groupChats.find((gc: any) => gc.conversationId === conv.conversationId);
+        if (!groupChat) return null;
+
+        const group = groupChat.group;
+        
+        // Get supervisor info if assigned
+        let supervisor = null;
+        if (group.supervisorId) {
+          supervisor = await prisma.user.findUnique({
+            where: { userId: group.supervisorId },
+            select: {
+              userId: true,
+              name: true,
+              email: true,
+              profileImage: true,
+              role: true,
+            }
+          });
+        }
+
+        // Count unread messages
+        const unreadCount = await (prisma as any).message.count({
+          where: {
+            conversationId: conv.conversationId,
+            senderId: { not: userId },
+            isRead: false
+          }
+        });
+
+        return {
+          conversationId: conv.conversationId,
+          isGroup: true,
+          groupId: group.groupId,
+          groupName: group.groupName,
+          members: group.students.map((s: any) => s.user),
+          supervisor,
+          lastMessage: conv.messages[0] || null,
+          unreadCount,
+          updatedAt: conv.updatedAt
+        };
+      })
+    );
+
+    const validGroupConversations = groupConversationsWithDetails.filter(Boolean);
+
+    // Get pinned conversation IDs
+    const pinnedConversations = await (prisma as any).pinnedConversation.findMany({
+      where: { userId },
+      select: { conversationId: true }
+    });
+    const pinnedIds = pinnedConversations.map((p: any) => p.conversationId);
+
     return NextResponse.json({
-      conversations: uniqueConversations
+      conversations: uniqueConversations,
+      groupConversations: validGroupConversations,
+      pinnedIds
     });
   } catch (error) {
     console.error('Error fetching conversations:', error);

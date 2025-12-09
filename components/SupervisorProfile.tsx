@@ -253,7 +253,7 @@ export default function SupervisorProfile() {
 
   if (!profile) return null;
 
-  const availableSlots = (profile.maxGroups || 3) - (profile.totalGroups || 0);
+  const availableSlots = (profile.maxGroups || 7) - (profile.totalGroups || 0);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex">
@@ -419,7 +419,7 @@ export default function SupervisorProfile() {
                       </div>
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>Total Groups: {profile.totalGroups || 0}</span>
-                        <span>Max: {profile.maxGroups || 3}</span>
+                        <span>Max: {profile.maxGroups || 7}</span>
                       </div>
                     </div>
                   </div>

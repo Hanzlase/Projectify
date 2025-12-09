@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Loader2, AlertCircle, Mail, Lock, Eye, EyeOff, User, Briefcase, Hash, TrendingUp, Users, Clock, FolderKanban } from 'lucide-react';
+import { GraduationCap, Loader2, AlertCircle, Mail, Lock, Eye, EyeOff, User, Briefcase, Hash, TrendingUp, Users, FolderKanban, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 type LoginMode = 'student' | 'staff';
@@ -69,6 +69,13 @@ export default function LoginPage() {
         return;
       }
 
+      // Check if user is suspended after successful login
+      const session = await getSession();
+      if (session?.user?.status === 'SUSPENDED' || session?.user?.role === 'suspended') {
+        router.push('/suspended');
+        return;
+      }
+
       router.push(callbackUrl);
       router.refresh();
     } catch (err) {
@@ -80,33 +87,31 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-12 bg-white">
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2"
-        >
-          <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-            <GraduationCap className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-lg font-bold text-gray-900">Projectify</span>
-        </motion.div>
-
+      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white">
         {/* Form Container */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto">
+          {/* Logo & Welcome */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">Projectify</span>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p className="text-gray-500">Enter your credentials to access your account</p>
+          </motion.div>
+
+          {/* Login Mode Tabs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="w-full max-w-md"
           >
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-              <p className="text-gray-500">Enter your credentials to access your account</p>
-            </div>
-
-            {/* Login Mode Tabs */}
             <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
               <button
                 type="button"
@@ -232,120 +237,118 @@ export default function LoginPage() {
               </Link>
             </p>
           </motion.div>
-        </div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center text-sm text-gray-400"
-        >
-          © {new Date().getFullYear()} Projectify. All rights reserved.
-        </motion.div>
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-center text-sm text-gray-400 mt-8"
+          >
+            © {new Date().getFullYear()} Projectify. All rights reserved.
+          </motion.div>
+        </div>
       </div>
 
       {/* Right Side - Showcase */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#1a5d1a] p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1a5d1a] via-[#2d7a2d] to-[#1a5d1a] p-8 xl:p-12 flex-col justify-center relative overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
+          {/* Grid pattern */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }} />
         </div>
 
         {/* Content */}
-        <div className="relative z-10">
+        <div className="relative z-10 max-w-lg mx-auto">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="mb-8"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl xl:text-3xl font-bold text-white mb-3">
               Your Final Year Project Journey Starts Here
             </h2>
-            <p className="text-white/70 text-lg">
-              A complete FYP management system for students, supervisors, and coordinators to collaborate and track progress seamlessly.
+            <p className="text-white/70 text-sm xl:text-base">
+              A complete FYP management system for students, supervisors, and coordinators.
             </p>
           </motion.div>
+
+          {/* Animated Graph/Chart Visualization */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold text-sm">Project Progress Overview</h3>
+              <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full">Live Stats</span>
+            </div>
+            
+            {/* Animated Bar Chart */}
+            <div className="flex items-end justify-between gap-2 h-28 mb-3">
+              {[65, 80, 45, 90, 55, 75, 85].map((height, i) => (
+                <motion.div
+                  key={i}
+                  className="flex-1 bg-gradient-to-t from-white/40 to-white/20 rounded-t-lg relative group cursor-pointer"
+                  initial={{ height: 0 }}
+                  animate={{ height: `${height}%` }}
+                  transition={{ delay: 0.5 + i * 0.1, duration: 0.5, ease: "easeOut" }}
+                >
+                  <motion.div 
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-white/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                  >
+                    {height}%
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-white/50">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </motion.div>
+
+          {/* Feature Cards - Compact */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-2 gap-3 mb-6"
+          >
+            {[
+              { icon: FolderKanban, title: 'Projects', desc: 'Manage & track' },
+              { icon: Users, title: 'Teams', desc: 'Collaborate' },
+              { icon: TrendingUp, title: 'Progress', desc: 'Real-time stats' },
+              { icon: CheckCircle2, title: 'Tasks', desc: 'Stay organized' },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.1 }}
+                className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/15 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <item.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-medium text-sm">{item.title}</h3>
+                    <p className="text-white/50 text-xs">{item.desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-
-        {/* FYP Features Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="relative z-10 flex-1 flex items-center justify-center py-8"
-        >
-          <div className="w-full max-w-lg space-y-4">
-            {/* Feature Cards */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <FolderKanban className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg">Project Management</h3>
-                  <p className="text-white/60 text-sm">Submit proposals, upload documents, track milestones</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg">Team Collaboration</h3>
-                  <p className="text-white/60 text-sm">Form groups, find supervisors, communicate in real-time</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg">Progress Tracking</h3>
-                  <p className="text-white/60 text-sm">Monitor deadlines, view analytics, stay on schedule</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg">Academic Excellence</h3>
-                  <p className="text-white/60 text-sm">Get feedback, improve quality, achieve success</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Bottom Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="relative z-10 grid grid-cols-3 gap-4"
-        >
-          {[
-            { value: '500+', label: 'Students' },
-            { value: '200+', label: 'Projects' },
-            { value: '50+', label: 'Supervisors' },
-          ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
-              <p className="text-sm text-white/60">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </div>
   );

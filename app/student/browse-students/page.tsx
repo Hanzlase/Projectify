@@ -11,9 +11,11 @@ import {
   User, ArrowLeft, Loader2, Search, X, ChevronRight,
   Users, GraduationCap, Filter, SlidersHorizontal, UserPlus,
   Mail, MessageCircle, Sparkles, Target, Code, Calendar,
-  CheckCircle2, XCircle, Grid3X3, List, Eye, Heart
+  CheckCircle2, XCircle, Grid3X3, List, Eye
 } from 'lucide-react';
-import CanvasParticles from '@/components/CanvasParticles';
+import dynamic from 'next/dynamic';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
 interface FellowStudent {
   id: number;
@@ -126,259 +128,289 @@ export default function BrowseStudentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-teal-200 rounded-full animate-pulse"></div>
-            <Loader2 className="w-8 h-8 text-teal-600 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="text-slate-600 font-medium">Finding students...</p>
+      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
         </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative flex flex-col items-center gap-8"
+        >
+          <div className="relative">
+            <motion.div
+              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-[#1a5d1a]/20"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div 
+              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
+              animate={{ scale: [1, 0.95, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <GraduationCap className="w-10 h-10 text-[#1a5d1a]" />
+            </motion.div>
+          </div>
+          <div className="text-center">
+            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
+            <motion.p className="text-gray-500">Finding students...</motion.p>
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full"
+                animate={{ y: [-4, 4, -4], opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
-      {/* Background Particles */}
-      <CanvasParticles />
+    <div className="min-h-screen bg-[#f5f5f7] flex">
+      {/* Sidebar */}
+      <StudentSidebar />
       
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.015]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(0,0,0,0.2) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
+      {/* Main Content */}
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        {/* Page Header - Hidden on mobile */}
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Browse Students</h1>
+              <p className="text-xs text-gray-500">Find teammates for your FYP</p>
+            </div>
+          </div>
+        </header>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10 max-w-6xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/student/dashboard')}
-              className="border-2 border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-all group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Dashboard
-            </Button>
+        <main className="p-4 sm:p-6">
+          {/* Hero Section */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <Users className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold">Browse Students</h1>
+                    <p className="text-white/80">Find teammates and form your FYP group</p>
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-2">
+                {/* Quick Stats */}
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                    <Users className="w-4 h-4" />
+                    <span className="font-semibold">{stats.total}</span>
+                    <span className="text-white/80 text-sm">Total</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/30 backdrop-blur-sm rounded-xl">
+                    <Target className="w-4 h-4" />
+                    <span className="font-semibold">{stats.noGroup}</span>
+                    <span className="text-white/80 text-sm">Available</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/30 backdrop-blur-sm rounded-xl">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="font-semibold">{stats.hasGroup}</span>
+                    <span className="text-white/80 text-sm">In Groups</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Search & Filters Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6 space-y-4"
+          >
+            {/* Main Search Bar */}
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  placeholder="Search by name, roll number, skills, interests..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-gray-200 focus:border-[#1a5d1a] bg-white rounded-xl shadow-sm"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`h-12 sm:h-14 px-4 sm:px-5 border-2 transition-all ${
+                  showFilters || hasActiveFilters
+                    ? 'border-[#1a5d1a] bg-[#d1e7d1] text-[#1a5d1a]' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <SlidersHorizontal className="w-5 h-5 sm:mr-2" />
+                <span className="hidden sm:inline">Filters</span>
+                {hasActiveFilters && (
+                  <span className="ml-2 w-5 h-5 bg-[#1a5d1a] text-white text-xs rounded-full flex items-center justify-center">
+                    !
+                  </span>
+                )}
+              </Button>
+            </div>
+
+            {/* Quick Filter Pills */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveFilter('all')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeFilter === 'all'
+                    ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
+                    : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-[#1a5d1a] hover:text-[#1a5d1a]'
+                }`}
+              >
+                All Students
+              </button>
+              <button
+                onClick={() => setActiveFilter('no-group')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                  activeFilter === 'no-group'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
+                    : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-600'
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                Looking for Group
+              </button>
+              <button
+                onClick={() => setActiveFilter('has-group')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                  activeFilter === 'has-group'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+                    : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                }`}
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                In a Group
+              </button>
+            </div>
+
+            {/* Advanced Filters Panel */}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <Card className="border-2 border-gray-200 bg-white shadow-sm">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                          <Filter className="w-4 h-4 text-[#1a5d1a]" />
+                          Advanced Filters
+                        </h3>
+                        {hasActiveFilters && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearFilters}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Clear All
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Batch Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-500" />
+                            Batch
+                          </label>
+                          <select
+                            value={selectedBatch}
+                            onChange={(e) => setSelectedBatch(e.target.value)}
+                            className="w-full h-11 px-3 border-2 border-gray-200 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white text-gray-700"
+                          >
+                            {uniqueBatches.map(batch => (
+                              <option key={batch} value={batch}>
+                                {batch === 'all' ? 'All Batches' : `Batch ${batch}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Skills Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Code className="w-4 h-4 text-gray-500" />
+                            Skills
+                          </label>
+                          <select
+                            value={selectedSkill}
+                            onChange={(e) => setSelectedSkill(e.target.value)}
+                            className="w-full h-11 px-3 border-2 border-gray-200 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white text-gray-700"
+                          >
+                            {uniqueSkills.slice(0, 20).map(skill => (
+                              <option key={skill} value={skill}>
+                                {skill === 'all' ? 'All Skills' : skill}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Results Count */}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                Showing <span className="font-semibold text-gray-700">{filteredStudents.length}</span> of {students.length} students
+              </p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                className="border-2 border-slate-200 hover:border-slate-300"
+                className="border-2 border-gray-200 hover:border-gray-300"
               >
                 {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
               </Button>
             </div>
-          </div>
-
-          {/* Hero Section */}
-          <div className="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold">Browse Students</h1>
-                  <p className="text-white/80">Find teammates and form your FYP group</p>
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="flex flex-wrap gap-3 mt-6">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                  <Users className="w-4 h-4" />
-                  <span className="font-semibold">{stats.total}</span>
-                  <span className="text-white/80 text-sm">Total</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/30 backdrop-blur-sm rounded-xl">
-                  <Target className="w-4 h-4" />
-                  <span className="font-semibold">{stats.noGroup}</span>
-                  <span className="text-white/80 text-sm">Available</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/30 backdrop-blur-sm rounded-xl">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="font-semibold">{stats.hasGroup}</span>
-                  <span className="text-white/80 text-sm">In Groups</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Search & Filters Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6 space-y-4"
-        >
-          {/* Main Search Bar */}
-          <div className="flex gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Search by name, roll number, skills, interests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 h-14 text-base border-2 border-slate-200 focus:border-teal-500 bg-white rounded-xl shadow-sm"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`h-14 px-5 border-2 transition-all ${
-                showFilters || hasActiveFilters
-                  ? 'border-teal-500 bg-teal-50 text-teal-700' 
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <SlidersHorizontal className="w-5 h-5 mr-2" />
-              Filters
-              {hasActiveFilters && (
-                <span className="ml-2 w-5 h-5 bg-teal-600 text-white text-xs rounded-full flex items-center justify-center">
-                  !
-                </span>
-              )}
-            </Button>
-          </div>
-
-          {/* Quick Filter Pills */}
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveFilter('all')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeFilter === 'all'
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/25'
-                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600'
-              }`}
-            >
-              All Students
-            </button>
-            <button
-              onClick={() => setActiveFilter('no-group')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                activeFilter === 'no-group'
-                  ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
-                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-amber-300 hover:text-amber-600'
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Looking for Group
-            </button>
-            <button
-              onClick={() => setActiveFilter('has-group')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                activeFilter === 'has-group'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600'
-              }`}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              In a Group
-            </button>
-          </div>
-
-          {/* Advanced Filters Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <Card className="border-2 border-slate-200 bg-white shadow-sm">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-teal-600" />
-                        Advanced Filters
-                      </h3>
-                      {hasActiveFilters && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearFilters}
-                          className="text-slate-500 hover:text-slate-700"
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Clear All
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Batch Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-slate-500" />
-                          Batch
-                        </label>
-                        <select
-                          value={selectedBatch}
-                          onChange={(e) => setSelectedBatch(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none bg-white text-slate-700"
-                        >
-                          {uniqueBatches.map(batch => (
-                            <option key={batch} value={batch}>
-                              {batch === 'all' ? 'All Batches' : `Batch ${batch}`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Skills Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                          <Code className="w-4 h-4 text-slate-500" />
-                          Skills
-                        </label>
-                        <select
-                          value={selectedSkill}
-                          onChange={(e) => setSelectedSkill(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none bg-white text-slate-700"
-                        >
-                          {uniqueSkills.slice(0, 20).map(skill => (
-                            <option key={skill} value={skill}>
-                              {skill === 'all' ? 'All Skills' : skill}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Results Count */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">
-              Showing <span className="font-semibold text-slate-700">{filteredStudents.length}</span> of {students.length} students
-            </p>
-          </div>
-        </motion.div>
+          </motion.div>
 
         {/* Students Grid/List */}
         <motion.div
@@ -401,20 +433,13 @@ export default function BrowseStudentsPage() {
                   onMouseLeave={() => setHoveredStudent(null)}
                 >
                   {viewMode === 'grid' ? (
-                    /* Grid Card */
+                    /* Grid Card - Simplified */
                     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden group relative">
-                      {/* Status Indicator */}
-                      <div className={`absolute top-0 left-0 right-0 h-1 ${
-                        student.hasGroup 
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
-                          : 'bg-gradient-to-r from-amber-500 to-orange-500'
-                      }`}></div>
-
                       <CardContent className="p-5">
                         {/* Header with Avatar & Status */}
                         <div className="flex items-start gap-4 mb-4">
                           <div className="relative">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
                               {student.profileImage ? (
                                 <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover" />
                               ) : (
@@ -422,8 +447,8 @@ export default function BrowseStudentsPage() {
                               )}
                             </div>
                             {/* Online/Status indicator */}
-                            <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-3 border-white ${
-                              student.hasGroup ? 'bg-blue-500' : 'bg-amber-500'
+                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+                              student.hasGroup ? 'bg-[#1a5d1a]' : 'bg-amber-500'
                             }`}>
                               {!student.hasGroup && (
                                 <span className="absolute inset-0 bg-amber-500 rounded-full animate-ping opacity-50"></span>
@@ -432,7 +457,7 @@ export default function BrowseStudentsPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                            <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-[#1a5d1a] transition-colors">
                               {student.name}
                             </h3>
                             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -440,7 +465,7 @@ export default function BrowseStudentsPage() {
                               <span>{student.rollNumber}</span>
                             </div>
                             {student.batch && (
-                              <span className="text-xs text-slate-400">Batch 20{student.batch}</span>
+                              <span className="text-xs text-slate-400">Batch {student.batch}</span>
                             )}
                           </div>
                         </div>
@@ -448,7 +473,7 @@ export default function BrowseStudentsPage() {
                         {/* Status Badge */}
                         <div className="mb-4">
                           {student.hasGroup ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#d1e7d1] text-[#1a5d1a] text-xs font-semibold border border-[#1a5d1a]/20">
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               In a Group
                             </span>
@@ -460,36 +485,6 @@ export default function BrowseStudentsPage() {
                           )}
                         </div>
 
-                        {/* Skills Tags */}
-                        {student.skills && (
-                          <div className="mb-4">
-                            <div className="flex flex-wrap gap-1.5">
-                              {student.skills.split(',').slice(0, 3).map((skill, i) => (
-                                <span key={i} className="px-2.5 py-1 bg-teal-50 text-teal-700 text-xs rounded-lg border border-teal-100 font-medium">
-                                  {skill.trim()}
-                                </span>
-                              ))}
-                              {student.skills.split(',').length > 3 && (
-                                <span className="px-2.5 py-1 bg-slate-100 text-slate-500 text-xs rounded-lg font-medium">
-                                  +{student.skills.split(',').length - 3}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Interests Preview */}
-                        {student.interests && (
-                          <div className="mb-4">
-                            <p className="text-xs text-slate-400 mb-1.5 flex items-center gap-1">
-                              <Heart className="w-3 h-3" /> Interests
-                            </p>
-                            <p className="text-sm text-slate-600 line-clamp-1">
-                              {student.interests}
-                            </p>
-                          </div>
-                        )}
-
                         {/* Action Buttons */}
                         <div className="flex gap-2 pt-3 border-t border-slate-100">
                           <Button
@@ -499,7 +494,7 @@ export default function BrowseStudentsPage() {
                               e.stopPropagation();
                               router.push(`/student/view-profile/student/${student.userId}`);
                             }}
-                            className="flex-1 h-10 border-2 border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition-all"
+                            className="flex-1 h-10 border-2 border-slate-200 hover:border-[#1a5d1a]/30 hover:bg-[#e8f5e8] hover:text-[#1a5d1a] transition-all"
                           >
                             <Eye className="w-4 h-4 mr-1.5" />
                             View
@@ -510,7 +505,7 @@ export default function BrowseStudentsPage() {
                               e.stopPropagation();
                               router.push(`/student/chat?recipientId=${student.userId}`);
                             }}
-                            className="flex-1 h-10 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white shadow-lg shadow-teal-500/25 transition-all"
+                            className="flex-1 h-10 bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white shadow-lg shadow-[#1a5d1a]/25 transition-all"
                           >
                             <MessageCircle className="w-4 h-4 mr-1.5" />
                             Chat
@@ -519,7 +514,7 @@ export default function BrowseStudentsPage() {
                       </CardContent>
                     </Card>
                   ) : (
-                    /* List View */
+                    /* List View - Simplified */
                     <Card 
                       className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white overflow-hidden cursor-pointer group"
                       onClick={() => router.push(`/student/view-profile/student/${student.userId}`)}
@@ -528,7 +523,7 @@ export default function BrowseStudentsPage() {
                         <div className="flex items-center gap-4">
                           {/* Avatar */}
                           <div className="relative flex-shrink-0">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center text-white text-lg font-bold shadow-lg overflow-hidden">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-lg font-bold shadow-lg overflow-hidden">
                               {student.profileImage ? (
                                 <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover" />
                               ) : (
@@ -540,11 +535,11 @@ export default function BrowseStudentsPage() {
                           {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                              <h3 className="font-semibold text-slate-900 truncate group-hover:text-[#1a5d1a] transition-colors">
                                 {student.name}
                               </h3>
                               {student.hasGroup ? (
-                                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium flex-shrink-0">
+                                <span className="px-2 py-0.5 rounded-full bg-[#d1e7d1] text-[#1a5d1a] text-xs font-medium flex-shrink-0">
                                   In Group
                                 </span>
                               ) : (
@@ -554,25 +549,15 @@ export default function BrowseStudentsPage() {
                               )}
                             </div>
                             
-                            <div className="flex items-center gap-3 text-sm text-slate-500 mb-2">
+                            <div className="flex items-center gap-3 text-sm text-slate-500">
                               <span className="flex items-center gap-1">
                                 <GraduationCap className="w-3.5 h-3.5" />
                                 {student.rollNumber}
                               </span>
                               {student.batch && (
-                                <span>Batch 20{student.batch}</span>
+                                <span>Batch {student.batch}</span>
                               )}
                             </div>
-
-                            {student.skills && (
-                              <div className="flex flex-wrap gap-1">
-                                {student.skills.split(',').slice(0, 4).map((skill, i) => (
-                                  <span key={i} className="px-2 py-0.5 bg-teal-50 text-teal-600 text-xs rounded-full">
-                                    {skill.trim()}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
                           </div>
 
                           {/* Actions */}
@@ -584,11 +569,11 @@ export default function BrowseStudentsPage() {
                                 e.stopPropagation();
                                 router.push(`/student/chat?recipientId=${student.userId}`);
                               }}
-                              className="text-slate-500 hover:text-teal-600 hover:bg-teal-50"
+                              className="text-slate-500 hover:text-[#1a5d1a] hover:bg-[#e8f5e8]"
                             >
                               <MessageCircle className="w-5 h-5" />
                             </Button>
-                            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
+                            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all" />
                           </div>
                         </div>
                       </CardContent>
@@ -614,7 +599,7 @@ export default function BrowseStudentsPage() {
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="border-2 border-slate-200 hover:border-teal-300"
+                    className="border-2 border-slate-200 hover:border-[#1a5d1a]/30 hover:bg-[#e8f5e8] hover:text-[#1a5d1a]"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Clear All Filters
@@ -624,6 +609,7 @@ export default function BrowseStudentsPage() {
             </Card>
           )}
         </motion.div>
+        </main>
       </div>
     </div>
   );

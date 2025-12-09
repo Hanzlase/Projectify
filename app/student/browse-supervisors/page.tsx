@@ -8,13 +8,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
-  Users, ArrowLeft, Loader2, Search, X, ChevronRight,
+  Users, Loader2, Search, X, ChevronRight,
   Briefcase, CheckCircle2, XCircle, Mail, MessageCircle,
-  Filter, SlidersHorizontal, Award, BookOpen, Target,
-  Clock, AlertCircle, Eye, Star, TrendingUp, Layers,
-  Grid3X3, List, Sparkles, GraduationCap, UserCheck
+  Filter, SlidersHorizontal, Award, BookOpen,
+  Clock, AlertCircle, Eye, TrendingUp, Layers,
+  Grid3X3, List, GraduationCap
 } from 'lucide-react';
-import CanvasParticles from '@/components/CanvasParticles';
+import dynamic from 'next/dynamic';
+import LoadingScreen from '@/components/LoadingScreen';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
 interface Supervisor {
   id: number;
@@ -181,63 +184,25 @@ export default function BrowseSupervisorsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse"></div>
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="text-slate-600 font-medium">Finding supervisors...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Finding supervisors..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
-      {/* Background Particles */}
-      <CanvasParticles />
-      
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.015]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(0,0,0,0.2) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
+    <div className="min-h-screen bg-[#f5f5f7]">
+      {/* StudentSidebar */}
+      <StudentSidebar />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10 max-w-6xl">
+      {/* Main Content Area */}
+      <div className="md:ml-56 mt-14 md:mt-0">
+        <main className="p-4 sm:p-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="flex items-center justify-between mb-6">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/student/dashboard')}
-              className="border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Dashboard
-            </Button>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                className="border-2 border-slate-200 hover:border-slate-300"
-              >
-                {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
-              </Button>
-            </div>
-          </div>
-
           {/* Hero Section */}
-          <div className="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
+          <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
             
             <div className="relative z-10">
@@ -293,7 +258,7 @@ export default function BrowseSupervisorsPage() {
                 placeholder="Search by name, specialization, research domains, skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 h-14 text-base border-2 border-slate-200 focus:border-blue-500 bg-white rounded-xl shadow-sm"
+                className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-slate-200 focus:border-[#1a5d1a] bg-white rounded-xl shadow-sm"
               />
               {searchQuery && (
                 <button 
@@ -307,16 +272,16 @@ export default function BrowseSupervisorsPage() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-14 px-5 border-2 transition-all ${
+              className={`h-12 sm:h-14 px-5 border-2 transition-all ${
                 showFilters || hasActiveFilters
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                  ? 'border-[#1a5d1a] bg-[#e8f5e8] text-[#1a5d1a]' 
                   : 'border-slate-200 hover:border-slate-300'
               }`}
             >
               <SlidersHorizontal className="w-5 h-5 mr-2" />
               Filters
               {hasActiveFilters && (
-                <span className="ml-2 w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="ml-2 w-5 h-5 bg-[#1a5d1a] text-white text-xs rounded-full flex items-center justify-center">
                   !
                 </span>
               )}
@@ -329,8 +294,8 @@ export default function BrowseSupervisorsPage() {
               onClick={() => setAvailabilityFilter('all')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 availabilityFilter === 'all'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600'
+                  ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
+                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-[#1a5d1a]/30 hover:text-[#1a5d1a]'
               }`}
             >
               All Supervisors
@@ -383,7 +348,7 @@ export default function BrowseSupervisorsPage() {
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-blue-600" />
+                        <Filter className="w-4 h-4 text-[#1a5d1a]" />
                         Advanced Filters
                       </h3>
                       {hasActiveFilters && (
@@ -409,7 +374,7 @@ export default function BrowseSupervisorsPage() {
                         <select
                           value={selectedSpecialization}
                           onChange={(e) => setSelectedSpecialization(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none bg-white text-slate-700"
+                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white text-slate-700"
                         >
                           {uniqueSpecializations.map(spec => (
                             <option key={spec} value={spec}>
@@ -428,7 +393,7 @@ export default function BrowseSupervisorsPage() {
                         <select
                           value={selectedDomain}
                           onChange={(e) => setSelectedDomain(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none bg-white text-slate-700"
+                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white text-slate-700"
                         >
                           {uniqueDomains.slice(0, 20).map(domain => (
                             <option key={domain} value={domain}>
@@ -447,7 +412,7 @@ export default function BrowseSupervisorsPage() {
                         <select
                           value={sortBy}
                           onChange={(e) => setSortBy(e.target.value as 'name' | 'availability')}
-                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none bg-white text-slate-700"
+                          className="w-full h-11 px-3 border-2 border-slate-200 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white text-slate-700"
                         >
                           <option value="availability">Availability (Most First)</option>
                           <option value="name">Name (A-Z)</option>
@@ -465,6 +430,14 @@ export default function BrowseSupervisorsPage() {
             <p className="text-sm text-slate-500">
               Showing <span className="font-semibold text-slate-700">{filteredSupervisors.length}</span> of {supervisors.length} supervisors
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              className="border-2 border-gray-200 hover:border-gray-300"
+            >
+              {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
+            </Button>
           </div>
         </motion.div>
 
@@ -489,21 +462,12 @@ export default function BrowseSupervisorsPage() {
                   {viewMode === 'grid' ? (
                     /* Grid Card */
                     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden group relative">
-                      {/* Availability Status Bar */}
-                      <div className={`absolute top-0 left-0 right-0 h-1.5 ${
-                        getAvailabilityStatus(supervisor) === 'available' 
-                          ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' 
-                          : getAvailabilityStatus(supervisor) === 'limited'
-                          ? 'bg-gradient-to-r from-amber-400 to-amber-500'
-                          : 'bg-gradient-to-r from-red-400 to-red-500'
-                      }`}></div>
-
-                      <CardContent className="p-5 pt-6">
+                      <CardContent className="p-5">
                         {/* Header */}
                         <div className="flex items-start gap-4 mb-4">
                           {/* Avatar */}
                           <div className="relative flex-shrink-0">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
                               {supervisor.profileImage ? (
                                 <img src={supervisor.profileImage} alt={supervisor.name} className="w-full h-full object-cover" />
                               ) : (
@@ -522,11 +486,11 @@ export default function BrowseSupervisorsPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                            <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-[#1a5d1a] transition-colors">
                               {supervisor.name}
                             </h3>
                             {supervisor.specialization && (
-                              <p className="text-sm text-blue-600 font-medium truncate flex items-center gap-1.5">
+                              <p className="text-sm text-[#1a5d1a] font-medium truncate flex items-center gap-1.5">
                                 <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
                                 {supervisor.specialization}
                               </p>
@@ -568,7 +532,7 @@ export default function BrowseSupervisorsPage() {
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {supervisor.domains.split(',').slice(0, 3).map((domain, i) => (
-                                <span key={i} className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-100 font-medium">
+                                <span key={i} className="px-2.5 py-1 bg-[#e8f5e8] text-[#1a5d1a] text-xs rounded-lg border border-[#1a5d1a]/10 font-medium">
                                   {domain.trim()}
                                 </span>
                               ))}
@@ -589,7 +553,7 @@ export default function BrowseSupervisorsPage() {
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {supervisor.skills.split(',').slice(0, 3).map((skill, i) => (
-                                <span key={i} className="px-2.5 py-1 bg-teal-50 text-teal-700 text-xs rounded-lg border border-teal-100 font-medium">
+                                <span key={i} className="px-2.5 py-1 bg-[#d1e7d1] text-[#1a5d1a] text-xs rounded-lg border border-[#1a5d1a]/10 font-medium">
                                   {skill.trim()}
                                 </span>
                               ))}
@@ -606,7 +570,7 @@ export default function BrowseSupervisorsPage() {
                               e.stopPropagation();
                               router.push(`/student/view-profile/supervisor/${supervisor.userId}`);
                             }}
-                            className="flex-1 h-10 border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all"
+                            className="flex-1 h-10 border-2 border-slate-200 hover:border-[#1a5d1a]/30 hover:bg-[#e8f5e8] hover:text-[#1a5d1a] transition-all"
                           >
                             <Eye className="w-4 h-4 mr-1.5" />
                             Profile
@@ -621,7 +585,7 @@ export default function BrowseSupervisorsPage() {
                             className={`flex-1 h-10 transition-all ${
                               getAvailabilityStatus(supervisor) === 'full'
                                 ? 'bg-slate-300 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg shadow-blue-500/25'
+                                : 'bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white shadow-lg shadow-[#1a5d1a]/25'
                             }`}
                           >
                             <MessageCircle className="w-4 h-4 mr-1.5" />
@@ -640,7 +604,7 @@ export default function BrowseSupervisorsPage() {
                         <div className="flex items-center gap-4">
                           {/* Avatar */}
                           <div className="relative flex-shrink-0">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white text-lg font-bold shadow-lg overflow-hidden">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-lg font-bold shadow-lg overflow-hidden">
                               {supervisor.profileImage ? (
                                 <img src={supervisor.profileImage} alt={supervisor.name} className="w-full h-full object-cover" />
                               ) : (
@@ -656,7 +620,7 @@ export default function BrowseSupervisorsPage() {
                           {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                              <h3 className="font-semibold text-slate-900 truncate group-hover:text-[#1a5d1a] transition-colors">
                                 {supervisor.name}
                               </h3>
                               <AvailabilityBadge supervisor={supervisor} />
@@ -664,7 +628,7 @@ export default function BrowseSupervisorsPage() {
                             
                             <div className="flex items-center gap-3 text-sm text-slate-500 mb-2">
                               {supervisor.specialization && (
-                                <span className="flex items-center gap-1 text-blue-600">
+                                <span className="flex items-center gap-1 text-[#1a5d1a]">
                                   <Briefcase className="w-3.5 h-3.5" />
                                   {supervisor.specialization}
                                 </span>
@@ -676,7 +640,7 @@ export default function BrowseSupervisorsPage() {
                             {supervisor.domains && (
                               <div className="flex flex-wrap gap-1">
                                 {supervisor.domains.split(',').slice(0, 4).map((domain, i) => (
-                                  <span key={i} className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">
+                                  <span key={i} className="px-2 py-0.5 bg-[#e8f5e8] text-[#1a5d1a] text-xs rounded-full">
                                     {domain.trim()}
                                   </span>
                                 ))}
@@ -694,11 +658,11 @@ export default function BrowseSupervisorsPage() {
                                 router.push(`/student/chat?recipientId=${supervisor.userId}`);
                               }}
                               disabled={getAvailabilityStatus(supervisor) === 'full'}
-                              className="text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                              className="text-slate-500 hover:text-[#1a5d1a] hover:bg-[#e8f5e8]"
                             >
                               <MessageCircle className="w-5 h-5" />
                             </Button>
-                            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all" />
                           </div>
                         </div>
                       </CardContent>
@@ -724,7 +688,7 @@ export default function BrowseSupervisorsPage() {
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="border-2 border-slate-200 hover:border-blue-300"
+                    className="border-2 border-slate-200 hover:border-[#1a5d1a]/30 hover:bg-[#e8f5e8] hover:text-[#1a5d1a]"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Clear All Filters
@@ -734,6 +698,7 @@ export default function BrowseSupervisorsPage() {
             </Card>
           )}
         </motion.div>
+        </main>
       </div>
     </div>
   );

@@ -14,35 +14,16 @@ const nextConfig = {
   },
   transpilePackages: ['three'],
   
-  // Performance optimizations for development
+  // Performance optimizations
   reactStrictMode: false, // Disable in dev for faster hot reload (enable for production)
   
   // Faster builds
   swcMinify: true,
   
-  // Reduce memory usage
+  // Experimental optimizations (works with both Turbopack and Webpack)
   experimental: {
     // Optimize package imports
     optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-label', '@radix-ui/react-slot'],
-  },
-  
-  // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
-    if (dev && !isServer) {
-      // Faster rebuilds in development
-      config.watchOptions = {
-        poll: 1000, // Check for changes every second
-        aggregateTimeout: 300,
-        ignored: ['**/node_modules', '**/.git', '**/.next'],
-      };
-      
-      // Reduce bundle size checks in dev
-      config.performance = {
-        hints: false,
-      };
-    }
-    
-    return config;
   },
 };
 

@@ -66,11 +66,17 @@ export async function GET(request: Request) {
     }
 
     if (category) {
-      whereClause.category = category;
+      whereClause.category = { contains: category, mode: 'insensitive' };
     }
 
     if (status) {
-      whereClause.status = status;
+      // Handle multiple statuses separated by comma
+      const statuses = status.split(',').map(s => s.trim()).filter(s => s);
+      if (statuses.length === 1) {
+        whereClause.status = statuses[0];
+      } else if (statuses.length > 1) {
+        whereClause.status = { in: statuses };
+      }
     }
 
     const projects = await (prisma as any).project.findMany({

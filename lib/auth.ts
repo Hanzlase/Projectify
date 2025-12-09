@@ -55,6 +55,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null
           }
 
+          // Check if user is suspended or removed
+          const userStatus = (user as any).status
+          if (userStatus === 'SUSPENDED') {
+            console.log("User is suspended:", identifier)
+            // Return a special user object that indicates suspension
+            return {
+              id: 'SUSPENDED',
+              email: user.email,
+              name: user.name,
+              role: 'suspended',
+              status: 'SUSPENDED',
+              campusId: null,
+            }
+          }
+          
+          if (userStatus === 'REMOVED') {
+            console.log("User account has been removed:", identifier)
+            return null
+          }
+
           // Compare password with hashed password
           const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
 
@@ -81,6 +101,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: user.email,
             name: user.name,
             role: user.role,
+            status: (user as any).status || 'ACTIVE',
             campusId: campusId?.toString() || null,
           }
         } catch (error) {
@@ -96,6 +117,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.status = (user as any).status
         token.campusId = user.campusId
       }
       return token
@@ -105,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string
+        session.user.status = token.status as string
         session.user.campusId = token.campusId as string | null
       }
       return session

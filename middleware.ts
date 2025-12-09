@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/", "/api/auth"]
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  const publicRoutes = ["/login", "/", "/landing", "/api/auth", "/suspended", "/forgot-password"]
+  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
 
   // If not authenticated and trying to access protected route
   if (!session && !isPublicRoute) {
@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/unauthorized", request.url))
     }
 
-    // Redirect to appropriate dashboard if accessing login while authenticated
-    if (pathname === "/login") {
+    // Redirect to appropriate dashboard if accessing login or landing page while authenticated
+    if (pathname === "/login" || pathname === "/" || pathname === "/landing") {
       return NextResponse.redirect(new URL(`/${userRole}/dashboard`, request.url))
     }
   }

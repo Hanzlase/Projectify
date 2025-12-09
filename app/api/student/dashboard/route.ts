@@ -84,6 +84,19 @@ export async function GET() {
       where: { campusId: student.campusId }
     });
 
+    // Count pending invitations received by the student (student-to-student)
+    const pendingInvitations = await prisma.invitation.count({
+      where: {
+        receiverId: student.studentId,
+        status: 'pending'
+      }
+    });
+
+    // Count total projects in the campus (both public and private)
+    const totalProjects = await prisma.project.count({
+      where: { campusId: student.campusId }
+    });
+
     // Format supervisors for response
     const formattedSupervisors = supervisors.map((sup) => ({
       id: sup.supervisorId,
@@ -149,7 +162,9 @@ export async function GET() {
       stats: {
         totalSupervisors,
         totalStudents,
-        groupSize: groupMembers.length
+        groupSize: groupMembers.length,
+        pendingInvitations,
+        totalProjects
       },
       supervisors: formattedSupervisors,
       fellowStudents: formattedStudents

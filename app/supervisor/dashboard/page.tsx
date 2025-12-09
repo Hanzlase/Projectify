@@ -4,16 +4,100 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, LogOut, Settings, GraduationCap, BookOpen, MessageCircle } from 'lucide-react';
+import { 
+  Users, 
+  GraduationCap, 
+  BookOpen, 
+  MessageCircle,
+  Search,
+  ChevronRight,
+  Clock,
+  Calendar,
+  Activity,
+  FolderKanban,
+  TrendingUp,
+  FileText,
+  CheckCircle2,
+  ClipboardList,
+  Building,
+  UserCircle,
+  LayoutDashboard,
+  Settings,
+  HelpCircle,
+  LogOut,
+  BarChart3,
+  Bell,
+  Plus,
+  Lightbulb,
+  Send,
+  Mail,
+  UserPlus
+} from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
-import CanvasParticles from '@/components/CanvasParticles';
+import LoadingScreen from '@/components/LoadingScreen';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+
+interface DashboardStats {
+  totalGroups: number;
+  totalStudents: number;
+  totalProjects: number;
+  pendingProposals: number;
+  approvedProposals: number;
+}
+
+interface RecentActivity {
+  action: string;
+  user: string;
+  time: string;
+  type: 'success' | 'info';
+}
+
+interface GroupData {
+  id: number;
+  name: string;
+  studentCount: number;
+  students: { name: string; rollNumber: string; profileImage?: string }[];
+  projectTitle: string | null;
+  projectStatus: string | null;
+}
+
+interface PendingInvitation {
+  id: number;
+  groupId: number;
+  groupName: string;
+  projectTitle: string;
+  projectDescription: string | null;
+  studentCount: number;
+  students: { name: string; profileImage?: string }[];
+  createdAt: string;
+  message: string;
+}
+
+interface DashboardData {
+  stats: DashboardStats;
+  recentActivity: RecentActivity[];
+  groups: GroupData[];
+  pendingInvitations: PendingInvitation[];
+  campusName: string;
+  specialization: string | null;
+}
 
 export default function SupervisorDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -21,262 +105,810 @@ export default function SupervisorDashboard() {
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
       router.push('/unauthorized');
     } else if (status === 'authenticated') {
-      fetchProfileImage();
+      fetchData();
     }
   }, [status, session, router]);
 
-  const fetchProfileImage = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
+      // Fetch profile image
+      const profileRes = await fetch('/api/profile');
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setProfileImage(profileData.profileImage);
+      }
+      
+      // Fetch dashboard data from API
+      const dashboardRes = await fetch('/api/supervisor/dashboard');
+      if (dashboardRes.ok) {
+        const data = await dashboardRes.json();
+        setDashboardData(data);
       }
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const formatDate = () => {
+    return currentTime.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-8"
-        >
-          {/* Animated Logo */}
-          <div className="relative">
-            {/* Outer ring */}
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-blue-500/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            
-            {/* Spinning ring */}
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-blue-600"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            
-            {/* Inner circle with icon */}
-            <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
-              animate={{ scale: [1, 0.95, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <BookOpen className="w-10 h-10 text-blue-600" />
-            </motion.div>
-          </div>
-
-          {/* Text */}
-          <div className="text-center">
-            <motion.h2 
-              className="text-2xl font-bold text-gray-900 mb-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              Projectify
-            </motion.h2>
-            <motion.p 
-              className="text-gray-500"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              Loading supervisor dashboard...
-            </motion.p>
-          </div>
-
-          {/* Loading dots */}
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2.5 h-2.5 bg-blue-600 rounded-full"
-                animate={{ 
-                  y: [-4, 4, -4],
-                  opacity: [0.3, 1, 0.3]
-                }}
-                transition={{ 
-                  duration: 0.8, 
-                  repeat: Infinity, 
-                  delay: i * 0.15,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (!session) {
+  if (status === 'loading' || isLoading) {
+    return <LoadingScreen message="Loading supervisor dashboard..." />;
+  }  if (!session) {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
-      {/* Background Particles */}
-      <CanvasParticles />
-      
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(0,0,0,0.15) 1px, transparent 0)`,
-          backgroundSize: '32px 32px'
-        }}></div>
-      </div>
+  const stats = dashboardData?.stats || {
+    totalGroups: 0,
+    totalStudents: 0,
+    totalProjects: 0,
+    pendingProposals: 0,
+    approvedProposals: 0
+  };
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 max-w-7xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-lg border border-slate-200/60 p-6 sm:p-8 mb-8 overflow-hidden relative"
-        >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500"></div>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-4 sm:gap-6">
-              {/* Avatar */}
+  const recentActivity = dashboardData?.recentActivity || [];
+  const groups = dashboardData?.groups || [];
+  const pendingInvitations = dashboardData?.pendingInvitations || [];
+
+  // Mock data for graphs
+  const activityTrendData = [
+    { month: 'Jan', meetings: 4, reviews: 2 },
+    { month: 'Feb', meetings: 6, reviews: 4 },
+    { month: 'Mar', meetings: 8, reviews: 5 },
+    { month: 'Apr', meetings: 5, reviews: 7 },
+    { month: 'May', meetings: 9, reviews: 6 },
+    { month: 'Jun', meetings: 7, reviews: 8 },
+  ];
+
+  const projectDistributionData = [
+    { name: 'In Progress', value: stats.pendingProposals || 3, color: '#1a5d1a' },
+    { name: 'Completed', value: stats.approvedProposals || 2, color: '#2d7a2d' },
+  ];
+
+  const sidebarItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard', active: true },
+    { icon: FolderKanban, label: 'Projects', path: '/supervisor/projects', active: false },
+    { icon: MessageCircle, label: 'Chat', path: '/supervisor/chat', active: false },
+    { icon: Bell, label: 'Notifications', path: '/supervisor/notifications', active: false },
+    { icon: Users, label: 'Students', path: '/supervisor/students', active: false },
+  ];
+
+  const bottomSidebarItems = [
+    { icon: Settings, label: 'Settings', path: '/supervisor/profile', active: false },
+    { icon: HelpCircle, label: 'Help', path: '/help', active: false },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#f5f5f7] flex">
+      {/* Sidebar - Matching profile page design */}
+      <motion.aside
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="hidden md:flex w-56 bg-white flex-col fixed h-full z-20 shadow-sm"
+      >
+        <div className="p-5 pb-8">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900">Projectify</span>
+          </div>
+        </div>
+
+        <nav className="flex-1 px-3">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
+          <div className="space-y-1">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => router.push(item.path)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
+                    item.active
+                      ? 'bg-[#1a5d1a] text-white font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-[18px] h-[18px]" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        <div className="px-3 pb-4">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
+          <div className="space-y-1">
+            {bottomSidebarItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => router.push(item.path)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                    item.active
+                      ? 'bg-[#1a5d1a] text-white font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-[18px] h-[18px]" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
+            >
+              <LogOut className="w-[18px] h-[18px]" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </motion.aside>
+
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-100 z-20 flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
+            <GraduationCap className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-bold text-gray-900">Projectify</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <div 
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer"
+            onClick={() => router.push('/supervisor/profile')}
+          >
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              session?.user?.name?.charAt(0).toUpperCase() || 'S'
+            )}
+          </div>
+        </div>
+      </div>      {/* Main Content */}
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        {/* Desktop Header */}
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.push('/supervisor/chat')}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+              >
+                <MessageCircle className="w-5 h-5 text-gray-500" />
+              </button>
+              <NotificationBell />
+              
               <div 
-                className="relative cursor-pointer group"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/supervisor/profile')}
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center text-white text-2xl sm:text-3xl font-bold shadow-xl shadow-teal-500/25 ring-4 ring-white overflow-hidden group-hover:ring-teal-100 transition-all duration-300">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
-                    <img 
-                      src={profileImage} 
-                      alt={session?.user?.name || 'Profile'} 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />
                   ) : (
                     session?.user?.name?.charAt(0).toUpperCase() || 'S'
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-emerald-500 rounded-full border-4 border-white shadow-lg">
-                  <span className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></span>
-                </div>
-              </div>
-              
-              {/* Welcome Text */}
-              <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
-                  Welcome, {session?.user?.name}!
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs sm:text-sm font-semibold border border-teal-200/50">
-                    <GraduationCap className="w-3.5 h-3.5" />
-                    FYP Supervisor
-                  </span>
+                <div className="hidden md:block">
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
-            
-            {/* Action Buttons */}
+          </div>
+        </header>
+
+        <main className="p-4 md:p-6">
+          {/* Welcome Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+                {getGreeting()}, {session?.user?.name?.split(' ')[0]}!
+              </h1>
+              <p className="text-sm text-gray-500">{formatDate()}</p>
+            </div>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/supervisor/profile')}
-                className="h-11 px-5 border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+              <Button 
+                onClick={() => router.push('/supervisor/projects/new')}
+                className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium"
               >
-                <Settings className="w-4 h-4 mr-2" />
-                Profile
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/supervisor/chat')}
-                className="h-11 px-4 border-2 border-slate-200 hover:bg-teal-50 hover:border-teal-300"
-                title="Messages"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </Button>
-              <NotificationBell />
-              <Button
-                variant="outline"
-                onClick={handleLogout}
-                className="h-11 px-4 border-2 border-slate-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
-              >
-                <LogOut className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-2" />
+                Add Idea
               </Button>
             </div>
           </div>
-        </motion.div>
 
-        {/* Dashboard Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <Card className="border border-slate-200/60 shadow-lg bg-white overflow-hidden">
-            <CardHeader className="text-center pb-8 pt-12 border-b border-slate-100">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
-                className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl mb-6 mx-auto cursor-pointer group relative overflow-hidden ring-4 ring-teal-100 hover:ring-teal-200 transition-all duration-300 shadow-lg shadow-teal-500/25"
-                onClick={() => router.push('/supervisor/profile')}
-              >
-                {profileImage ? (
-                  <img 
-                    src={profileImage} 
-                    alt={session?.user?.name || 'Profile'} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-3xl font-bold text-white">
-                    {session?.user?.name?.charAt(0).toUpperCase() || 'S'}
-                  </span>
-                )}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">View Profile</span>
-                </div>
-              </motion.div>
-              <CardTitle className="text-3xl mb-2 text-slate-900">
-                Hello, {session?.user?.name}! 👨‍🏫
-              </CardTitle>
-              <CardDescription className="text-base text-slate-600">
-                You are logged in as a FYP Supervisor
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center py-12">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="p-5 bg-teal-50 border border-teal-200 rounded-xl">
-                  <p className="text-sm text-teal-900">
-                    <strong>Email:</strong> {session?.user?.email}
-                  </p>
-                </div>
-                <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <BookOpen className="w-5 h-5 text-slate-600" />
-                    <span className="font-semibold text-slate-700">Coming Soon</span>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/projects')}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-white/80 text-sm mb-1">Projects</p>
+                      <p className="text-4xl font-bold">{stats.totalProjects}</p>
+                    </div>
+                    <div className="p-1.5 bg-white/20 rounded-lg">
+                      <FolderKanban className="w-4 h-4" />
+                    </div>
                   </div>
-                  <p className="text-slate-600">
-                    Your full dashboard with group management, proposal reviews, and more will be available soon!
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
+                    <span className="text-green-300">↑</span>
+                    <span>Total projects</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/students')}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-gray-500 text-sm mb-1">Students</p>
+                      <p className="text-4xl font-bold text-gray-900">{stats.totalStudents}</p>
+                    </div>
+                    <div className="p-1.5 bg-gray-100 rounded-lg">
+                      <GraduationCap className="w-4 h-4 text-gray-600" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500">
+                    <span className="text-green-500">↑</span>
+                    <span>Total students</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/invitations?filter=pending')}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-gray-500 text-sm mb-1">Pending</p>
+                      <p className="text-4xl font-bold text-gray-900">{stats.pendingProposals}</p>
+                    </div>
+                    <div className="p-1.5 bg-[#1a5d1a]/10 rounded-lg">
+                      <ClipboardList className="w-4 h-4 text-[#1a5d1a]" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500">
+                    <span>Proposals to review</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/groups')}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-gray-500 text-sm mb-1">Approved</p>
+                      <p className="text-4xl font-bold text-gray-900">{stats.approvedProposals}</p>
+                    </div>
+                    <div className="p-1.5 bg-green-100 rounded-lg">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">This semester</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            {/* Activity Trend Chart */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Activity Trend</h3>
+                    <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
+                  </div>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={activityTrendData}>
+                        <defs>
+                          <linearGradient id="colorMeetings" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#1a5d1a" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#1a5d1a" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2d7a2d" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#2d7a2d" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: 'none', 
+                            borderRadius: '12px', 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                          }}
+                        />
+                        <Area type="monotone" dataKey="meetings" stroke="#1a5d1a" fillOpacity={1} fill="url(#colorMeetings)" strokeWidth={2} />
+                        <Area type="monotone" dataKey="reviews" stroke="#2d7a2d" fillOpacity={1} fill="url(#colorReviews)" strokeWidth={2} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex items-center justify-center gap-6 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#1a5d1a]"></div>
+                      <span className="text-xs text-gray-600">Meetings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#2d7a2d]"></div>
+                      <span className="text-xs text-gray-600">Reviews</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Project Distribution Chart */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Project Status</h3>
+                    <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
+                  </div>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={projectDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {projectDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: 'none', 
+                            borderRadius: '12px', 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex items-center justify-center gap-6 mt-4">
+                    {projectDistributionData.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                        <span className="text-xs text-gray-600">{item.name} ({item.value})</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Quick Actions & Pending Invitations */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {/* Quick Actions */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
+              <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-gray-900 mb-5 text-lg">Quick Actions</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
+                      onClick={() => router.push('/supervisor/invitations')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <Mail className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900">Group Invitations</h4>
+                          <p className="text-sm text-gray-500 truncate">{pendingInvitations.length} pending requests</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
+                      onClick={() => router.push('/supervisor/chat')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <MessageCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900">Messages</h4>
+                          <p className="text-sm text-gray-500 truncate">Chat with your groups</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
+                      onClick={() => router.push('/supervisor/projects')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <FolderKanban className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900">Projects</h4>
+                          <p className="text-sm text-gray-500 truncate">Browse & manage projects</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
+                      onClick={() => router.push('/supervisor/profile')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <Users className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900">My Profile</h4>
+                          <p className="text-sm text-gray-500 truncate">View & edit profile</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                      </div>
+                    </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Pending Invitations Card */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-semibold text-gray-900 text-lg">Invitations</h3>
+                    <div className="flex items-center gap-2">
+                      {pendingInvitations.length > 0 && (
+                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                          {pendingInvitations.length} new
+                        </span>
+                      )}
+                      <Send className="w-5 h-5 text-[#1a5d1a]" />
+                    </div>
+                  </div>
+                  {pendingInvitations.length > 0 ? (
+                    <div className="space-y-3">
+                      {pendingInvitations.slice(0, 3).map((invitation, index) => (
+                        <motion.div 
+                          key={invitation.id}
+                          initial={{ opacity: 0, x: 20 }} 
+                          animate={{ opacity: 1, x: 0 }} 
+                          transition={{ delay: 0.4 + index * 0.05 }} 
+                          className="p-3 rounded-xl bg-amber-50 border border-amber-100 hover:bg-amber-100/50 transition-all cursor-pointer"
+                          onClick={() => router.push('/supervisor/invitations')}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-semibold text-gray-900">{invitation.groupName}</p>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800">
+                              Pending
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 truncate">{invitation.projectTitle}</p>
+                          <div className="flex items-center gap-1 mt-1.5">
+                            <Users className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">{invitation.studentCount} students</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Mail className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">No pending invitations</p>
+                    </div>
+                  )}
+                  {pendingInvitations.length > 0 && (
+                    <button 
+                      onClick={() => router.push('/supervisor/invitations')}
+                      className="w-full mt-4 py-2 text-sm text-[#1a5d1a] hover:bg-[#1a5d1a]/5 rounded-lg transition-colors font-medium"
+                    >
+                      View All Invitations
+                    </button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* My Groups & Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {/* My Groups */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="lg:col-span-2">
+              <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-[#1a5d1a]" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 text-lg">My Groups</h3>
+                    </div>
+                    <span className="text-xs text-gray-500">{groups.length} groups</span>
+                  </div>
+                  {groups.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {groups.slice(0, 4).map((group, index) => (
+                        <motion.div 
+                          key={group.id}
+                          initial={{ opacity: 0, x: 20 }} 
+                          animate={{ opacity: 1, x: 0 }} 
+                          transition={{ delay: 0.4 + index * 0.05 }} 
+                          className="p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all group/card"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                                {group.name?.charAt(0).toUpperCase() || 'G'}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">{group.name}</p>
+                                <p className="text-xs text-gray-500">{group.studentCount} students</p>
+                              </div>
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              group.projectStatus === 'approved' || group.projectStatus === 'completed'
+                                ? 'bg-green-100 text-green-700' 
+                                : group.projectStatus === 'pending' || group.projectStatus === 'in_progress'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {group.projectStatus ? group.projectStatus.replace('_', ' ') : 'No project'}
+                            </span>
+                          </div>
+                          
+                          {group.projectTitle && (
+                            <p className="text-xs text-gray-600 mb-3 truncate flex items-center gap-1.5">
+                              <FolderKanban className="w-3.5 h-3.5 text-gray-400" />
+                              {group.projectTitle}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <div className="flex -space-x-2">
+                                {group.students.slice(0, 3).map((student, idx) => (
+                                  <div key={idx} className="w-6 h-6 rounded-full bg-[#1a5d1a] text-white text-[10px] flex items-center justify-center border-2 border-white overflow-hidden">
+                                    {student.profileImage ? (
+                                      <img src={student.profileImage} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      student.name.charAt(0).toUpperCase()
+                                    )}
+                                  </div>
+                                ))}
+                                {group.students.length > 3 && (
+                                  <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-[10px] flex items-center justify-center border-2 border-white">
+                                    +{group.students.length - 3}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <button
+                              onClick={() => router.push('/supervisor/chat')}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a5d1a] text-white text-xs font-medium hover:bg-[#145214] transition-all opacity-0 group-hover/card:opacity-100"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              Chat
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">No groups assigned yet</p>
+                      <p className="text-xs text-gray-400 mt-1">Accept invitations to start supervising groups</p>
+                    </div>
+                  )}
+                  {groups.length > 4 && (
+                    <div className="pt-4 border-t border-gray-100 mt-4 flex items-center justify-between">
+                      <p className="text-xs text-gray-500">+{groups.length - 4} more groups</p>
+                      <button 
+                        onClick={() => router.push('/supervisor/groups')}
+                        className="text-xs text-[#1a5d1a] font-medium hover:underline"
+                      >
+                        View All Groups
+                      </button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+            {/* Recent Activity */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-semibold text-gray-900 text-lg">Recent Activity</h3>
+                    <Clock className="w-5 h-5 text-gray-400" />
+                  </div>
+                  {recentActivity.length > 0 ? (
+                    <div className="space-y-3">
+                      {recentActivity.map((activity, index) => (
+                        <motion.div 
+                          key={index}
+                          initial={{ opacity: 0, x: 20 }} 
+                          animate={{ opacity: 1, x: 0 }} 
+                          transition={{ delay: 0.45 + index * 0.05 }} 
+                          className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all"
+                        >
+                          <div className={`w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 ${
+                            activity.type === 'success' ? 'bg-green-500' : 'bg-[#1a5d1a]'
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{activity.user}</p>
+                            <p className="text-[11px] text-gray-400 mt-0.5">{activity.time}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">No recent activity</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Supervisor Info */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-semibold text-gray-900 text-lg">Your Info</h3>
+                    <BookOpen className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20">
+                      <p className="text-sm text-gray-500 mb-1">Role</p>
+                      <p className="text-lg font-semibold text-gray-900">FYP Supervisor</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-gray-500 mb-1">Email</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.email}</p>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-gray-500 mb-1">Status</p>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <p className="text-sm font-medium text-gray-900">Active</p>
+                        </div>
+                      </div>
+                    </div>
+                    {dashboardData?.specialization && (
+                      <div className="p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-gray-500 mb-1">Specialization</p>
+                        <p className="text-sm font-medium text-gray-900">{dashboardData.specialization}</p>
+                      </div>
+                    )}
+                    {dashboardData?.campusName && (
+                      <div className="p-3 bg-gray-50 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <Building className="w-4 h-4 text-gray-400" />
+                          <div>
+                            <p className="text-xs text-gray-500">Campus</p>
+                            <p className="text-sm font-medium text-gray-900">{dashboardData.campusName}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Students Overview */}
+          {groups.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-semibold text-gray-900 text-lg">Students Under Supervision</h3>
+                    <GraduationCap className="w-5 h-5 text-[#1a5d1a]" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {groups.map((group) => (
+                      <div key={group.id} className="p-4 bg-gray-50 rounded-xl">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
+                            <Users className="w-4 h-4 text-[#1a5d1a]" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">{group.name}</p>
+                            {group.projectTitle && (
+                              <p className="text-xs text-gray-500 truncate max-w-[150px]">{group.projectTitle}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          {group.students.slice(0, 3).map((student, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs">
+                              <UserCircle className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="text-gray-600">{student.name}</span>
+                              <span className="text-gray-400">({student.rollNumber})</span>
+                            </div>
+                          ))}
+                          {group.students.length > 3 && (
+                            <p className="text-xs text-gray-400">+{group.students.length - 3} more</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </main>
       </div>
     </div>
   );

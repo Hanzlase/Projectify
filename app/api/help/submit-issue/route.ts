@@ -53,13 +53,15 @@ ${message}
     // We'll create one notification per coordinator since they might be on different campuses
     for (const coordinator of coordinators) {
       // Create the notification
+      // Note: createdById is set to the coordinator's ID temporarily until schema migration is done
+      // After running `npx prisma db push`, this can be removed so help requests only show in inbox
       const notification = await prisma.notification.create({
         data: {
           title: notificationTitle,
           message: notificationMessage,
           type: 'urgent',
           targetType: 'specific_users',
-          createdById: coordinator.userId, // Self-created since it's from system
+          createdById: 0, // Use 0 to indicate system-generated (after migration, this field can be null)
           campusId: coordinator.campusId,
           recipients: {
             create: {

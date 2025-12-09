@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,9 @@ import {
   FileSearch, Brain, Database, CheckCircle2, Cpu, Zap
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import dynamic from 'next/dynamic';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
 interface Project {
   projectId: number;
@@ -58,6 +61,7 @@ const CATEGORIES = [
 
 export default function ProjectsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,6 +124,15 @@ export default function ProjectsPage() {
       fetchProfileImage();
     }
   }, [status, router, filter, categoryFilter]);
+
+  // Check if we should open the create modal from URL param
+  useEffect(() => {
+    if (searchParams.get('addProject') === 'true') {
+      setShowCreateModal(true);
+      // Clear the URL param without refreshing
+      router.replace('/student/projects', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const fetchProfileImage = async () => {
     try {
@@ -383,10 +396,18 @@ export default function ProjectsPage() {
   };
 
   const filteredProjects = projects.filter(project => {
+    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!project.title.toLowerCase().includes(query) && 
           !project.description.toLowerCase().includes(query)) {
+        return false;
+      }
+    }
+    // Category filter (also filter client-side for immediate feedback)
+    if (categoryFilter) {
+      const projectCategories = project.category?.toLowerCase() || '';
+      if (!projectCategories.includes(categoryFilter.toLowerCase())) {
         return false;
       }
     }
@@ -448,79 +469,12 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex">
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-56 bg-white flex flex-col fixed h-full z-20 shadow-sm"
-      >
-        <div className="p-5 pb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900">Projectify</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 px-3">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
-          <div className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="px-3 pb-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
-          <div className="space-y-1">
-            {bottomSidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut className="w-[18px] h-[18px]" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </motion.aside>
+      <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
-      <div className="flex-1 ml-56">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -560,27 +514,27 @@ export default function ProjectsPage() {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-                  <FolderKanban className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
+                  <FolderKanban className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Project Ideas</h1>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900">Project Ideas</h1>
                   <p className="text-sm text-gray-500">{projects.length} idea{projects.length !== 1 ? 's' : ''}</p>
                 </div>
               </div>
 
               <Button
                 onClick={openCreateModal}
-                className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                className="bg-[#1a5d1a] hover:bg-[#145214] text-white w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Idea
@@ -668,7 +622,10 @@ export default function ProjectsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group">
+                    <Card 
+                      onClick={() => router.push(`/student/projects/${project.projectId}`)}
+                      className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
+                    >
                       {/* Thumbnail */}
                       <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                         {project.thumbnailUrl ? (
@@ -705,13 +662,13 @@ export default function ProjectsPage() {
                         {isOwner && (
                           <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              onClick={() => openEditModal(project)}
+                              onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
                               className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-[#1a5d1a] hover:bg-white transition-colors shadow-md"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => openDeleteModal(project)}
+                              onClick={(e) => { e.stopPropagation(); openDeleteModal(project); }}
                               disabled={deleting === project.projectId}
                               className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-white transition-colors shadow-md"
                             >
@@ -727,37 +684,16 @@ export default function ProjectsPage() {
 
                       {/* Content */}
                       <CardContent className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">{project.title}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{project.title}</h3>
                         
                         {project.category && (
-                          <div className="flex flex-wrap gap-1 mb-2">
+                          <div className="flex flex-wrap gap-1 mb-3">
                             {project.category.split(', ').map((cat, idx) => (
                               <span key={idx} className="inline-block px-2 py-0.5 bg-[#d1e7d1] text-[#1a5d1a] text-xs rounded-full">
                                 {cat}
                               </span>
                             ))}
                           </div>
-                        )}
-                        
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{project.description}</p>
-
-                        {/* Document Button */}
-                        {project.documentUrl && (
-                          <a
-                            href={project.documentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group/doc flex items-center gap-2 mb-3 px-3 py-2 bg-[#d1e7d1]/50 hover:bg-[#d1e7d1] border border-[#1a5d1a]/20 rounded-xl transition-all duration-200"
-                          >
-                            <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center shadow-sm">
-                              <FileText className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-700 group-hover/doc:text-[#1a5d1a] transition-colors">View Document</p>
-                              <p className="text-xs text-gray-500 truncate">{project.documentName || 'Click to open attached file'}</p>
-                            </div>
-                            <ExternalLink className="w-4 h-4 text-gray-400 group-hover/doc:text-[#1a5d1a] transition-colors" />
-                          </a>
                         )}
 
                         {/* Footer */}

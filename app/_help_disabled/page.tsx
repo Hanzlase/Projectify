@@ -167,13 +167,9 @@ export default function HelpPage() {
 
         <div className="p-4">
           <Link href="/login">
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 text-gray-600 hover:text-[#1a5d1a] hover:border-[#1a5d1a]"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Login
-            </Button>
+            <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </button>
           </Link>
         </div>
       </motion.aside>

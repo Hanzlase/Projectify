@@ -211,14 +211,12 @@ export default function ProfilePage({ backUrl, backLabel = 'Back to Dashboard' }
           transition={{ duration: 0.5 }}
           className="flex items-center justify-between mb-6"
         >
-          <Button
-            variant="outline"
+          <button
             onClick={() => router.push(backUrl)}
-            className="shadow-md hover:shadow-lg transition-all duration-300 group"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-all duration-300"
           >
-            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            {backLabel}
-          </Button>
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
 
           <Button
             variant="outline"
@@ -414,7 +412,7 @@ export default function ProfilePage({ backUrl, backLabel = 'Back to Dashboard' }
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-amber-600 font-medium mb-1">Groups</p>
                           <p className="text-gray-900 font-semibold">
-                            {profile.totalGroups || 0} / {profile.maxGroups || 3} groups
+                            {profile.totalGroups || 0} / {profile.maxGroups || 7} groups
                           </p>
                         </div>
                       </div>

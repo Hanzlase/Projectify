@@ -90,8 +90,10 @@ export async function POST(request: Request) {
           continue;
         }
 
-        // Generate password: username + 123
-        const password = username + '123';
+        // Generate password: name (lowercase, no spaces) + 123
+        // e.g., "Saqib Ameer" becomes "saqibameer123"
+        const nameForPassword = name.toLowerCase().replace(/\s+/g, '');
+        const password = nameForPassword + '123';
         const passwordHash = await bcrypt.hash(password, 10);
 
         // Create user

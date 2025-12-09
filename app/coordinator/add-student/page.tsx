@@ -8,9 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, UserPlus, User, Hash, Mail, FileUp, ArrowLeft, RefreshCw, Download, Info, CheckCircle2, XCircle, FileSpreadsheet } from 'lucide-react';
-import CanvasParticles from '@/components/CanvasParticles';
+import { Upload, UserPlus, User, Hash, Mail, FileUp, ArrowLeft, RefreshCw, Download, Info, CheckCircle2, XCircle, FileSpreadsheet, Search, MessageCircle, GraduationCap } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import * as XLSX from 'xlsx';
+import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 
 export default function AddStudentPage() {
   const router = useRouter();
@@ -35,6 +37,7 @@ export default function AddStudentPage() {
   // Bulk upload state
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [rollNumbers, setRollNumbers] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   
   const [results, setResults] = useState<{ success: any[]; failed: any[] } | null>(null);
 
@@ -58,6 +61,7 @@ export default function AddStudentPage() {
         if (response.ok) {
           const data = await response.json();
           setCampusName(data.campus || '');
+          setProfileImage(data.profileImage || null);
         }
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -303,75 +307,123 @@ export default function AddStudentPage() {
   };
 
   if (status === 'loading' || !session) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <LoadingScreen message="Loading..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 relative overflow-hidden">
-      <CanvasParticles />
-      
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="flex items-center justify-between mb-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-200">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900">
-              Add Students
-            </h1>
-            <p className="text-sm text-gray-600 mt-2">Campus: {campusName || 'N/A'}</p>
+    <div className="min-h-screen bg-[#f5f5f7] flex">
+      {/* Sidebar */}
+      <CoordinatorSidebar profileImage={profileImage} />
+
+      {/* Main Content */}
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        {/* Header */}
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.push('/coordinator/chat')}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+              >
+                <MessageCircle className="w-5 h-5 text-gray-500" />
+              </button>
+              <NotificationBell />
+              
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                onClick={() => router.push('/coordinator/profile')}
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    session?.user?.name?.charAt(0).toUpperCase() || 'C'
+                  )}
+                </div>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <Button variant="outline" onClick={() => router.push('/coordinator/dashboard')} className="shadow-md hover:shadow-lg transition-all duration-300 group">
-            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to Dashboard
-          </Button>
-        </div>
+        </header>
+
+        <main className="p-4 md:p-6">
+          {/* Page Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.push('/coordinator/dashboard')}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Add Students</h1>
+                <p className="text-sm text-gray-500 mt-1">Campus: {campusName || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
 
         {/* Mode Toggle */}
-        <div className="flex gap-4 mb-8">
-          <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-            <Button
-              variant={mode === 'single' ? 'default' : 'outline'}
-              onClick={() => {
-                setMode('single');
-                setResults(null);
-              }}
-              className={`w-full h-12 text-base font-medium shadow-lg transition-all duration-300 ${
-                mode === 'single' 
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-0' 
-                  : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
-              }`}
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Single Entry
-            </Button>
-          </motion.div>
-          <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-            <Button
-              variant={mode === 'bulk' ? 'default' : 'outline'}
-              onClick={() => {
-                setMode('bulk');
-                setResults(null);
-              }}
-              className={`w-full h-12 text-base font-medium shadow-lg transition-all duration-300 ${
-                mode === 'bulk' 
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-0' 
-                  : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
-              }`}
-            >
-              <Upload className="w-5 h-5 mr-2" />
-              Bulk Upload
-            </Button>
-          </motion.div>
-        </div>
+          <div className="flex gap-3 md:gap-4 mb-6">
+            <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <Button
+                variant={mode === 'single' ? 'default' : 'outline'}
+                onClick={() => {
+                  setMode('single');
+                  setResults(null);
+                }}
+                className={`w-full h-10 md:h-12 text-sm md:text-base font-medium shadow-sm transition-all duration-300 rounded-xl ${
+                  mode === 'single' 
+                    ? 'bg-[#1a5d1a] hover:bg-[#145214] text-white border-0' 
+                    : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
+                }`}
+              >
+                <UserPlus className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                Single Entry
+              </Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <Button
+                variant={mode === 'bulk' ? 'default' : 'outline'}
+                onClick={() => {
+                  setMode('bulk');
+                  setResults(null);
+                }}
+                className={`w-full h-10 md:h-12 text-sm md:text-base font-medium shadow-sm transition-all duration-300 rounded-xl ${
+                  mode === 'bulk' 
+                    ? 'bg-[#1a5d1a] hover:bg-[#145214] text-white border-0' 
+                    : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
+                }`}
+              >
+                <Upload className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                Bulk Upload
+              </Button>
+            </motion.div>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Input Form - Takes 2 columns */}
-          <Card className="lg:col-span-2 bg-white shadow-xl border border-gray-200 overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white pb-6">
+          <Card className="lg:col-span-2 bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 bg-white pb-4 md:pb-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  <CardTitle className="text-lg md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
                     {mode === 'single' ? 'Student Information' : 'Bulk Upload'}
                   </CardTitle>
-                  <CardDescription className="text-base text-gray-600">
+                  <CardDescription className="text-sm md:text-base text-gray-600">
                     {mode === 'single' 
                       ? 'Fill in the details below to add a new student'
                       : 'Upload CSV/Excel file or enter multiple students at once'}
@@ -385,13 +437,13 @@ export default function AddStudentPage() {
                     className="gap-2"
                   >
                     <Download className="w-4 h-4" />
-                    Template
+                    <span className="hidden sm:inline">Template</span>
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="pt-8">{mode === 'single' ? (
-                <form onSubmit={handleSingleSubmit} className="space-y-8">
+            <CardContent className="pt-6 md:pt-8">{mode === 'single' ? (
+                <form onSubmit={handleSingleSubmit} className="space-y-6 md:space-y-8">
                   {/* Student Name Field with Floating Label */}
                   <div className="relative">
                     <div className="relative">
@@ -404,9 +456,9 @@ export default function AddStudentPage() {
                         onFocus={() => setNameFocused(true)}
                         onBlur={() => setNameFocused(false)}
                         required
-                        className={`h-14 pl-12 pr-4 text-base border-2 transition-all duration-200 ${
+                        className={`h-12 md:h-14 pl-12 pr-4 text-sm md:text-base border-2 rounded-xl transition-all duration-200 ${
                           nameFocused || name 
-                            ? 'border-indigo-500 pt-6' 
+                            ? 'border-[#1a5d1a] pt-5 md:pt-6' 
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       />
@@ -414,8 +466,8 @@ export default function AddStudentPage() {
                         htmlFor="name"
                         className={`absolute left-12 transition-all duration-200 pointer-events-none ${
                           nameFocused || name
-                            ? 'top-2 text-xs text-indigo-600 font-medium'
-                            : 'top-1/2 -translate-y-1/2 text-base text-gray-500'
+                            ? 'top-1.5 md:top-2 text-xs text-[#1a5d1a] font-medium'
+                            : 'top-1/2 -translate-y-1/2 text-sm md:text-base text-gray-500'
                         }`}
                       >
                         Student Name *
@@ -435,9 +487,9 @@ export default function AddStudentPage() {
                         onFocus={() => setRollFocused(true)}
                         onBlur={() => setRollFocused(false)}
                         required
-                        className={`h-14 pl-12 pr-4 text-base border-2 transition-all duration-200 ${
+                        className={`h-12 md:h-14 pl-12 pr-4 text-sm md:text-base border-2 rounded-xl transition-all duration-200 ${
                           rollFocused || rollNumber 
-                            ? 'border-indigo-500 pt-6' 
+                            ? 'border-[#1a5d1a] pt-5 md:pt-6' 
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       />
@@ -445,8 +497,8 @@ export default function AddStudentPage() {
                         htmlFor="rollNumber"
                         className={`absolute left-12 transition-all duration-200 pointer-events-none ${
                           rollFocused || rollNumber
-                            ? 'top-2 text-xs text-indigo-600 font-medium'
-                            : 'top-1/2 -translate-y-1/2 text-base text-gray-500'
+                            ? 'top-1.5 md:top-2 text-xs text-[#1a5d1a] font-medium'
+                            : 'top-1/2 -translate-y-1/2 text-sm md:text-base text-gray-500'
                         }`}
                       >
                         Roll Number *
@@ -470,9 +522,9 @@ export default function AddStudentPage() {
                         onFocus={() => setEmailFocused(true)}
                         onBlur={() => setEmailFocused(false)}
                         required
-                        className={`h-14 pl-12 pr-4 text-base border-2 transition-all duration-200 ${
+                        className={`h-12 md:h-14 pl-12 pr-4 text-sm md:text-base border-2 rounded-xl transition-all duration-200 ${
                           emailFocused || email 
-                            ? 'border-indigo-500 pt-6' 
+                            ? 'border-[#1a5d1a] pt-5 md:pt-6' 
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       />
@@ -480,8 +532,8 @@ export default function AddStudentPage() {
                         htmlFor="email"
                         className={`absolute left-12 transition-all duration-200 pointer-events-none ${
                           emailFocused || email
-                            ? 'top-2 text-xs text-indigo-600 font-medium'
-                            : 'top-1/2 -translate-y-1/2 text-base text-gray-500'
+                            ? 'top-1.5 md:top-2 text-xs text-[#1a5d1a] font-medium'
+                            : 'top-1/2 -translate-y-1/2 text-sm md:text-base text-gray-500'
                         }`}
                       >
                         Email Address *
@@ -499,7 +551,7 @@ export default function AddStudentPage() {
                       variant="outline"
                       onClick={clearForm}
                       disabled={loading}
-                      className="flex-1 h-12 text-base font-medium border-2 hover:bg-gray-50"
+                      className="flex-1 h-10 md:h-12 text-sm md:text-base font-medium border-2 hover:bg-gray-50 rounded-xl"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Clear Form
@@ -508,9 +560,9 @@ export default function AddStudentPage() {
                       <Button 
                         type="submit" 
                         disabled={loading} 
-                        className="w-full h-12 text-base font-medium bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                        className="w-full h-10 md:h-12 text-sm md:text-base font-medium bg-[#1a5d1a] hover:bg-[#145214] shadow-sm hover:shadow-md transition-all duration-300 rounded-xl"
                       >
-                        <UserPlus className="w-5 h-5 mr-2" />
+                        <UserPlus className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                         {loading ? 'Adding Student...' : 'Add Student'}
                       </Button>
                     </motion.div>
@@ -525,7 +577,7 @@ export default function AddStudentPage() {
                     onDrop={handleDrop}
                     className={`relative border-3 border-dashed rounded-xl p-8 transition-all duration-300 ${
                       isDragging
-                        ? 'border-indigo-500 bg-indigo-50'
+                        ? 'border-[#1a5d1a] bg-[#1a5d1a]/5'
                         : csvFile
                         ? 'border-green-400 bg-green-50'
                         : 'border-gray-300 bg-gray-50 hover:border-gray-400'
@@ -559,8 +611,8 @@ export default function AddStudentPage() {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
-                            <FileSpreadsheet className="w-8 h-8 text-indigo-600" />
+                          <div className="w-16 h-16 bg-[#1a5d1a]/10 rounded-full flex items-center justify-center mx-auto">
+                            <FileSpreadsheet className="w-8 h-8 text-[#1a5d1a]" />
                           </div>
                           <div>
                             <p className="text-lg font-semibold text-gray-900">
@@ -617,13 +669,13 @@ export default function AddStudentPage() {
                       }}
                       placeholder="John Doe,22F-3686,22f3686@student.edu.pk&#10;Jane Smith,22F-3687,22f3687@student.edu.pk&#10;Mike Johnson,22F-3688,22f3688@student.edu.pk"
                       rows={8}
-                      className="w-full p-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm shadow-sm transition-all duration-200 resize-none"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] font-mono text-sm shadow-sm transition-all duration-200 resize-none"
                       disabled={!!csvFile}
                     />
-                    <div className="flex items-start gap-2 text-xs text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                      <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-2 text-xs text-gray-500 bg-[#1a5d1a]/10 p-3 rounded-lg border border-[#1a5d1a]/20">
+                      <Info className="w-4 h-4 text-[#1a5d1a] mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="font-medium text-blue-900 mb-1">Format:</p>
+                        <p className="font-medium text-[#145214] mb-1">Format:</p>
                         <p>name,rollnumber,email (or rollnumber,email to use roll number as name)</p>
                       </div>
                     </div>
@@ -634,20 +686,20 @@ export default function AddStudentPage() {
                     <Button 
                       type="submit" 
                       disabled={loading || (!csvFile && !rollNumbers.trim())}
-                      className="w-full h-12 text-base font-medium bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="w-full h-10 md:h-12 text-sm md:text-base font-medium bg-[#1a5d1a] hover:bg-[#145214] shadow-sm hover:shadow-md transition-all duration-300 rounded-xl"
                     >
-                      <Upload className="w-5 h-5 mr-2" />
+                      <Upload className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                       {loading ? 'Processing...' : 'Add Students'}
                     </Button>
                   </motion.div>
 
                   {/* Info Box */}
-                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-100">
+                  <div className="bg-[#1a5d1a]/5 p-4 rounded-xl border border-[#1a5d1a]/20">
                     <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+                      <Info className="w-5 h-5 text-[#1a5d1a] mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-sm text-indigo-900 mb-2">Auto-Generated Credentials</h4>
-                        <ul className="text-sm text-indigo-700 space-y-1">
+                        <h4 className="font-semibold text-sm text-gray-900 mb-2">Auto-Generated Credentials</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
                           <li>• Password: Roll number (without hyphens) + 123</li>
                           <li>• Campus: {campusName || 'N/A'}</li>
                         </ul>
@@ -660,10 +712,10 @@ export default function AddStudentPage() {
           </Card>
 
           {/* Results Display - Takes 1 column */}
-          <Card className="bg-white shadow-xl border border-gray-200 overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-              <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+          <Card className="bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 bg-white">
+              <CardTitle className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -759,6 +811,7 @@ export default function AddStudentPage() {
             </CardContent>
           </Card>
         </div>
+        </main>
       </div>
 
       {/* Custom Scrollbar Styles */}
@@ -781,3 +834,4 @@ export default function AddStudentPage() {
     </div>
   );
 }
+

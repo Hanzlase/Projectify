@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  userId       Int       @id @default(autoincrement()) @map("user_id")
-  name         String    @db.VarChar(255)
-  email        String    @unique @db.VarChar(255)
-  passwordHash String    @db.VarChar(255) @map("password_hash")
+  userId       Int        @id @default(autoincrement()) @map("user_id")
+  name         String     @db.VarChar(255)
+  email        String     @unique @db.VarChar(255)
+  passwordHash String     @db.VarChar(255) @map("password_hash")
   role         UserRole
-  profileImage String?   @db.VarChar(500) @map("profile_image")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  status       UserStatus @default(ACTIVE)
+  profileImage String?    @db.VarChar(500) @map("profile_image")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   coordinator  FYPCoordinator?
   supervisor   FYPSupervisor?
@@ -60,7 +61,7 @@ model FYPSupervisor {
   domains        String?  @db.Text
   skills         String?  @db.Text
   achievements   String?  @db.Text
-  maxGroups      Int      @default(3) @map("max_groups")
+  maxGroups      Int      @default(7) @map("max_groups")
   totalGroups    Int      @default(0) @map("total_groups")
   revertedBy     Int?     @map("reverted_by")
   createdAt      DateTime @default(now())
@@ -73,37 +74,127 @@ model FYPSupervisor {
 }
 
 model Group {
-  groupId    Int      @id @default(autoincrement()) @map("group_id")
-  groupName  String?  @db.VarChar(255) @map("group_name")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  groupId      Int      @id @default(autoincrement()) @map("group_id")
+  groupName    String?  @db.VarChar(255) @map("group_name")
+  groupImage   String?  @db.Text @map("group_image") // Group profile image URL
+  projectId    Int?     @unique @map("project_id") // The project this group is working on
+  createdById  Int      @map("created_by_id") // Student who created the group
+  supervisorId Int?     @map("supervisor_id") // Assigned supervisor user ID (null until accepted)
+  isFull       Boolean  @default(false) @map("is_full") // True when 3 students + 1 supervisor
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   students Student[]
+  groupChats GroupChat[]
+  groupInvitations GroupInvitation[]
 
   @@map("groups")
 }
 
+// Group Invitations (for students and supervisors to join groups)
+model GroupInvitation {
+  id           Int                   @id @default(autoincrement())
+  groupId      Int                   @map("group_id")
+  inviterId    Int                   @map("inviter_id") // User who sent the invite
+  inviteeId    Int                   @map("invitee_id") // User being invited
+  inviteeRole  String                @db.VarChar(20) @map("invitee_role") // 'student' or 'supervisor'
+  status       GroupInvitationStatus @default(pending)
+  message      String?               @db.Text
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@unique([groupId, inviteeId])
+  @@map("group_invitations")
+}
+
+enum GroupInvitationStatus {
+  pending
+  accepted
+  rejected
+  cancelled
+}
+
+// Group Chat for FYP Groups (visible in chat section)
+model GroupChat {
+  id             Int      @id @default(autoincrement())
+  groupId        Int      @map("group_id")
+  conversationId Int      @unique @map("conversation_id") // Links to Conversation for messages
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@map("group_chats")
+}
+
+// Pinned Conversations for users
+model PinnedConversation {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  conversationId Int      @map("conversation_id")
+  pinnedAt       DateTime @default(now())
+
+  @@unique([userId, conversationId])
+  @@map("pinned_conversations")
+}
+
 model Student {
-  studentId  Int      @id @default(autoincrement()) @map("student_id")
-  userId     Int      @unique @map("user_id")
-  rollNumber String   @unique @db.VarChar(50) @map("roll_number")
-  batch      String?  @db.VarChar(20)
-  campusId   Int      @map("campus_id")
-  groupId    Int?     @map("group_id")
-  gpa        Float?
-  skills     String?  @db.Text
-  interests  String?  @db.Text
-  bio        String?  @db.Text
-  linkedin   String?  @db.VarChar(255)
-  github     String?  @db.VarChar(255)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  studentId    Int      @id @default(autoincrement()) @map("student_id")
+  userId       Int      @unique @map("user_id")
+  rollNumber   String   @unique @db.VarChar(50) @map("roll_number")
+  batch        String?  @db.VarChar(20)
+  campusId     Int      @map("campus_id")
+  groupId      Int?     @map("group_id")
+  isGroupAdmin Boolean  @default(false) @map("is_group_admin") // Whether student is admin of their group
+  gpa          Float?
+  skills       String?  @db.Text
+  interests    String?  @db.Text
+  bio          String?  @db.Text
+  linkedin     String?  @db.VarChar(255)
+  github       String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   user   User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   campus Campus  @relation(fields: [campusId], references: [campusId])
   group  Group?  @relation(fields: [groupId], references: [groupId])
+  
+  sentInvitations     Invitation[] @relation("SentInvitations")
+  receivedInvitations Invitation[] @relation("ReceivedInvitations")
 
   @@map("students")
+}
+
+// Student-to-Student Invitations (Group/Team Invitations)
+model Invitation {
+  invitationId  Int              @id @default(autoincrement()) @map("invitation_id")
+  senderId      Int              @map("sender_id")
+  receiverId    Int              @map("receiver_id")
+  message       String?          @db.Text
+  status        InvitationStatus @default(pending)
+  type          InvitationType   @default(group_invite)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  sender   Student @relation("SentInvitations", fields: [senderId], references: [studentId], onDelete: Cascade)
+  receiver Student @relation("ReceivedInvitations", fields: [receiverId], references: [studentId], onDelete: Cascade)
+
+  @@unique([senderId, receiverId, type])
+  @@map("invitations")
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  rejected
+  cancelled
+}
+
+enum InvitationType {
+  group_invite
+  collaboration
 }
 
 model Notification {
@@ -112,7 +203,7 @@ model Notification {
   message        String   @db.Text
   type           NotificationType @default(general)
   targetType     NotificationTarget @map("target_type")
-  createdById    Int      @map("created_by_id")
+  createdById    Int?     @map("created_by_id")
   campusId       Int      @map("campus_id")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -154,6 +245,12 @@ enum UserRole {
   student
   supervisor
   coordinator
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  REMOVED
 }
 
 // Chat/Messaging System
@@ -230,6 +327,7 @@ enum ProjectStatus {
   in_progress
   completed
   archived
+  taken
 }
 
 enum ProjectVisibility {

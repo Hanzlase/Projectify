@@ -26,6 +26,9 @@ import {
   RotateCcw
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import dynamic from 'next/dynamic';
+
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
 interface GroupMember {
   id: number;
@@ -63,6 +66,8 @@ interface DashboardData {
     totalSupervisors: number;
     totalStudents: number;
     groupSize: number;
+    pendingInvitations: number;
+    totalProjects: number;
   };
 }
 
@@ -324,74 +329,11 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex">
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-56 bg-white flex flex-col fixed h-full z-20 shadow-sm"
-      >
-        <div className="p-5 pb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900">Projectify</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 px-3">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
-          <div className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="px-3 pb-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
-          <div className="space-y-1">
-            {bottomSidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-all"
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut className="w-[18px] h-[18px]" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </motion.aside>
+      <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
-      <div className="flex-1 ml-56">
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -430,56 +372,62 @@ export default function StudentDashboard() {
           </div>
         </header>
 
-        <main className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <main className="p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-500">Plan, prioritize, and accomplish your tasks with ease.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium">
+              <Button 
+                onClick={() => router.push('/student/projects?addProject=true')}
+                className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Project
-              </Button>
-              <Button variant="outline" className="rounded-xl h-10 px-4 text-sm font-medium border-gray-200">
-                Import Data
               </Button>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden">
+              <Card 
+                onClick={() => router.push('/student/projects')}
+                className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-white/80 text-sm mb-1">Total Projects</p>
-                      <p className="text-4xl font-bold">{dashboardData?.group ? '1' : '0'}</p>
+                      <p className="text-4xl font-bold">{dashboardData?.stats?.totalProjects ?? 0}</p>
                     </div>
-                    <button className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-all">
+                    <div className="p-1.5 bg-white/20 rounded-lg">
                       <ChevronRight className="w-4 h-4" />
-                    </button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
                     <span className="text-green-300">↑</span>
-                    <span>Increased from last month</span>
+                    <span>In your campus</span>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card 
+                onClick={() => router.push('/student/browse-supervisors')}
+                className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats.totalSupervisors || 0}</p>
+                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats?.totalSupervisors || 0}</p>
                     </div>
-                    <button onClick={() => router.push('/student/browse-supervisors')} className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all">
+                    <div className="p-1.5 bg-gray-100 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600" />
-                    </button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500">
                     <span className="text-green-500">↑</span>
@@ -490,16 +438,19 @@ export default function StudentDashboard() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card 
+                onClick={() => router.push('/student/browse-students')}
+                className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 text-sm mb-1">Fellow Students</p>
-                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats.totalStudents || 0}</p>
+                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats?.totalStudents || 0}</p>
                     </div>
-                    <button onClick={() => router.push('/student/browse-students')} className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all">
+                    <div className="p-1.5 bg-gray-100 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600" />
-                    </button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500">
                     <span className="text-green-500">↑</span>
@@ -510,36 +461,39 @@ export default function StudentDashboard() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card 
+                onClick={() => router.push('/student/invitations')}
+                className="border-0 shadow-sm bg-white rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 text-sm mb-1">Group Members</p>
-                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats.groupSize || 0}</p>
+                      <p className="text-gray-500 text-sm mb-1">Invitations</p>
+                      <p className="text-4xl font-bold text-gray-900">{dashboardData?.stats?.pendingInvitations || 0}</p>
                     </div>
-                    <button className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all">
+                    <div className="p-1.5 bg-gray-100 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600" />
-                    </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-3">In Discussion</p>
+                  <p className="text-xs text-gray-500 mt-3">Pending responses</p>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
 
           {/* Middle Section */}
-          <div className="grid grid-cols-12 gap-4 mb-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="col-span-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-5">
               <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <h3 className="font-semibold text-gray-900 mb-4">Project Analytics</h3>
                   
-                  <div className="flex items-end justify-between h-40 gap-3 px-2">
+                  <div className="flex items-end justify-between h-32 sm:h-40 gap-2 sm:gap-3 px-1 sm:px-2">
                     {weeklyData.map((day, dayIndex) => (
                       <div key={dayIndex} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="relative w-full flex justify-center" style={{ height: '120px' }}>
+                        <div className="relative w-full flex justify-center" style={{ height: '100px' }}>
                           <motion.div
-                            className="w-8 rounded-full overflow-hidden relative"
+                            className="w-6 sm:w-8 rounded-full overflow-hidden relative"
                             style={{ 
                               height: `${day.height}%`,
                               marginTop: 'auto',
@@ -571,24 +525,24 @@ export default function StudentDashboard() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="col-span-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="lg:col-span-4">
               <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900">Reminders</h3>
                     <button className="text-xs text-[#1a5d1a] font-medium hover:underline">View All</button>
                   </div>
                   <div className="space-y-3">
                     <motion.div 
-                      className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20"
+                      className="p-3 sm:p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20"
                       whileHover={{ scale: 1.02 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0">
-                          <Calendar className="w-5 h-5 text-white" />
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0">
+                          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-gray-900 text-sm">Meeting with Supervisor</h4>
                           <p className="text-xs text-gray-500 mt-0.5">Today • 02:00 PM - 04:00 PM</p>
                         </div>
@@ -607,11 +561,11 @@ export default function StudentDashboard() {
                         <div className="w-8 h-8 rounded-lg bg-[#d1e7d1] flex items-center justify-center flex-shrink-0">
                           <FolderKanban className="w-4 h-4 text-[#1a5d1a]" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-gray-900 text-sm">Proposal Deadline</h4>
                           <p className="text-[10px] text-gray-500">Dec 10, 2025</p>
                         </div>
-                        <span className="text-[10px] px-2 py-1 bg-[#7cb87c]/30 text-[#1a5d1a] rounded-full font-medium">6 days</span>
+                        <span className="text-[10px] px-2 py-1 bg-[#7cb87c]/30 text-[#1a5d1a] rounded-full font-medium flex-shrink-0">6 days</span>
                       </div>
                     </motion.div>
                   </div>
@@ -619,9 +573,9 @@ export default function StudentDashboard() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="col-span-3">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="md:col-span-2 lg:col-span-3">
               <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900">Tasks</h3>
                     <button className="w-6 h-6 rounded-lg bg-[#1a5d1a] flex items-center justify-center hover:bg-[#145214] transition-all">
@@ -635,7 +589,7 @@ export default function StudentDashboard() {
                         initial={{ opacity: 0, x: 20 }} 
                         animate={{ opacity: 1, x: 0 }} 
                         transition={{ delay: 0.5 + index * 0.05 }} 
-                        className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-all cursor-pointer group"
+                        className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl hover:bg-gray-50 transition-all cursor-pointer group"
                       >
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                           task.status === 'new' ? 'bg-[#d1e7d1]' : 
@@ -646,7 +600,7 @@ export default function StudentDashboard() {
                           <p className="text-sm text-gray-900 truncate font-medium">{task.title}</p>
                           <p className="text-[10px] text-gray-400">{task.date}</p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       </motion.div>
                     ))}
                   </div>
@@ -656,10 +610,10 @@ export default function StudentDashboard() {
           </div>
 
           {/* Bottom Section */}
-          <div className="grid grid-cols-12 gap-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="col-span-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="lg:col-span-5">
               <Card className="border-0 shadow-sm bg-white rounded-2xl">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900">Team Collaboration</h3>
                     <Button variant="outline" size="sm" className="rounded-xl h-8 text-xs border-gray-200">
@@ -670,7 +624,7 @@ export default function StudentDashboard() {
                   <div className="space-y-3">
                     {(dashboardData?.group?.members || defaultTeamMembers).slice(0, 4).map((member: any, index: number) => (
                       <motion.div key={member.id || index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.55 + index * 0.05 }} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-all">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-xs overflow-hidden">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-xs overflow-hidden flex-shrink-0">
                           {member.profileImage ? (
                             <img src={member.profileImage} alt={member.name} className="w-full h-full object-cover" />
                           ) : (
@@ -678,10 +632,10 @@ export default function StudentDashboard() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{member.name}</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{member.name}</p>
                           <p className="text-[10px] text-gray-500 truncate">{member.task || member.rollNumber || 'Working on project tasks'}</p>
                         </div>
-                        <span className={`text-[10px] px-2 py-1 rounded-full ${getStatusColor(member.status || 'progress')}`}>
+                        <span className={`text-[10px] px-2 py-1 rounded-full flex-shrink-0 ${getStatusColor(member.status || 'progress')}`}>
                           {getStatusText(member.status || 'progress')}
                         </span>
                       </motion.div>
@@ -691,18 +645,18 @@ export default function StudentDashboard() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="col-span-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="lg:col-span-4">
               <Card className="border-0 shadow-sm bg-white rounded-2xl h-full">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <h3 className="font-semibold text-gray-900 mb-4">Project Progress</h3>
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-32 h-32">
-                      <svg className="w-32 h-32 transform -rotate-90">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
+                      <svg className="w-28 h-28 sm:w-32 sm:h-32 transform -rotate-90">
                         {/* Background track */}
-                        <circle cx="64" cy="64" r="52" stroke="#f3f4f6" strokeWidth="16" fill="none" />
+                        <circle cx="50%" cy="50%" r="42%" stroke="#f3f4f6" strokeWidth="16" fill="none" />
                         {/* Not Started segment (light green) */}
                         <motion.circle 
-                          cx="64" cy="64" r="52" 
+                          cx="50%" cy="50%" r="42%" 
                           stroke="#d1e7d1" 
                           strokeWidth="16" 
                           fill="none" 
@@ -713,7 +667,7 @@ export default function StudentDashboard() {
                         />
                         {/* Pending segment (medium light green) */}
                         <motion.circle 
-                          cx="64" cy="64" r="52" 
+                          cx="50%" cy="50%" r="42%" 
                           stroke="#7cb87c" 
                           strokeWidth="16" 
                           fill="none" 
@@ -725,7 +679,7 @@ export default function StudentDashboard() {
                         />
                         {/* In Progress segment (medium green) */}
                         <motion.circle 
-                          cx="64" cy="64" r="52" 
+                          cx="50%" cy="50%" r="42%" 
                           stroke="#3d8c40" 
                           strokeWidth="16" 
                           fill="none" 
@@ -737,7 +691,7 @@ export default function StudentDashboard() {
                         />
                         {/* Completed segment (dark green) */}
                         <motion.circle 
-                          cx="64" cy="64" r="52" 
+                          cx="50%" cy="50%" r="42%" 
                           stroke="#1a5d1a" 
                           strokeWidth="16" 
                           fill="none" 
@@ -750,7 +704,7 @@ export default function StudentDashboard() {
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <motion.span 
-                          className="text-3xl font-bold text-[#1a5d1a]"
+                          className="text-2xl sm:text-3xl font-bold text-[#1a5d1a]"
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 1.2, duration: 0.4 }}
@@ -760,7 +714,7 @@ export default function StudentDashboard() {
                         <span className="text-[10px] text-gray-500">Completed</span>
                       </div>
                     </div>
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 w-full space-y-2 sm:space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full bg-[#1a5d1a]"></div>
@@ -795,8 +749,8 @@ export default function StudentDashboard() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="col-span-3">
-              <Card className="border-0 shadow-sm bg-gradient-to-br from-[#1a5d1a] to-[#0d3d0d] rounded-2xl h-full overflow-hidden relative">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="md:col-span-2 lg:col-span-3">
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-[#1a5d1a] to-[#0d3d0d] rounded-2xl h-full overflow-hidden relative min-h-[280px]">
                 {/* Animated wave background */}
                 <div className="absolute inset-0 overflow-hidden">
                   <svg className="absolute bottom-0 w-full" viewBox="0 0 200 100" preserveAspectRatio="none" style={{ height: '60%' }}>

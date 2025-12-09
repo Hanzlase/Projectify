@@ -115,6 +115,8 @@ export async function POST(request: Request) {
       existingRollNumbers.add(trimmedRollNumber);
       existingEmailSet.add(trimmedEmail);
 
+      // Generate password: roll number (without dashes) + 123
+      // e.g., "22F-3686" becomes "22F3686123"
       const password = trimmedRollNumber.replace(/-/g, '') + '123';
       
       passwordPromises.push(

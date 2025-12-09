@@ -8,13 +8,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
-  MessageCircle, ArrowLeft, Loader2, Send, Search, User,
-  Check, CheckCheck, MoreVertical, Phone, Video, Info,
+  MessageCircle, Loader2, Send, Search, User,
+  Check, CheckCheck, MoreVertical, Info,
   Smile, Paperclip, Image as ImageIcon, Mic, Circle, ChevronLeft,
-  Sparkles, Users, Clock, X, FileText, Download
+  Sparkles, Users, Clock, X, FileText, Download, GraduationCap
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
+import NotificationBell from '@/components/NotificationBell';
+import CoordinatorSidebar from '@/components/CoordinatorSidebar';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
@@ -81,6 +84,7 @@ export default function ChatPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const userRole = session?.user?.role || 'student';
 
@@ -111,6 +115,7 @@ export default function ChatPage() {
       router.push('/login');
     } else if (status === 'authenticated') {
       fetchConversations();
+      fetchProfileImage();
       
       // Check if there's a recipient to start new conversation
       const recipientId = searchParams.get('recipientId');
@@ -119,6 +124,18 @@ export default function ChatPage() {
       }
     }
   }, [status, router, searchParams]);
+
+  const fetchProfileImage = async () => {
+    try {
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setProfileImage(data.profileImage || null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -378,84 +395,69 @@ export default function ChatPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse"></div>
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="text-slate-600 font-medium">Loading messages...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading messages..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-white">
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-400/5 to-cyan-400/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-teal-400/5 to-cyan-400/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4"></div>
-      </div>
+    <div className="min-h-screen bg-[#f5f5f7] flex">
+      {/* Sidebar */}
+      <CoordinatorSidebar profileImage={profileImage} />
 
-      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-7xl relative z-10 h-screen flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0 flex flex-col h-screen">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-4"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/${userRole}/dashboard`)}
-              className="border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-0 sm:mr-2 group-hover:-translate-x-1 transition-transform" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Button>
+        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Messages</h1>
+              <p className="text-xs text-gray-500">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            </div>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Messages</h1>
-                <p className="text-xs text-slate-500 hidden sm:block">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+              <NotificationBell />
+              
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                onClick={() => router.push('/coordinator/profile')}
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    session?.user?.name?.charAt(0).toUpperCase() || 'C'
+                  )}
+                </div>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                </div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </header>
 
         {/* Main Chat Container */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex-1 flex bg-white rounded-2xl shadow-2xl border border-slate-200/60 overflow-hidden"
-          style={{ height: 'calc(100vh - 120px)' }}
-        >
+        <div className="flex-1 flex bg-white m-4 rounded-2xl shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Conversations Sidebar */}
-          <div className={`w-full md:w-[340px] lg:w-[380px] border-r border-slate-200 flex flex-col bg-gradient-to-b from-slate-50 to-white ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-[320px] lg:w-[360px] border-r border-gray-100 flex flex-col bg-white ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
-            <div className="p-4 bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white">Chats</h2>
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-semibold text-gray-900">Chats</h2>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 bg-[#1a5d1a]/10 rounded-lg flex items-center justify-center">
+                    <Users className="w-4 h-4 text-[#1a5d1a]" />
                   </div>
                 </div>
               </div>
               
               {/* Search Bar */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-11 border-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg placeholder:text-slate-400 focus:ring-2 focus:ring-white/50"
+                  className="pl-10 h-10 border-gray-200 bg-gray-50 rounded-xl focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a]"
                 />
               </div>
             </div>
@@ -473,14 +475,14 @@ export default function ChatPage() {
                       onClick={() => selectConversation(conv.conversationId)}
                       className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                         selectedConversation === conv.conversationId 
-                          ? 'bg-gradient-to-r from-blue-50 via-cyan-50 to-teal-50 shadow-md border border-blue-200/50' 
-                          : 'hover:bg-slate-50 border border-transparent'
+                          ? 'bg-[#1a5d1a]/5 border border-[#1a5d1a]/20' 
+                          : 'hover:bg-gray-50 border border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar with online indicator */}
                         <div className="relative flex-shrink-0">
-                          <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white shadow-md`}>
+                          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold overflow-hidden`}>
                             {conv.otherUser?.profileImage ? (
                               <img src={conv.otherUser.profileImage} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -488,15 +490,15 @@ export default function ChatPage() {
                             )}
                           </div>
                           {/* Online indicator */}
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>
                         </div>
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
-                            <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-blue-900' : 'text-slate-900'}`}>
+                            <h3 className={`font-medium text-sm truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
                               {conv.otherUser?.name}
                             </h3>
-                            <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-blue-600 font-semibold' : 'text-slate-400'}`}>
+                            <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
                               {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
                             </span>
                           </div>
@@ -525,7 +527,7 @@ export default function ChatPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center mb-4">
-                    <MessageCircle className="w-10 h-10 text-blue-500" />
+                    <MessageCircle className="w-10 h-10 text-[#1a5d1a]" />
                   </div>
                   <h3 className="font-semibold text-slate-800 mb-2">No conversations yet</h3>
                   <p className="text-sm text-slate-500 max-w-[200px]">
@@ -581,20 +583,6 @@ export default function ChatPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-9 h-9 p-0 rounded-full hover:bg-slate-100"
-                    >
-                      <Phone className="w-4 h-4 text-slate-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-9 h-9 p-0 rounded-full hover:bg-slate-100"
-                    >
-                      <Video className="w-4 h-4 text-slate-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => router.push(`/${userRole}/view-profile/${otherUser.role}/${otherUser.userId}`)}
                       className="w-9 h-9 p-0 rounded-full hover:bg-slate-100"
                     >
@@ -608,7 +596,7 @@ export default function ChatPage() {
                   {loadingMessages ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="flex flex-col items-center gap-3">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                        <Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" />
                         <p className="text-sm text-slate-500">Loading messages...</p>
                       </div>
                     </div>
@@ -691,7 +679,7 @@ export default function ChatPage() {
                                         }`}
                                       >
                                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
-                                          message.isOwn ? 'bg-white/20' : 'bg-blue-100'
+                                          message.isOwn ? 'bg-white/20' : 'bg-[#1a5d1a]/20'
                                         }`}>
                                           {getFileIcon(message.attachmentName || '')}
                                         </div>
@@ -743,11 +731,11 @@ export default function ChatPage() {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                        <Sparkles className="w-12 h-12 text-blue-500" />
+                        <Sparkles className="w-12 h-12 text-[#1a5d1a]" />
                       </div>
                       <h3 className="font-bold text-slate-800 text-lg mb-2">Start the conversation!</h3>
                       <p className="text-slate-500 max-w-xs">
-                        Say hello to <span className="font-medium text-blue-600">{otherUser.name}</span> and start collaborating
+                        Say hello to <span className="font-medium text-[#1a5d1a]">{otherUser.name}</span> and start collaborating
                       </p>
                     </div>
                   )}
@@ -762,7 +750,7 @@ export default function ChatPage() {
                         {filePreview ? (
                           <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
                         ) : (
-                          <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+                          <div className="w-16 h-16 bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center text-2xl">
                             {getFileIcon(selectedFile.name)}
                           </div>
                         )}
@@ -803,7 +791,7 @@ export default function ChatPage() {
                       <button 
                         type="button" 
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-[#1a5d1a] hover:bg-[#1a5d1a]/10 transition-colors"
                         title="Attach file"
                       >
                         <Paperclip className="w-5 h-5" />
@@ -811,7 +799,7 @@ export default function ChatPage() {
                       <button 
                         type="button" 
                         onClick={() => imageInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors hidden sm:flex"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-[#1a5d1a] hover:bg-[#1a5d1a]/10 transition-colors hidden sm:flex"
                         title="Send image"
                       >
                         <ImageIcon className="w-5 h-5" />
@@ -836,7 +824,7 @@ export default function ChatPage() {
                             e.stopPropagation();
                             setShowEmojiPicker(!showEmojiPicker);
                           }}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showEmojiPicker ? 'text-blue-600 bg-blue-50' : 'text-slate-400 hover:text-slate-600'}`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showEmojiPicker ? 'text-[#1a5d1a] bg-[#1a5d1a]/10' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                           <Smile className="w-5 h-5" />
                         </button>
@@ -881,22 +869,22 @@ export default function ChatPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <div className="w-32 h-32 bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 rounded-full flex items-center justify-center mb-6 shadow-xl mx-auto">
-                    <MessageCircle className="w-16 h-16 text-blue-500" />
+                  <div className="w-24 h-24 bg-[#1a5d1a]/10 rounded-full flex items-center justify-center mb-6 mx-auto">
+                    <MessageCircle className="w-12 h-12 text-[#1a5d1a]" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-3">Select a conversation</h2>
-                  <p className="text-slate-500 max-w-sm mb-6">
-                    Choose a conversation from the list or start a new one by visiting someone's profile and clicking "Contact"
+                  <h2 className="text-xl font-bold text-gray-800 mb-2">Select a conversation</h2>
+                  <p className="text-gray-500 max-w-sm mb-4 text-sm">
+                    Choose a conversation from the list or start a new one
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-sm text-slate-400">
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>Messages are encrypted and secure</span>
+                    <span>Messages are secure</span>
                   </div>
                 </motion.div>
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

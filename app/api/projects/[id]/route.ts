@@ -25,8 +25,35 @@ export async function GET(
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // Check access - private projects can only be viewed by creator or coordinators
-    if (project.visibility === 'private' && project.createdById !== userId && session.user.role !== 'coordinator') {
+    // Check access - supervisors can view projects from their groups
+    let hasAccess = false;
+    
+    if (project.visibility === 'public') {
+      hasAccess = true;
+    } else if (project.createdById === userId) {
+      hasAccess = true;
+    } else if (session.user.role === 'coordinator') {
+      hasAccess = true;
+    } else if (session.user.role === 'supervisor') {
+      // Check if supervisor is assigned to the group that has this project
+      const group = await (prisma as any).group.findFirst({
+        where: {
+          projectId: projectId,
+          supervisorId: userId
+        }
+      });
+      // Also check if there's a pending/accepted invitation for this supervisor
+      const invitation = await (prisma as any).groupInvitation.findFirst({
+        where: {
+          group: { projectId: projectId },
+          inviteeId: userId,
+          inviteeRole: 'supervisor'
+        }
+      });
+      hasAccess = !!group || !!invitation;
+    }
+
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -36,7 +63,7 @@ export async function GET(
       select: { userId: true, name: true, profileImage: true, role: true }
     });
 
-    return NextResponse.json({ ...project, creator });
+    return NextResponse.json({ project: { ...project, creator } });
   } catch (error) {
     console.error('Error fetching project:', error);
     return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 });
