@@ -27,7 +27,7 @@ export async function uploadToR2(
       'Authorization': `Bearer ${R2_API_TOKEN}`,
       'Content-Type': contentType,
     },
-    body: body,
+    body: new Uint8Array(body),
   });
 
   if (!response.ok) {

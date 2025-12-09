@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -58,7 +58,7 @@ interface Conversation {
   updatedAt: string;
 }
 
-export default function SupervisorChatPage() {
+function SupervisorChatPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -950,5 +950,13 @@ export default function SupervisorChatPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SupervisorChatPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+      <SupervisorChatPageContent />
+    </Suspense>
   );
 }

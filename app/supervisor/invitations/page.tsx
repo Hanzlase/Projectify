@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,7 +58,7 @@ interface Invitation {
   };
 }
 
-export default function SupervisorInvitationsPage() {
+function SupervisorInvitationsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -525,5 +525,13 @@ export default function SupervisorInvitationsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function SupervisorInvitationsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+      <SupervisorInvitationsPageContent />
+    </Suspense>
   );
 }
