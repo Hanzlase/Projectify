@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,7 +26,34 @@ interface StudentSidebarProps {
   profileImage?: string | null;
 }
 
-export default function StudentSidebar({ profileImage }: StudentSidebarProps) {
+// Memoized navigation item to prevent re-renders
+const NavItem = memo(function NavItem({ 
+  icon: Icon, 
+  label, 
+  active, 
+  onClick 
+}: { 
+  icon: any; 
+  label: string; 
+  active: boolean; 
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+        active
+          ? 'bg-[#1a5d1a] text-white font-medium'
+          : 'text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      <Icon className="w-[18px] h-[18px]" />
+      <span>{label}</span>
+    </button>
+  );
+});
+
+function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -34,18 +61,24 @@ export default function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Check if mobile on mount and resize
+  // Check if mobile on mount and resize - debounced
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
-      }
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const mobile = window.innerWidth < 768;
+        setIsMobile(mobile);
+        if (!mobile) setIsMobileMenuOpen(false);
+      }, 100);
     };
     
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   // Close mobile menu when route changes
@@ -65,29 +98,30 @@ export default function StudentSidebar({ profileImage }: StudentSidebarProps) {
     };
   }, [isMobileMenuOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     signOut({ callbackUrl: '/login' });
-  };
+  }, []);
 
-  const confirmLogout = () => {
+  const confirmLogout = useCallback(() => {
     setShowLogoutModal(true);
-  };
+  }, []);
 
-  const sidebarItems = [
+  // Memoize sidebar items to prevent recreation on every render
+  const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
     { icon: FolderKanban, label: 'Projects', path: '/student/projects' },
     { icon: Users, label: 'Supervisors', path: '/student/browse-supervisors' },
     { icon: User, label: 'Students', path: '/student/browse-students' },
     { icon: UserPlus, label: 'Invitations', path: '/student/invitations' },
     { icon: MessageCircle, label: 'Chat', path: '/student/chat' },
-  ];
+  ], []);
 
-  const bottomSidebarItems = [
+  const bottomSidebarItems = useMemo(() => [
     { icon: Settings, label: 'Settings', path: '/student/profile' },
     { icon: HelpCircle, label: 'Help', path: '/help' },
-  ];
+  ], []);
 
-  const isActive = (path: string) => pathname === path || pathname?.startsWith(path + '/');
+  const isActive = useCallback((path: string) => pathname === path || pathname?.startsWith(path + '/'), [pathname]);
 
   const SidebarContent = () => (
     <>
@@ -105,24 +139,15 @@ export default function StudentSidebar({ profileImage }: StudentSidebarProps) {
       <nav className="flex-1 px-3">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
         <div className="space-y-1">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-            return (
-              <button
-                key={item.label}
-                onClick={() => router.push(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                  active
-                    ? 'bg-[#1a5d1a] text-white font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-[18px] h-[18px]" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {sidebarItems.map((item) => (
+            <NavItem
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              active={isActive(item.path)}
+              onClick={() => router.push(item.path)}
+            />
+          ))}
         </div>
       </nav>
 
@@ -305,3 +330,5 @@ export default function StudentSidebar({ profileImage }: StudentSidebarProps) {
     </>
   );
 }
+
+export default memo(StudentSidebar);

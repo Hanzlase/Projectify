@@ -20,6 +20,11 @@ const nextConfig = {
   // Faster builds
   swcMinify: true,
   
+  // Compiler optimizations for production
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  
   // Experimental optimizations (works with both Turbopack and Webpack)
   experimental: {
     // Optimize package imports

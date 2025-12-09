@@ -439,12 +439,14 @@ const HeroSection = () => {
 // ============================================
 const LogoMarquee = () => {
   const logos = [
-    { name: "Computer Science", icon: Cpu },
     { name: "Software Engineering", icon: Code2 },
-    { name: "Data Science", icon: Database },
     { name: "Artificial Intelligence", icon: Zap },
+    { name: "Data Science", icon: Database },
     { name: "Cyber Security", icon: ShieldCheck },
-    { name: "Electrical Eng", icon: Zap },
+    { name: "Computer Science", icon: Cpu },
+    { name: "BBA", icon: Users },
+    { name: "Electrical Engineering", icon: Zap },
+    { name: "Mechanical Engineering", icon: Cpu },
   ];
 
   return (
@@ -452,8 +454,16 @@ const LogoMarquee = () => {
       <div className="text-center text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-widest mb-6 sm:mb-8 px-4">Built for FAST NUCES Campuses</div>
       <div className="relative flex overflow-x-hidden">
         <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee">
-          {[...logos, ...logos].map((logo, i) => (
+          {[...logos, ...logos, ...logos].map((logo, i) => (
             <div key={i} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale">
+              <logo.icon className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-sm sm:text-lg font-bold">{logo.name}</span>
+            </div>
+          ))}
+        </div>
+        <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee2 absolute top-0">
+          {[...logos, ...logos, ...logos].map((logo, i) => (
+            <div key={`dup-${i}`} className="flex items-center gap-2 sm:gap-3 opacity-40 grayscale">
               <logo.icon className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-sm sm:text-lg font-bold">{logo.name}</span>
             </div>
@@ -462,11 +472,18 @@ const LogoMarquee = () => {
       </div>
       <style jsx>{`
         @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-100%); }
+        }
+        @keyframes marquee2 {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(0%); }
         }
         .animate-marquee {
-          animation: marquee 20s linear infinite;
+          animation: marquee 30s linear infinite;
+        }
+        .animate-marquee2 {
+          animation: marquee2 30s linear infinite;
         }
       `}</style>
     </section>

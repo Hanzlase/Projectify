@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,35 +13,62 @@ interface SupervisorSidebarProps {
   profileImage?: string | null;
 }
 
-export default function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
+// Memoized navigation item
+const NavItem = memo(function NavItem({ 
+  icon: Icon, 
+  label, 
+  active, 
+  onClick 
+}: { 
+  icon: any; 
+  label: string; 
+  active: boolean; 
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+        active
+          ? 'bg-[#1a5d1a] text-white font-medium'
+          : 'text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      <Icon className="w-[18px] h-[18px]" />
+      <span>{label}</span>
+    </button>
+  );
+});
+
+function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const sidebarItems = [
+  const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard' },
     { icon: FolderKanban, label: 'Projects', path: '/supervisor/projects' },
     { icon: Users, label: 'My Groups', path: '/supervisor/groups' },
     { icon: Mail, label: 'Invitations', path: '/supervisor/invitations' },
     { icon: MessageCircle, label: 'Chat', path: '/supervisor/chat' },
     { icon: Bell, label: 'Notifications', path: '/supervisor/notifications' },
-  ];
+  ], []);
 
-  const bottomSidebarItems = [
+  const bottomSidebarItems = useMemo(() => [
     { icon: Settings, label: 'Settings', path: '/supervisor/profile' },
     { icon: HelpCircle, label: 'Help', path: '/help' },
-  ];
+  ], []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await signOut({ callbackUrl: '/login' });
-  };
+  }, []);
 
-  const confirmLogout = () => {
+  const confirmLogout = useCallback(() => {
     setShowLogoutModal(true);
-  };
+  }, []);
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = useCallback((path: string) => pathname === path, [pathname]);
 
   return (
     <motion.aside
@@ -62,48 +89,30 @@ export default function SupervisorSidebar({ profileImage }: SupervisorSidebarPro
       <nav className="flex-1 px-3">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
         <div className="space-y-1">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-            return (
-              <button
-                key={item.label}
-                onClick={() => router.push(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                  active
-                    ? 'bg-[#1a5d1a] text-white font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-[18px] h-[18px]" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {sidebarItems.map((item) => (
+            <NavItem
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              active={isActive(item.path)}
+              onClick={() => router.push(item.path)}
+            />
+          ))}
         </div>
       </nav>
 
       <div className="px-3 pb-4">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
-          {bottomSidebarItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-            return (
-              <button
-                key={item.label}
-                onClick={() => router.push(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                  active
-                    ? 'bg-[#1a5d1a] text-white font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-[18px] h-[18px]" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {bottomSidebarItems.map((item) => (
+            <NavItem
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              active={isActive(item.path)}
+              onClick={() => router.push(item.path)}
+            />
+          ))}
           <button
             onClick={confirmLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
@@ -161,3 +170,5 @@ export default function SupervisorSidebar({ profileImage }: SupervisorSidebarPro
     </motion.aside>
   );
 }
+
+export default memo(SupervisorSidebar);

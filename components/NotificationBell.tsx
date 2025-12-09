@@ -1,22 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 
-export default function NotificationBell() {
+function NotificationBell() {
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    fetchUnreadCount();
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications');
       if (response.ok) {
@@ -26,9 +19,16 @@ export default function NotificationBell() {
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
-  };
+  }, []);
 
-  const handleClick = () => {
+  useEffect(() => {
+    fetchUnreadCount();
+    // Poll for new notifications every 60 seconds (reduced from 30s)
+    const interval = setInterval(fetchUnreadCount, 60000);
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
+
+  const handleClick = useCallback(() => {
     // Determine the user role from the current path
     const pathParts = pathname.split('/');
     const role = pathParts[1]; // student, coordinator, or supervisor
@@ -39,7 +39,7 @@ export default function NotificationBell() {
       // Default to student notifications
       router.push('/student/notifications');
     }
-  };
+  }, [pathname, router]);
 
   return (
     <button
@@ -55,3 +55,5 @@ export default function NotificationBell() {
     </button>
   );
 }
+
+export default memo(NotificationBell);

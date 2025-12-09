@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +24,7 @@ interface CoordinatorSidebarProps {
   profileImage?: string | null;
 }
 
-export default function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
+function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -63,28 +63,29 @@ export default function CoordinatorSidebar({ profileImage }: CoordinatorSidebarP
     };
   }, [isMobileMenuOpen]);
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: '/login' });
-  };
-
-  const confirmLogout = () => {
-    setShowLogoutModal(true);
-  };
-
-  const sidebarItems = [
+  // Memoized navigation items
+  const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/coordinator/dashboard' },
     { icon: UserPlus, label: 'Add Student', path: '/coordinator/add-student' },
     { icon: UserPlus, label: 'Add Supervisor', path: '/coordinator/add-supervisor' },
     { icon: Users, label: 'Manage Users', path: '/coordinator/manage-users' },
     { icon: Bell, label: 'Notifications', path: '/coordinator/notifications' },
     { icon: MessageCircle, label: 'Chat', path: '/coordinator/chat' },
-  ];
+  ], []);
 
-  const bottomSidebarItems = [
+  const bottomSidebarItems = useMemo(() => [
     { icon: Settings, label: 'Settings', path: '/coordinator/profile' },
-  ];
+  ], []);
 
-  const isActive = (path: string) => pathname === path || pathname?.startsWith(path + '/');
+  const isActive = useCallback((path: string) => pathname === path || pathname?.startsWith(path + '/'), [pathname]);
+
+  const handleLogout = useCallback(() => {
+    signOut({ callbackUrl: '/login' });
+  }, []);
+
+  const confirmLogout = useCallback(() => {
+    setShowLogoutModal(true);
+  }, []);
 
   const SidebarContent = () => (
     <>
@@ -302,3 +303,6 @@ export default function CoordinatorSidebar({ profileImage }: CoordinatorSidebarP
     </>
   );
 }
+
+const MemoizedCoordinatorSidebar = React.memo(CoordinatorSidebar);
+export default MemoizedCoordinatorSidebar;

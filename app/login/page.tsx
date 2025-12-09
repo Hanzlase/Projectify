@@ -96,12 +96,12 @@ function LoginPageContent() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <div className="flex items-center gap-2 mb-6">
+            <Link href="/landing" className="flex items-center gap-2 mb-6 w-fit cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Projectify</span>
-            </div>
+            </Link>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
             <p className="text-gray-500">Enter your credentials to access your account</p>
           </motion.div>
@@ -297,14 +297,18 @@ function LoginPageContent() {
                 <motion.div
                   key={i}
                   className="flex-1 bg-gradient-to-t from-white/40 to-white/20 rounded-t-lg relative group cursor-pointer"
-                  initial={{ height: 0 }}
-                  animate={{ height: `${height}%` }}
-                  transition={{ delay: 0.5 + i * 0.1, duration: 0.5, ease: "easeOut" }}
+                  animate={{ 
+                    height: [`${height}%`, `${Math.max(20, height - 25)}%`, `${height}%`]
+                  }}
+                  transition={{ 
+                    duration: 2 + i * 0.3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.2
+                  }}
                 >
                   <motion.div 
                     className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-white/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
                   >
                     {height}%
                   </motion.div>
