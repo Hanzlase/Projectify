@@ -14,6 +14,7 @@ import {
   CheckCircle2, XCircle, Grid3X3, List, Eye
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
@@ -144,55 +145,7 @@ export default function SupervisorStudentsPage() {
   const hasActiveFilters = searchQuery || activeFilter !== 'all' || selectedBatch !== 'all' || selectedSkill !== 'all';
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-8"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
-              animate={{ scale: [1, 0.95, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <GraduationCap className="w-10 h-10 text-[#1a5d1a]" />
-            </motion.div>
-          </div>
-          <div className="text-center">
-            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading students...</motion.p>
-          </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full"
-                animate={{ y: [-4, 4, -4], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading students..." />;
   }
 
   return (

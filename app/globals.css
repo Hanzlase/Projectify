@@ -56,6 +56,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Theme transition for smooth dark/light mode switching */
+  html {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+  
+  /* Apply transitions to common elements */
+  html.dark *,
+  html:not(.dark) * {
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.15s ease-in-out;
+  }
 }
 
 @layer utilities {

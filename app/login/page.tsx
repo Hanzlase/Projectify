@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { GraduationCap, Loader2, AlertCircle, Mail, Lock, Eye, EyeOff, User, Briefcase, Hash, TrendingUp, Users, FolderKanban, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import LoadingScreen from '@/components/LoadingScreen';
 
 type LoginMode = 'student' | 'staff';
 
@@ -87,7 +88,7 @@ function LoginPageContent() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-gray-900">
         {/* Form Container */}
         <div className="w-full max-w-md mx-auto">
           {/* Logo & Welcome */}
@@ -100,10 +101,10 @@ function LoginPageContent() {
               <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Projectify</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">Projectify</span>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-500">Enter your credentials to access your account</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+            <p className="text-gray-500 dark:text-gray-400">Enter your credentials to access your account</p>
           </motion.div>
 
           {/* Login Mode Tabs */}
@@ -112,14 +113,14 @@ function LoginPageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+            <div className="flex mb-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
               <button
                 type="button"
                 onClick={() => handleModeChange('student')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'student'
-                    ? 'bg-white text-[#1a5d1a] shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white dark:bg-gray-700 text-[#1a5d1a] dark:text-green-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -130,8 +131,8 @@ function LoginPageContent() {
                 onClick={() => handleModeChange('staff')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'staff'
-                    ? 'bg-white text-[#1a5d1a] shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white dark:bg-gray-700 text-[#1a5d1a] dark:text-green-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <Briefcase className="w-4 h-4" />
@@ -144,7 +145,7 @@ function LoginPageContent() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl"
+                  className="flex items-center gap-2 p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
                 >
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   {error}
@@ -152,14 +153,14 @@ function LoginPageContent() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="identifier" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="identifier" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {loginMode === 'student' ? 'Roll Number' : 'Email Address'}
                 </Label>
                 <div className="relative">
                   {loginMode === 'student' ? (
-                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   ) : (
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   )}
                   <Input
                     id="identifier"
@@ -169,18 +170,18 @@ function LoginPageContent() {
                     onChange={handleIdentifierChange}
                     required
                     disabled={isLoading}
-                    className="h-12 pl-10 rounded-xl bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 uppercase"
+                    className="h-12 pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20 uppercase"
                     style={loginMode === 'staff' ? { textTransform: 'none' } : {}}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -189,12 +190,12 @@ function LoginPageContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="h-12 pl-10 pr-10 rounded-xl bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                    className="h-12 pl-10 pr-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -203,12 +204,12 @@ function LoginPageContent() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#1a5d1a] focus:ring-[#1a5d1a]" />
-                  <span className="text-sm text-gray-600">Remember me</span>
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-[#1a5d1a] dark:text-green-500 focus:ring-[#1a5d1a] dark:focus:ring-green-500 bg-white dark:bg-gray-800" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-[#1a5d1a] hover:text-[#145214] font-medium"
+                  className="text-sm text-[#1a5d1a] dark:text-green-400 hover:text-[#145214] dark:hover:text-green-300 font-medium"
                 >
                   Forgot Password?
                 </Link>
@@ -230,9 +231,9 @@ function LoginPageContent() {
               </Button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 mt-6">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
               Don't have an account?{' '}
-              <Link href="/help" className="text-[#1a5d1a] hover:text-[#145214] font-medium">
+              <Link href="/help" className="text-[#1a5d1a] dark:text-green-400 hover:text-[#145214] dark:hover:text-green-300 font-medium">
                 Contact Coordinator
               </Link>
             </p>
@@ -243,7 +244,7 @@ function LoginPageContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-center text-sm text-gray-400 mt-8"
+            className="text-center text-sm text-gray-400 dark:text-gray-500 mt-8"
           >
             © {new Date().getFullYear()} Projectify. All rights reserved.
           </motion.div>
@@ -360,7 +361,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+    <Suspense fallback={<LoadingScreen minimal />}>
       <LoginPageContent />
     </Suspense>
   );

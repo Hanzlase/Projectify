@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
@@ -582,7 +583,7 @@ function SimilarityCheckPageContent() {
 
 export default function SimilarityCheckPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+    <Suspense fallback={<LoadingScreen minimal />}>
       <SimilarityCheckPageContent />
     </Suspense>
   );

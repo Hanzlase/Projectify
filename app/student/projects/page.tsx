@@ -16,6 +16,7 @@ import {
   FileSearch, Brain, Database, CheckCircle2, Cpu, Zap
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
@@ -415,84 +416,36 @@ function ProjectsPageContent() {
   });
 
   if (loading && projects.length === 0) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-8"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
-              animate={{ scale: [1, 0.95, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <GraduationCap className="w-10 h-10 text-[#1a5d1a]" />
-            </motion.div>
-          </div>
-          <div className="text-center">
-            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading projects...</motion.p>
-          </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full"
-                animate={{ y: [-4, 4, -4], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading projects..." />;
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
@@ -505,8 +458,8 @@ function ProjectsPageContent() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -527,8 +480,8 @@ function ProjectsPageContent() {
                   <FolderKanban className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-gray-900">Project Ideas</h1>
-                  <p className="text-sm text-gray-500">{projects.length} idea{projects.length !== 1 ? 's' : ''}</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Project Ideas</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{projects.length} idea{projects.length !== 1 ? 's' : ''}</p>
                 </div>
               </div>
 
@@ -548,7 +501,7 @@ function ProjectsPageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="border-0 shadow-sm bg-white rounded-2xl mb-6">
+            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Tab Filters */}
@@ -558,7 +511,7 @@ function ProjectsPageContent() {
                       className={`px-4 py-2 rounded-xl font-medium transition-all ${
                         filter === 'my'
                           ? 'bg-[#1a5d1a] text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       My Ideas
@@ -568,7 +521,7 @@ function ProjectsPageContent() {
                       className={`px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-1.5 ${
                         filter === 'public'
                           ? 'bg-[#1a5d1a] text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       <Globe className="w-4 h-4" />
@@ -582,19 +535,19 @@ function ProjectsPageContent() {
                       <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="h-10 px-4 pr-8 border border-gray-200 rounded-xl text-sm bg-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20"
+                        className="h-10 px-4 pr-8 border border-gray-200 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30"
                       >
                         <option value="">All Categories</option>
                         {CATEGORIES.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
                     </div>
                     <Button 
                       onClick={handleSearch} 
                       variant="outline" 
-                      className="border-gray-200 hover:bg-gray-50"
+                      className="border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
                     >
                       <Filter className="w-4 h-4" />
                     </Button>
@@ -624,10 +577,10 @@ function ProjectsPageContent() {
                   >
                     <Card 
                       onClick={() => router.push(`/student/projects/${project.projectId}`)}
-                      className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
+                      className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
                     >
                       {/* Thumbnail */}
-                      <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                      <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 relative overflow-hidden">
                         {project.thumbnailUrl ? (
                           <img 
                             src={project.thumbnailUrl} 
@@ -636,15 +589,15 @@ function ProjectsPageContent() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <FolderOpen className="w-16 h-16 text-gray-300" />
+                            <FolderOpen className="w-16 h-16 text-gray-300 dark:text-gray-500" />
                           </div>
                         )}
                         
                         {/* Visibility Badge */}
                         <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                           project.visibility === 'public' 
-                            ? 'bg-[#d1e7d1] text-[#1a5d1a]' 
-                            : 'bg-gray-100 text-gray-600'
+                            ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/40 text-[#1a5d1a] dark:text-[#4ade80]' 
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                         }`}>
                           {project.visibility === 'public' ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                           {project.visibility}
@@ -684,12 +637,12 @@ function ProjectsPageContent() {
 
                       {/* Content */}
                       <CardContent className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{project.title}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1">{project.title}</h3>
                         
                         {project.category && (
                           <div className="flex flex-wrap gap-1 mb-3">
                             {project.category.split(', ').map((cat, idx) => (
-                              <span key={idx} className="inline-block px-2 py-0.5 bg-[#d1e7d1] text-[#1a5d1a] text-xs rounded-full">
+                              <span key={idx} className="inline-block px-2 py-0.5 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80] text-xs rounded-full">
                                 {cat}
                               </span>
                             ))}
@@ -697,7 +650,7 @@ function ProjectsPageContent() {
                         )}
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xs font-bold overflow-hidden">
                               {project.creator?.profileImage ? (
@@ -706,9 +659,9 @@ function ProjectsPageContent() {
                                 project.creator?.name?.charAt(0) || 'U'
                               )}
                             </div>
-                            <span className="text-xs text-gray-500">{project.creator?.name}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{project.creator?.name}</span>
                           </div>
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {formatDate(project.createdAt)}
                           </span>
@@ -724,15 +677,15 @@ function ProjectsPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <div className="w-20 h-20 bg-[#d1e7d1] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FolderOpen className="w-10 h-10 text-[#1a5d1a]" />
+                  <div className="w-20 h-20 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FolderOpen className="w-10 h-10 text-[#1a5d1a] dark:text-[#4ade80]" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                     {filter === 'my' ? 'No project ideas yet' : 'No public ideas found'}
                   </h3>
-                  <p className="text-gray-500 mb-6">
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">
                     {filter === 'my' 
                       ? 'Share your first project idea with a title, description and files!'
                       : 'Be the first to share a public idea with your campus!'
@@ -768,19 +721,19 @@ function ProjectsPageContent() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-                <h2 className="text-xl font-bold text-gray-900">
+              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   {showEditModal ? 'Edit Idea' : 'Add New Idea'}
                 </h2>
                 <button
                   onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 dark:text-gray-300" />
                 </button>
               </div>
 
@@ -788,15 +741,15 @@ function ProjectsPageContent() {
               <div className="p-6 space-y-5">
                 {/* Visibility */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Visibility</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Visibility</label>
                   <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, visibility: 'private' }))}
                       className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
                         formData.visibility === 'private'
-                          ? 'border-[#1a5d1a] bg-[#d1e7d1] text-[#1a5d1a]'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          ? 'border-[#1a5d1a] bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]'
+                          : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
                       }`}
                     >
                       <Lock className="w-4 h-4" />
@@ -807,15 +760,15 @@ function ProjectsPageContent() {
                       onClick={() => setFormData(prev => ({ ...prev, visibility: 'public' }))}
                       className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
                         formData.visibility === 'public'
-                          ? 'border-[#1a5d1a] bg-[#d1e7d1] text-[#1a5d1a]'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          ? 'border-[#1a5d1a] bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]'
+                          : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
                       }`}
                     >
                       <Globe className="w-4 h-4" />
                       Public
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1.5">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
                     {formData.visibility === 'public' 
                       ? 'Anyone in your campus can view this idea'
                       : 'Only you can view this idea'
@@ -825,7 +778,7 @@ function ProjectsPageContent() {
 
                 {/* Thumbnail Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Thumbnail Image</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Thumbnail Image</label>
                   <input
                     type="file"
                     ref={thumbnailInputRef}
@@ -834,7 +787,7 @@ function ProjectsPageContent() {
                     onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'thumbnail')}
                   />
                   {formData.thumbnailUrl ? (
-                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100">
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
                       <img src={formData.thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
                       <button
                         type="button"
@@ -849,14 +802,14 @@ function ProjectsPageContent() {
                       type="button"
                       onClick={() => thumbnailInputRef.current?.click()}
                       disabled={uploadingThumbnail}
-                      className="w-full py-8 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#1a5d1a] hover:bg-[#d1e7d1]/20 transition-colors flex flex-col items-center gap-2"
+                      className="w-full py-8 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl hover:border-[#1a5d1a] hover:bg-[#d1e7d1]/20 dark:hover:bg-[#1a5d1a]/20 transition-colors flex flex-col items-center gap-2"
                     >
                       {uploadingThumbnail ? (
-                        <Loader2 className="w-6 h-6 text-[#1a5d1a] animate-spin" />
+                        <Loader2 className="w-6 h-6 text-[#1a5d1a] dark:text-[#4ade80] animate-spin" />
                       ) : (
-                        <ImageIcon className="w-6 h-6 text-gray-400" />
+                        <ImageIcon className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                       )}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {uploadingThumbnail ? 'Uploading...' : 'Click to upload thumbnail'}
                       </span>
                     </button>
@@ -865,7 +818,7 @@ function ProjectsPageContent() {
 
                 {/* Document Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Project Document (PDF, DOCX) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -876,11 +829,11 @@ function ProjectsPageContent() {
                     onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'document')}
                   />
                   {formData.documentUrl ? (
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <FileText className="w-8 h-8 text-[#1a5d1a]" />
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                      <FileText className="w-8 h-8 text-[#1a5d1a] dark:text-[#4ade80]" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-700 truncate">{formData.documentName || 'Document uploaded'}</p>
-                        <a href={formData.documentUrl} target="_blank" className="text-xs text-[#1a5d1a] hover:underline">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{formData.documentName || 'Document uploaded'}</p>
+                        <a href={formData.documentUrl} target="_blank" className="text-xs text-[#1a5d1a] dark:text-[#4ade80] hover:underline">
                           View document
                         </a>
                       </div>
@@ -890,7 +843,7 @@ function ProjectsPageContent() {
                           setFormData(prev => ({ ...prev, documentUrl: '', documentName: '' }));
                           setDocumentFile(null);
                         }}
-                        className="w-6 h-6 bg-red-100 text-red-500 rounded-full flex items-center justify-center hover:bg-red-200"
+                        className="w-6 h-6 bg-red-100 dark:bg-red-500/20 text-red-500 rounded-full flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-500/30"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -900,28 +853,28 @@ function ProjectsPageContent() {
                       type="button"
                       onClick={() => documentInputRef.current?.click()}
                       disabled={uploadingDocument}
-                      className="w-full py-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#1a5d1a] hover:bg-[#d1e7d1]/20 transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl hover:border-[#1a5d1a] hover:bg-[#d1e7d1]/20 dark:hover:bg-[#1a5d1a]/20 transition-colors flex items-center justify-center gap-2"
                     >
                       {uploadingDocument ? (
-                        <Loader2 className="w-5 h-5 text-[#1a5d1a] animate-spin" />
+                        <Loader2 className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80] animate-spin" />
                       ) : (
-                        <Upload className="w-5 h-5 text-gray-400" />
+                        <Upload className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                       )}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {uploadingDocument ? 'Uploading...' : 'Upload document (PDF or DOCX required)'}
                       </span>
                     </button>
                   )}
-                  <p className="text-xs text-gray-500 mt-1.5">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
                     Title and description will be automatically extracted from your document using AI.
                   </p>
                 </div>
 
                 {/* Info about similarity check */}
                 {formData.documentUrl && !showEditModal && (
-                  <div className="bg-[#d1e7d1] border border-[#1a5d1a]/20 rounded-xl p-3 flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-[#1a5d1a] mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-[#1a5d1a]">
+                  <div className="bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40 rounded-xl p-3 flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80] mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-[#1a5d1a] dark:text-[#4ade80]">
                       Your document will be analyzed by AI to extract title and description, and checked for similarity with existing projects. Projects must be at least 50% unique to be approved.
                     </p>
                   </div>
@@ -930,11 +883,11 @@ function ProjectsPageContent() {
               </div>
 
               {/* Modal Footer */}
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+              <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  className="border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </Button>
@@ -978,16 +931,16 @@ function ProjectsPageContent() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Project?</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  "<span className="font-medium text-gray-700">{projectToDelete.title}</span>" will be permanently deleted.
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Project?</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  "<span className="font-medium text-gray-700 dark:text-gray-300">{projectToDelete.title}</span>" will be permanently deleted.
                 </p>
               </div>
 
@@ -996,7 +949,7 @@ function ProjectsPageContent() {
                   variant="outline"
                   onClick={closeDeleteModal}
                   disabled={deleting !== null}
-                  className="flex-1 border-gray-200"
+                  className="flex-1 border-gray-200 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </Button>
@@ -1031,12 +984,12 @@ function ProjectsPageContent() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 overflow-hidden relative"
+              className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md p-8 overflow-hidden relative"
             >
               {/* Background decoration */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/10 rounded-full blur-3xl" />
               </div>
 
               <div className="relative">
@@ -1060,10 +1013,10 @@ function ProjectsPageContent() {
                       <Brain className="w-10 h-10 text-white" />
                     )}
                   </motion.div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                     {analysisStage === 5 ? 'Analysis Complete!' : 'Analyzing Your Document'}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {analysisStage === 5 ? 'Redirecting to results...' : 'Please wait while we process your project'}
                   </p>
                 </div>
@@ -1087,9 +1040,9 @@ function ProjectsPageContent() {
                       transition={{ delay: index * 0.1, duration: 0.3 }}
                       className={`flex items-center gap-4 p-3 rounded-xl transition-all ${
                         analysisStage === step.stage 
-                          ? 'bg-[#1a5d1a]/10 border border-[#1a5d1a]/20' 
+                          ? 'bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/20 border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40' 
                           : analysisStage > step.stage
-                            ? 'bg-gray-50'
+                            ? 'bg-gray-50 dark:bg-gray-700'
                             : ''
                       }`}
                     >
@@ -1097,8 +1050,8 @@ function ProjectsPageContent() {
                         analysisStage > step.stage
                           ? 'bg-[#1a5d1a] text-white'
                           : analysisStage === step.stage
-                            ? 'bg-[#1a5d1a]/20 text-[#1a5d1a]'
-                            : 'bg-gray-100 text-gray-400'
+                            ? 'bg-[#1a5d1a]/20 dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                       }`}>
                         {analysisStage > step.stage ? (
                           <CheckCircle2 className="w-5 h-5" />
@@ -1115,7 +1068,7 @@ function ProjectsPageContent() {
                       </div>
                       <div className="flex-1">
                         <p className={`text-sm font-medium ${
-                          analysisStage >= step.stage ? 'text-gray-900' : 'text-gray-400'
+                          analysisStage >= step.stage ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
                         }`}>
                           {step.label}
                         </p>
@@ -1132,7 +1085,7 @@ function ProjectsPageContent() {
                         <motion.span 
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="text-xs text-[#1a5d1a] font-medium"
+                          className="text-xs text-[#1a5d1a] dark:text-[#4ade80] font-medium"
                         >
                           Done
                         </motion.span>
@@ -1151,7 +1104,7 @@ function ProjectsPageContent() {
 
 export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+    <Suspense fallback={<LoadingScreen minimal />}>
       <ProjectsPageContent />
     </Suspense>
   );

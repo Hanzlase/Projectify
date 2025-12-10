@@ -15,6 +15,7 @@ import {
   MessageCircle, Trash2, Check, MoreVertical
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
@@ -215,81 +216,33 @@ export default function StudentNotificationsPage() {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-8"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
-              animate={{ scale: [1, 0.95, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <GraduationCap className="w-10 h-10 text-[#1a5d1a]" />
-            </motion.div>
-          </div>
-          <div className="text-center">
-            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading notifications...</motion.p>
-          </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full"
-                animate={{ y: [-4, 4, -4], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading notifications..." />;
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header - Hidden on mobile since StudentSidebar has mobile header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
@@ -302,8 +255,8 @@ export default function StudentNotificationsPage() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -319,8 +272,8 @@ export default function StudentNotificationsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {unreadCount > 0 
                     ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
                     : 'All caught up!'
@@ -342,7 +295,7 @@ export default function StudentNotificationsPage() {
                   <Button
                     onClick={deleteAllNotifications}
                     variant="outline"
-                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    className="border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-300"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete All
@@ -360,17 +313,17 @@ export default function StudentNotificationsPage() {
             className="flex flex-col sm:flex-row gap-4 mb-6"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Search notifications..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
+                className="pl-10 h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -381,7 +334,7 @@ export default function StudentNotificationsPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="h-11 px-4 border-gray-200 min-w-[140px] justify-between rounded-xl"
+                className="h-11 px-4 border-gray-200 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 min-w-[140px] justify-between rounded-xl"
               >
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
@@ -396,14 +349,14 @@ export default function StudentNotificationsPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 top-14 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-10 min-w-[140px]"
+                    className="absolute right-0 top-14 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-10 min-w-[140px]"
                   >
                     {['all', 'unread', 'read'].map((type) => (
                       <button
                         key={type}
                         onClick={() => { setFilterType(type as any); setShowFilterDropdown(false); }}
-                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 capitalize transition-colors ${
-                          filterType === type ? 'bg-[#d1e7d1] text-[#1a5d1a]' : 'text-gray-700'
+                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 capitalize transition-colors ${
+                          filterType === type ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]' : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
                         {type}
@@ -421,18 +374,18 @@ export default function StudentNotificationsPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
+            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
               <CardContent className="p-0">
                 {filteredNotifications.length > 0 ? (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredNotifications.map((notification, index) => (
                       <motion.div
                         key={notification.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`p-5 hover:bg-gray-50 transition-colors cursor-pointer ${
-                          !notification.isRead ? 'bg-[#d1e7d1]/20' : ''
+                        className={`p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
+                          !notification.isRead ? 'bg-[#d1e7d1]/20 dark:bg-[#1a5d1a]/10' : ''
                         }`}
                         onClick={() => {
                           setSelectedNotification(notification);
@@ -441,9 +394,9 @@ export default function StudentNotificationsPage() {
                         <div className="flex items-start gap-4">
                           {/* Icon */}
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            notification.type === 'warning' ? 'bg-amber-100' :
-                            notification.type === 'success' ? 'bg-emerald-100' :
-                            notification.type === 'announcement' ? 'bg-blue-100' : 'bg-cyan-100'
+                            notification.type === 'warning' ? 'bg-amber-100 dark:bg-amber-500/20' :
+                            notification.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20' :
+                            notification.type === 'announcement' ? 'bg-blue-100 dark:bg-blue-500/20' : 'bg-cyan-100 dark:bg-cyan-500/20'
                           }`}>
                             {getTypeIcon(notification.type)}
                           </div>

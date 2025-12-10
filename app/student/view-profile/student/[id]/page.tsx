@@ -14,6 +14,7 @@ import {
   CheckCircle2, Star, ExternalLink, Check, Loader2
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
   ssr: false,
@@ -118,22 +119,7 @@ export default function ViewStudentProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-[#d1e7d1] rounded-full animate-pulse"></div>
-            <GraduationCap className="w-8 h-8 text-[#1a5d1a] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="text-slate-600 font-medium">Loading student profile...</p>
-          <div className="flex gap-1">
-            <div className="w-2 h-2 bg-[#1a5d1a] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-2 h-2 bg-[#1a5d1a] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-2 h-2 bg-[#1a5d1a] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading student profile..." />;
   }
 
   if (error || !profile) {

@@ -22,6 +22,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { ssr: false });
 
@@ -105,36 +106,7 @@ export default function SupervisorGroupsPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative flex flex-col items-center gap-6"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-20 h-20 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-20 h-20 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
-              <Users className="w-8 h-8 text-[#1a5d1a]" />
-            </div>
-          </div>
-          <p className="text-gray-500 text-sm">Loading groups...</p>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading groups..." />;
   }
 
   return (

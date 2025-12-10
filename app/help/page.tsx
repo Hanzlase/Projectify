@@ -92,11 +92,11 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900">
       {/* Back Button - Fixed */}
       <Link
         href="/login"
-        className="fixed top-6 left-6 z-20 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-[#1a5d1a] hover:shadow-lg transition-all"
+        className="fixed top-6 left-6 z-20 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:shadow-lg transition-all"
       >
         <ArrowLeft className="w-5 h-5" />
       </Link>
@@ -108,15 +108,15 @@ export default function HelpPage() {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white border-b border-gray-100 px-8 py-5 sticky top-0 z-10"
+          className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-8 py-5 sticky top-0 z-10"
         >
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Help Center</h1>
-              <p className="text-xs text-gray-500">Get help with your account and login issues</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Help Center</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Get help with your account and login issues</p>
             </div>
           </div>
         </motion.header>
@@ -134,15 +134,15 @@ export default function HelpPage() {
               {/* Student Login Card */}
               <div
                 id="student-login"
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-12 h-12 bg-[#d1e7d1] rounded-xl flex items-center justify-center">
-                    <User className="w-6 h-6 text-[#1a5d1a]" />
+                  <div className="w-12 h-12 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-xl flex items-center justify-center">
+                    <User className="w-6 h-6 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900">Student Login</h3>
-                    <p className="text-xs text-gray-500">
+                    <h3 className="font-bold text-gray-900 dark:text-white">Student Login</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       How to access your account
                     </p>
                   </div>
@@ -154,11 +154,11 @@ export default function HelpPage() {
                       <span className="text-xs text-white font-bold">1</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Username
                       </p>
-                      <div className="bg-gray-50 rounded-lg px-3 py-2">
-                        <code className="text-sm text-[#1a5d1a] font-mono">
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                        <code className="text-sm text-[#1a5d1a] dark:text-[#2d7a2d] font-mono">
                           Your Roll Number
                         </code>
                       </div>
@@ -173,11 +173,11 @@ export default function HelpPage() {
                       <span className="text-xs text-white font-bold">2</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Password
                       </p>
-                      <div className="bg-gray-50 rounded-lg px-3 py-2">
-                        <code className="text-sm text-[#1a5d1a] font-mono">
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                        <code className="text-sm text-[#1a5d1a] dark:text-[#2d7a2d] font-mono">
                           RollNumber + 123
                         </code>
                       </div>
@@ -192,17 +192,17 @@ export default function HelpPage() {
               {/* Staff Login Card */}
               <div
                 id="staff-login"
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-12 h-12 bg-[#d1e7d1] rounded-xl flex items-center justify-center">
-                    <Briefcase className="w-6 h-6 text-[#1a5d1a]" />
+                  <div className="w-12 h-12 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-xl flex items-center justify-center">
+                    <Briefcase className="w-6 h-6 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900">
+                    <h3 className="font-bold text-gray-900 dark:text-white">
                       Supervisor / Coordinator
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       Staff login credentials
                     </p>
                   </div>
@@ -214,11 +214,11 @@ export default function HelpPage() {
                       <span className="text-xs text-white font-bold">1</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Username
                       </p>
-                      <div className="bg-gray-50 rounded-lg px-3 py-2">
-                        <code className="text-sm text-[#1a5d1a] font-mono">
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                        <code className="text-sm text-[#1a5d1a] dark:text-[#2d7a2d] font-mono">
                           Your Email Address
                         </code>
                       </div>
@@ -230,11 +230,11 @@ export default function HelpPage() {
                       <span className="text-xs text-white font-bold">2</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Password
                       </p>
-                      <div className="bg-gray-50 rounded-lg px-3 py-2">
-                        <code className="text-sm text-[#1a5d1a] font-mono">
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                        <code className="text-sm text-[#1a5d1a] dark:text-[#2d7a2d] font-mono">
                           Username + 123
                         </code>
                       </div>
@@ -270,7 +270,7 @@ export default function HelpPage() {
               id="contact"
               className="lg:col-span-2"
             >
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden h-full">
                 {/* Form Header */}
                 <div className="bg-gradient-to-r from-[#1a5d1a] to-[#3d8c40] px-8 py-8">
                   <div className="flex items-center gap-4">
@@ -299,10 +299,10 @@ export default function HelpPage() {
                       <div className="w-20 h-20 bg-[#d1e7d1] rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="w-10 h-10 text-[#1a5d1a]" />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                         Request Submitted!
                       </h3>
-                      <p className="text-gray-500 max-w-md mx-auto mb-8">
+                      <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
                         Your message has been sent to the coordinator.
                         They&apos;ll get back to you as soon as possible.
                       </p>
@@ -316,7 +316,7 @@ export default function HelpPage() {
                           setIssueType("login");
                         }}
                         variant="outline"
-                        className="border-[#1a5d1a] text-[#1a5d1a] hover:bg-[#d1e7d1]"
+                        className="border-[#1a5d1a] text-[#1a5d1a] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30"
                       >
                         Submit Another Request
                         <ChevronRight className="w-4 h-4 ml-2" />
@@ -328,7 +328,7 @@ export default function HelpPage() {
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center gap-3 p-4 text-red-600 bg-red-50 border border-red-100 rounded-xl"
+                          className="flex items-center gap-3 p-4 text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl"
                         >
                           <AlertCircle className="w-5 h-5 flex-shrink-0" />
                           <span className="text-sm font-medium">{error}</span>
@@ -338,7 +338,7 @@ export default function HelpPage() {
                       {/* Name & Email Row */}
                       <div className="grid md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Full Name{" "}
                             <span className="text-[#1a5d1a]">*</span>
                           </label>
@@ -348,13 +348,13 @@ export default function HelpPage() {
                               value={name}
                               onChange={(e) => setName(e.target.value)}
                               placeholder="Enter your name"
-                              className="h-12 pl-11 rounded-xl bg-gray-50 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                              className="h-12 pl-11 rounded-xl bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 dark:text-white dark:placeholder-gray-400"
                               required
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Email Address{" "}
                             <span className="text-[#1a5d1a]">*</span>
                           </label>
@@ -365,7 +365,7 @@ export default function HelpPage() {
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                               placeholder="your@email.com"
-                              className="h-12 pl-11 rounded-xl bg-gray-50 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                              className="h-12 pl-11 rounded-xl bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 dark:text-white dark:placeholder-gray-400"
                               required
                             />
                           </div>
@@ -374,7 +374,7 @@ export default function HelpPage() {
 
                       {/* Roll Number */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Roll Number{" "}
                           <span className="text-gray-400 font-normal">
                             (Students only)
@@ -388,14 +388,14 @@ export default function HelpPage() {
                               setRollNumber(formatRollNumber(e.target.value))
                             }
                             placeholder="22F-3686"
-                            className="h-12 pl-11 rounded-xl bg-gray-50 border-gray-200 uppercase focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                            className="h-12 pl-11 rounded-xl bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 uppercase focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 dark:text-white dark:placeholder-gray-400"
                           />
                         </div>
                       </div>
 
                       {/* Issue Type */}
                       <div className="space-y-3">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Issue Type <span className="text-[#1a5d1a]">*</span>
                         </label>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -408,8 +408,8 @@ export default function HelpPage() {
                               }
                               className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 text-sm font-medium transition-all ${
                                 issueType === type.value
-                                  ? "border-[#1a5d1a] bg-[#d1e7d1] text-[#1a5d1a]"
-                                  : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:border-gray-300"
+                                  ? "border-[#1a5d1a] bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d]"
+                                  : "border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                               }`}
                             >
                               {issueType === type.value && (
@@ -420,7 +420,7 @@ export default function HelpPage() {
                               <type.icon
                                 className={`w-5 h-5 ${
                                   issueType === type.value
-                                    ? "text-[#1a5d1a]"
+                                    ? "text-[#1a5d1a] dark:text-[#2d7a2d]"
                                     : "text-gray-400"
                                 }`}
                               />
@@ -432,7 +432,7 @@ export default function HelpPage() {
 
                       {/* Message */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Describe Your Issue{" "}
                           <span className="text-[#1a5d1a]">*</span>
                         </label>
@@ -442,7 +442,7 @@ export default function HelpPage() {
                           placeholder="Please provide as much detail as possible about your issue..."
                           rows={5}
                           required
-                          className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[#1a5d1a] focus:ring-2 focus:ring-[#1a5d1a]/20 focus:outline-none resize-none text-sm"
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white placeholder:text-gray-400 focus:border-[#1a5d1a] focus:ring-2 focus:ring-[#1a5d1a]/20 focus:outline-none resize-none text-sm"
                         />
                       </div>
 

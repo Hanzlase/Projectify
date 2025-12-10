@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
@@ -825,21 +826,21 @@ function ChatPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <StudentSidebar />
       
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0 flex flex-col h-screen">
         {/* Page Header - Hidden on mobile */}
-        <header className="hidden md:flex bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100">
+        <header className="hidden md:flex bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
               <MessageCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Messages</h1>
-              <p className="text-xs text-gray-500">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Messages</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
         </header>
@@ -847,7 +848,7 @@ function ChatPageContent() {
         {/* Chat Container */}
         <div className="flex-1 flex overflow-hidden">
           {/* Conversations Sidebar */}
-          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col bg-white ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col bg-white dark:bg-gray-800 ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
             <div className="p-4 bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d]">
               <div className="flex items-center justify-between mb-4">
@@ -901,46 +902,46 @@ function ChatPageContent() {
                         onClick={() => selectGroupConversation(group)}
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === group.conversationId 
-                            ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="relative flex-shrink-0">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white shadow-md">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-800 shadow-md">
                               <Users className="w-6 h-6" />
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white flex items-center justify-center">
+                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
                               <span className="text-[8px] text-white font-bold">{group.members.length}</span>
                             </div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
                                 {group.groupName}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(group.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
                                 >
-                                  <Pin className="w-3 h-3 text-[#1a5d1a]" />
+                                  <Pin className="w-3 h-3 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                                 </button>
-                                <span className={`text-xs flex-shrink-0 ${group.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
+                                <span className={`text-xs flex-shrink-0 ${group.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                   {group.lastMessage && formatTime(group.lastMessage.createdAt)}
                                 </span>
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] text-[#1a5d1a]">
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d]">
                                 FYP Group
                               </span>
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                              <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                                 {group.lastMessage?.content || 'Start chatting...'}
                               </p>
                               {group.unreadCount > 0 && (
@@ -965,35 +966,35 @@ function ChatPageContent() {
                         onClick={() => selectConversation(conv.conversationId)}
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
-                            ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="relative flex-shrink-0">
-                            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white shadow-md`}>
+                            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-800 shadow-md`}>
                               {conv.otherUser?.profileImage ? (
                                 <img src={conv.otherUser.profileImage} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                               )}
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(conv.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
                                 >
-                                  <Pin className="w-3 h-3 text-[#1a5d1a]" />
+                                  <Pin className="w-3 h-3 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                                 </button>
-                                <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
+                                <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                   {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
                                 </span>
                               </div>
@@ -1006,7 +1007,7 @@ function ChatPageContent() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                              <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                                 {conv.lastMessage?.content || 'Start a conversation...'}
                               </p>
                               {conv.unreadCount > 0 && (
@@ -1027,8 +1028,8 @@ function ChatPageContent() {
                 filteredConversations.filter(conv => !pinnedIds.includes(conv.conversationId)).length > 0) && (
                 <div className="py-2">
                   <div className="px-4 py-2 flex items-center gap-2">
-                    <MessageCircle className="w-3 h-3 text-[#1a5d1a]" />
-                    <span className="text-xs font-semibold text-[#1a5d1a] uppercase tracking-wider">All Conversations</span>
+                    <MessageCircle className="w-3 h-3 text-[#1a5d1a] dark:text-[#2d7a2d]" />
+                    <span className="text-xs font-semibold text-[#1a5d1a] dark:text-[#2d7a2d] uppercase tracking-wider">All Conversations</span>
                   </div>
                   
                   {/* Merge and sort all conversations by last message time */}
@@ -1053,51 +1054,51 @@ function ChatPageContent() {
                             onClick={() => selectGroupConversation(group)}
                             className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                               selectedConversation === group.conversationId 
-                                ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                                : 'hover:bg-gray-50 border border-transparent'
+                                ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
+                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative flex-shrink-0">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white shadow-md">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-700 shadow-md">
                                   <Users className="w-6 h-6" />
                                 </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white flex items-center justify-center">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
                                   <span className="text-[8px] text-white font-bold">{group.members.length}</span>
                                 </div>
                               </div>
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-0.5">
-                                  <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                                  <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
                                     {group.groupName}
                                   </h3>
                                   <div className="flex items-center gap-1">
                                     <button
                                       onClick={(e) => togglePin(group.conversationId, e)}
-                                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
                                     >
                                       <PinOff className="w-3 h-3 text-gray-400" />
                                     </button>
-                                    <span className={`text-xs flex-shrink-0 ${group.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
+                                    <span className={`text-xs flex-shrink-0 ${group.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                       {group.lastMessage && formatTime(group.lastMessage.createdAt)}
                                     </span>
                                   </div>
                                 </div>
                                 
                                 <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] text-[#1a5d1a]">
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d]">
                                     FYP Group
                                   </span>
                                   {group.supervisor && (
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                                       + Supervisor
                                     </span>
                                   )}
                                 </div>
                                 
                                 <div className="flex items-center justify-between">
-                                  <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                                  <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                                     {group.lastMessage?.content || 'Start chatting...'}
                                   </p>
                                   {group.unreadCount > 0 && (
@@ -1121,35 +1122,35 @@ function ChatPageContent() {
                             onClick={() => selectConversation(conv.conversationId)}
                             className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                               selectedConversation === conv.conversationId 
-                                ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                                : 'hover:bg-gray-50 border border-transparent'
+                                ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
+                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative flex-shrink-0">
-                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white shadow-md`}>
+                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-700 shadow-md`}>
                                   {conv.otherUser?.profileImage ? (
                                     <img src={conv.otherUser.profileImage} alt="" className="w-full h-full object-cover" />
                                   ) : (
                                     conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                                   )}
                                 </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                               </div>
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-0.5">
-                                  <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                                  <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
                                     {conv.otherUser?.name}
                                   </h3>
                                   <div className="flex items-center gap-1">
                                     <button
                                       onClick={(e) => togglePin(conv.conversationId, e)}
-                                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
                                     >
                                       <PinOff className="w-3 h-3 text-gray-400" />
                                     </button>
-                                    <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
+                                    <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                       {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
                                     </span>
                                   </div>
@@ -1162,7 +1163,7 @@ function ChatPageContent() {
                                 </div>
                                 
                                 <div className="flex items-center justify-between">
-                                  <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                                  <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                                     {conv.lastMessage?.content || 'Start a conversation...'}
                                   </p>
                                   {conv.unreadCount > 0 && (
@@ -1196,19 +1197,19 @@ function ChatPageContent() {
           </div>
 
           {/* Chat Area */}
-          <div className={`flex-1 flex flex-col bg-[#f5f5f7] ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`flex-1 flex flex-col bg-[#f5f5f7] dark:bg-gray-900 ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {selectedConversation && (selectedGroupConversation || otherUser) ? (
               <>
                 {/* Chat Header */}
-                <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="md:hidden -ml-2 hover:bg-gray-100"
+                      className="md:hidden -ml-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                       onClick={() => { setShowMobileChat(false); setSelectedConversation(null); setSelectedGroupConversation(null); }}
                     >
-                      <ChevronLeft className="w-5 h-5 text-gray-600" />
+                      <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                     </Button>
                     
                     {selectedGroupConversation ? (
@@ -1224,12 +1225,12 @@ function ChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900">{selectedGroupConversation.groupName}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-white">{selectedGroupConversation.groupName}</h3>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-700">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
                               FYP Group
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
                               {selectedGroupConversation.members.length} members{selectedGroupConversation.supervisor ? ' + Supervisor' : ''}
                             </span>
                           </div>
@@ -1249,7 +1250,7 @@ function ChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900">{otherUser.name}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-white">{otherUser.name}</h3>
                           <div className="flex items-center gap-2">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                               {otherUser.role}
@@ -1266,18 +1267,18 @@ function ChatPageContent() {
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push(`/student/group/${selectedGroupConversation.groupId}`)}
-                        className="w-9 h-9 p-0 rounded-full hover:bg-[#d1e7d1]"
+                        className="w-9 h-9 p-0 rounded-full hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30"
                       >
-                        <Info className="w-4 h-4 text-[#1a5d1a]" />
+                        <Info className="w-4 h-4 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </Button>
                     ) : otherUser && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push(`/${userRole}/view-profile/${otherUser.role}/${otherUser.userId}`)}
-                        className="w-9 h-9 p-0 rounded-full hover:bg-[#d1e7d1]"
+                        className="w-9 h-9 p-0 rounded-full hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30"
                       >
-                        <Info className="w-4 h-4 text-[#1a5d1a]" />
+                        <Info className="w-4 h-4 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </Button>
                     )}
                   </div>
@@ -1303,7 +1304,7 @@ function ChatPageContent() {
                           <div key={message.messageId}>
                             {showDate && (
                               <div className="flex justify-center my-6">
-                                <span className="px-4 py-1.5 bg-white text-gray-500 text-xs font-medium rounded-full shadow-sm border border-gray-200">
+                                <span className="px-4 py-1.5 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                                   {new Date(message.createdAt).toLocaleDateString('en-US', {
                                     weekday: 'long',
                                     month: 'short',
@@ -1340,7 +1341,7 @@ function ChatPageContent() {
                                     className={`shadow-sm overflow-hidden ${
                                       message.isOwn
                                         ? 'bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl rounded-br-md'
-                                        : 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100'
+                                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-bl-md border border-gray-100 dark:border-gray-700'
                                     }`}
                                   >
                                     {/* Image Attachment */}
@@ -1373,22 +1374,22 @@ function ChatPageContent() {
                                           className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20' 
-                                              : 'bg-gray-50 hover:bg-gray-100'
+                                              : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
                                           }`}
                                         >
                                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
-                                            message.isOwn ? 'bg-white/20' : 'bg-[#d1e7d1]'
+                                            message.isOwn ? 'bg-white/20' : 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30'
                                           }`}>
                                             {getFileIcon(message.attachmentName || '')}
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <p className={`text-sm font-medium truncate ${
-                                              message.isOwn ? 'text-white' : 'text-gray-800'
+                                              message.isOwn ? 'text-white' : 'text-gray-800 dark:text-gray-200'
                                             }`}>
                                               {message.attachmentName || 'File'}
                                             </p>
                                             <p className={`text-xs ${
-                                              message.isOwn ? 'text-white/70' : 'text-gray-500'
+                                              message.isOwn ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'
                                             }`}>
                                               Click to open in new tab
                                             </p>
@@ -1400,7 +1401,7 @@ function ChatPageContent() {
                                           className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20 text-white/80' 
-                                              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                              : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
                                           }`}
                                           onClick={(e) => e.stopPropagation()}
                                         >
@@ -1454,11 +1455,11 @@ function ChatPageContent() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                      <div className="w-24 h-24 bg-[#d1e7d1] rounded-full flex items-center justify-center mb-4 shadow-lg">
-                        <Sparkles className="w-12 h-12 text-[#1a5d1a]" />
+                      <div className="w-24 h-24 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                        <Sparkles className="w-12 h-12 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </div>
-                      <h3 className="font-bold text-gray-800 text-lg mb-2">Start the conversation!</h3>
-                      <p className="text-gray-500 max-w-xs">
+                      <h3 className="font-bold text-gray-800 dark:text-white text-lg mb-2">Start the conversation!</h3>
+                      <p className="text-gray-500 dark:text-gray-400 max-w-xs">
                         {selectedGroupConversation ? (
                           <>Say hello to <span className="font-medium text-[#1a5d1a]">{selectedGroupConversation.groupName}</span> group</>
                         ) : otherUser ? (
@@ -1472,28 +1473,28 @@ function ChatPageContent() {
                 </div>
 
                 {/* Message Input Footer */}
-                <div className="border-t border-gray-200 bg-white p-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
                   {/* File Preview */}
                   {selectedFile && (
-                    <div className="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center gap-3">
                         {filePreview ? (
                           <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
                         ) : (
-                          <div className="w-16 h-16 bg-[#d1e7d1] rounded-lg flex items-center justify-center text-2xl">
+                          <div className="w-16 h-16 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center text-2xl">
                             {getFileIcon(selectedFile.name)}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-800 truncate">{selectedFile.name}</p>
-                          <p className="text-sm text-gray-500">{formatFileSize(selectedFile.size)}</p>
+                          <p className="font-medium text-gray-800 dark:text-gray-200 truncate">{selectedFile.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{formatFileSize(selectedFile.size)}</p>
                         </div>
                         <button 
                           type="button"
                           onClick={clearFileSelection}
-                          className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
                         >
-                          <X className="w-4 h-4 text-gray-600" />
+                          <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                         </button>
                       </div>
                     </div>
@@ -1521,7 +1522,7 @@ function ChatPageContent() {
                       <button 
                         type="button" 
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] hover:bg-[#d1e7d1] transition-colors"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors"
                         title="Attach file"
                       >
                         <Paperclip className="w-5 h-5" />
@@ -1529,7 +1530,7 @@ function ChatPageContent() {
                       <button 
                         type="button" 
                         onClick={() => imageInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] hover:bg-[#d1e7d1] transition-colors hidden sm:flex"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors hidden sm:flex"
                         title="Send image"
                       >
                         <ImageIcon className="w-5 h-5" />
@@ -1543,7 +1544,7 @@ function ChatPageContent() {
                         placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="h-12 pl-4 pr-12 border-2 border-gray-200 focus:border-[#1a5d1a] rounded-full bg-gray-50 focus:bg-white transition-colors"
+                        className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-gray-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 dark:text-white transition-colors"
                         disabled={sending || uploadingFile}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1939,7 +1940,7 @@ function ChatPageContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"><Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" /></div>}>
+    <Suspense fallback={<LoadingScreen minimal />}>
       <ChatPageContent />
     </Suspense>
   );

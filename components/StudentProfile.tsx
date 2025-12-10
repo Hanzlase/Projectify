@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 import NotificationBell from '@/components/NotificationBell';
+import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
@@ -218,83 +219,35 @@ export default function StudentProfile() {
   ];
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-8"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
-              animate={{ scale: [1, 0.95, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <GraduationCap className="w-10 h-10 text-[#1a5d1a]" />
-            </motion.div>
-          </div>
-          <div className="text-center">
-            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading your profile...</motion.p>
-          </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full"
-                animate={{ y: [-4, 4, -4], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading your profile..." />;
   }
 
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <StudentSidebar profileImage={profile?.profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header - Hidden on mobile since StudentSidebar has mobile header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
@@ -307,8 +260,8 @@ export default function StudentProfile() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{profile.name}</p>
-                  <p className="text-[10px] text-gray-500">{profile.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{profile.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{profile.email}</p>
                 </div>
               </div>
             </div>
@@ -318,33 +271,33 @@ export default function StudentProfile() {
         {/* Page Content */}
         <main className="p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="text-sm text-gray-500">View and manage your profile details here.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">View and manage your profile details here.</p>
           </div>
 
           {/* Messages */}
           {success && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 p-4 mb-6 bg-[#d1e7d1] border border-[#1a5d1a]/20 rounded-xl">
-              <CheckCircle2 className="w-5 h-5 text-[#1a5d1a] flex-shrink-0" />
-              <p className="text-[#1a5d1a] font-medium">{success}</p>
+              className="flex items-center gap-3 p-4 mb-6 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40 rounded-xl">
+              <CheckCircle2 className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80] flex-shrink-0" />
+              <p className="text-[#1a5d1a] dark:text-[#4ade80] font-medium">{success}</p>
             </motion.div>
           )}
 
           {error && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 p-4 mb-6 bg-red-50 border border-red-200 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-700 font-medium">{error}</p>
+              className="flex items-center gap-3 p-4 mb-6 bg-red-50 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+              <p className="text-red-700 dark:text-red-400 font-medium">{error}</p>
             </motion.div>
           )}
 
           {/* Profile Card */}
-          <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
             <CardContent className="p-0">
               <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Profile Image & Name */}
-                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col items-center">
+                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-700 flex flex-col items-center">
                   <div className="mb-4">
                     <ProfileImageUpload
                       currentImage={profile.profileImage}
