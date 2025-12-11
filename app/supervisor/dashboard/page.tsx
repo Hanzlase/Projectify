@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import dynamic from 'next/dynamic';
 import { 
   Users, 
   GraduationCap, 
@@ -38,6 +39,8 @@ import {
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
 
 interface DashboardStats {
   totalGroups: number;
@@ -184,90 +187,10 @@ export default function SupervisorDashboard() {
     { name: 'Completed', value: stats.approvedProposals || 2, color: '#2d7a2d' },
   ];
 
-  const sidebarItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard', active: true },
-    { icon: FolderKanban, label: 'Projects', path: '/supervisor/projects', active: false },
-    { icon: MessageCircle, label: 'Chat', path: '/supervisor/chat', active: false },
-    { icon: Bell, label: 'Notifications', path: '/supervisor/notifications', active: false },
-    { icon: Users, label: 'Students', path: '/supervisor/students', active: false },
-  ];
-
-  const bottomSidebarItems = [
-    { icon: Settings, label: 'Settings', path: '/supervisor/profile', active: false },
-    { icon: HelpCircle, label: 'Help', path: '/help', active: false },
-  ];
-
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex">
-      {/* Sidebar - Matching profile page design */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="hidden md:flex w-56 bg-white flex-col fixed h-full z-20 shadow-sm"
-      >
-        <div className="p-5 pb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900">Projectify</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 px-3">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</p>
-          <div className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="px-3 pb-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">General</p>
-          <div className="space-y-1">
-            {bottomSidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    item.active
-                      ? 'bg-[#1a5d1a] text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-[18px] h-[18px]" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut className="w-[18px] h-[18px]" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </motion.aside>
+      {/* Sidebar */}
+      <SupervisorSidebar profileImage={profileImage} />
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-100 z-20 flex items-center justify-between px-4">

@@ -8,13 +8,30 @@ import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, Loader2, Globe, Lock, Edit, Trash2, 
   FileText, ExternalLink, Calendar, Sparkles, 
-  FolderOpen, Link as LinkIcon, Github, User
+  FolderOpen, Link as LinkIcon, Github, User,
+  ShieldCheck, Clock, Send, CheckCircle, XCircle, MessageSquare,
+  BarChart3, Code, Users, Rocket,
+  AlertTriangle, TrendingUp, TrendingDown, ChevronDown, ChevronUp
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+
+interface FeasibilityReport {
+  overallFeasibility: 'high' | 'medium' | 'low';
+  summary: string;
+  targetAudience?: string;
+  timelineFeasibility?: {
+    isPossible: boolean;
+    verdict: string;
+    considerations: string[];
+  };
+  requiredSkills: string[];
+  recommendedSupervisorExpertise: string[];
+  suggestedEnhancements: string[];
+}
 
 interface Project {
   projectId: number;
@@ -31,6 +48,7 @@ interface Project {
   demoUrl: string | null;
   isUnique: boolean;
   similarityScore: number | null;
+  feasibilityReport: FeasibilityReport | null;
   createdById: number;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +58,11 @@ interface Project {
     profileImage: string | null;
     role: string;
   };
+  isAssignedToGroup?: boolean;
+  assignedGroup?: {
+    groupId: number;
+    groupName: string;
+  } | null;
 }
 
 export default function ProjectDetailPage() {
@@ -51,6 +74,18 @@ export default function ProjectDetailPage() {
   const [error, setError] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  
+  // Permission request state
+  const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
+  const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
+  const [requestingPermission, setRequestingPermission] = useState(false);
+  const [permissionMessage, setPermissionMessage] = useState('');
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  
+  // Feasibility report state
+  const [feasibilityReport, setFeasibilityReport] = useState<FeasibilityReport | null>(null);
+  const [loadingFeasibility, setLoadingFeasibility] = useState(false);
+  const [showFeasibilityReport, setShowFeasibilityReport] = useState(false);
 
   const projectId = params.id as string;
 
@@ -60,8 +95,22 @@ export default function ProjectDetailPage() {
     } else if (status === 'authenticated' && projectId) {
       fetchProject();
       fetchProfileImage();
+      checkPermissionStatus();
     }
   }, [status, router, projectId]);
+
+  const checkPermissionStatus = async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/permission`);
+      if (response.ok) {
+        const data = await response.json();
+        setHasRequestedPermission(data.hasRequested);
+        setPermissionStatus(data.status);
+      }
+    } catch (error) {
+      console.error('Failed to check permission status:', error);
+    }
+  };
 
   const fetchProfileImage = async () => {
     try {
@@ -132,6 +181,68 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleRequestPermission = async () => {
+    setRequestingPermission(true);
+    try {
+      const response = await fetch(`/api/projects/${projectId}/permission`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: permissionMessage })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setHasRequestedPermission(true);
+        setPermissionStatus('pending');
+        setShowPermissionModal(false);
+        setPermissionMessage('');
+        alert('Permission request sent successfully!');
+      } else {
+        alert(data.error || 'Failed to send permission request');
+      }
+    } catch (error) {
+      console.error('Failed to request permission:', error);
+      alert('Failed to send permission request');
+    } finally {
+      setRequestingPermission(false);
+    }
+  };
+
+  const fetchFeasibilityReport = async () => {
+    // First check if project has stored feasibility report
+    if (project?.feasibilityReport) {
+      setFeasibilityReport(project.feasibilityReport);
+      setShowFeasibilityReport(!showFeasibilityReport);
+      return;
+    }
+    
+    if (feasibilityReport) {
+      setShowFeasibilityReport(!showFeasibilityReport);
+      return;
+    }
+    
+    setLoadingFeasibility(true);
+    try {
+      const response = await fetch(`/api/projects/${projectId}/feasibility`);
+      if (response.ok) {
+        const data = await response.json();
+        setFeasibilityReport(data.feasibilityReport);
+        setShowFeasibilityReport(true);
+      } else {
+        alert('Failed to generate feasibility report');
+      }
+    } catch (error) {
+      console.error('Failed to fetch feasibility report:', error);
+      alert('Failed to generate feasibility report');
+    } finally {
+      setLoadingFeasibility(false);
+    }
+  };
+
+  // Check if the project is uploaded by a supervisor
+  const isSupervisorProject = project?.creator?.role === 'supervisor';
+
   if (status === 'loading' || loading) {
     return <LoadingScreen message="Loading project details..." />;
   }
@@ -188,7 +299,9 @@ export default function ProjectDetailPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => router.push(`/student/projects?edit=${project.projectId}`)}
-                      className="hidden md:flex"
+                      disabled={project.isAssignedToGroup}
+                      className="hidden md:flex disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={project.isAssignedToGroup ? 'Cannot edit - project is assigned to a group' : 'Edit project'}
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
@@ -197,8 +310,9 @@ export default function ProjectDetailPage() {
                       variant="outline"
                       size="sm"
                       onClick={handleDelete}
-                      disabled={deleting}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hidden md:flex"
+                      disabled={deleting || project.isAssignedToGroup}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hidden md:flex disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={project.isAssignedToGroup ? 'Cannot delete - project is assigned to a group' : 'Delete project'}
                     >
                       {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
                       Delete
@@ -316,6 +430,168 @@ export default function ProjectDetailPage() {
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{project.abstractText}</p>
                   </div>
                 )}
+
+                {/* Feasibility Report Section */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={fetchFeasibilityReport}
+                    disabled={loadingFeasibility}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
+                        <BarChart3 className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-lg font-semibold text-gray-900">AI Feasibility Report</h3>
+                        <p className="text-sm text-gray-500">
+                          {feasibilityReport ? 'Click to toggle report' : 'Generate comprehensive project analysis'}
+                        </p>
+                      </div>
+                    </div>
+                    {loadingFeasibility ? (
+                      <Loader2 className="w-5 h-5 text-[#1a5d1a] animate-spin" />
+                    ) : showFeasibilityReport ? (
+                      <ChevronUp className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+
+                  {showFeasibilityReport && feasibilityReport && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t border-gray-100"
+                    >
+                      {/* Feasibility Header */}
+                      <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="text-white">
+                              <p className="text-sm text-white/80">Overall Feasibility</p>
+                              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-sm mt-1 ${
+                                feasibilityReport.overallFeasibility === 'high' 
+                                  ? 'bg-emerald-500/30 text-emerald-100' 
+                                  : feasibilityReport.overallFeasibility === 'medium'
+                                  ? 'bg-amber-500/30 text-amber-100'
+                                  : 'bg-red-500/30 text-red-100'
+                              }`}>
+                                {feasibilityReport.overallFeasibility === 'high' && <TrendingUp className="w-4 h-4" />}
+                                {feasibilityReport.overallFeasibility === 'medium' && <TrendingDown className="w-4 h-4" />}
+                                {feasibilityReport.overallFeasibility === 'low' && <AlertTriangle className="w-4 h-4" />}
+                                {feasibilityReport.overallFeasibility.toUpperCase()}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-white/80">Score</p>
+                            <p className="text-3xl font-bold text-white">
+                              {feasibilityReport.overallFeasibility === 'high' ? '85' : feasibilityReport.overallFeasibility === 'medium' ? '65' : '40'}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-6">
+                        {/* Summary */}
+                        <div className="bg-gradient-to-r from-[#1a5d1a]/5 to-[#2e7d2e]/5 rounded-xl p-4 border border-[#1a5d1a]/10">
+                          <p className="text-gray-700 leading-relaxed">{feasibilityReport.summary}</p>
+                        </div>
+
+                        {/* Target Audience & Timeline Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Target Audience */}
+                          {feasibilityReport.targetAudience && (
+                            <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Users className="w-5 h-5 text-purple-600" />
+                                <h4 className="font-semibold text-gray-900">Target Audience</h4>
+                              </div>
+                              <p className="text-sm text-gray-700">{feasibilityReport.targetAudience}</p>
+                            </div>
+                          )}
+
+                          {/* Timeline Feasibility */}
+                          {feasibilityReport.timelineFeasibility && (
+                            <div className={`rounded-xl p-4 border ${
+                              feasibilityReport.timelineFeasibility.isPossible 
+                                ? 'bg-green-50 border-green-100' 
+                                : 'bg-amber-50 border-amber-100'
+                            }`}>
+                              <div className="flex items-center gap-2 mb-2">
+                                <Clock className="w-5 h-5 text-gray-600" />
+                                <h4 className="font-semibold text-gray-900">Timeline Feasibility</h4>
+                              </div>
+                              <p className={`text-sm font-medium mb-2 ${
+                                feasibilityReport.timelineFeasibility.isPossible ? 'text-green-700' : 'text-amber-700'
+                              }`}>
+                                {feasibilityReport.timelineFeasibility.verdict}
+                              </p>
+                              {feasibilityReport.timelineFeasibility.considerations.length > 0 && (
+                                <ul className="space-y-1">
+                                  {feasibilityReport.timelineFeasibility.considerations.map((c, i) => (
+                                    <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5">
+                                      <span className="text-gray-400">•</span>
+                                      {c}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Required Skills */}
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Code className="w-5 h-5 text-[#1a5d1a]" />
+                            <h4 className="font-semibold text-gray-900">Required Skills</h4>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {feasibilityReport.requiredSkills.map((skill, i) => (
+                              <span key={i} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Supervisor Expertise */}
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Users className="w-5 h-5 text-[#1a5d1a]" />
+                            <h4 className="font-semibold text-gray-900">Look for Supervisors With</h4>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {feasibilityReport.recommendedSupervisorExpertise.map((exp, i) => (
+                              <span key={i} className="px-3 py-1 bg-[#1a5d1a]/10 text-[#1a5d1a] rounded-full text-sm font-medium">
+                                {exp}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Enhancement Suggestions */}
+                        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Rocket className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-semibold text-gray-900">Suggested Enhancements</h4>
+                          </div>
+                          <ul className="space-y-2">
+                            {feasibilityReport.suggestedEnhancements.map((enhancement, i) => (
+                              <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                                <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                                {enhancement}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
 
                 {/* Document Section */}
                 {project.documentUrl && (
@@ -439,12 +715,12 @@ export default function ProjectDetailPage() {
 
                 {/* Owner Actions */}
                 {isOwner && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Actions</h3>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Actions</h3>
                     <div className="space-y-3">
                       <Button
                         variant="outline"
-                        className="w-full justify-start"
+                        className="w-full justify-start dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         onClick={() => router.push(`/student/projects?edit=${project.projectId}`)}
                       >
                         <Edit className="w-4 h-4 mr-2" />
@@ -452,7 +728,7 @@ export default function ProjectDetailPage() {
                       </Button>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        className="w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800"
                         onClick={handleDelete}
                         disabled={deleting}
                       >
@@ -462,11 +738,149 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Permission Request Card - For supervisor uploaded projects */}
+                {isSupervisorProject && !isOwner && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+                      Project Permission
+                    </h3>
+                    
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ShieldCheck className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Supervisor's Project</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        This project was uploaded by a supervisor. You need their permission to use it for your FYP.
+                      </p>
+                    </div>
+
+                    {!hasRequestedPermission ? (
+                      <Button
+                        className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                        onClick={() => setShowPermissionModal(true)}
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Request Permission
+                      </Button>
+                    ) : (
+                      <div className={`p-4 rounded-xl border ${
+                        permissionStatus === 'pending' 
+                          ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800' 
+                          : permissionStatus === 'approved'
+                          ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
+                          : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
+                      }`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          {permissionStatus === 'pending' && (
+                            <>
+                              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                              <span className="font-medium text-amber-700 dark:text-amber-300">Request Pending</span>
+                            </>
+                          )}
+                          {permissionStatus === 'approved' && (
+                            <>
+                              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                              <span className="font-medium text-green-700 dark:text-green-300">Permission Granted</span>
+                            </>
+                          )}
+                          {permissionStatus === 'rejected' && (
+                            <>
+                              <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                              <span className="font-medium text-red-700 dark:text-red-300">Request Declined</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {permissionStatus === 'pending' && 'Waiting for supervisor to respond to your request.'}
+                          {permissionStatus === 'approved' && 'You can now use this project for your FYP!'}
+                          {permissionStatus === 'rejected' && 'The supervisor has declined your request.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Permission Request Modal */}
+      {showPermissionModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] p-6">
+              <h2 className="text-xl font-bold text-white">Request Permission</h2>
+              <p className="text-white/80 text-sm mt-1">
+                Ask the supervisor for permission to use this project
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Message to Supervisor (Optional)
+                </label>
+                <textarea
+                  value={permissionMessage}
+                  onChange={(e) => setPermissionMessage(e.target.value)}
+                  placeholder="Explain why you'd like to work on this project..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm"
+                />
+              </div>
+              
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <MessageSquare className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Important Note</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                      The supervisor will receive a notification about your request. They will review your profile and group before approving.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 dark:border-gray-600 dark:text-gray-300"
+                  onClick={() => {
+                    setShowPermissionModal(false);
+                    setPermissionMessage('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-[#1a5d1a] hover:bg-[#145214]"
+                  onClick={handleRequestPermission}
+                  disabled={requestingPermission}
+                >
+                  {requestingPermission ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Request
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

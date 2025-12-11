@@ -63,7 +63,34 @@ export async function GET(
       select: { userId: true, name: true, profileImage: true, role: true }
     });
 
-    return NextResponse.json({ project: { ...project, creator } });
+    // Check if project is assigned to a group
+    const assignedGroup = await (prisma as any).group.findFirst({
+      where: { projectId },
+      select: { 
+        groupId: true, 
+        groupName: true,
+        students: {
+          select: {
+            user: {
+              select: { name: true }
+            }
+          },
+          take: 1
+        }
+      }
+    });
+
+    return NextResponse.json({ 
+      project: { 
+        ...project, 
+        creator,
+        isAssignedToGroup: !!assignedGroup,
+        assignedGroup: assignedGroup ? {
+          groupId: assignedGroup.groupId,
+          groupName: assignedGroup.groupName
+        } : null
+      } 
+    });
   } catch (error) {
     console.error('Error fetching project:', error);
     return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 });
@@ -95,6 +122,18 @@ export async function PUT(
 
     if (existingProject.createdById !== userId && session.user.role !== 'coordinator') {
       return NextResponse.json({ error: 'Not authorized to edit this project' }, { status: 403 });
+    }
+
+    // Check if project is assigned to a group - cannot edit if so
+    const groupWithProject = await (prisma as any).group.findFirst({
+      where: { projectId }
+    });
+
+    if (groupWithProject) {
+      return NextResponse.json({ 
+        error: 'This project is assigned to a group and cannot be edited. Please contact the group or coordinator.',
+        isGroupProject: true
+      }, { status: 403 });
     }
 
     const body = await request.json();
@@ -159,6 +198,18 @@ export async function DELETE(
 
     if (existingProject.createdById !== userId && session.user.role !== 'coordinator') {
       return NextResponse.json({ error: 'Not authorized to delete this project' }, { status: 403 });
+    }
+
+    // Check if project is assigned to a group - cannot delete if so
+    const groupWithProject = await (prisma as any).group.findFirst({
+      where: { projectId }
+    });
+
+    if (groupWithProject) {
+      return NextResponse.json({ 
+        error: 'This project is assigned to a group and cannot be deleted. The group must be dissolved first.',
+        isGroupProject: true
+      }, { status: 403 });
     }
 
     // Delete embedding from Qdrant if it exists

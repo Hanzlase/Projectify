@@ -27,7 +27,9 @@ import LoadingScreen from "@/components/LoadingScreen";
 const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { ssr: false });
 
 interface GroupMember {
+  userId: number;
   name: string;
+  email?: string;
   rollNumber: string;
   profileImage?: string;
 }
@@ -40,6 +42,7 @@ interface Group {
   projectTitle: string | null;
   projectId: number | null;
   projectStatus: string | null;
+  conversationId: number | null;
 }
 
 export default function SupervisorGroupsPage() {
@@ -96,12 +99,12 @@ export default function SupervisorGroupsPage() {
     switch (status) {
       case "approved":
       case "completed":
-        return { icon: CheckCircle, label: status, bg: "bg-green-100", text: "text-green-700" };
+        return { icon: CheckCircle, label: status, bg: "bg-green-100", text: "text-green-700", show: true };
       case "pending":
       case "in_progress":
-        return { icon: Clock, label: status?.replace('_', ' ') || "In Progress", bg: "bg-amber-100", text: "text-amber-700" };
+        return { icon: Clock, label: status?.replace('_', ' ') || "In Progress", bg: "bg-amber-100", text: "text-amber-700", show: true };
       default:
-        return { icon: FolderKanban, label: "No project", bg: "bg-gray-100", text: "text-gray-600" };
+        return { icon: FolderKanban, label: "No project", bg: "bg-gray-100", text: "text-gray-600", show: false };
     }
   };
 
@@ -256,81 +259,100 @@ export default function SupervisorGroupsPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="border-0 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-all group/card">
-                        <CardContent className="p-5">
-                          {/* Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                                {group.name?.charAt(0).toUpperCase() || 'G'}
+                      <Card className="border-0 shadow-sm rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 group/card bg-white">
+                        <CardContent className="p-0">
+                          {/* Colored Top Bar */}
+                          <div className="h-1 bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d]" />
+                          
+                          <div className="p-4">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                  {group.name?.charAt(0).toUpperCase() || 'G'}
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-gray-900 text-sm">{group.name}</h3>
+                                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                                    <Users className="w-3 h-3" />
+                                    {group.studentCount} members
+                                  </div>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-900">{group.name}</h3>
-                                <p className="text-xs text-gray-500">{group.studentCount} students</p>
+                              {statusConfig.show && (
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
+                                  <StatusIcon className="w-3 h-3" />
+                                  {statusConfig.label}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Project Info */}
+                            {group.projectTitle && (
+                              <div className="bg-[#1a5d1a]/5 rounded-lg p-2.5 mb-3 border border-[#1a5d1a]/10">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <FolderKanban className="w-3.5 h-3.5 text-[#1a5d1a]" />
+                                  <span className="text-xs font-medium text-gray-500">Project</span>
+                                </div>
+                                <p className="text-xs text-gray-900 font-medium truncate">
+                                  {group.projectTitle}
+                                </p>
                               </div>
-                            </div>
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
-                              <StatusIcon className="w-3 h-3" />
-                              {statusConfig.label}
-                            </span>
-                          </div>
+                            )}
 
-                          {/* Project Info */}
-                          <div className="bg-gray-50 rounded-xl p-3 mb-4">
-                            <div className="flex items-center gap-2 mb-1">
-                              <FolderKanban className="w-4 h-4 text-[#1a5d1a]" />
-                              <span className="text-xs font-medium text-gray-500">Project</span>
-                            </div>
-                            <p className="text-sm text-gray-900 font-medium truncate">
-                              {group.projectTitle || group.name}
-                            </p>
-                          </div>
-
-                          {/* Students */}
-                          <div className="mb-4">
-                            <p className="text-xs text-gray-500 mb-2">Team Members</p>
-                            <div className="flex flex-wrap gap-2">
-                              {group.students.slice(0, 3).map((student, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1.5"
-                                >
-                                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-[10px] overflow-hidden">
+                          {/* Students - Compact Avatar Stack */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex -space-x-2">
+                                {group.students.slice(0, 4).map((student, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="w-7 h-7 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-[10px] border-2 border-white overflow-hidden"
+                                    title={student.name}
+                                  >
                                     {student.profileImage ? (
                                       <img src={student.profileImage} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                       student.name.charAt(0).toUpperCase()
                                     )}
                                   </div>
-                                  <span className="text-xs text-gray-700">{student.name}</span>
-                                </div>
-                              ))}
-                              {group.students.length > 3 && (
-                                <div className="flex items-center gap-1 text-xs text-gray-500 px-3 py-1.5">
-                                  +{group.students.length - 3} more
-                                </div>
-                              )}
+                                ))}
+                                {group.students.length > 4 && (
+                                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-600 border-2 border-white">
+                                    +{group.students.length - 4}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-xs text-gray-400">{group.students.slice(0, 2).map(s => s.name.split(' ')[0]).join(', ')}{group.students.length > 2 ? '...' : ''}</span>
                             </div>
                           </div>
 
                           {/* Actions */}
-                          <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                          <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
                             <Button
-                              onClick={() => router.push("/supervisor/chat")}
+                              onClick={() => {
+                                if (group.conversationId) {
+                                  router.push(`/supervisor/chat?conversationId=${group.conversationId}`);
+                                } else {
+                                  router.push("/supervisor/chat");
+                                }
+                              }}
                               size="sm"
-                              className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl h-9"
+                              className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] rounded-lg h-8 text-xs"
                             >
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              Open Chat
+                              <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+                              Chat
                             </Button>
                             <Button
-                              onClick={() => router.push("/supervisor/invitations")}
+                              onClick={() => group.projectId && router.push(`/supervisor/projects?view=${group.projectId}`)}
                               variant="outline"
                               size="sm"
-                              className="rounded-xl h-9 border-gray-200"
+                              className="rounded-lg h-8 border-gray-200 px-3"
+                              disabled={!group.projectId}
                             >
-                              <Mail className="w-4 h-4" />
+                              <Eye className="w-3.5 h-3.5" />
                             </Button>
+                          </div>
                           </div>
                         </CardContent>
                       </Card>

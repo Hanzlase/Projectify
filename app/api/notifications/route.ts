@@ -42,7 +42,8 @@ export async function GET(request: NextRequest) {
         type: nr.notification.type,
         isRead: nr.isRead,
         readAt: nr.readAt,
-        createdAt: nr.notification.createdAt
+        createdAt: nr.notification.createdAt,
+        createdById: nr.notification.createdById
       })),
       unreadCount
     });

@@ -75,6 +75,41 @@ export async function PATCH(
         data: { supervisorId: userId },
       });
 
+      // Add supervisor to group chat conversation
+      const groupChat = await (prisma as any).groupChat.findFirst({
+        where: { groupId: invitation.groupId }
+      });
+
+      if (groupChat) {
+        // Check if supervisor is already a participant (to avoid duplicate)
+        const existingParticipant = await (prisma as any).conversationParticipant.findUnique({
+          where: {
+            conversationId_userId: {
+              conversationId: groupChat.conversationId,
+              userId
+            }
+          }
+        });
+
+        if (!existingParticipant) {
+          await (prisma as any).conversationParticipant.create({
+            data: {
+              conversationId: groupChat.conversationId,
+              userId
+            }
+          });
+
+          // Send join message
+          await (prisma as any).message.create({
+            data: {
+              conversationId: groupChat.conversationId,
+              senderId: userId,
+              content: `🎓 ${session.user.name || 'Supervisor'} (Supervisor) has joined the group!`
+            }
+          });
+        }
+      }
+
       // Create notification for group members (students in this group)
       const groupStudents = await (prisma as any).student.findMany({
         where: { groupId: invitation.groupId },

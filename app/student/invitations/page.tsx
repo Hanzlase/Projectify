@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { 
   UserPlus, Check, X, Mail, Clock, 
   Users, ChevronRight, Inbox, Send,
-  CheckCircle2, XCircle, Loader2
+  CheckCircle2, XCircle, Loader2, UsersRound
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -28,6 +28,9 @@ interface ReceivedInvitation {
   status: string;
   type: string;
   createdAt: string;
+  isGroupInvitation?: boolean;
+  groupName?: string;
+  groupId?: number;
 }
 
 interface SentInvitation {
@@ -42,6 +45,9 @@ interface SentInvitation {
   status: string;
   type: string;
   createdAt: string;
+  isGroupInvitation?: boolean;
+  groupName?: string;
+  groupId?: number;
 }
 
 export default function InvitationsPage() {
@@ -65,19 +71,85 @@ export default function InvitationsPage() {
     try {
       setLoading(true);
       
-      // Fetch received invitations
+      // Fetch received invitations (regular)
       const receivedRes = await fetch('/api/invitations?type=received');
+      let regularReceived: ReceivedInvitation[] = [];
       if (receivedRes.ok) {
         const data = await receivedRes.json();
-        setReceivedInvitations(data.invitations || []);
+        regularReceived = (data.invitations || []).map((inv: any) => ({
+          ...inv,
+          isGroupInvitation: false
+        }));
       }
 
-      // Fetch sent invitations
+      // Fetch received group invitations
+      const groupReceivedRes = await fetch('/api/groups/invitations?type=received');
+      let groupReceived: ReceivedInvitation[] = [];
+      if (groupReceivedRes.ok) {
+        const data = await groupReceivedRes.json();
+        groupReceived = (data.invitations || []).map((inv: any) => ({
+          id: inv.id,
+          senderId: inv.inviter?.userId || inv.inviterId,
+          senderStudentId: 0,
+          senderName: inv.inviter?.name || 'Unknown',
+          senderEmail: inv.inviter?.email || '',
+          senderProfileImage: inv.inviter?.profileImage || null,
+          senderRollNumber: '',
+          message: inv.message,
+          status: inv.status,
+          type: 'group',
+          createdAt: inv.createdAt,
+          isGroupInvitation: true,
+          groupName: inv.group?.groupName || inv.project?.title || 'FYP Group',
+          groupId: inv.groupId
+        }));
+      }
+
+      // Combine and sort by date
+      const allReceived = [...regularReceived, ...groupReceived].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setReceivedInvitations(allReceived);
+
+      // Fetch sent invitations (regular)
       const sentRes = await fetch('/api/invitations?type=sent');
+      let regularSent: SentInvitation[] = [];
       if (sentRes.ok) {
         const data = await sentRes.json();
-        setSentInvitations(data.invitations || []);
+        regularSent = (data.invitations || []).map((inv: any) => ({
+          ...inv,
+          isGroupInvitation: false
+        }));
       }
+
+      // Fetch sent group invitations
+      const groupSentRes = await fetch('/api/groups/invitations?type=sent');
+      let groupSent: SentInvitation[] = [];
+      if (groupSentRes.ok) {
+        const data = await groupSentRes.json();
+        groupSent = (data.invitations || []).map((inv: any) => ({
+          id: inv.id,
+          receiverId: inv.invitee?.userId || inv.inviteeId,
+          receiverStudentId: inv.inviteeStudent?.studentId || 0,
+          receiverName: inv.invitee?.name || 'Unknown',
+          receiverEmail: inv.invitee?.email || '',
+          receiverProfileImage: inv.invitee?.profileImage || null,
+          receiverRollNumber: inv.inviteeStudent?.rollNumber || '',
+          message: inv.message,
+          status: inv.status,
+          type: 'group',
+          createdAt: inv.createdAt,
+          isGroupInvitation: true,
+          groupName: inv.group?.groupName || inv.project?.title || 'FYP Group',
+          groupId: inv.groupId
+        }));
+      }
+
+      // Combine and sort by date
+      const allSent = [...regularSent, ...groupSent].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setSentInvitations(allSent);
     } catch (error) {
       console.error('Failed to fetch invitations:', error);
     } finally {
@@ -85,20 +157,39 @@ export default function InvitationsPage() {
     }
   };
 
-  const handleInvitationAction = async (invitationId: number, action: 'accepted' | 'rejected') => {
+  const handleInvitationAction = async (invitationId: number, action: 'accepted' | 'rejected', isGroupInvitation: boolean = false) => {
     try {
       setActionLoading(invitationId);
-      const response = await fetch(`/api/invitations/${invitationId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: action })
-      });
+      
+      if (isGroupInvitation) {
+        // Handle group invitation action
+        const response = await fetch('/api/groups/invitations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            invitationId, 
+            action: action === 'accepted' ? 'accept' : 'reject' 
+          })
+        });
 
-      if (response.ok) {
-        // Update local state
-        setReceivedInvitations(prev => 
-          prev.map(inv => inv.id === invitationId ? { ...inv, status: action } : inv)
-        );
+        if (response.ok) {
+          setReceivedInvitations(prev => 
+            prev.map(inv => inv.id === invitationId && inv.isGroupInvitation ? { ...inv, status: action } : inv)
+          );
+        }
+      } else {
+        // Handle regular invitation action
+        const response = await fetch(`/api/invitations/${invitationId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: action })
+        });
+
+        if (response.ok) {
+          setReceivedInvitations(prev => 
+            prev.map(inv => inv.id === invitationId && !inv.isGroupInvitation ? { ...inv, status: action } : inv)
+          );
+        }
       }
     } catch (error) {
       console.error('Failed to update invitation:', error);
@@ -107,19 +198,34 @@ export default function InvitationsPage() {
     }
   };
 
-  const handleCancelInvitation = async (invitationId: number) => {
+  const handleCancelInvitation = async (invitationId: number, isGroupInvitation: boolean = false) => {
     try {
       setActionLoading(invitationId);
-      const response = await fetch(`/api/invitations/${invitationId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'cancelled' })
-      });
+      
+      if (isGroupInvitation) {
+        // Handle group invitation cancellation
+        const response = await fetch(`/api/groups/invitations?id=${invitationId}`, {
+          method: 'DELETE'
+        });
 
-      if (response.ok) {
-        setSentInvitations(prev => 
-          prev.map(inv => inv.id === invitationId ? { ...inv, status: 'cancelled' } : inv)
-        );
+        if (response.ok) {
+          setSentInvitations(prev => 
+            prev.map(inv => inv.id === invitationId && inv.isGroupInvitation ? { ...inv, status: 'cancelled' } : inv)
+          );
+        }
+      } else {
+        // Handle regular invitation cancellation
+        const response = await fetch(`/api/invitations/${invitationId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'cancelled' })
+        });
+
+        if (response.ok) {
+          setSentInvitations(prev => 
+            prev.map(inv => inv.id === invitationId && !inv.isGroupInvitation ? { ...inv, status: 'cancelled' } : inv)
+          );
+        }
       }
     } catch (error) {
       console.error('Failed to cancel invitation:', error);
@@ -278,7 +384,7 @@ export default function InvitationsPage() {
                 ) : (
                   receivedInvitations.map((invitation, index) => (
                     <motion.div
-                      key={invitation.id}
+                      key={`${invitation.isGroupInvitation ? 'group' : 'regular'}-${invitation.id}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
@@ -302,19 +408,31 @@ export default function InvitationsPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
-                                  <h3 
-                                    onClick={() => router.push(`/student/view-profile/student/${invitation.senderId}`)}
-                                    className="font-semibold text-gray-900 dark:text-white hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
-                                  >
-                                    {invitation.senderName}
-                                  </h3>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">{invitation.senderRollNumber}</p>
+                                  <div className="flex items-center gap-2">
+                                    <h3 
+                                      onClick={() => router.push(`/student/view-profile/student/${invitation.senderId}`)}
+                                      className="font-semibold text-gray-900 dark:text-white hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                    >
+                                      {invitation.senderName}
+                                    </h3>
+                                    {invitation.isGroupInvitation && (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
+                                        <UsersRound className="w-3 h-3" />
+                                        Group
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {invitation.isGroupInvitation ? invitation.groupName : invitation.senderRollNumber}
+                                  </p>
                                 </div>
                                 {getStatusBadge(invitation.status)}
                               </div>
 
                               <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                                {invitation.message || `${invitation.senderName} wants to collaborate with you on a project.`}
+                                {invitation.message || (invitation.isGroupInvitation 
+                                  ? `${invitation.senderName} invited you to join their group "${invitation.groupName}".`
+                                  : `${invitation.senderName} wants to collaborate with you on a project.`)}
                               </p>
 
                               <div className="flex items-center justify-between">
@@ -324,7 +442,7 @@ export default function InvitationsPage() {
                                   <div className="flex gap-2">
                                     <Button
                                       size="sm"
-                                      onClick={() => handleInvitationAction(invitation.id, 'accepted')}
+                                      onClick={() => handleInvitationAction(invitation.id, 'accepted', invitation.isGroupInvitation)}
                                       disabled={actionLoading === invitation.id}
                                       className="bg-[#1a5d1a] hover:bg-[#145214] text-white h-8 px-3 text-xs"
                                     >
@@ -340,7 +458,7 @@ export default function InvitationsPage() {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={() => handleInvitationAction(invitation.id, 'rejected')}
+                                      onClick={() => handleInvitationAction(invitation.id, 'rejected', invitation.isGroupInvitation)}
                                       disabled={actionLoading === invitation.id}
                                       className="h-8 px-3 text-xs border-red-200 text-red-600 hover:bg-red-50"
                                     >
@@ -386,7 +504,7 @@ export default function InvitationsPage() {
                 ) : (
                   sentInvitations.map((invitation, index) => (
                     <motion.div
-                      key={invitation.id}
+                      key={`${invitation.isGroupInvitation ? 'group' : 'regular'}-${invitation.id}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
@@ -410,19 +528,31 @@ export default function InvitationsPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
-                                  <h3 
-                                    onClick={() => router.push(`/student/view-profile/student/${invitation.receiverId}`)}
-                                    className="font-semibold text-gray-900 hover:text-[#1a5d1a] cursor-pointer transition-colors"
-                                  >
-                                    {invitation.receiverName}
-                                  </h3>
-                                  <p className="text-xs text-gray-500">{invitation.receiverRollNumber}</p>
+                                  <div className="flex items-center gap-2">
+                                    <h3 
+                                      onClick={() => router.push(`/student/view-profile/student/${invitation.receiverId}`)}
+                                      className="font-semibold text-gray-900 dark:text-white hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                    >
+                                      {invitation.receiverName}
+                                    </h3>
+                                    {invitation.isGroupInvitation && (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
+                                        <UsersRound className="w-3 h-3" />
+                                        Group
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {invitation.isGroupInvitation ? invitation.groupName : invitation.receiverRollNumber}
+                                  </p>
                                 </div>
                                 {getStatusBadge(invitation.status)}
                               </div>
 
-                              <p className="text-sm text-gray-600 mb-3">
-                                {invitation.message || `You invited ${invitation.receiverName} to collaborate.`}
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                                {invitation.message || (invitation.isGroupInvitation 
+                                  ? `You invited ${invitation.receiverName} to join your group "${invitation.groupName}".`
+                                  : `You invited ${invitation.receiverName} to collaborate.`)}
                               </p>
 
                               <div className="flex items-center justify-between">
@@ -432,9 +562,9 @@ export default function InvitationsPage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => handleCancelInvitation(invitation.id)}
+                                    onClick={() => handleCancelInvitation(invitation.id, invitation.isGroupInvitation)}
                                     disabled={actionLoading === invitation.id}
-                                    className="h-8 px-3 text-xs border-gray-200 text-gray-600 hover:bg-gray-50"
+                                    className="h-8 px-3 text-xs border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                                   >
                                     {actionLoading === invitation.id ? (
                                       <Loader2 className="w-3 h-3 animate-spin" />

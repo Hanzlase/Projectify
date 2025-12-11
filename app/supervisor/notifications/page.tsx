@@ -26,9 +26,29 @@ interface Notification {
   type: 'info' | 'warning' | 'success' | 'announcement';
   isRead: boolean;
   createdAt: string;
+  createdById?: number;
   sender?: {
     name: string;
     role: string;
+  };
+}
+
+interface PermissionRequest {
+  id: number;
+  projectId: number;
+  requesterId: number;
+  status: 'pending' | 'approved' | 'rejected';
+  message?: string;
+  project?: {
+    projectId: number;
+    title: string;
+  };
+  requester?: {
+    userId: number;
+    name: string;
+    student?: {
+      rollNumber: string;
+    };
   };
 }
 
@@ -42,6 +62,8 @@ export default function SupervisorNotificationsPage() {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<PermissionRequest[]>([]);
+  const [processingRequest, setProcessingRequest] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -139,6 +161,87 @@ export default function SupervisorNotificationsPage() {
   const markAsReadAction = async (id: number, event: React.MouseEvent) => {
     event.stopPropagation();
     await markAsRead(id);
+  };
+
+  // Helper to check if notification is a permission request
+  const isPermissionRequest = (notification: Notification) => {
+    return notification.title === 'Project Permission Request';
+  };
+
+  // Helper to parse permission request notification message
+  const parsePermissionRequest = (message: string) => {
+    // Parse: **StudentName** (RollNumber) is requesting permission to use your project "ProjectTitle" for their FYP.\n\n**Message:** message
+    const studentMatch = message.match(/\*\*([^*]+)\*\*\s*\(([^)]+)\)/);
+    const projectMatch = message.match(/your project "([^"]+)"/);
+    const messageMatch = message.match(/\*\*Message:\*\*\s*([\s\S]*)/);
+    
+    return {
+      studentName: studentMatch?.[1] || 'Unknown Student',
+      rollNumber: studentMatch?.[2] || '',
+      projectTitle: projectMatch?.[1] || 'Unknown Project',
+      message: messageMatch?.[1]?.trim() || ''
+    };
+  };
+
+  // Format message for display (remove markdown)
+  const formatMessage = (message: string) => {
+    return message.replace(/\*\*/g, '');
+  };
+
+  // Handle approve/reject permission request
+  const handlePermissionResponse = async (notification: Notification, status: 'approved' | 'rejected') => {
+    if (!notification.createdById) {
+      alert('Unable to process this request. Missing requester information.');
+      return;
+    }
+
+    setProcessingRequest(true);
+    try {
+      // Parse the notification to get project title
+      const parsed = parsePermissionRequest(notification.message);
+      
+      // First, we need to find the project ID. We'll search for the project by title
+      const projectsResponse = await fetch('/api/projects');
+      if (!projectsResponse.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+      const projectsData = await projectsResponse.json();
+      const project = projectsData.projects?.find((p: any) => p.title === parsed.projectTitle);
+      
+      if (!project) {
+        alert('Could not find the project. It may have been deleted.');
+        return;
+      }
+
+      // Send the approval/rejection
+      const response = await fetch(`/api/projects/${project.projectId}/permission`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requesterId: notification.createdById,
+          status: status
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to process request');
+      }
+
+      // Mark the notification as read
+      await markAsRead(notification.id);
+      
+      // Update local state
+      setSelectedNotification(prev => prev ? { ...prev, isRead: true } : null);
+      
+      alert(`Permission request ${status === 'approved' ? 'approved' : 'rejected'} successfully!`);
+      setSelectedNotification(null);
+    } catch (error) {
+      console.error('Failed to process permission request:', error);
+      alert(error instanceof Error ? error.message : 'Failed to process permission request');
+    } finally {
+      setProcessingRequest(false);
+    }
   };
 
   const getTypeIcon = (type: string) => {
@@ -531,11 +634,36 @@ export default function SupervisorNotificationsPage() {
                   {selectedNotification.title}
                 </h2>
 
-                {/* Message */}
+                {/* Message - Formatted for permission requests */}
                 <div className="bg-slate-50 rounded-xl p-4 mb-6">
-                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
-                    {selectedNotification.message}
-                  </p>
+                  {isPermissionRequest(selectedNotification) ? (
+                    (() => {
+                      const parsed = parsePermissionRequest(selectedNotification.message);
+                      return (
+                        <div className="space-y-3">
+                          <p className="text-slate-700 leading-relaxed">
+                            <span className="font-semibold text-slate-900">{parsed.studentName}</span>
+                            {parsed.rollNumber && (
+                              <span className="text-slate-500"> ({parsed.rollNumber})</span>
+                            )}
+                            {' '}is requesting permission to use your project{' '}
+                            <span className="font-semibold text-[#1a5d1a]">"{parsed.projectTitle}"</span>
+                            {' '}for their FYP.
+                          </p>
+                          {parsed.message && (
+                            <div className="mt-3 p-3 bg-white rounded-lg border border-slate-200">
+                              <p className="text-xs font-medium text-slate-500 mb-1">Message from student:</p>
+                              <p className="text-slate-700 text-sm italic">"{parsed.message}"</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+                      {formatMessage(selectedNotification.message)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Meta Info */}
@@ -568,37 +696,71 @@ export default function SupervisorNotificationsPage() {
                 )}
 
                 {/* Actions */}
-                <div className="mt-6 flex gap-3">
-                  {!selectedNotification.isRead && (
-                    <Button
-                      onClick={() => {
-                        markAsRead(selectedNotification.id);
-                        setSelectedNotification({ ...selectedNotification, isRead: true });
-                      }}
-                      className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] text-white"
-                    >
-                      <Check className="w-4 h-4 mr-2" />
-                      Mark as Read
-                    </Button>
+                <div className="mt-6 space-y-3">
+                  {/* Permission Request Actions */}
+                  {isPermissionRequest(selectedNotification) && (
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => handlePermissionResponse(selectedNotification, 'approved')}
+                        disabled={processingRequest}
+                        className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                      >
+                        {processingRequest ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                        )}
+                        Approve Request
+                      </Button>
+                      <Button
+                        onClick={() => handlePermissionResponse(selectedNotification, 'rejected')}
+                        disabled={processingRequest}
+                        variant="outline"
+                        className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        {processingRequest ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4 mr-2" />
+                        )}
+                        Reject Request
+                      </Button>
+                    </div>
                   )}
-                  <Button
-                    onClick={(e) => {
-                      deleteNotification(selectedNotification.id, e as any);
-                      setSelectedNotification(null);
-                    }}
-                    variant="outline"
-                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
-                  <Button
-                    onClick={() => setSelectedNotification(null)}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Close
-                  </Button>
+
+                  {/* Standard Actions */}
+                  <div className="flex gap-3">
+                    {!selectedNotification.isRead && !isPermissionRequest(selectedNotification) && (
+                      <Button
+                        onClick={() => {
+                          markAsRead(selectedNotification.id);
+                          setSelectedNotification({ ...selectedNotification, isRead: true });
+                        }}
+                        className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Mark as Read
+                      </Button>
+                    )}
+                    <Button
+                      onClick={(e) => {
+                        deleteNotification(selectedNotification.id, e as any);
+                        setSelectedNotification(null);
+                      }}
+                      variant="outline"
+                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                    <Button
+                      onClick={() => setSelectedNotification(null)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Close
+                    </Button>
+                  </div>
                 </div>
               </div>
             </motion.div>

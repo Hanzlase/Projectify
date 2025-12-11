@@ -19,7 +19,7 @@ export async function GET(
     const conversationId = parseInt(params.conversationId);
 
     // Check if user is part of this conversation
-    const participant = await (prisma as any).conversationParticipant.findUnique({
+    let participant = await (prisma as any).conversationParticipant.findUnique({
       where: {
         conversationId_userId: {
           conversationId,
@@ -27,6 +27,26 @@ export async function GET(
         }
       }
     });
+
+    // If not a direct participant, check if user is a supervisor of this group chat
+    if (!participant) {
+      const groupChat = await (prisma as any).groupChat.findUnique({
+        where: { conversationId },
+        include: {
+          group: true
+        }
+      });
+
+      if (groupChat && groupChat.group.supervisorId === userId) {
+        // Supervisor is authorized - add them as a participant for future access
+        participant = await (prisma as any).conversationParticipant.create({
+          data: {
+            conversationId,
+            userId
+          }
+        });
+      }
+    }
 
     if (!participant) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
@@ -144,7 +164,7 @@ export async function POST(
     }
 
     // Check if user is part of this conversation
-    const participant = await (prisma as any).conversationParticipant.findUnique({
+    let participant = await (prisma as any).conversationParticipant.findUnique({
       where: {
         conversationId_userId: {
           conversationId,
@@ -152,6 +172,26 @@ export async function POST(
         }
       }
     });
+
+    // If not a direct participant, check if user is a supervisor of this group chat
+    if (!participant) {
+      const groupChat = await (prisma as any).groupChat.findUnique({
+        where: { conversationId },
+        include: {
+          group: true
+        }
+      });
+
+      if (groupChat && groupChat.group.supervisorId === userId) {
+        // Supervisor is authorized - add them as a participant for future access
+        participant = await (prisma as any).conversationParticipant.create({
+          data: {
+            conversationId,
+            userId
+          }
+        });
+      }
+    }
 
     if (!participant) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });

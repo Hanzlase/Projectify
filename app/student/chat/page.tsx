@@ -11,7 +11,7 @@ import {
   Check, CheckCheck, Info,
   Smile, Paperclip, Image as ImageIcon, Circle, ChevronLeft,
   Sparkles, Users, Clock, X, Download, GraduationCap,
-  Plus, Pin, PinOff, UserPlus, Crown, AlertCircle, Trash2, MoreVertical
+  Plus, Pin, PinOff, UserPlus, Crown, AlertCircle, Trash2, MoreVertical, Lock
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
@@ -99,6 +99,10 @@ interface ProjectOption {
   description: string;
   category: string | null;
   status: string;
+  creatorRole?: string;
+  creatorName?: string;
+  permissionStatus?: 'pending' | 'approved' | 'rejected' | null;
+  requiresPermission?: boolean;
 }
 
 function ChatPageContent() {
@@ -582,15 +586,41 @@ function ChatPageContent() {
       // Filter out projects that are already taken, limit to 10 results
       const filteredProjects = allProjects
         .filter((p: any) => p.status !== 'taken' && (p.status === 'idea' || p.status === 'in_progress'))
-        .slice(0, 10)
-        .map((p: any) => ({
-          projectId: p.projectId,
-          title: p.title,
-          description: p.description,
-          category: p.category,
-          status: p.status
-        }));
-      setAvailableProjects(filteredProjects);
+        .slice(0, 10);
+      
+      // Check permission status for supervisor projects
+      const projectsWithPermission = await Promise.all(
+        filteredProjects.map(async (p: any) => {
+          const isSupervisorProject = p.creator?.role === 'supervisor';
+          let permissionStatus = null;
+          
+          if (isSupervisorProject) {
+            try {
+              const permResponse = await fetch(`/api/projects/${p.projectId}/permission`);
+              if (permResponse.ok) {
+                const permData = await permResponse.json();
+                permissionStatus = permData.status;
+              }
+            } catch (err) {
+              console.error('Failed to check permission:', err);
+            }
+          }
+          
+          return {
+            projectId: p.projectId,
+            title: p.title,
+            description: p.description,
+            category: p.category,
+            status: p.status,
+            creatorRole: p.creator?.role,
+            creatorName: p.creator?.name,
+            permissionStatus,
+            requiresPermission: isSupervisorProject && permissionStatus !== 'approved'
+          };
+        })
+      );
+      
+      setAvailableProjects(projectsWithPermission);
     } catch (error) {
       console.error('Failed to fetch projects:', error);
     } finally {
@@ -1676,12 +1706,22 @@ function ChatPageContent() {
                   {selectedProject && (
                     <div className="mb-3 p-3 bg-[#d1e7d1] rounded-xl">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-[#1a5d1a]">
-                            {selectedProject.title}
-                          </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-[#1a5d1a]">
+                              {selectedProject.title}
+                            </p>
+                            {selectedProject.creatorRole === 'supervisor' && selectedProject.permissionStatus === 'approved' && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                ✓ Approved
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-[#1a5d1a]/70 mt-0.5">
                             {selectedProject.category || 'Project'}
+                            {selectedProject.creatorRole === 'supervisor' && (
+                              <span> • By {selectedProject.creatorName || 'Supervisor'}</span>
+                            )}
                           </p>
                         </div>
                         <button
@@ -1705,18 +1745,61 @@ function ChatPageContent() {
                         <button
                           key={project.projectId}
                           onClick={() => {
+                            if (project.requiresPermission) {
+                              alert(`This project was uploaded by ${project.creatorName || 'a supervisor'}. Please request permission from the project details page first.`);
+                              return;
+                            }
                             setSelectedProject(project);
                             setSearchProjectQuery('');
                             setAvailableProjects([]);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 text-left"
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0 text-left ${
+                            project.requiresPermission 
+                              ? 'bg-amber-50/50 hover:bg-amber-50' 
+                              : 'hover:bg-gray-50'
+                          }`}
                         >
-                          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white">
-                            <Sparkles className="w-4 h-4" />
+                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white ${
+                            project.requiresPermission 
+                              ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
+                              : 'bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d]'
+                          }`}>
+                            {project.requiresPermission ? (
+                              <Lock className="w-4 h-4" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">{project.title}</p>
-                            <p className="text-xs text-gray-500">{project.category || 'General'} • {project.status}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900 truncate">{project.title}</p>
+                              {project.creatorRole === 'supervisor' && (
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                  project.permissionStatus === 'approved' 
+                                    ? 'bg-green-100 text-green-700'
+                                    : project.permissionStatus === 'pending'
+                                    ? 'bg-amber-100 text-amber-700'
+                                    : project.permissionStatus === 'rejected'
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-purple-100 text-purple-700'
+                                }`}>
+                                  {project.permissionStatus === 'approved' 
+                                    ? '✓ Approved'
+                                    : project.permissionStatus === 'pending'
+                                    ? '⏳ Pending'
+                                    : project.permissionStatus === 'rejected'
+                                    ? '✗ Rejected'
+                                    : '🔒 Requires Permission'
+                                  }
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {project.category || 'General'} • {project.status}
+                              {project.creatorRole === 'supervisor' && (
+                                <span className="text-purple-600"> • By {project.creatorName || 'Supervisor'}</span>
+                              )}
+                            </p>
                           </div>
                         </button>
                       ))}

@@ -9,7 +9,7 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
 
 import {
   ArrowLeft,
@@ -113,17 +113,14 @@ function SimilarityCheckPageContent() {
   const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const sidebarItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/student/dashboard' },
-    { icon: FolderKanban, label: 'Projects', href: '/student/projects', active: true },
-    { icon: Users, label: 'Supervisors', href: '/student/browse-supervisors' },
-    { icon: User, label: 'Students', href: '/student/browse-students' },
-    { icon: MessageCircle, label: 'Chat', href: '/student/chat' },
-  ];
-
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
+      return;
+    }
+
+    if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
+      router.push('/unauthorized');
       return;
     }
 
@@ -142,9 +139,9 @@ function SimilarityCheckPageContent() {
     }
 
     if (!storedResult) {
-      router.push('/student/projects');
+      router.push('/supervisor/projects');
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   const fetchProfileImage = async () => {
     try {
@@ -156,11 +153,6 @@ function SimilarityCheckPageContent() {
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     }
-  };
-
-  const handleLogout = async () => {
-    const { signOut } = await import('next-auth/react');
-    await signOut({ callbackUrl: '/login' });
   };
 
   const handleSubmitAnyway = async () => {
@@ -182,7 +174,7 @@ function SimilarityCheckPageContent() {
         // Clear session storage
         sessionStorage.removeItem('similarityResult');
         sessionStorage.removeItem('pendingProject');
-        router.push('/student/projects');
+        router.push('/supervisor/projects');
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to create project');
@@ -198,7 +190,7 @@ function SimilarityCheckPageContent() {
   const handleGoBack = () => {
     sessionStorage.removeItem('similarityResult');
     sessionStorage.removeItem('pendingProject');
-    router.push('/student/projects');
+    router.push('/supervisor/projects');
   };
 
   if (!result) {
@@ -250,19 +242,14 @@ function SimilarityCheckPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex">
-      {/* Background decoration - subtle and non-intrusive */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#1a5d1a]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-      </div>
 
       {/* Sidebar */}
-      <StudentSidebar profileImage={profileImage} />
+      <SupervisorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-14 md:top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/70 backdrop-blur-2xl border-b border-gray-200/50 shadow-sm">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between max-w-5xl mx-auto">
               <div className="flex items-center gap-3 md:gap-4">
@@ -274,13 +261,13 @@ function SimilarityCheckPageContent() {
                 </button>
                 <div>
                   <h1 className="text-lg md:text-xl font-bold text-gray-900">Similarity Check</h1>
-                  <p className="text-xs md:text-sm text-gray-500">Review your project's uniqueness</p>
+                  <p className="text-xs md:text-sm text-gray-500">Review project uniqueness</p>
                 </div>
               </div>
               <div className="hidden md:flex items-center gap-4">
                 <NotificationBell />
                 <button
-                  onClick={() => router.push('/student/profile')}
+                  onClick={() => router.push('/supervisor/profile')}
                   className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-full flex items-center justify-center overflow-hidden"
                 >
                   {profileImage ? (
@@ -315,14 +302,13 @@ function SimilarityCheckPageContent() {
             }`}
             style={{ overflow: 'hidden' }}
           >
-            {/* Background Pattern - contained within card */}
+            {/* Background Pattern */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
             </div>
             
             <div className="relative flex flex-col sm:flex-row items-center gap-4 text-white">
-              {/* Icon */}
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 {result.isUnique ? (
                   <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
@@ -337,13 +323,12 @@ function SimilarityCheckPageContent() {
                 </h1>
                 <p className="text-white/80 text-sm max-w-lg">
                   {result.isUnique 
-                    ? 'Your project idea appears to be unique and original.'
-                    : `Your project has ${(highestSimilarity * 100).toFixed(0)}% similarity with existing projects.`
+                    ? 'This project idea appears to be unique and original.'
+                    : `This project has ${(highestSimilarity * 100).toFixed(0)}% similarity with existing projects.`
                   }
                 </p>
               </div>
 
-              {/* Score Badge */}
               {result.similarProjects.length > 0 && (
                 <div className="hidden sm:flex flex-col items-center justify-center w-20 h-20 rounded-xl bg-white/20 backdrop-blur-sm">
                   <span className="text-2xl font-bold">{(100 - highestSimilarity * 100).toFixed(0)}%</span>
@@ -355,7 +340,7 @@ function SimilarityCheckPageContent() {
 
           {/* Two Column Layout for Desktop */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Main Content (2/3 width on desktop) */}
+            {/* Left Column - Main Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -370,7 +355,7 @@ function SimilarityCheckPageContent() {
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="font-semibold text-gray-900">Extracted from Your Document</h2>
+                      <h2 className="font-semibold text-gray-900">Extracted from Document</h2>
                       <p className="text-xs text-gray-500">AI-generated analysis</p>
                     </div>
                   </div>
@@ -436,7 +421,7 @@ function SimilarityCheckPageContent() {
                 </div>
 
                 <div className="p-4 space-y-3">
-                  {result.similarProjects.map((project, index) => (
+                {result.similarProjects.map((project, index) => (
                   <motion.div
                     key={project.projectId}
                     initial={{ opacity: 0, x: -20 }}
@@ -537,14 +522,13 @@ function SimilarityCheckPageContent() {
           )}
             </motion.div>
 
-            {/* Right Column - Quick Stats & Actions (1/3 width on desktop) */}
+            {/* Right Column - Quick Stats */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="order-1 lg:order-2"
             >
-              {/* Sticky wrapper for both cards */}
               <div className="lg:sticky lg:top-20 space-y-4">
                 {/* Quick Stats Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -555,77 +539,77 @@ function SimilarityCheckPageContent() {
                     </div>
                   </div>
                   <div className="p-4 space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Uniqueness Score</span>
-                    <span className={`text-sm font-bold ${result.isUnique ? 'text-[#1a5d1a]' : 'text-amber-600'}`}>
-                      {result.similarProjects.length > 0 ? `${(100 - highestSimilarity * 100).toFixed(0)}%` : '100%'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Similar Projects</span>
-                    <span className="text-sm font-bold text-gray-900">{result.similarProjects.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Categories</span>
-                    <span className="text-sm font-bold text-gray-900">{result.extractedInfo.categories.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Status</span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      result.isUnique 
-                        ? 'bg-[#1a5d1a]/10 text-[#1a5d1a]' 
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {result.isUnique ? 'Ready' : 'Review'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feasibility Quick View */}
-              {result.feasibilityReport && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-white" />
-                      <h3 className="font-semibold text-white text-sm">Feasibility</h3>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className={`p-3 rounded-xl text-center mb-3 ${
-                      result.feasibilityReport.overallFeasibility === 'high' 
-                        ? 'bg-[#1a5d1a]/10' 
-                        : result.feasibilityReport.overallFeasibility === 'medium'
-                        ? 'bg-amber-50'
-                        : 'bg-red-50'
-                    }`}>
-                      <span className={`text-xl font-bold ${
-                        result.feasibilityReport.overallFeasibility === 'high' 
-                          ? 'text-[#1a5d1a]' 
-                          : result.feasibilityReport.overallFeasibility === 'medium'
-                          ? 'text-amber-600'
-                          : 'text-red-600'
-                      }`}>
-                        {result.feasibilityReport.overallFeasibility.toUpperCase()}
+                    <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                      <span className="text-xs text-gray-500">Uniqueness Score</span>
+                      <span className={`text-sm font-bold ${result.isUnique ? 'text-[#1a5d1a]' : 'text-amber-600'}`}>
+                        {result.similarProjects.length > 0 ? `${(100 - highestSimilarity * 100).toFixed(0)}%` : '100%'}
                       </span>
-                      <p className="text-[10px] text-gray-500 mt-0.5">Feasibility Rating</p>
                     </div>
-                    {result.feasibilityReport.timelineFeasibility && (
-                      <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <Clock className="w-3 h-3" />
-                          Timeline
-                        </div>
-                        <p className={`text-xs font-semibold ${
-                          result.feasibilityReport.timelineFeasibility.isPossible ? 'text-[#1a5d1a]' : 'text-amber-600'
-                        }`}>
-                          {result.feasibilityReport.timelineFeasibility.isPossible ? 'Achievable' : 'Challenging'}
-                        </p>
-                      </div>
-                    )}
+                    <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                      <span className="text-xs text-gray-500">Similar Projects</span>
+                      <span className="text-sm font-bold text-gray-900">{result.similarProjects.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                      <span className="text-xs text-gray-500">Categories</span>
+                      <span className="text-sm font-bold text-gray-900">{result.extractedInfo.categories.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                      <span className="text-xs text-gray-500">Status</span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        result.isUnique 
+                          ? 'bg-[#1a5d1a]/10 text-[#1a5d1a]' 
+                          : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {result.isUnique ? 'Ready' : 'Review'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {/* Feasibility Quick View */}
+                {result.feasibilityReport && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-white" />
+                        <h3 className="font-semibold text-white text-sm">Feasibility</h3>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className={`p-3 rounded-xl text-center mb-3 ${
+                        result.feasibilityReport.overallFeasibility === 'high' 
+                          ? 'bg-[#1a5d1a]/10' 
+                          : result.feasibilityReport.overallFeasibility === 'medium'
+                          ? 'bg-amber-50'
+                          : 'bg-red-50'
+                      }`}>
+                        <span className={`text-xl font-bold ${
+                          result.feasibilityReport.overallFeasibility === 'high' 
+                            ? 'text-[#1a5d1a]' 
+                            : result.feasibilityReport.overallFeasibility === 'medium'
+                            ? 'text-amber-600'
+                            : 'text-red-600'
+                        }`}>
+                          {result.feasibilityReport.overallFeasibility.toUpperCase()}
+                        </span>
+                        <p className="text-[10px] text-gray-500 mt-0.5">Feasibility Rating</p>
+                      </div>
+                      {result.feasibilityReport.timelineFeasibility && (
+                        <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                            <Clock className="w-3 h-3" />
+                            Timeline
+                          </div>
+                          <p className={`text-xs font-semibold ${
+                            result.feasibilityReport.timelineFeasibility.isPossible ? 'text-[#1a5d1a]' : 'text-amber-600'
+                          }`}>
+                            {result.feasibilityReport.timelineFeasibility.isPossible ? 'Achievable' : 'Challenging'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -686,7 +670,7 @@ function SimilarityCheckPageContent() {
                     <div>
                       <h3 className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Your Unique Features
+                        Unique Features
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {result.differentiationInfo.uniqueFeatures.map((feature, i) => (
@@ -703,7 +687,7 @@ function SimilarityCheckPageContent() {
                     <div>
                       <h3 className="text-xs font-semibold text-[#1a5d1a] uppercase tracking-wide mb-2 flex items-center gap-1.5">
                         <Lightbulb className="w-3.5 h-3.5" />
-                        How to Make Your Project Unique
+                        How to Make This Project Unique
                       </h3>
                       <ul className="space-y-2">
                         {result.differentiationInfo.differentiationSuggestions.map((suggestion, i) => (
@@ -788,79 +772,99 @@ function SimilarityCheckPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6"
+              className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6"
             >
               {/* Feasibility Header */}
-              <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] px-5 py-4">
+              <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <div className="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                       <BarChart3 className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="font-bold text-white">Feasibility Report</h2>
-                      <p className="text-white/70 text-xs">AI-powered analysis</p>
+                      <h2 className="text-lg font-bold text-white">Feasibility Report</h2>
+                      <p className="text-white/80 text-xs">AI-powered project analysis</p>
                     </div>
                   </div>
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-xs ${
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm ${
                     result.feasibilityReport.overallFeasibility === 'high' 
-                      ? 'bg-white/20 text-white' 
+                      ? 'bg-emerald-500/20 text-emerald-100' 
                       : result.feasibilityReport.overallFeasibility === 'medium'
-                      ? 'bg-amber-400/30 text-amber-100'
-                      : 'bg-red-400/30 text-red-100'
+                      ? 'bg-amber-500/20 text-amber-100'
+                      : 'bg-red-500/20 text-red-100'
                   }`}>
-                    {result.feasibilityReport.overallFeasibility === 'high' && <TrendingUp className="w-3.5 h-3.5" />}
-                    {result.feasibilityReport.overallFeasibility === 'medium' && <AlertTriangle className="w-3.5 h-3.5" />}
-                    {result.feasibilityReport.overallFeasibility === 'low' && <XCircle className="w-3.5 h-3.5" />}
-                    {result.feasibilityReport.overallFeasibility.toUpperCase()}
+                    {result.feasibilityReport.overallFeasibility === 'high' && <TrendingUp className="w-4 h-4" />}
+                    {result.feasibilityReport.overallFeasibility === 'medium' && <AlertTriangle className="w-4 h-4" />}
+                    {result.feasibilityReport.overallFeasibility === 'low' && <XCircle className="w-4 h-4" />}
+                    {result.feasibilityReport.overallFeasibility.toUpperCase()} FEASIBILITY
                   </div>
                 </div>
               </div>
 
-              <div className="p-5">
+              <div className="p-5 space-y-4">
                 {/* Summary */}
-                <div className="bg-gradient-to-r from-[#1a5d1a]/5 to-emerald-50 rounded-xl p-4 border border-[#1a5d1a]/10 mb-4">
+                <div className="bg-gradient-to-r from-[#1a5d1a]/5 to-[#2e7d2e]/5 rounded-xl p-4 border border-[#1a5d1a]/10">
                   <p className="text-gray-700 text-sm leading-relaxed">{result.feasibilityReport.summary}</p>
                 </div>
 
-                {/* Grid Layout for Target Audience and Timeline */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  {/* Target Audience */}
-                  {result.feasibilityReport.targetAudience && (
-                    <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-blue-600" />
-                        <h3 className="font-semibold text-gray-900 text-sm">Target Audience</h3>
+                {/* Target Audience */}
+                {result.feasibilityReport.targetAudience && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Target className="w-3.5 h-3.5 text-blue-600" />
                       </div>
-                      <p className="text-gray-600 text-xs leading-relaxed">{result.feasibilityReport.targetAudience}</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Target Audience</h3>
                     </div>
-                  )}
+                    <p className="text-gray-700 text-sm leading-relaxed">{result.feasibilityReport.targetAudience}</p>
+                  </div>
+                )}
 
-                  {/* Timeline Feasibility */}
-                  {result.feasibilityReport.timelineFeasibility && (
-                    <div className={`rounded-xl p-4 border ${
-                      result.feasibilityReport.timelineFeasibility.isPossible 
-                        ? 'bg-emerald-50/50 border-emerald-100' 
-                        : 'bg-amber-50/50 border-amber-100'
-                    }`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        {result.feasibilityReport.timelineFeasibility.isPossible 
-                          ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 
-                          : <Clock className="w-4 h-4 text-amber-600" />
-                        }
-                        <h3 className="font-semibold text-gray-900 text-sm">Timeline (3 members • 2 sem)</h3>
-                      </div>
-                      <p className={`text-xs font-medium ${
-                        result.feasibilityReport.timelineFeasibility.isPossible ? 'text-emerald-700' : 'text-amber-700'
+                {/* Timeline Feasibility - 2 Semesters, 3 Members */}
+                {result.feasibilityReport.timelineFeasibility && (
+                  <div className={`rounded-xl p-4 border ${
+                    result.feasibilityReport.timelineFeasibility.isPossible 
+                      ? 'bg-emerald-50 border-emerald-200' 
+                      : 'bg-amber-50 border-amber-200'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        result.feasibilityReport.timelineFeasibility.isPossible 
+                          ? 'bg-emerald-100 text-emerald-600' 
+                          : 'bg-amber-100 text-amber-600'
                       }`}>
-                        {result.feasibilityReport.timelineFeasibility.verdict}
-                      </p>
+                        {result.feasibilityReport.timelineFeasibility.isPossible 
+                          ? <CheckCircle2 className="w-4 h-4" /> 
+                          : <AlertTriangle className="w-4 h-4" />
+                        }
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">Timeline Assessment</h3>
+                        <p className="text-xs text-gray-500">For 3 members • 2 semesters</p>
+                      </div>
                     </div>
-                  )}
-                </div>
+                    <p className={`text-sm font-medium mb-3 ${
+                      result.feasibilityReport.timelineFeasibility.isPossible 
+                        ? 'text-emerald-700' 
+                        : 'text-amber-700'
+                    }`}>
+                      {result.feasibilityReport.timelineFeasibility.verdict}
+                    </p>
+                    {result.feasibilityReport.timelineFeasibility.considerations.length > 0 && (
+                      <ul className="space-y-1.5">
+                        {result.feasibilityReport.timelineFeasibility.considerations.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-gray-600">
+                            <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gray-400" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
 
                 {/* Two column layout for skills and supervisor expertise */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Required Skills */}
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -869,7 +873,7 @@ function SimilarityCheckPageContent() {
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.feasibilityReport.requiredSkills.map((skill, i) => (
-                        <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                        <span key={i} className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                           {skill}
                         </span>
                       ))}
@@ -884,7 +888,7 @@ function SimilarityCheckPageContent() {
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.feasibilityReport.recommendedSupervisorExpertise.map((exp, i) => (
-                        <span key={i} className="px-2 py-1 bg-[#1a5d1a]/10 text-[#1a5d1a] rounded-lg text-xs font-medium">
+                        <span key={i} className="px-2.5 py-1 bg-[#1a5d1a]/10 text-[#1a5d1a] rounded-full text-xs font-medium">
                           {exp}
                         </span>
                       ))}
@@ -893,19 +897,19 @@ function SimilarityCheckPageContent() {
                 </div>
 
                 {/* Enhancement Suggestions */}
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Rocket className="w-4 h-4 text-purple-600" />
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Rocket className="w-4 h-4 text-blue-600" />
                     <h3 className="font-semibold text-gray-900 text-sm">Suggested Enhancements</h3>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <ul className="space-y-1.5">
                     {result.feasibilityReport.suggestedEnhancements.map((enhancement, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-gray-700 bg-white/60 rounded-lg p-2.5">
-                        <Lightbulb className="w-3.5 h-3.5 text-purple-500 mt-0.5 shrink-0" />
-                        <span>{enhancement}</span>
-                      </div>
+                      <li key={i} className="flex items-start gap-2 text-xs text-gray-700">
+                        <Lightbulb className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                        {enhancement}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </div>
             </motion.div>
@@ -916,11 +920,11 @@ function SimilarityCheckPageContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6 pb-6"
+            className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4"
           >
             <button
               onClick={handleGoBack}
-              className="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center shadow-sm"
+              className="px-4 sm:px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors text-center"
             >
               {result.isUnique ? 'Cancel' : 'Go Back'}
             </button>
@@ -929,7 +933,7 @@ function SimilarityCheckPageContent() {
               <button
                 onClick={handleSubmitAnyway}
                 disabled={submitting}
-                className="px-5 py-2.5 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] hover:from-[#155115] hover:to-[#256d25] text-white rounded-xl font-medium transition-all shadow-lg shadow-[#1a5d1a]/25 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] hover:from-[#155115] hover:to-[#256d25] text-white rounded-xl font-medium transition-all shadow-lg shadow-[#1a5d1a]/25 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>

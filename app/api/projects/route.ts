@@ -125,6 +125,7 @@ export async function POST(request: Request) {
       repositoryUrl,
       demoUrl,
       skipSimilarityCheck, // For pre-checked projects
+      feasibilityReport, // Feasibility report from similarity check
     } = body;
 
     if (!title || !description) {
@@ -179,6 +180,7 @@ export async function POST(request: Request) {
         groupId,
         campusId,
         isUnique: skipSimilarityCheck ? true : false,
+        feasibilityReport: feasibilityReport || null,
       },
     });
 

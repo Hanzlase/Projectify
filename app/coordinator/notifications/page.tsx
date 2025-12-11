@@ -31,7 +31,9 @@ import {
   User,
   Calendar,
   Hash,
-  HelpCircle
+  HelpCircle,
+  Reply,
+  Loader2
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import CoordinatorSidebar from '@/components/CoordinatorSidebar';
@@ -84,6 +86,12 @@ export default function NotificationsPage() {
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [selectedSentNotification, setSelectedSentNotification] = useState<SentNotification | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  
+  // Reply state
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
+  const [replyNotification, setReplyNotification] = useState<any | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -335,6 +343,47 @@ export default function NotificationsPage() {
     }
   };
 
+  const handleReply = (notification: any) => {
+    setReplyNotification(notification);
+    setReplyMessage('');
+    setShowReplyModal(true);
+    setSelectedNotification(null);
+  };
+
+  const sendReply = async () => {
+    if (!replyNotification || !replyMessage.trim()) return;
+    
+    setSendingReply(true);
+    try {
+      const parsedDetails = replyNotification.parsedDetails;
+      const response = await fetch(`/api/notifications/${replyNotification.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replyMessage: replyMessage.trim(),
+          recipientEmail: parsedDetails?.email,
+          recipientName: parsedDetails?.from
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setShowReplyModal(false);
+        setReplyMessage('');
+        setReplyNotification(null);
+        alert(data.message || 'Reply sent successfully!');
+      } else {
+        alert(data.error || 'Failed to send reply');
+      }
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+      alert('Failed to send reply');
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
   const unreadCount = receivedNotifications.filter(n => !n.isRead).length;
 
   // Show loading state while session is being fetched
@@ -343,14 +392,14 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -358,21 +407,21 @@ export default function NotificationsPage() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/chat')}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -383,8 +432,8 @@ export default function NotificationsPage() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -400,8 +449,8 @@ export default function NotificationsPage() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Notifications</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {activeTab === 'inbox' 
                     ? (unreadCount > 0 
                         ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
@@ -434,7 +483,7 @@ export default function NotificationsPage() {
             <Button
               variant={activeTab === 'inbox' ? 'default' : 'outline'}
               onClick={() => setActiveTab('inbox')}
-              className={`rounded-xl flex-1 sm:flex-none relative ${activeTab === 'inbox' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : ''}`}
+              className={`rounded-xl flex-1 sm:flex-none relative ${activeTab === 'inbox' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : 'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <Mail className="w-4 h-4 mr-2" />
               Inbox
@@ -447,7 +496,7 @@ export default function NotificationsPage() {
             <Button
               variant={activeTab === 'create' ? 'default' : 'outline'}
               onClick={() => setActiveTab('create')}
-              className={`rounded-xl flex-1 sm:flex-none ${activeTab === 'create' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : ''}`}
+              className={`rounded-xl flex-1 sm:flex-none ${activeTab === 'create' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : 'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <Send className="w-4 h-4 mr-2" />
               Create
@@ -455,7 +504,7 @@ export default function NotificationsPage() {
             <Button
               variant={activeTab === 'sent' ? 'default' : 'outline'}
               onClick={() => setActiveTab('sent')}
-              className={`rounded-xl flex-1 sm:flex-none ${activeTab === 'sent' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : ''}`}
+              className={`rounded-xl flex-1 sm:flex-none ${activeTab === 'sent' ? 'bg-[#1a5d1a] hover:bg-[#145214]' : 'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <Clock className="w-4 h-4 mr-2" />
               Sent
@@ -476,152 +525,142 @@ export default function NotificationsPage() {
                   <div className="w-10 h-10 border-4 border-[#1a5d1a]/20 border-t-[#1a5d1a] rounded-full animate-spin" />
                 </div>
               ) : receivedNotifications.length === 0 ? (
-                <Card className="border-0 shadow-sm rounded-2xl">
+                <Card className="border-0 shadow-sm rounded-2xl bg-white dark:bg-gray-800">
                   <CardContent className="py-16">
                     <div className="text-center">
-                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <MailOpen className="w-8 h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No notifications yet</h3>
-                      <p className="text-gray-500 text-sm">When you receive notifications, they'll appear here</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No notifications yet</h3>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">When you receive notifications, they'll appear here</p>
                     </div>
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border-0 shadow-sm rounded-2xl overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="divide-y divide-gray-100">
-                      {receivedNotifications.map((notification: any, index: number) => {
-                        // Parse help request details from message
-                        const isHelpRequest = notification.title?.includes('Help Request');
-                        let parsedDetails: any = null;
-                        
-                        if (isHelpRequest && notification.message) {
-                          const fromMatch = notification.message.match(/\*\*From:\*\*\s*([^\*]+)/);
-                          const emailMatch = notification.message.match(/\*\*Email:\*\*\s*([^\*\s]+)/);
-                          const rollMatch = notification.message.match(/\*\*Roll Number:\*\*\s*([^\*\s]+)/);
-                          const issueMatch = notification.message.match(/\*\*Issue Type:\*\*\s*([^\*]+)/);
-                          const msgMatch = notification.message.match(/\*\*Message:\*\*\s*([\s\S]+)/);
-                          
-                          parsedDetails = {
-                            from: fromMatch ? fromMatch[1].trim() : null,
-                            email: emailMatch ? emailMatch[1].trim() : null,
-                            rollNumber: rollMatch ? rollMatch[1].trim() : null,
-                            issueType: issueMatch ? issueMatch[1].trim() : null,
-                            userMessage: msgMatch ? msgMatch[1].trim() : null,
-                          };
-                        }
-                        
-                        return (
-                          <motion.div
-                            key={notification.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.03 }}
-                            className={`p-5 hover:bg-gray-50 cursor-pointer transition-all ${
-                              !notification.isRead ? 'bg-gradient-to-r from-[#1a5d1a]/5 to-transparent' : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedNotification({ ...notification, parsedDetails, isHelpRequest });
-                              if (!notification.isRead) markAsRead(notification.id);
-                            }}
-                          >
-                            <div className="flex items-start gap-4">
-                              {/* Icon */}
-                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                isHelpRequest ? 'bg-amber-100' :
-                                notification.type === 'urgent' ? 'bg-red-100' :
-                                notification.type === 'announcement' ? 'bg-blue-100' :
-                                notification.type === 'reminder' ? 'bg-yellow-100' :
-                                'bg-[#1a5d1a]/10'
-                              }`}>
-                                {isHelpRequest ? (
-                                  <HelpCircle className="w-6 h-6 text-amber-600" />
-                                ) : (
-                                  getTypeIcon(notification.type)
+                <div className="space-y-3">
+                  {receivedNotifications.map((notification: any, index: number) => {
+                    // Parse help request details from message
+                    const isHelpRequest = notification.title?.includes('Help Request');
+                    let parsedDetails: any = null;
+                    
+                    if (isHelpRequest && notification.message) {
+                      const fromMatch = notification.message.match(/\*\*From:\*\*\s*([^\*]+)/);
+                      const emailMatch = notification.message.match(/\*\*Email:\*\*\s*([^\*\s]+)/);
+                      const rollMatch = notification.message.match(/\*\*Roll Number:\*\*\s*([^\*\s]+)/);
+                      const issueMatch = notification.message.match(/\*\*Issue Type:\*\*\s*([^\*]+)/);
+                      const msgMatch = notification.message.match(/\*\*Message:\*\*\s*([\s\S]+)/);
+                      
+                      parsedDetails = {
+                        from: fromMatch ? fromMatch[1].trim() : null,
+                        email: emailMatch ? emailMatch[1].trim() : null,
+                        rollNumber: rollMatch ? rollMatch[1].trim() : null,
+                        issueType: issueMatch ? issueMatch[1].trim() : null,
+                        userMessage: msgMatch ? msgMatch[1].trim() : null,
+                      };
+                    }
+                    
+                    return (
+                      <motion.div 
+                        key={notification.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className={`border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md dark:hover:shadow-gray-900/50 transition-all cursor-pointer ${
+                          !notification.isRead ? 'bg-gradient-to-r from-[#1a5d1a]/5 to-white dark:from-[#1a5d1a]/10 dark:to-gray-800' : 'bg-white dark:bg-gray-800'
+                        }`}
+                        onClick={() => {
+                          setSelectedNotification({ ...notification, parsedDetails, isHelpRequest });
+                          if (!notification.isRead) markAsRead(notification.id);
+                        }}
+                      >
+                        <div className="p-4 flex items-center justify-between">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className={`p-2 rounded-xl flex-shrink-0 ${
+                              isHelpRequest ? 'bg-amber-100 dark:bg-amber-900/30' :
+                              notification.type === 'urgent' ? 'bg-red-100 dark:bg-red-900/30' :
+                              notification.type === 'announcement' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                              notification.type === 'reminder' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                              'bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/20'
+                            }`}>
+                              {isHelpRequest ? (
+                                <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                              ) : (
+                                getTypeIcon(notification.type)
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h3 className={`font-semibold text-sm truncate ${!notification.isRead ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                                  {notification.title}
+                                </h3>
+                                {!notification.isRead && (
+                                  <span className="w-2 h-2 bg-[#1a5d1a] rounded-full flex-shrink-0 animate-pulse" />
                                 )}
                               </div>
-                              
-                              {/* Content */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h3 className={`font-semibold truncate ${!notification.isRead ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
-                                        {notification.title}
-                                      </h3>
-                                      {!notification.isRead && (
-                                        <span className="w-2.5 h-2.5 bg-[#1a5d1a] rounded-full flex-shrink-0 animate-pulse" />
-                                      )}
-                                    </div>
-                                    
-                                    {/* Show parsed help request details */}
-                                    {isHelpRequest && parsedDetails ? (
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                                          <span className="flex items-center gap-1">
-                                            <User className="w-3.5 h-3.5" />
-                                            {parsedDetails.from || 'Unknown'}
-                                          </span>
-                                          {parsedDetails.rollNumber && (
-                                            <span className="flex items-center gap-1">
-                                              <Hash className="w-3.5 h-3.5" />
-                                              {parsedDetails.rollNumber}
-                                            </span>
-                                          )}
-                                        </div>
-                                        {parsedDetails.issueType && (
-                                          <p className="text-sm text-gray-500">
-                                            Issue: <span className="font-medium">{parsedDetails.issueType}</span>
-                                          </p>
-                                        )}
-                                      </div>
-                                    ) : (
-                                      <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {isHelpRequest && parsedDetails ? (
+                                  <>
+                                    <span className="flex items-center gap-1">
+                                      <User className="w-3 h-3" />
+                                      {parsedDetails.from || 'Unknown'}
+                                    </span>
+                                    {parsedDetails.rollNumber && (
+                                      <span className="flex items-center gap-1">
+                                        <Hash className="w-3 h-3" />
+                                        {parsedDetails.rollNumber}
+                                      </span>
                                     )}
-                                  </div>
-                                  
-                                  {/* Actions */}
-                                  <div className="flex items-center gap-1 flex-shrink-0">
-                                    {!notification.isRead && (
-                                      <button 
-                                        onClick={(e) => { e.stopPropagation(); markAsRead(notification.id); }}
-                                        className="p-2 hover:bg-[#1a5d1a]/10 rounded-lg transition-colors"
-                                        title="Mark as read"
-                                      >
-                                        <Check className="w-4 h-4 text-[#1a5d1a]" />
-                                      </button>
-                                    )}
-                                    <button 
-                                      onClick={(e) => { e.stopPropagation(); deleteNotification(notification.id); }}
-                                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                                      title="Delete"
-                                    >
-                                      <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                                    </button>
-                                  </div>
-                                </div>
-                                
-                                {/* Meta info */}
-                                <div className="flex items-center gap-3 mt-3 flex-wrap">
-                                  <span className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize ${
-                                    isHelpRequest ? 'bg-amber-100 text-amber-700' : getTypeColor(notification.type)
-                                  }`}>
-                                    {isHelpRequest ? 'Help Request' : notification.type}
-                                  </span>
-                                  <span className="text-xs text-gray-500 flex items-center gap-1">
-                                    <Calendar className="w-3.5 h-3.5" />
-                                    {formatDate(notification.createdAt)} • {formatTime(notification.createdAt)}
-                                  </span>
-                                </div>
+                                  </>
+                                ) : (
+                                  <span className="line-clamp-1">{notification.message}</span>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 mt-2">
+                                <span className={`px-2 py-0.5 rounded-lg text-xs font-medium capitalize ${
+                                  isHelpRequest ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : getTypeColor(notification.type)
+                                }`}>
+                                  {isHelpRequest ? 'Help Request' : notification.type}
+                                </span>
+                                <span className="hidden sm:inline text-xs text-gray-500 dark:text-gray-400">
+                                  {formatDate(notification.createdAt)} • {formatTime(notification.createdAt)}
+                                </span>
                               </div>
                             </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                            {!notification.isRead && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification.id);
+                                }}
+                                className="text-[#1a5d1a] hover:text-[#145214] hover:bg-[#1a5d1a]/10 dark:hover:bg-[#1a5d1a]/20 h-8 w-8 p-0"
+                                title="Mark as read"
+                              >
+                                <Check className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteNotification(notification.id);
+                              }}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 h-8 w-8 p-0"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               )}
             </motion.div>
           ) : activeTab === 'create' ? (
@@ -635,47 +674,47 @@ export default function NotificationsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Create Form */}
                 <div className="lg:col-span-2">
-                  <Card className="shadow-sm border-0 rounded-2xl">
-                    <CardHeader className="border-b border-gray-100">
-                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <Card className="shadow-sm border-0 rounded-2xl bg-white dark:bg-gray-800">
+                    <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+                      <CardTitle className="flex items-center gap-2 text-base md:text-lg dark:text-white">
                         <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                           <Megaphone className="w-4 h-4 text-white" />
                         </div>
                         New Notification
                       </CardTitle>
-                      <CardDescription className="text-sm">
+                      <CardDescription className="text-sm dark:text-gray-400">
                         Create and send a notification to users
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
-                          <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 text-red-700 text-sm">
+                          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800 rounded-xl flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
                             <AlertCircle className="w-4 h-4 flex-shrink-0" />
                             {error}
                           </div>
                         )}
                         {success && (
-                          <div className="p-3 bg-green-50 border border-green-100 rounded-xl flex items-center gap-2 text-green-700 text-sm">
+                          <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
                             <Check className="w-4 h-4 flex-shrink-0" />
                             {success}
                           </div>
                         )}
 
                         <div className="space-y-2">
-                          <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+                          <Label htmlFor="title" className="text-sm font-medium dark:text-gray-300">Title</Label>
                           <Input
                             id="title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Enter notification title"
                             required
-                            className="h-11 rounded-xl border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                            className="h-11 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="message" className="text-sm font-medium">Message</Label>
+                          <Label htmlFor="message" className="text-sm font-medium dark:text-gray-300">Message</Label>
                           <textarea
                             id="message"
                             value={message}
@@ -683,12 +722,12 @@ export default function NotificationsPage() {
                             placeholder="Enter your message..."
                             required
                             rows={4}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm transition-all"
+                            className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm transition-all"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Notification Type</Label>
+                          <Label className="text-sm font-medium dark:text-gray-300">Notification Type</Label>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {(['general', 'announcement', 'reminder', 'urgent'] as const).map((t) => (
                               <button
@@ -697,12 +736,12 @@ export default function NotificationsPage() {
                                 onClick={() => setType(t)}
                                 className={`p-2.5 rounded-xl border-2 transition-all text-sm ${
                                   type === t 
-                                    ? 'border-[#1a5d1a] bg-[#1a5d1a]/5' 
-                                    : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20' 
+                                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                                 }`}
                               >
                                 <span className={`font-medium capitalize ${
-                                  type === t ? 'text-[#1a5d1a]' : 'text-gray-600'
+                                  type === t ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-600 dark:text-gray-400'
                                 }`}>
                                   {t}
                                 </span>
@@ -712,20 +751,20 @@ export default function NotificationsPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Send To</Label>
+                          <Label className="text-sm font-medium dark:text-gray-300">Send To</Label>
                           <div className="grid grid-cols-2 gap-2">
                             <button
                               type="button"
                               onClick={() => setTargetType('all_users')}
                               className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${
                                 targetType === 'all_users' 
-                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5' 
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20' 
+                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <Users className={`w-4 h-4 ${targetType === 'all_users' ? 'text-[#1a5d1a]' : 'text-gray-400'}`} />
                               <div className="text-left">
-                                <p className={`font-medium text-sm ${targetType === 'all_users' ? 'text-[#1a5d1a]' : 'text-gray-700'}`}>
+                                <p className={`font-medium text-sm ${targetType === 'all_users' ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-700 dark:text-gray-300'}`}>
                                   All Users
                                 </p>
                               </div>
@@ -735,13 +774,13 @@ export default function NotificationsPage() {
                               onClick={() => setTargetType('all_students')}
                               className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${
                                 targetType === 'all_students' 
-                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5' 
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20' 
+                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <GraduationCap className={`w-4 h-4 ${targetType === 'all_students' ? 'text-[#1a5d1a]' : 'text-gray-400'}`} />
                               <div className="text-left">
-                                <p className={`font-medium text-sm ${targetType === 'all_students' ? 'text-[#1a5d1a]' : 'text-gray-700'}`}>
+                                <p className={`font-medium text-sm ${targetType === 'all_students' ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-700 dark:text-gray-300'}`}>
                                   Students
                                 </p>
                               </div>
@@ -751,13 +790,13 @@ export default function NotificationsPage() {
                               onClick={() => setTargetType('all_supervisors')}
                               className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${
                                 targetType === 'all_supervisors' 
-                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5' 
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20' 
+                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <UserCheck className={`w-4 h-4 ${targetType === 'all_supervisors' ? 'text-[#1a5d1a]' : 'text-gray-400'}`} />
                               <div className="text-left">
-                                <p className={`font-medium text-sm ${targetType === 'all_supervisors' ? 'text-[#1a5d1a]' : 'text-gray-700'}`}>
+                                <p className={`font-medium text-sm ${targetType === 'all_supervisors' ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-700 dark:text-gray-300'}`}>
                                   Supervisors
                                 </p>
                               </div>
@@ -767,13 +806,13 @@ export default function NotificationsPage() {
                               onClick={() => setTargetType('specific_users')}
                               className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${
                                 targetType === 'specific_users' 
-                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5' 
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20' 
+                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <UserCheck className={`w-4 h-4 ${targetType === 'specific_users' ? 'text-[#1a5d1a]' : 'text-gray-400'}`} />
                               <div className="text-left">
-                                <p className={`font-medium text-sm ${targetType === 'specific_users' ? 'text-[#1a5d1a]' : 'text-gray-700'}`}>
+                                <p className={`font-medium text-sm ${targetType === 'specific_users' ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-700 dark:text-gray-300'}`}>
                                   Specific
                                 </p>
                               </div>
@@ -829,16 +868,16 @@ export default function NotificationsPage() {
                 {/* User Selection Panel (for specific users) */}
                 {targetType === 'specific_users' && (
                   <div className="lg:col-span-1">
-                    <Card className="shadow-sm border-0 rounded-2xl sticky top-24">
-                      <CardHeader className="pb-3 border-b border-gray-100">
-                        <CardTitle className="text-base">Select Recipients</CardTitle>
+                    <Card className="shadow-sm border-0 rounded-2xl sticky top-24 bg-white dark:bg-gray-800">
+                      <CardHeader className="pb-3 border-b border-gray-100 dark:border-gray-700">
+                        <CardTitle className="text-base dark:text-white">Select Recipients</CardTitle>
                         <div className="relative mt-2">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input
                             placeholder="Search users..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 h-10 rounded-xl border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                            className="pl-9 h-10 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
                           />
                         </div>
                       </CardHeader>
@@ -851,8 +890,8 @@ export default function NotificationsPage() {
                               onClick={() => toggleUserSelection(user.id)}
                               className={`w-full p-2.5 rounded-xl border transition-all flex items-center gap-2 ${
                                 selectedUsers.includes(user.id)
-                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5'
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-[#1a5d1a] bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20'
+                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                               }`}
                             >
                               <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-medium ${
@@ -863,8 +902,8 @@ export default function NotificationsPage() {
                                 {user.name.charAt(0).toUpperCase()}
                               </div>
                               <div className="flex-1 text-left min-w-0">
-                                <p className="font-medium text-gray-900 text-sm truncate">{user.name}</p>
-                                <p className="text-xs text-gray-500 truncate">
+                                <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{user.name}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                   {user.role === 'student' ? user.rollNumber : 'Supervisor'}
                                 </p>
                               </div>
@@ -874,7 +913,7 @@ export default function NotificationsPage() {
                             </button>
                           ))}
                           {filteredUsers.length === 0 && (
-                            <p className="text-center text-gray-500 py-4 text-sm">No users found</p>
+                            <p className="text-center text-gray-500 dark:text-gray-400 py-4 text-sm">No users found</p>
                           )}
                         </div>
                       </CardContent>
@@ -891,15 +930,15 @@ export default function NotificationsPage() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="shadow-sm border-0 rounded-2xl">
-                <CardHeader className="border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <Card className="shadow-sm border-0 rounded-2xl bg-white dark:bg-gray-800">
+                <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg dark:text-white">
                     <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                       <Clock className="w-4 h-4 text-white" />
                     </div>
                     Sent Notifications
                   </CardTitle>
-                  <CardDescription className="text-sm">
+                  <CardDescription className="text-sm dark:text-gray-400">
                     View all notifications you've sent
                   </CardDescription>
                 </CardHeader>
@@ -910,8 +949,8 @@ export default function NotificationsPage() {
                     </div>
                   ) : sentNotifications.length === 0 ? (
                     <div className="text-center py-12">
-                      <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">No notifications sent yet</p>
+                      <Bell className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400">No notifications sent yet</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -920,17 +959,17 @@ export default function NotificationsPage() {
                           key={notification.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-all cursor-pointer"
+                          className="border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md dark:hover:shadow-gray-900/50 transition-all cursor-pointer"
                           onClick={() => setSelectedSentNotification(notification)}
                         >
-                          <div className="p-4 bg-white flex items-center justify-between">
+                          <div className="p-4 bg-white dark:bg-gray-800 flex items-center justify-between">
                             <div className="flex items-center gap-3 min-w-0 flex-1">
                               <div className={`p-2 rounded-xl flex-shrink-0 ${getTypeColor(notification.type)}`}>
                                 {getTargetIcon(notification.targetType)}
                               </div>
                               <div className="min-w-0">
-                                <h3 className="font-semibold text-gray-900 text-sm truncate">{notification.title}</h3>
-                                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">{notification.title}</h3>
+                                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   <span className={`px-2 py-0.5 rounded-lg capitalize ${getTypeColor(notification.type)}`}>
                                     {notification.type}
                                   </span>
@@ -950,7 +989,7 @@ export default function NotificationsPage() {
                                   e.stopPropagation();
                                   handleDeleteNotification(notification.id);
                                 }}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 h-8 w-8 p-0"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -983,7 +1022,7 @@ export default function NotificationsPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1028,53 +1067,53 @@ export default function NotificationsPage() {
                     {/* User Info */}
                     <div className="grid grid-cols-2 gap-4">
                       {selectedNotification.parsedDetails.from && (
-                        <div className="bg-gray-50 p-4 rounded-xl">
-                          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
+                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                             <User className="w-3.5 h-3.5" />
                             From
                           </div>
-                          <p className="font-semibold text-gray-900">{selectedNotification.parsedDetails.from}</p>
+                          <p className="font-semibold text-gray-900 dark:text-white">{selectedNotification.parsedDetails.from}</p>
                         </div>
                       )}
                       {selectedNotification.parsedDetails.rollNumber && (
-                        <div className="bg-gray-50 p-4 rounded-xl">
-                          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
+                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                             <Hash className="w-3.5 h-3.5" />
                             Roll Number
                           </div>
-                          <p className="font-semibold text-gray-900">{selectedNotification.parsedDetails.rollNumber}</p>
+                          <p className="font-semibold text-gray-900 dark:text-white">{selectedNotification.parsedDetails.rollNumber}</p>
                         </div>
                       )}
                     </div>
                     
                     {selectedNotification.parsedDetails.email && (
-                      <div className="bg-gray-50 p-4 rounded-xl">
-                        <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
+                      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                           <Mail className="w-3.5 h-3.5" />
                           Email
                         </div>
-                        <p className="font-semibold text-gray-900">{selectedNotification.parsedDetails.email}</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{selectedNotification.parsedDetails.email}</p>
                       </div>
                     )}
                     
                     {selectedNotification.parsedDetails.issueType && (
-                      <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
-                        <div className="flex items-center gap-2 text-amber-600 text-xs mb-1">
+                      <div className="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800">
+                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-xs mb-1">
                           <AlertCircle className="w-3.5 h-3.5" />
                           Issue Type
                         </div>
-                        <p className="font-semibold text-amber-800">{selectedNotification.parsedDetails.issueType}</p>
+                        <p className="font-semibold text-amber-800 dark:text-amber-300">{selectedNotification.parsedDetails.issueType}</p>
                       </div>
                     )}
                     
                     {selectedNotification.parsedDetails.userMessage && (
                       <div>
-                        <div className="flex items-center gap-2 text-gray-500 text-xs mb-2">
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-2">
                           <MessageCircle className="w-3.5 h-3.5" />
                           Message
                         </div>
-                        <div className="bg-gray-50 p-4 rounded-xl">
-                          <p className="text-gray-700 whitespace-pre-wrap">{selectedNotification.parsedDetails.userMessage}</p>
+                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedNotification.parsedDetails.userMessage}</p>
                         </div>
                       </div>
                     )}
@@ -1086,30 +1125,43 @@ export default function NotificationsPage() {
                         {selectedNotification.type}
                       </span>
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{selectedNotification.message}</p>
+                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{selectedNotification.message}</p>
                   </div>
                 )}
               </div>
 
               {/* Footer */}
-              <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    deleteNotification(selectedNotification.id);
-                    setSelectedNotification(null);
-                  }}
-                  className="border-red-200 text-red-600 hover:bg-red-50 rounded-xl"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => setSelectedNotification(null)}
-                  className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl"
-                >
-                  Close
-                </Button>
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 flex justify-between gap-3">
+                <div>
+                  {selectedNotification.isHelpRequest && selectedNotification.parsedDetails?.email && (
+                    <Button
+                      onClick={() => handleReply(selectedNotification)}
+                      className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl"
+                    >
+                      <Reply className="w-4 h-4 mr-2" />
+                      Reply
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      deleteNotification(selectedNotification.id);
+                      setSelectedNotification(null);
+                    }}
+                    className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                  <Button
+                    onClick={() => setSelectedNotification(null)}
+                    className="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-white rounded-xl"
+                  >
+                    Close
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -1230,6 +1282,128 @@ export default function NotificationsPage() {
                   className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl"
                 >
                   Close
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Reply Modal */}
+      <AnimatePresence>
+        {showReplyModal && replyNotification && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowReplyModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <Reply className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Reply to Help Request</h2>
+                    <p className="text-white/80 text-sm mt-1">
+                      Send a response to {replyNotification.parsedDetails?.from || 'the user'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 space-y-4">
+                {/* Original request info */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Original Request</p>
+                  <div className="space-y-2">
+                    {replyNotification.parsedDetails?.from && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700 dark:text-gray-300">{replyNotification.parsedDetails.from}</span>
+                      </div>
+                    )}
+                    {replyNotification.parsedDetails?.email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700 dark:text-gray-300">{replyNotification.parsedDetails.email}</span>
+                      </div>
+                    )}
+                    {replyNotification.parsedDetails?.issueType && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <AlertCircle className="w-4 h-4 text-amber-500" />
+                        <span className="text-amber-700 dark:text-amber-400">{replyNotification.parsedDetails.issueType}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Reply message */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Your Reply
+                  </label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    placeholder="Type your response to the help request..."
+                    rows={5}
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm transition-all"
+                  />
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-300">How it works</p>
+                      <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
+                        If the user is registered in the system, they will receive a notification. Otherwise, they will see the reply when they log in.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowReplyModal(false);
+                    setReplyMessage('');
+                    setReplyNotification(null);
+                  }}
+                  className="rounded-xl dark:border-gray-600 dark:text-gray-300"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={sendReply}
+                  disabled={!replyMessage.trim() || sendingReply}
+                  className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl"
+                >
+                  {sendingReply ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Reply
+                    </>
+                  )}
                 </Button>
               </div>
             </motion.div>

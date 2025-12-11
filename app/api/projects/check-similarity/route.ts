@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { extractTextFromDocument, cleanExtractedText } from '@/lib/document-parser';
-import { generateEmbedding, extractProjectInfo, generateSimilarityExplanation } from '@/lib/cohere';
+import { 
+  generateEmbedding, 
+  extractProjectInfo, 
+  generateSimilarityExplanation, 
+  generateFeasibilityReport, 
+  generateSimilarityReason,
+  generateFeatureBasedEmbeddingText,
+  generateDifferentiationSuggestions
+} from '@/lib/cohere';
 import { searchSimilarProjects, checkUniqueness } from '@/lib/qdrant';
 
 export async function POST(request: Request) {
@@ -51,13 +59,23 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Extract title, abstract, description and categories using Cohere
-    const { title, abstract, description, categories } = await extractProjectInfo(documentText);
+    // Extract title, abstract, description, categories, features, modules, workflows using Cohere
+    const extractedInfo = await extractProjectInfo(documentText);
+    const { title, abstract, description, categories, mainFeatures, coreModules, workflows, techStack } = extractedInfo;
 
-    // Generate embedding for the project
-    const combinedText = `${title} ${abstract} ${description}`;
-    console.log('Generating embedding for similarity search...');
-    const embedding = await generateEmbedding(combinedText);
+    // Generate feature-based embedding text for better similarity comparison
+    // This focuses on core functionality rather than just keywords
+    const embeddingText = generateFeatureBasedEmbeddingText({
+      title,
+      abstract,
+      description,
+      mainFeatures,
+      coreModules,
+      workflows,
+    });
+    
+    console.log('Generating feature-based embedding for similarity search...');
+    const embedding = await generateEmbedding(embeddingText);
 
     // Search for similar projects - ALWAYS get top 3 if they exist
     // This searches ALL projects in Qdrant (both public and private)
@@ -67,7 +85,7 @@ export async function POST(request: Request) {
 
     // Log similarity scores for debugging
     similarProjects.forEach((p, i) => {
-      console.log(`  ${i + 1}. "${p.payload.title}" - ${(p.score * 100).toFixed(1)}% similar`);
+      console.log(`  ${i + 1}. "${p.payload.title}" - Score: ${p.score} (${(p.score * 100).toFixed(2)}%)`);
     });
 
     // Check uniqueness (threshold: 50% similarity = not unique)
@@ -87,6 +105,56 @@ export async function POST(request: Request) {
       );
     }
 
+    // Generate feasibility report for all projects (unique or not)
+    console.log('Generating feasibility report...');
+    const feasibilityReport = await generateFeasibilityReport({
+      title,
+      abstract,
+      description,
+      categories
+    });
+    console.log('Feasibility report generated successfully');
+
+    // Generate brief reasons for each similar project with feature focus
+    const similarProjectsWithReasons = await Promise.all(
+      similarProjects.map(async (p) => {
+        const reason = await generateSimilarityReason(
+          { title, abstract, mainFeatures },
+          { 
+            title: p.payload.title, 
+            abstract: p.payload.abstract, 
+            similarityScore: p.score,
+            mainFeatures: [] // Existing projects don't have extracted features stored yet
+          }
+        );
+        return {
+          projectId: p.payload.projectId,
+          title: p.payload.title,
+          abstract: p.payload.abstract,
+          description: p.payload.description,
+          documentUrl: p.payload.documentUrl,
+          similarityScore: p.score,
+          similarityPercentage: (p.score * 100).toFixed(1),
+          rawScore: p.score, // Add raw score for debugging
+          reason,
+        };
+      })
+    );
+
+    // Generate differentiation suggestions if there are similar projects
+    let differentiationInfo = null;
+    if (similarProjects.length > 0) {
+      differentiationInfo = await generateDifferentiationSuggestions(
+        { title, abstract, mainFeatures },
+        similarProjects.map(p => ({
+          title: p.payload.title,
+          abstract: p.payload.abstract,
+          similarityScore: p.score,
+          mainFeatures: [],
+        }))
+      );
+    }
+
     return NextResponse.json({
       success: true,
       isUnique,
@@ -95,17 +163,15 @@ export async function POST(request: Request) {
         abstract,
         description,
         categories,
+        mainFeatures,
+        coreModules,
+        workflows,
+        techStack,
       },
-      similarProjects: similarProjects.map(p => ({
-        projectId: p.payload.projectId,
-        title: p.payload.title,
-        abstract: p.payload.abstract,
-        description: p.payload.description,
-        documentUrl: p.payload.documentUrl,
-        similarityScore: p.score,
-        similarityPercentage: (p.score * 100).toFixed(1),
-      })),
+      similarProjects: similarProjectsWithReasons,
       similarityExplanation,
+      feasibilityReport,
+      differentiationInfo,
       documentText: documentText.substring(0, 500) + '...', // Preview only
     });
   } catch (error) {

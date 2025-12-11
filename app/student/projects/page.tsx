@@ -580,7 +580,7 @@ function ProjectsPageContent() {
                       className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
                     >
                       {/* Thumbnail */}
-                      <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 relative overflow-hidden">
+                      <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 relative overflow-hidden">
                         {project.thumbnailUrl ? (
                           <img 
                             src={project.thumbnailUrl} 
@@ -636,12 +636,12 @@ function ProjectsPageContent() {
                       </div>
 
                       {/* Content */}
-                      <CardContent className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1">{project.title}</h3>
+                      <CardContent className="p-3">
+                        <h3 className="font-semibold text-base text-gray-900 dark:text-white mb-2 line-clamp-1">{project.title}</h3>
                         
                         {project.category && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {project.category.split(', ').map((cat, idx) => (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {project.category.split(', ').slice(0, 2).map((cat, idx) => (
                               <span key={idx} className="inline-block px-2 py-0.5 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80] text-xs rounded-full">
                                 {cat}
                               </span>
@@ -650,7 +650,7 @@ function ProjectsPageContent() {
                         )}
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xs font-bold overflow-hidden">
                               {project.creator?.profileImage ? (

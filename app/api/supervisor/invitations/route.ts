@@ -95,7 +95,7 @@ export async function GET() {
       const groupProjectId = inv.group.projectId || project?.projectId || null;
       return {
         id: inv.id.toString(),
-        status: inv.status.toUpperCase(),
+        status: inv.status.toLowerCase(),
         createdAt: inv.createdAt.toISOString(),
         group: {
           id: inv.group.groupId.toString(),

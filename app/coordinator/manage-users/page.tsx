@@ -295,14 +295,14 @@ export default function ManageUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -310,21 +310,21 @@ export default function ManageUsersPage() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/chat')}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -335,8 +335,8 @@ export default function ManageUsersPage() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -347,8 +347,8 @@ export default function ManageUsersPage() {
           {/* Page Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Users</h1>
-              <p className="text-sm text-gray-500">View and manage all users in {campusName || 'your'} campus</p>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Manage Users</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">View and manage all users in {campusName || 'your'} campus</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 md:gap-3">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -375,12 +375,12 @@ export default function ManageUsersPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+              <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Total Users</CardTitle>
-                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{users.length}</p>
+                      <CardTitle className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Total Users</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{users.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                       <Users className="w-6 h-6 text-white" />
@@ -390,7 +390,7 @@ export default function ManageUsersPage() {
                 <CardContent className="pt-0">
                   <button
                     onClick={() => { setRoleFilter('all'); setStatusFilter('all'); }}
-                    className="text-[#1a5d1a] hover:text-[#145214] text-sm font-medium flex items-center"
+                    className="text-[#1a5d1a] dark:text-[#2d7a2d] hover:text-[#145214] text-sm font-medium flex items-center"
                   >
                     View All
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,12 +402,12 @@ export default function ManageUsersPage() {
             </motion.div>
 
             <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+              <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Students</CardTitle>
-                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{studentCount}</p>
+                      <CardTitle className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Students</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{studentCount}</p>
                     </div>
                     <div className="w-12 h-12 bg-[#2d7a2d] rounded-xl flex items-center justify-center">
                       <GraduationCap className="w-6 h-6 text-white" />
@@ -429,12 +429,12 @@ export default function ManageUsersPage() {
             </motion.div>
 
             <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+              <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Supervisors</CardTitle>
-                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{supervisorCount}</p>
+                      <CardTitle className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Supervisors</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{supervisorCount}</p>
                     </div>
                     <div className="w-12 h-12 bg-[#2d7a2d] rounded-xl flex items-center justify-center">
                       <UserCheck className="w-6 h-6 text-white" />
@@ -456,12 +456,12 @@ export default function ManageUsersPage() {
             </motion.div>
 
             <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-              <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
+              <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-gray-500 text-xs font-medium uppercase tracking-wide">Suspended</CardTitle>
-                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{suspendedCount}</p>
+                      <CardTitle className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Suspended</CardTitle>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{suspendedCount}</p>
                     </div>
                     <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
                       <UserX className="w-6 h-6 text-white" />
@@ -484,16 +484,16 @@ export default function ManageUsersPage() {
           </div>
 
           {/* Filters */}
-          <Card className="mb-6 bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-white">
+          <Card className="mb-6 bg-white dark:bg-gray-800 shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                     <Search className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-gray-900 text-base md:text-lg">Search & Filter</CardTitle>
-                    <CardDescription className="text-sm">
+                    <CardTitle className="text-gray-900 dark:text-white text-base md:text-lg">Search & Filter</CardTitle>
+                    <CardDescription className="text-sm dark:text-gray-400">
                       Find users quickly
                     </CardDescription>
                   </div>
@@ -502,7 +502,7 @@ export default function ManageUsersPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="text-[#1a5d1a] hover:text-[#145214] hover:bg-[#1a5d1a]/10 w-fit"
+                  className="text-[#1a5d1a] dark:text-[#2d7a2d] hover:text-[#145214] hover:bg-[#1a5d1a]/10 w-fit"
                 >
                   <Filter className="w-4 h-4 mr-2" />
                   {showAdvancedFilters ? 'Hide' : 'Show'} Filters
@@ -513,7 +513,7 @@ export default function ManageUsersPage() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="search" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="search" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Search className="w-4 h-4" />
                     Search Users
                   </Label>
@@ -525,13 +525,13 @@ export default function ManageUsersPage() {
                       placeholder="Name, email or roll number..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-11 pl-10 pr-4 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 transition-all duration-200 rounded-xl"
+                      className="h-11 pl-10 pr-4 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 transition-all duration-200 rounded-xl"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="roleFilter" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="roleFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     Filter by Role
                   </Label>
@@ -541,7 +541,7 @@ export default function ManageUsersPage() {
                       id="roleFilter"
                       value={roleFilter}
                       onChange={(e) => setRoleFilter(e.target.value as any)}
-                      className="w-full h-11 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
+                      className="w-full h-11 pl-10 pr-10 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
                     >
                       <option value="all">All Users</option>
                       <option value="student">Students Only</option>
@@ -556,7 +556,7 @@ export default function ManageUsersPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4" />
                     Filter by Status
                   </Label>
@@ -566,7 +566,7 @@ export default function ManageUsersPage() {
                       id="statusFilter"
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value as any)}
-                      className="w-full h-11 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
+                      className="w-full h-11 pl-10 pr-10 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] bg-white appearance-none cursor-pointer transition-all duration-200 text-sm font-medium hover:border-gray-300"
                     >
                       <option value="all">All Status</option>
                       <option value="ACTIVE">Active</option>
@@ -582,14 +582,14 @@ export default function ManageUsersPage() {
               </div>
 
               <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="text-gray-600">
-                  Showing <span className="font-semibold text-gray-900">{paginatedUsers.length}</span> of{' '}
-                  <span className="font-semibold text-gray-900">{filteredUsers.length}</span> users
+                <span className="text-gray-600 dark:text-gray-400">
+                  Showing <span className="font-semibold text-gray-900 dark:text-white">{paginatedUsers.length}</span> of{' '}
+                  <span className="font-semibold text-gray-900 dark:text-white">{filteredUsers.length}</span> users
                 </span>
                 {(searchQuery || roleFilter !== 'all' || statusFilter !== 'all') && (
                   <button
                     onClick={() => { setSearchQuery(''); setRoleFilter('all'); setStatusFilter('all'); }}
-                    className="text-[#1a5d1a] hover:text-[#145214] font-medium flex items-center gap-1"
+                    className="text-[#1a5d1a] dark:text-[#2d7a2d] hover:text-[#145214] font-medium flex items-center gap-1"
                   >
                     Clear Filters
                     <X className="w-4 h-4" />
@@ -601,11 +601,11 @@ export default function ManageUsersPage() {
           </Card>
 
           {/* Users List */}
-          <Card className="bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-white">
+          <Card className="bg-white dark:bg-gray-800 shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-gray-900 text-base md:text-lg flex items-center gap-2">
+                  <CardTitle className="text-gray-900 dark:text-white text-base md:text-lg flex items-center gap-2">
                     {roleFilter === 'all' ? (
                       <><Users className="w-5 h-5" /> All Users</>
                     ) : roleFilter === 'student' ? (
@@ -613,11 +613,11 @@ export default function ManageUsersPage() {
                     ) : (
                       <><UserCheck className="w-5 h-5" /> Supervisors</>
                     )}
-                    <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                    <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-semibold">
                       {filteredUsers.length}
                     </span>
                   </CardTitle>
-                  <CardDescription className="mt-1 text-sm">
+                  <CardDescription className="mt-1 text-sm dark:text-gray-400">
                     Users in {campusName || 'N/A'} Campus
                   </CardDescription>
                 </div>
@@ -625,9 +625,9 @@ export default function ManageUsersPage() {
             </CardHeader>
             <CardContent className="p-0">
               {filteredUsers.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <p className="text-base font-medium text-gray-700">No users found</p>
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                  <Users className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                  <p className="text-base font-medium text-gray-700 dark:text-gray-300">No users found</p>
                   <p className="text-sm mt-1">Try adjusting your search</p>
                 </div>
               ) : (
@@ -635,36 +635,36 @@ export default function ManageUsersPage() {
                   {/* Table for larger screens */}
                   <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-gray-50 border-b border-gray-100">
+                      <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             User
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Role
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Details
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-100">
+                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
                         {paginatedUsers.map((u, index) => (
                           <motion.tr
                             key={u.userId}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.03 }}
-                            className="hover:bg-gray-50 transition-colors duration-150"
+                            className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
@@ -678,8 +678,8 @@ export default function ManageUsersPage() {
                                   {u.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="ml-3">
-                                  <div className="text-sm font-semibold text-gray-900">{u.name}</div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{u.name}</div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400">
                                     {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                                   </div>
                                 </div>
@@ -689,27 +689,27 @@ export default function ManageUsersPage() {
                               <span
                                 className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg ${
                                   u.role === 'student'
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-slate-100 text-slate-800'
+                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'
                                 }`}
                               >
                                 {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900">{u.email}</div>
+                              <div className="text-sm text-gray-900 dark:text-gray-300">{u.email}</div>
                             </td>
                             <td className="px-6 py-4">
                               {u.role === 'student' && u.student && (
                                 <div className="text-sm">
-                                  <span className="text-gray-600">Roll: </span>
-                                  <span className="font-mono text-[#1a5d1a] font-semibold">{u.student.rollNumber}</span>
+                                  <span className="text-gray-600 dark:text-gray-400">Roll: </span>
+                                  <span className="font-mono text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold">{u.student.rollNumber}</span>
                                 </div>
                               )}
                               {u.role === 'supervisor' && u.supervisor && (
                                 <div className="text-sm">
-                                  <span className="text-gray-600">Groups: </span>
-                                  <span className="font-semibold text-gray-900">
+                                  <span className="text-gray-600 dark:text-gray-400">Groups: </span>
+                                  <span className="font-semibold text-gray-900 dark:text-white">
                                     {u.supervisor.totalGroups}/{u.supervisor.maxGroups}
                                   </span>
                                 </div>
@@ -722,7 +722,7 @@ export default function ManageUsersPage() {
                               <div className="flex items-center justify-end gap-1">
                                 <button
                                   onClick={() => handleEditClick(u)}
-                                  className="text-gray-600 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                                   title="Edit User"
                                 >
                                   <Edit className="w-4 h-4" />
@@ -730,7 +730,7 @@ export default function ManageUsersPage() {
                                 {(u.status || 'ACTIVE') === 'ACTIVE' ? (
                                   <button
                                     onClick={() => handleActionClick(u, 'suspend')}
-                                    className="text-gray-600 hover:text-[#1a5d1a] p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
                                     title="Suspend User"
                                   >
                                     <UserX className="w-4 h-4" />
@@ -738,7 +738,7 @@ export default function ManageUsersPage() {
                                 ) : (
                                   <button
                                     onClick={() => handleActionClick(u, 'activate')}
-                                    className="text-gray-600 hover:text-green-600 p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
                                     title="Activate User"
                                   >
                                     <CheckCircle2 className="w-4 h-4" />
@@ -746,7 +746,7 @@ export default function ManageUsersPage() {
                                 )}
                                 <button
                                   onClick={() => handleActionClick(u, 'delete')}
-                                  className="text-gray-600 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                  className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                   title="Delete User"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -760,14 +760,14 @@ export default function ManageUsersPage() {
                   </div>
 
                   {/* Card layout for mobile */}
-                  <div className="md:hidden divide-y divide-gray-100">
+                  <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-700">
                     {paginatedUsers.map((u, index) => (
                       <motion.div
                         key={u.userId}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.03 }}
-                        className="p-4 hover:bg-gray-50 transition-colors"
+                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
@@ -781,13 +781,13 @@ export default function ManageUsersPage() {
                               {u.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900">{u.name}</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-white">{u.name}</h3>
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`px-2 py-0.5 inline-flex text-xs font-semibold rounded-lg ${
                                     u.role === 'student'
-                                      ? 'bg-emerald-100 text-emerald-800'
-                                      : 'bg-slate-100 text-slate-800'
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                                      : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'
                                   }`}
                                 >
                                   {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
@@ -799,45 +799,45 @@ export default function ManageUsersPage() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleEditClick(u)}
-                              className="text-gray-500 hover:text-blue-600 p-1.5 hover:bg-blue-50 rounded-lg"
+                              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             {(u.status || 'ACTIVE') === 'ACTIVE' ? (
                               <button
                                 onClick={() => handleActionClick(u, 'suspend')}
-                                className="text-gray-500 hover:text-[#1a5d1a] p-1.5 hover:bg-green-50 rounded-lg"
+                                className="text-gray-500 dark:text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] p-1.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
                               >
                                 <UserX className="w-4 h-4" />
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleActionClick(u, 'activate')}
-                                className="text-gray-500 hover:text-green-600 p-1.5 hover:bg-green-50 rounded-lg"
+                                className="text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
                               </button>
                             )}
                             <button
                               onClick={() => handleActionClick(u, 'delete')}
-                              className="text-gray-500 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg"
+                              className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
                         <div className="space-y-1 text-sm">
-                          <p className="text-gray-600">{u.email}</p>
+                          <p className="text-gray-600 dark:text-gray-400">{u.email}</p>
                           {u.role === 'student' && u.student && (
                             <p>
-                              <span className="text-gray-600">Roll: </span>
-                              <span className="font-mono text-[#1a5d1a] font-semibold">{u.student.rollNumber}</span>
+                              <span className="text-gray-600 dark:text-gray-400">Roll: </span>
+                              <span className="font-mono text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold">{u.student.rollNumber}</span>
                             </p>
                           )}
                           {u.role === 'supervisor' && u.supervisor && (
                             <p>
-                              <span className="text-gray-600">Groups: </span>
-                              <span className="font-semibold">{u.supervisor.totalGroups}/{u.supervisor.maxGroups}</span>
+                              <span className="text-gray-600 dark:text-gray-400">Groups: </span>
+                              <span className="font-semibold dark:text-white">{u.supervisor.totalGroups}/{u.supervisor.maxGroups}</span>
                             </p>
                           )}
                         </div>
@@ -847,8 +847,8 @@ export default function ManageUsersPage() {
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="bg-gray-50 px-4 md:px-6 py-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-3">
-                      <div className="text-sm text-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-700 px-4 md:px-6 py-4 border-t border-gray-100 dark:border-gray-600 flex flex-col md:flex-row items-center justify-between gap-3">
+                      <div className="text-sm text-gray-700 dark:text-gray-300">
                         Showing <span className="font-semibold">{startIndex + 1}</span> to{' '}
                         <span className="font-semibold">{Math.min(endIndex, filteredUsers.length)}</span> of{' '}
                         <span className="font-semibold">{filteredUsers.length}</span>
@@ -859,7 +859,7 @@ export default function ManageUsersPage() {
                           size="sm"
                           onClick={() => setCurrentPage(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="h-9 rounded-xl"
+                          className="h-9 rounded-xl dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
                         >
                           <ChevronLeft className="w-4 h-4" />
                           <span className="hidden sm:inline ml-1">Previous</span>
@@ -872,7 +872,7 @@ export default function ManageUsersPage() {
                               className={`w-9 h-9 rounded-xl text-sm font-medium transition-colors ${
                                 currentPage === page
                                   ? 'bg-[#1a5d1a] text-white'
-                                  : 'text-gray-700 hover:bg-gray-100'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                               }`}
                             >
                               {page}
@@ -884,7 +884,7 @@ export default function ManageUsersPage() {
                           size="sm"
                           onClick={() => setCurrentPage(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className="h-9 rounded-xl"
+                          className="h-9 rounded-xl dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
                         >
                           <span className="hidden sm:inline mr-1">Next</span>
                           <ChevronRight className="w-4 h-4" />
@@ -913,7 +913,7 @@ export default function ManageUsersPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-5 bg-[#1a5d1a] flex items-center justify-between">
@@ -930,33 +930,33 @@ export default function ManageUsersPage() {
 
               <div className="p-6 space-y-4">
                 {actionError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
+                  <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" />
                     {actionError}
                   </div>
                 )}
                 {actionSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
+                  <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                   </div>
                 )}
 
                 <div>
-                  <Label htmlFor="editName" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="editName" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Users className="w-4 h-4" /> Name
                   </Label>
                   <Input
                     id="editName"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="mt-1.5 h-11 rounded-xl"
+                    className="mt-1.5 h-11 rounded-xl dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Enter name"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="editEmail" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="editEmail" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Mail className="w-4 h-4" /> Email
                   </Label>
                   <Input
@@ -964,21 +964,21 @@ export default function ManageUsersPage() {
                     type="email"
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
-                    className="mt-1.5 h-11 rounded-xl"
+                    className="mt-1.5 h-11 rounded-xl dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Enter email"
                   />
                 </div>
 
                 {selectedUser.role === 'student' && (
                   <div>
-                    <Label htmlFor="editRollNumber" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Label htmlFor="editRollNumber" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <GraduationCap className="w-4 h-4" /> Roll Number
                     </Label>
                     <Input
                       id="editRollNumber"
                       value={editRollNumber}
                       onChange={(e) => setEditRollNumber(e.target.value)}
-                      className="mt-1.5 h-11 rounded-xl font-mono"
+                      className="mt-1.5 h-11 rounded-xl font-mono dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       placeholder="Enter roll number"
                     />
                   </div>
@@ -988,7 +988,7 @@ export default function ManageUsersPage() {
                   <Button
                     onClick={() => setShowEditModal(false)}
                     variant="outline"
-                    className="flex-1 h-11 rounded-xl"
+                    className="flex-1 h-11 rounded-xl dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                   >
                     Cancel
                   </Button>
@@ -1025,7 +1025,7 @@ export default function ManageUsersPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className={`p-5 flex items-center justify-between ${
@@ -1046,19 +1046,19 @@ export default function ManageUsersPage() {
 
               <div className="p-6">
                 {actionError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" />
                     {actionError}
                   </div>
                 )}
                 {actionSuccess && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
+                  <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                   </div>
                 )}
 
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
                   {actionType === 'delete' 
                     ? `Are you sure you want to permanently delete ${selectedUser.name}? This action cannot be undone.`
                     : actionType === 'suspend'
@@ -1067,7 +1067,7 @@ export default function ManageUsersPage() {
                   }
                 </p>
 
-                <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold ${
                       selectedUser.role === 'student' ? 'bg-[#2d7a2d]' : 'bg-[#64748b]'
@@ -1075,9 +1075,9 @@ export default function ManageUsersPage() {
                       {selectedUser.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{selectedUser.name}</p>
-                      <p className="text-sm text-gray-500">{selectedUser.email}</p>
-                      <p className="text-sm text-gray-500 capitalize">Role: {selectedUser.role}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedUser.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{selectedUser.email}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">Role: {selectedUser.role}</p>
                     </div>
                   </div>
                 </div>
@@ -1086,7 +1086,7 @@ export default function ManageUsersPage() {
                   <Button
                     onClick={() => setShowActionModal(false)}
                     variant="outline"
-                    className="flex-1 h-11 rounded-xl"
+                    className="flex-1 h-11 rounded-xl dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                   >
                     Cancel
                   </Button>

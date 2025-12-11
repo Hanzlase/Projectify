@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 
-// GET - Get pending group invitations for current user
+// GET - Get group invitations for current user (received or sent)
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -12,11 +12,88 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type') || 'received'; // 'received' or 'sent'
 
+    if (type === 'sent') {
+      // Get invitations sent by the current user
+      const invitations = await (prisma as any).groupInvitation.findMany({
+        where: {
+          inviterId: userId
+        },
+        include: {
+          group: {
+            include: {
+              students: {
+                include: {
+                  user: {
+                    select: {
+                      userId: true,
+                      name: true,
+                      email: true,
+                      profileImage: true,
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      // Add project info and invitee info to each invitation
+      const enrichedInvitations = await Promise.all(invitations.map(async (inv: any) => {
+        let project = null;
+        if (inv.group.projectId) {
+          project = await (prisma as any).project.findUnique({
+            where: { projectId: inv.group.projectId },
+            select: {
+              projectId: true,
+              title: true,
+              description: true,
+              category: true,
+            }
+          });
+        }
+
+        const invitee = await prisma.user.findUnique({
+          where: { userId: inv.inviteeId },
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+            profileImage: true,
+          }
+        });
+
+        // Get student info if invitee is a student
+        let inviteeStudent = null;
+        if (inv.inviteeRole === 'student') {
+          inviteeStudent = await prisma.student.findUnique({
+            where: { userId: inv.inviteeId },
+            select: {
+              studentId: true,
+              rollNumber: true,
+            }
+          });
+        }
+
+        return {
+          ...inv,
+          project,
+          invitee,
+          inviteeStudent,
+        };
+      }));
+
+      return NextResponse.json({ invitations: enrichedInvitations });
+    }
+
+    // Default: Get received invitations (all statuses)
     const invitations = await (prisma as any).groupInvitation.findMany({
       where: {
-        inviteeId: userId,
-        status: 'pending'
+        inviteeId: userId
       },
       include: {
         group: {
@@ -287,5 +364,55 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error responding to invitation:', error);
     return NextResponse.json({ error: 'Failed to respond to invitation' }, { status: 500 });
+  }
+}
+
+// DELETE - Cancel a group invitation by ID (for the inviter)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    const userId = parseInt(session.user.id);
+    const { searchParams } = new URL(request.url);
+    const invitationId = searchParams.get('id');
+
+    if (!invitationId) {
+      return NextResponse.json({ error: 'Invitation ID is required' }, { status: 400 });
+    }
+
+    // Get the invitation
+    const invitation = await (prisma as any).groupInvitation.findUnique({
+      where: { id: parseInt(invitationId) }
+    });
+
+    if (!invitation) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
+    }
+
+    // Check if the user is the inviter
+    if (invitation.inviterId !== userId) {
+      return NextResponse.json({ error: 'You can only cancel invitations you sent' }, { status: 403 });
+    }
+
+    // Check if invitation is still pending
+    if (invitation.status !== 'pending') {
+      return NextResponse.json({ error: 'This invitation has already been responded to' }, { status: 400 });
+    }
+
+    // Update invitation status to cancelled
+    await (prisma as any).groupInvitation.update({
+      where: { id: parseInt(invitationId) },
+      data: { status: 'cancelled' }
+    });
+
+    return NextResponse.json({ success: true, message: 'Invitation cancelled' });
+
+  } catch (error) {
+    console.error('Error cancelling invitation:', error);
+    return NextResponse.json({ error: 'Failed to cancel invitation' }, { status: 500 });
   }
 }

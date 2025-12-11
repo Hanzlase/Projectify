@@ -313,6 +313,7 @@ model Project {
   embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Qdrant point ID
   isUnique      Boolean        @default(false) @map("is_unique") // True if passed similarity check
   similarityScore Float?       @map("similarity_score") // Score when checked
+  feasibilityReport Json?       @map("feasibility_report") // JSON stored feasibility report
   createdById   Int            @map("created_by_id")
   groupId       Int?           @map("group_id")
   campusId      Int            @map("campus_id")
@@ -333,4 +334,27 @@ enum ProjectStatus {
 enum ProjectVisibility {
   public
   private
+}
+
+// Project Permission Requests (for supervisor-uploaded projects)
+model ProjectPermissionRequest {
+  id           Int                        @id @default(autoincrement())
+  projectId    Int                        @map("project_id")
+  requesterId  Int                        @map("requester_id") // Student user ID requesting permission
+  ownerId      Int                        @map("owner_id") // Supervisor user ID who uploaded the project
+  groupId      Int?                       @map("group_id") // Student's group (if any)
+  message      String?                    @db.Text
+  status       ProjectPermissionStatus    @default(pending)
+  respondedAt  DateTime?                  @map("responded_at")
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+
+  @@unique([projectId, requesterId])
+  @@map("project_permission_requests")
+}
+
+enum ProjectPermissionStatus {
+  pending
+  approved
+  rejected
 }

@@ -7,11 +7,11 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-  ArrowLeft, Mail, UserPlus, XCircle, Users, 
+  ArrowLeft, Mail, XCircle, Users, 
   GraduationCap, Lightbulb, Github, Linkedin,
   MessageCircle, ChevronRight, Building2, Hash, Calendar, 
   TrendingUp, Sparkles, Code, FolderKanban, User,
-  CheckCircle2, Star, ExternalLink, Check, Loader2
+  CheckCircle2, Star, ExternalLink, UserPlus
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -51,9 +51,6 @@ export default function ViewStudentProfilePage() {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [sendingInvite, setSendingInvite] = useState(false);
-  const [inviteSent, setInviteSent] = useState(false);
-  const [inviteError, setInviteError] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -80,38 +77,6 @@ export default function ViewStudentProfilePage() {
     }
   };
 
-  const sendInvite = async () => {
-    if (!profile || sendingInvite || inviteSent) return;
-    
-    setSendingInvite(true);
-    setInviteError('');
-    
-    try {
-      const response = await fetch('/api/invitations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          receiverUserId: profile.userId,
-          type: 'group_invite',
-          message: `Hi ${profile.name.split(' ')[0]}, I'd like to invite you to join my group!`
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setInviteSent(true);
-      } else {
-        setInviteError(data.error || 'Failed to send invitation');
-      }
-    } catch (error) {
-      console.error('Failed to send invitation:', error);
-      setInviteError('Failed to send invitation');
-    } finally {
-      setSendingInvite(false);
-    }
-  };
-
   // Get skills count for display
   const getSkillsCount = () => {
     if (!profile?.skills) return 0;
@@ -124,19 +89,19 @@ export default function ViewStudentProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7]">
-        <Card className="max-w-md w-full mx-4 border-0 shadow-xl">
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7] dark:bg-gray-900">
+        <Card className="max-w-md w-full mx-4 border-0 shadow-xl dark:bg-gray-800">
           <CardContent className="text-center py-12">
-            <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-              <XCircle className="w-10 h-10 text-red-500" />
+            <div className="w-20 h-20 mx-auto mb-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <XCircle className="w-10 h-10 text-red-500 dark:text-red-400" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Profile Not Found</h3>
-            <p className="text-slate-500 mb-6">{error || 'Unable to load this student profile'}</p>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Profile Not Found</h3>
+            <p className="text-slate-500 dark:text-gray-400 mb-6">{error || 'Unable to load this student profile'}</p>
             <button 
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
           </CardContent>
         </Card>
@@ -145,7 +110,7 @@ export default function ViewStudentProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900">
       {/* StudentSidebar */}
       <StudentSidebar />
 
@@ -160,15 +125,15 @@ export default function ViewStudentProfilePage() {
           >
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
+            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500 dark:text-gray-400">
               <span>Student Profile</span>
               <ChevronRight className="w-4 h-4" />
-              <span className="text-slate-700 font-medium">{profile.name.split(' ')[0]}</span>
+              <span className="text-slate-700 dark:text-gray-200 font-medium">{profile.name.split(' ')[0]}</span>
             </div>
           </motion.div>
 
@@ -181,7 +146,7 @@ export default function ViewStudentProfilePage() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-1"
             >
-              <Card className="border-0 shadow-xl bg-white overflow-hidden">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800 overflow-hidden">
                 {/* Gradient Header with Pattern */}
                 <div className="h-32 bg-gradient-to-br from-[#1a5d1a] via-[#2d7a2d] to-[#3d8b3d] relative">
                   <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
@@ -246,8 +211,8 @@ export default function ViewStudentProfilePage() {
 
                   {/* Name & Role */}
                   <div className="text-center mb-5">
-                    <h1 className="text-2xl font-bold text-slate-900 mb-2">{profile.name}</h1>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] text-[#1a5d1a] rounded-full text-sm font-semibold border border-[#1a5d1a]/20">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{profile.name}</h1>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 text-[#1a5d1a] dark:text-[#4ade80] rounded-full text-sm font-semibold border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40">
                       <GraduationCap className="w-4 h-4" />
                       Student
                     </div>
@@ -262,54 +227,22 @@ export default function ViewStudentProfilePage() {
                       <MessageCircle className="w-5 h-5 mr-2" />
                       Send Message
                     </Button>
-                    {!profile.hasGroup && (
-                      <Button 
-                        variant="outline"
-                        onClick={sendInvite}
-                        disabled={sendingInvite || inviteSent}
-                        className={`w-full py-5 rounded-xl border-2 font-semibold transition-all ${
-                          inviteSent 
-                            ? 'border-[#1a5d1a] text-[#1a5d1a] bg-[#e8f5e8]' 
-                            : 'border-[#1a5d1a]/30 text-[#1a5d1a] hover:bg-[#e8f5e8] hover:border-[#1a5d1a]'
-                        }`}
-                      >
-                        {sendingInvite ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Sending...
-                          </>
-                        ) : inviteSent ? (
-                          <>
-                            <Check className="w-5 h-5 mr-2" />
-                            Invitation Sent
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="w-5 h-5 mr-2" />
-                            Invite to Group
-                          </>
-                        )}
-                      </Button>
-                    )}
-                    {inviteError && (
-                      <p className="text-xs text-red-500 text-center">{inviteError}</p>
-                    )}
                   </div>
 
                   {/* Quick Stats */}
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     {profile.batch && (
-                      <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-                        <Calendar className="w-5 h-5 text-slate-500 mx-auto mb-1" />
-                        <p className="text-xs text-slate-500 mb-0.5">Batch</p>
-                        <p className="font-bold text-slate-900">20{profile.batch}</p>
+                      <div className="bg-slate-50 dark:bg-gray-700 rounded-xl p-3 text-center border border-slate-100 dark:border-gray-600">
+                        <Calendar className="w-5 h-5 text-slate-500 dark:text-gray-400 mx-auto mb-1" />
+                        <p className="text-xs text-slate-500 dark:text-gray-400 mb-0.5">Batch</p>
+                        <p className="font-bold text-slate-900 dark:text-white">20{profile.batch}</p>
                       </div>
                     )}
                     {profile.gpa !== undefined && profile.gpa !== null && (
-                      <div className="bg-[#e8f5e8] rounded-xl p-3 text-center border border-[#1a5d1a]/10">
-                        <TrendingUp className="w-5 h-5 text-[#1a5d1a] mx-auto mb-1" />
-                        <p className="text-xs text-[#1a5d1a] mb-0.5">CGPA</p>
-                        <p className="font-bold text-[#1a5d1a]">{profile.gpa.toFixed(2)}</p>
+                      <div className="bg-[#e8f5e8] dark:bg-[#1a5d1a]/30 rounded-xl p-3 text-center border border-[#1a5d1a]/10 dark:border-[#1a5d1a]/40">
+                        <TrendingUp className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80] mx-auto mb-1" />
+                        <p className="text-xs text-[#1a5d1a] dark:text-[#4ade80] mb-0.5">CGPA</p>
+                        <p className="font-bold text-[#1a5d1a] dark:text-[#4ade80]">{profile.gpa.toFixed(2)}</p>
                       </div>
                     )}
                   </div>
@@ -317,39 +250,39 @@ export default function ViewStudentProfilePage() {
               </Card>
 
               {/* Contact & Academic Info Card */}
-              <Card className="border-0 shadow-lg bg-white mt-4">
+              <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 mt-4">
                 <CardContent className="p-5">
-                  <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Academic Info</h3>
+                  <h3 className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-4">Academic Info</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#d1e7d1] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Hash className="w-5 h-5 text-[#1a5d1a]" />
+                      <div className="w-10 h-10 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Hash className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500">Roll Number</p>
-                        <p className="text-sm font-medium text-slate-900">{profile.rollNumber}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">Roll Number</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{profile.rollNumber}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#e8f5e8] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Mail className="w-5 h-5 text-[#1a5d1a]" />
+                      <div className="w-10 h-10 bg-[#e8f5e8] dark:bg-[#1a5d1a]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500">Email</p>
-                        <p className="text-sm font-medium text-slate-900 truncate">{profile.email}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">Email</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{profile.email}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#d1e7d1] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-5 h-5 text-[#2d7a2d]" />
+                      <div className="w-10 h-10 bg-[#d1e7d1] dark:bg-[#2d7a2d]/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-[#2d7a2d] dark:text-[#4ade80]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500">Campus</p>
-                        <p className="text-sm font-medium text-slate-900">{profile.campus.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">Campus</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{profile.campus.name}</p>
                         {profile.campus.location && (
-                          <p className="text-xs text-slate-500">{profile.campus.location}</p>
+                          <p className="text-xs text-slate-500 dark:text-gray-400">{profile.campus.location}</p>
                         )}
                       </div>
                     </div>
@@ -367,28 +300,28 @@ export default function ViewStudentProfilePage() {
             >
               {/* Group/Project Status Section - Only show if in a group */}
               {profile.hasGroup && (
-                <Card className="border-0 shadow-xl bg-white overflow-hidden">
+                <Card className="border-0 shadow-xl bg-white dark:bg-gray-800 overflow-hidden">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-5">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d]">
                         <Users className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900">Current Project</h3>
-                        <p className="text-sm text-slate-500">Group and project details</p>
+                        <h3 className="font-bold text-slate-900 dark:text-white">Current Project</h3>
+                        <p className="text-sm text-slate-500 dark:text-gray-400">Group and project details</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       {/* Group Name */}
-                      <div className="bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] rounded-xl p-4 border border-[#1a5d1a]/10">
+                      <div className="bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 rounded-xl p-4 border border-[#1a5d1a]/10 dark:border-[#1a5d1a]/40">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                            <Users className="w-6 h-6 text-[#1a5d1a]" />
+                          <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm">
+                            <Users className="w-6 h-6 text-[#1a5d1a] dark:text-[#4ade80]" />
                           </div>
                           <div>
-                            <p className="text-xs text-[#1a5d1a] font-medium">Group Name</p>
-                            <p className="text-lg font-bold text-[#164d16]">{profile.groupName || 'Unnamed Group'}</p>
+                            <p className="text-xs text-[#1a5d1a] dark:text-[#4ade80] font-medium">Group Name</p>
+                            <p className="text-lg font-bold text-[#164d16] dark:text-white">{profile.groupName || 'Unnamed Group'}</p>
                           </div>
                         </div>
                       </div>
@@ -396,28 +329,28 @@ export default function ViewStudentProfilePage() {
                       {/* Project & Supervisor Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {profile.projectTitle && (
-                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                          <div className="bg-slate-50 dark:bg-gray-700 rounded-xl p-4 border border-slate-100 dark:border-gray-600">
                             <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 bg-[#d1e7d1] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
+                              <div className="w-10 h-10 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FolderKanban className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
                               </div>
                               <div className="min-w-0">
-                                <p className="text-xs text-slate-500 mb-1">Project Title</p>
-                                <p className="text-sm font-semibold text-slate-800 line-clamp-2">{profile.projectTitle}</p>
+                                <p className="text-xs text-slate-500 dark:text-gray-400 mb-1">Project Title</p>
+                                <p className="text-sm font-semibold text-slate-800 dark:text-white line-clamp-2">{profile.projectTitle}</p>
                               </div>
                             </div>
                           </div>
                         )}
 
                         {profile.supervisorName && (
-                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                          <div className="bg-slate-50 dark:bg-gray-700 rounded-xl p-4 border border-slate-100 dark:border-gray-600">
                             <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 bg-[#e8f5e8] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <User className="w-5 h-5 text-[#2d7a2d]" />
+                              <div className="w-10 h-10 bg-[#e8f5e8] dark:bg-[#2d7a2d]/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <User className="w-5 h-5 text-[#2d7a2d] dark:text-[#4ade80]" />
                               </div>
                               <div className="min-w-0">
-                                <p className="text-xs text-slate-500 mb-1">Supervisor</p>
-                                <p className="text-sm font-semibold text-slate-800">{profile.supervisorName}</p>
+                                <p className="text-xs text-slate-500 dark:text-gray-400 mb-1">Supervisor</p>
+                                <p className="text-sm font-semibold text-slate-800 dark:text-white">{profile.supervisorName}</p>
                               </div>
                             </div>
                           </div>
@@ -430,31 +363,31 @@ export default function ViewStudentProfilePage() {
 
               {/* About Section */}
               {profile.bio && (
-                <Card className="border-0 shadow-lg bg-white">
+                <Card className="border-0 shadow-lg bg-white dark:bg-gray-800">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 bg-[#d1e7d1] rounded-lg flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-[#1a5d1a]" />
+                      <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
                       </div>
-                      <h3 className="font-bold text-slate-900">About</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-white">About</h3>
                     </div>
-                    <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
+                    <p className="text-slate-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
                   </CardContent>
                 </Card>
               )}
 
               {/* Skills Section - Highlighted for Group Formation */}
               {profile.skills && (
-                <Card className="border-0 shadow-lg bg-white overflow-hidden">
+                <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 overflow-hidden">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-[#d1e7d1] rounded-lg flex items-center justify-center">
-                          <Code className="w-4 h-4 text-[#1a5d1a]" />
+                        <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center">
+                          <Code className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
                         </div>
-                        <h3 className="font-bold text-slate-900">Technical Skills</h3>
+                        <h3 className="font-bold text-slate-900 dark:text-white">Technical Skills</h3>
                       </div>
-                      <span className="text-sm text-[#1a5d1a] bg-[#e8f5e8] px-2 py-1 rounded-full font-medium">
+                      <span className="text-sm text-[#1a5d1a] dark:text-[#4ade80] bg-[#e8f5e8] dark:bg-[#1a5d1a]/30 px-2 py-1 rounded-full font-medium">
                         {getSkillsCount()} skills
                       </span>
                     </div>
@@ -462,7 +395,7 @@ export default function ViewStudentProfilePage() {
                       {profile.skills.split(',').map((skill, i) => (
                         <span 
                           key={i} 
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] text-[#1a5d1a] rounded-xl text-sm font-medium border border-[#1a5d1a]/20 hover:shadow-md transition-shadow"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 text-[#1a5d1a] dark:text-[#4ade80] rounded-xl text-sm font-medium border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40 hover:shadow-md transition-shadow"
                         >
                           <Star className="w-3 h-3" />
                           {skill.trim()}
@@ -475,19 +408,19 @@ export default function ViewStudentProfilePage() {
 
               {/* Interests Section */}
               {profile.interests && (
-                <Card className="border-0 shadow-lg bg-white">
+                <Card className="border-0 shadow-lg bg-white dark:bg-gray-800">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 bg-[#e8f5e8] rounded-lg flex items-center justify-center">
-                        <Lightbulb className="w-4 h-4 text-[#2d7a2d]" />
+                      <div className="w-8 h-8 bg-[#e8f5e8] dark:bg-[#2d7a2d]/30 rounded-lg flex items-center justify-center">
+                        <Lightbulb className="w-4 h-4 text-[#2d7a2d] dark:text-[#4ade80]" />
                       </div>
-                      <h3 className="font-bold text-slate-900">Project Interests</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-white">Project Interests</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {profile.interests.split(',').map((interest, i) => (
                         <span 
                           key={i} 
-                          className="px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 rounded-xl text-sm font-medium border border-amber-200"
+                          className="px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-400 rounded-xl text-sm font-medium border border-amber-200 dark:border-amber-700/50"
                         >
                           {interest.trim()}
                         </span>
@@ -499,13 +432,13 @@ export default function ViewStudentProfilePage() {
 
               {/* Social Links Card */}
               {(profile.linkedin || profile.github) && (
-                <Card className="border-0 shadow-lg bg-white">
+                <Card className="border-0 shadow-lg bg-white dark:bg-gray-800">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                        <ExternalLink className="w-4 h-4 text-slate-600" />
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <ExternalLink className="w-4 h-4 text-slate-600 dark:text-gray-400" />
                       </div>
-                      <h3 className="font-bold text-slate-900">Connect</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-white">Connect</h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {profile.linkedin && (
@@ -513,14 +446,14 @@ export default function ViewStudentProfilePage() {
                           href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-4 bg-[#e8f5e8] rounded-xl hover:bg-[#d1e7d1] transition-colors border border-[#1a5d1a]/10 group"
+                          className="flex items-center gap-3 p-4 bg-[#e8f5e8] dark:bg-[#1a5d1a]/20 rounded-xl hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors border border-[#1a5d1a]/10 dark:border-[#1a5d1a]/40 group"
                         >
                           <div className="w-10 h-10 bg-[#0077B5] rounded-lg flex items-center justify-center">
                             <Linkedin className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-700">LinkedIn</p>
-                            <p className="text-xs text-slate-500">View Profile →</p>
+                            <p className="text-sm font-semibold text-slate-700 dark:text-white">LinkedIn</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">View Profile →</p>
                           </div>
                         </a>
                       )}
@@ -529,14 +462,14 @@ export default function ViewStudentProfilePage() {
                           href={profile.github.startsWith('http') ? profile.github : `https://${profile.github}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-4 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors border border-slate-200 group"
+                          className="flex items-center gap-3 p-4 bg-slate-100 dark:bg-gray-700 rounded-xl hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors border border-slate-200 dark:border-gray-600 group"
                         >
-                          <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-slate-800 dark:bg-gray-900 rounded-lg flex items-center justify-center">
                             <Github className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-700">GitHub</p>
-                            <p className="text-xs text-slate-600">View Repositories →</p>
+                            <p className="text-sm font-semibold text-slate-700 dark:text-white">GitHub</p>
+                            <p className="text-xs text-slate-600 dark:text-gray-400">View Repositories →</p>
                           </div>
                         </a>
                       )}

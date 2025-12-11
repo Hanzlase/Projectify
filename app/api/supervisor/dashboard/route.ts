@@ -45,6 +45,11 @@ export async function GET() {
             }
           }
         },
+        groupChats: {
+          select: {
+            conversationId: true,
+          }
+        },
       }
     });
 
@@ -172,13 +177,16 @@ export async function GET() {
       name: group.groupName,
       studentCount: group.students.length,
       students: group.students.map((s: any) => ({
+        userId: s.userId,
         name: s.user.name,
+        email: s.user.email,
         rollNumber: s.rollNumber,
         profileImage: s.user.profileImage,
       })),
       projectTitle: group.project?.title || null,
       projectId: group.project?.projectId || null,
       projectStatus: group.project?.status || null,
+      conversationId: group.groupChats?.[0]?.conversationId || null,
     }));
 
     // Format invitations

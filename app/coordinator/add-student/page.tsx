@@ -311,14 +311,14 @@ export default function AddStudentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -326,21 +326,21 @@ export default function AddStudentPage() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/chat')}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -351,8 +351,8 @@ export default function AddStudentPage() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -365,13 +365,13 @@ export default function AddStudentPage() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/dashboard')}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Add Students</h1>
-                <p className="text-sm text-gray-500 mt-1">Campus: {campusName || 'N/A'}</p>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Add Students</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Campus: {campusName || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -388,7 +388,7 @@ export default function AddStudentPage() {
                 className={`w-full h-10 md:h-12 text-sm md:text-base font-medium shadow-sm transition-all duration-300 rounded-xl ${
                   mode === 'single' 
                     ? 'bg-[#1a5d1a] hover:bg-[#145214] text-white border-0' 
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
+                    : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <UserPlus className="w-4 h-4 md:w-5 md:h-5 mr-2" />
@@ -405,7 +405,7 @@ export default function AddStudentPage() {
                 className={`w-full h-10 md:h-12 text-sm md:text-base font-medium shadow-sm transition-all duration-300 rounded-xl ${
                   mode === 'bulk' 
                     ? 'bg-[#1a5d1a] hover:bg-[#145214] text-white border-0' 
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200'
+                    : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <Upload className="w-4 h-4 md:w-5 md:h-5 mr-2" />
@@ -416,14 +416,14 @@ export default function AddStudentPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Input Form - Takes 2 columns */}
-          <Card className="lg:col-span-2 bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-white pb-4 md:pb-6">
+          <Card className="lg:col-span-2 bg-white dark:bg-gray-800 shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 pb-4 md:pb-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-lg md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+                  <CardTitle className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2">
                     {mode === 'single' ? 'Student Information' : 'Bulk Upload'}
                   </CardTitle>
-                  <CardDescription className="text-sm md:text-base text-gray-600">
+                  <CardDescription className="text-sm md:text-base text-gray-600 dark:text-gray-400">
                     {mode === 'single' 
                       ? 'Fill in the details below to add a new student'
                       : 'Upload CSV/Excel file or enter multiple students at once'}
@@ -712,9 +712,9 @@ export default function AddStudentPage() {
           </Card>
 
           {/* Results Display - Takes 1 column */}
-          <Card className="bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-white">
-              <CardTitle className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+          <Card className="bg-white dark:bg-gray-800 shadow-sm border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <CardTitle className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -722,20 +722,20 @@ export default function AddStudentPage() {
                 </div>
                 Results
               </CardTitle>
-              <CardDescription className="text-sm text-gray-600">
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
                 Operation status and details
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               {!results ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <p className="text-gray-600 font-medium mb-1">No results yet</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-gray-600 dark:text-gray-300 font-medium mb-1">No results yet</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Submit the form to see results here
                   </p>
                 </div>
