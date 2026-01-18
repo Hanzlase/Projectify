@@ -71,10 +71,33 @@ export default function SupervisorNotificationsPage() {
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
       router.push('/unauthorized');
     } else if (status === 'authenticated') {
-      fetchNotifications();
-      fetchProfileImage();
+      // Fetch both in parallel for faster loading
+      fetchInitialData();
     }
   }, [status, router, session]);
+
+  const fetchInitialData = async () => {
+    try {
+      const [notificationsResponse, profileResponse] = await Promise.all([
+        fetch('/api/notifications'),
+        fetch('/api/profile')
+      ]);
+
+      if (notificationsResponse.ok) {
+        const data = await notificationsResponse.json();
+        setNotifications(data.notifications || []);
+      }
+      
+      if (profileResponse.ok) {
+        const data = await profileResponse.json();
+        setProfileImage(data.profileImage);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchProfileImage = async () => {
     try {
@@ -97,8 +120,6 @@ export default function SupervisorNotificationsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

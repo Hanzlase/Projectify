@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { emitNotificationToUsers, emitNotificationToRole, emitNotificationToCampus } from '@/lib/socket-emitters';
 
-// GET - Fetch notifications for the current user
+// GET - Fetch notifications for the current user (optimized with limit)
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -12,27 +13,36 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    
+    // Parse query params for pagination
+    const searchParams = request.nextUrl.searchParams;
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+    const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Get notifications for this user
-    const notifications = await prisma.notificationRecipient.findMany({
-      where: {
-        userId: userId
-      },
-      include: {
-        notification: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-
-    // Get unread count
-    const unreadCount = await prisma.notificationRecipient.count({
-      where: {
-        userId: userId,
-        isRead: false
-      }
-    });
+    // Fetch notifications and unread count in parallel for better performance
+    const [notifications, unreadCount] = await Promise.all([
+      prisma.notificationRecipient.findMany({
+        where: { userId },
+        include: {
+          notification: {
+            select: {
+              notificationId: true,
+              title: true,
+              message: true,
+              type: true,
+              createdAt: true,
+              createdById: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset
+      }),
+      prisma.notificationRecipient.count({
+        where: { userId, isRead: false }
+      })
+    ]);
 
     return NextResponse.json({
       notifications: notifications.map((nr: any) => ({
@@ -166,6 +176,30 @@ export async function POST(request: NextRequest) {
         recipients: true
       }
     });
+
+    // Emit socket event for real-time delivery
+    try {
+      const socketNotification = {
+        id: notification.notificationId,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        createdAt: notification.createdAt.toISOString(),
+        createdById: notification.createdById ?? undefined,
+      };
+
+      if (targetType === 'all_users') {
+        emitNotificationToCampus(campusId, socketNotification);
+      } else if (targetType === 'all_students') {
+        emitNotificationToRole(campusId, 'student', socketNotification);
+      } else if (targetType === 'all_supervisors') {
+        emitNotificationToRole(campusId, 'supervisor', socketNotification);
+      } else {
+        emitNotificationToUsers(recipientIds, socketNotification);
+      }
+    } catch (socketError) {
+      console.error('Socket emit error:', socketError);
+    }
 
     return NextResponse.json({
       success: true,

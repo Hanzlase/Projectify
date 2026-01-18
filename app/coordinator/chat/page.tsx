@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,6 +19,7 @@ import { EmojiClickData, Theme } from 'emoji-picker-react';
 import NotificationBell from '@/components/NotificationBell';
 import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useChat, joinConversation, leaveConversation, sendTypingIndicator } from '@/lib/socket-client';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
@@ -131,16 +132,53 @@ function ChatPageContent() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated') {
-      fetchConversations();
-      fetchProfileImage();
+      // Fetch both in parallel for faster loading
+      fetchInitialData();
       
       // Check if there's a recipient to start new conversation
-      const recipientId = searchParams.get('recipientId');
+      const recipientId = searchParams?.get('recipientId');
       if (recipientId) {
         startOrOpenConversation(parseInt(recipientId));
       }
     }
   }, [status, router, searchParams]);
+
+  const fetchInitialData = async () => {
+    try {
+      const [chatResponse, profileResponse] = await Promise.all([
+        fetch('/api/chat'),
+        fetch('/api/profile')
+      ]);
+
+      if (chatResponse.ok) {
+        const data = await chatResponse.json();
+        setConversations(data.conversations || []);
+        setPinnedIds(data.pinnedIds || []);
+      }
+      
+      if (profileResponse.ok) {
+        const data = await profileResponse.json();
+        setProfileImage(data.profileImage || null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch initial data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchConversations = async () => {
+    try {
+      const response = await fetch('/api/chat');
+      if (response.ok) {
+        const data = await response.json();
+        setConversations(data.conversations || []);
+        setPinnedIds(data.pinnedIds || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error);
+    }
+  };
 
   const fetchProfileImage = async () => {
     try {
@@ -194,33 +232,71 @@ function ChatPageContent() {
     scrollToBottom();
   }, [messages]);
 
+  // Use socket hook for real-time chat
+  const { 
+    messages: socketMessages, 
+    setMessages: setSocketMessages, 
+    typingUsers, 
+    sendTyping, 
+    isConnected: socketConnected 
+  } = useChat(selectedConversation);
+
+  // Merge socket messages with local messages
   useEffect(() => {
-    // Poll for new messages every 3 seconds if a conversation is selected
-    if (selectedConversation) {
-      const interval = setInterval(() => {
-        fetchMessages(selectedConversation, true);
-      }, 3000);
-      return () => clearInterval(interval);
+    if (socketMessages.length > 0) {
+      setMessages(prevMessages => {
+        const existingIds = new Set(prevMessages.map(m => m.messageId));
+        const newMsgs = socketMessages.filter(m => !existingIds.has(m.messageId));
+        if (newMsgs.length > 0) {
+          const mappedMsgs: Message[] = newMsgs.map(m => ({ 
+            ...m, 
+            isRead: false,
+            isOwn: m.senderId === parseInt(session?.user?.id || '0'),
+            sender: m.sender || null,
+          }));
+          return [...prevMessages, ...mappedMsgs];
+        }
+        return prevMessages;
+      });
+      // Clear processed socket messages to avoid re-processing
+      setSocketMessages([]);
     }
-  }, [selectedConversation]);
+  }, [socketMessages, session?.user?.id, setSocketMessages]);
+
+  // Join conversation room when selected
+  useEffect(() => {
+    if (selectedConversation && socketConnected) {
+      joinConversation(selectedConversation);
+      return () => {
+        leaveConversation(selectedConversation);
+      };
+    }
+  }, [selectedConversation, socketConnected]);
+
+  // Handle typing indicator
+  const handleTypingStart = useCallback(() => {
+    if (selectedConversation) {
+      sendTyping(true);
+    }
+  }, [selectedConversation, sendTyping]);
+
+  // Debounced typing end
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const handleMessageChange = useCallback((value: string) => {
+    setNewMessage(value);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    if (value.trim()) {
+      handleTypingStart();
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTyping(false);
+      }, 2000);
+    }
+  }, [handleTypingStart, sendTyping]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const fetchConversations = async () => {
-    try {
-      const response = await fetch('/api/chat');
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data.conversations || []);
-        setPinnedIds(data.pinnedIds || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch conversations:', error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const startOrOpenConversation = async (recipientId: number) => {
@@ -604,7 +680,6 @@ function ChatPageContent() {
                                 conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                               )}
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
@@ -678,7 +753,6 @@ function ChatPageContent() {
                                 conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                               )}
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
@@ -758,7 +832,6 @@ function ChatPageContent() {
                           otherUser.name?.charAt(0).toUpperCase() || 'U'
                         )}
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></div>
                     </div>
                     
                     <div>

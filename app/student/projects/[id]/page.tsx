@@ -87,7 +87,7 @@ export default function ProjectDetailPage() {
   const [loadingFeasibility, setLoadingFeasibility] = useState(false);
   const [showFeasibilityReport, setShowFeasibilityReport] = useState(false);
 
-  const projectId = params.id as string;
+  const projectId = params?.id as string;
 
   useEffect(() => {
     if (status === 'unauthenticated') {

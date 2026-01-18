@@ -14,6 +14,7 @@ import {
 import NotificationBell from '@/components/NotificationBell';
 import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useDashboardStats } from '@/lib/socket-client';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 interface User {
@@ -63,6 +64,23 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
+
+  // Real-time dashboard stats via WebSocket
+  const { stats: realtimeStats } = useDashboardStats();
+
+  // Merge real-time stats with fetched data
+  useEffect(() => {
+    if (realtimeStats && dashboardData) {
+      setDashboardData(prev => prev ? {
+        ...prev,
+        stats: {
+          ...prev.stats,
+          totalStudents: realtimeStats.totalStudents ?? prev.stats.totalStudents,
+          totalSupervisors: realtimeStats.totalSupervisors ?? prev.stats.totalSupervisors,
+        }
+      } : null);
+    }
+  }, [realtimeStats]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -130,34 +148,31 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAllData = async () => {
       try {
-        const response = await fetch('/api/coordinator/dashboard');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch both in parallel for faster loading
+        const [dashboardResponse, profileResponse] = await Promise.all([
+          fetch('/api/coordinator/dashboard'),
+          fetch('/api/profile')
+        ]);
+
+        if (dashboardResponse.ok) {
+          const data = await dashboardResponse.json();
           setDashboardData(data);
         }
+        
+        if (profileResponse.ok) {
+          const data = await profileResponse.json();
+          setProfileImage(data.profileImage);
+        }
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    const fetchProfileImage = async () => {
-      try {
-        const response = await fetch('/api/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setProfileImage(data.profileImage);
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
-    };
-
-    fetchDashboardData();
-    fetchProfileImage();
+    fetchAllData();
   }, []);
 
   const getGreeting = () => {

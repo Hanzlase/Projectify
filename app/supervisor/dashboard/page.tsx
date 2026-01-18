@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import dynamic from 'next/dynamic';
+import { useDashboardStats, useSupervisorAvailability } from '@/lib/socket-client';
 import { 
   Users, 
   GraduationCap, 
@@ -95,6 +96,23 @@ export default function SupervisorDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
+  // Real-time dashboard stats and supervisor availability via WebSocket
+  const { stats: realtimeStats } = useDashboardStats();
+  const { availabilityMap } = useSupervisorAvailability();
+
+  // Merge real-time stats with fetched data
+  useEffect(() => {
+    if (realtimeStats && dashboardData) {
+      setDashboardData(prev => prev ? {
+        ...prev,
+        stats: {
+          ...prev.stats,
+          totalStudents: realtimeStats.totalStudents ?? prev.stats.totalStudents,
+        }
+      } : null);
+    }
+  }, [realtimeStats]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -114,15 +132,17 @@ export default function SupervisorDashboard() {
 
   const fetchData = async () => {
     try {
-      // Fetch profile image
-      const profileRes = await fetch('/api/profile');
+      // Fetch both in parallel for faster loading
+      const [profileRes, dashboardRes] = await Promise.all([
+        fetch('/api/profile'),
+        fetch('/api/supervisor/dashboard')
+      ]);
+
       if (profileRes.ok) {
         const profileData = await profileRes.json();
         setProfileImage(profileData.profileImage);
       }
       
-      // Fetch dashboard data from API
-      const dashboardRes = await fetch('/api/supervisor/dashboard');
       if (dashboardRes.ok) {
         const data = await dashboardRes.json();
         setDashboardData(data);

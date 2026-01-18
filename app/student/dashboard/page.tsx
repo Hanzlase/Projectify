@@ -28,6 +28,7 @@ import {
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
+import { useSupervisorAvailability, useProjectStatus } from '@/lib/socket-client';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 
@@ -80,6 +81,10 @@ export default function StudentDashboard() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
+
+  // Real-time supervisor availability and project status via WebSocket
+  const { availabilityMap: supervisorAvailability } = useSupervisorAvailability();
+  const { statusMap: projectStatusMap } = useProjectStatus();
 
   // Load timer state from localStorage on mount
   useEffect(() => {
@@ -149,33 +154,30 @@ export default function StudentDashboard() {
       router.push('/login');
       return;
     }
-    fetchDashboardData();
-    fetchProfileImage();
+    // Fetch both in parallel for faster loading
+    fetchAllData();
   }, [status, router]);
 
-  const fetchDashboardData = async () => {
+  const fetchAllData = async () => {
     try {
-      const response = await fetch('/api/student/dashboard');
-      if (response.ok) {
-        const data = await response.json();
+      const [dashboardResponse, profileResponse] = await Promise.all([
+        fetch('/api/student/dashboard'),
+        fetch('/api/profile')
+      ]);
+
+      if (dashboardResponse.ok) {
+        const data = await dashboardResponse.json();
         setDashboardData(data);
       }
-    } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
+      
+      if (profileResponse.ok) {
+        const data = await profileResponse.json();
         setProfileImage(data.profileImage);
       }
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

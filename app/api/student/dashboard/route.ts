@@ -40,62 +40,68 @@ export async function GET() {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Get all supervisors in the same campus
-    const supervisors = await prisma.fYPSupervisor.findMany({
-      where: { campusId: student.campusId },
-      include: {
-        user: {
-          select: {
-            userId: true,
-            name: true,
-            email: true,
-            profileImage: true
+    // Run all independent queries in parallel for better performance
+    const [
+      supervisors,
+      fellowStudents,
+      totalSupervisors,
+      totalStudents,
+      pendingInvitations,
+      totalProjects
+    ] = await Promise.all([
+      // Get all supervisors in the same campus
+      prisma.fYPSupervisor.findMany({
+        where: { campusId: student.campusId },
+        include: {
+          user: {
+            select: {
+              userId: true,
+              name: true,
+              email: true,
+              profileImage: true
+            }
           }
         }
-      }
-    });
-
-    // Get fellow students in the same campus (excluding current student)
-    const fellowStudents = await prisma.student.findMany({
-      where: {
-        campusId: student.campusId,
-        userId: { not: userId }
-      },
-      include: {
-        user: {
-          select: {
-            userId: true,
-            name: true,
-            email: true,
-            profileImage: true
-          }
+      }),
+      // Get fellow students in the same campus (excluding current student)
+      prisma.student.findMany({
+        where: {
+          campusId: student.campusId,
+          userId: { not: userId }
         },
-        group: true
-      },
-      take: 50
-    });
-
-    // Count stats
-    const totalSupervisors = await prisma.fYPSupervisor.count({
-      where: { campusId: student.campusId }
-    });
-
-    const totalStudents = await prisma.student.count({
-      where: { campusId: student.campusId }
-    });
-
-    // Count pending invitations received by the student (student-to-student)
-    const pendingInvitations = await prisma.invitation.count({
-      where: {
-        receiverId: student.studentId,
-        status: 'pending'
-      }
-    });
-
-    // Count total projects in the campus (both public and private)
-    const totalProjects = await prisma.project.count({
-      where: { campusId: student.campusId }
-    });
+        include: {
+          user: {
+            select: {
+              userId: true,
+              name: true,
+              email: true,
+              profileImage: true
+            }
+          },
+          group: true
+        },
+        take: 50
+      }),
+      // Count supervisors
+      prisma.fYPSupervisor.count({
+        where: { campusId: student.campusId }
+      }),
+      // Count students
+      prisma.student.count({
+        where: { campusId: student.campusId }
+      }),
+      // Count pending invitations received by the student (student-to-student)
+      prisma.invitation.count({
+        where: {
+          receiverId: student.studentId,
+          status: 'pending'
+        }
+      }),
+      // Count total projects in the campus (both public and private)
+      prisma.project.count({
+        where: { campusId: student.campusId }
+      })
+    ]);
 
     // Format supervisors for response
     const formattedSupervisors = supervisors.map((sup) => ({

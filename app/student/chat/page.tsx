@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,7 @@ import {
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useChat, joinConversation, leaveConversation, sendTypingIndicator } from '@/lib/socket-client';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
@@ -185,7 +186,7 @@ function ChatPageContent() {
       fetchConversations();
       
       // Check if there's a recipient to start new conversation
-      const recipientId = searchParams.get('recipientId');
+      const recipientId = searchParams?.get('recipientId');
       if (recipientId) {
         startOrOpenConversation(parseInt(recipientId));
       }
@@ -202,15 +203,68 @@ function ChatPageContent() {
     prevMessagesLengthRef.current = messages.length;
   }, [messages]);
 
+  // Use socket hook for real-time chat
+  const { 
+    messages: socketMessages, 
+    setMessages: setSocketMessages, 
+    typingUsers, 
+    sendTyping, 
+    isConnected: socketConnected 
+  } = useChat(selectedConversation);
+
+  // Merge socket messages with local messages
   useEffect(() => {
-    // Poll for new messages every 3 seconds if a conversation is selected
-    if (selectedConversation) {
-      const interval = setInterval(() => {
-        fetchMessages(selectedConversation, true);
-      }, 3000);
-      return () => clearInterval(interval);
+    if (socketMessages.length > 0) {
+      setMessages(prevMessages => {
+        const existingIds = new Set(prevMessages.map(m => m.messageId));
+        const newMsgs = socketMessages.filter(m => !existingIds.has(m.messageId));
+        if (newMsgs.length > 0) {
+          const mappedMsgs: Message[] = newMsgs.map(m => ({ 
+            ...m, 
+            isRead: false,
+            isOwn: m.senderId === parseInt(session?.user?.id || '0'),
+            sender: m.sender || null,
+          }));
+          return [...prevMessages, ...mappedMsgs];
+        }
+        return prevMessages;
+      });
+      // Clear processed socket messages to avoid re-processing
+      setSocketMessages([]);
     }
-  }, [selectedConversation]);
+  }, [socketMessages, session?.user?.id, setSocketMessages]);
+
+  // Join conversation room when selected
+  useEffect(() => {
+    if (selectedConversation && socketConnected) {
+      joinConversation(selectedConversation);
+      return () => {
+        leaveConversation(selectedConversation);
+      };
+    }
+  }, [selectedConversation, socketConnected]);
+
+  // Handle typing indicator
+  const handleTypingStart = useCallback(() => {
+    if (selectedConversation) {
+      sendTyping(true);
+    }
+  }, [selectedConversation, sendTyping]);
+
+  // Debounced typing end
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const handleMessageChange = useCallback((value: string) => {
+    setNewMessage(value);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    if (value.trim()) {
+      handleTypingStart();
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTyping(false);
+      }, 2000);
+    }
+  }, [handleTypingStart, sendTyping]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -218,16 +272,19 @@ function ChatPageContent() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch('/api/chat');
-      if (response.ok) {
-        const data = await response.json();
+      // Fetch conversations and groups in parallel for faster loading
+      const [chatResponse, groupResponse] = await Promise.all([
+        fetch('/api/chat'),
+        fetch('/api/groups')
+      ]);
+
+      if (chatResponse.ok) {
+        const data = await chatResponse.json();
         setConversations(data.conversations || []);
         setGroupConversations(data.groupConversations || []);
         setPinnedIds(data.pinnedIds || []);
       }
       
-      // Check if user has already created a group or is in a group
-      const groupResponse = await fetch('/api/groups');
       if (groupResponse.ok) {
         const groupData = await groupResponse.json();
         setHasCreatedGroup(groupData.hasCreatedGroup || false);
@@ -1009,7 +1066,6 @@ function ChatPageContent() {
                                 conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                               )}
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
@@ -1165,7 +1221,6 @@ function ChatPageContent() {
                                     conv.otherUser?.name?.charAt(0).toUpperCase() || 'U'
                                   )}
                                 </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                               </div>
                               
                               <div className="flex-1 min-w-0">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { emitMessageDeleted } from '@/lib/socket-emitters';
 
 // DELETE - Delete a message
 export async function DELETE(
@@ -54,6 +55,13 @@ export async function DELETE(
         messageId
       }
     });
+
+    // Emit socket event for real-time deletion
+    try {
+      emitMessageDeleted(conversationId, messageId);
+    } catch (socketError) {
+      console.error('Socket emit error:', socketError);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

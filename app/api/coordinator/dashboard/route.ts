@@ -29,68 +29,74 @@ export async function GET() {
     const campusId = coordinator.campusId;
     const campusName = coordinator.campus.name;
 
-    // Get total students count for this campus
-    const totalStudents = await prisma.student.count({
-      where: {
-        campusId: campusId,
-      },
-    });
-
-    // Get total supervisors count for this campus
-    const totalSupervisors = await prisma.fYPSupervisor.count({
-      where: {
-        campusId: campusId,
-      },
-    });
-
-    // Get total groups (active projects) for this campus
-    const activeProjects = await prisma.group.count({
-      where: {
-        students: {
-          some: {
-            campusId: campusId,
+    // Run all independent queries in parallel for better performance
+    const [
+      totalStudents,
+      totalSupervisors,
+      activeProjects,
+      recentStudents,
+      recentSupervisors
+    ] = await Promise.all([
+      // Get total students count for this campus
+      prisma.student.count({
+        where: {
+          campusId: campusId,
+        },
+      }),
+      // Get total supervisors count for this campus
+      prisma.fYPSupervisor.count({
+        where: {
+          campusId: campusId,
+        },
+      }),
+      // Get total groups (active projects) for this campus
+      prisma.group.count({
+        where: {
+          students: {
+            some: {
+              campusId: campusId,
+            },
           },
         },
-      },
-    });
+      }),
+      // Get recent students
+      prisma.student.findMany({
+        where: {
+          campusId: campusId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 3,
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
+      // Get recent supervisors
+      prisma.fYPSupervisor.findMany({
+        where: {
+          campusId: campusId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 2,
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      })
+    ]);
 
     // For now, pending approvals will be 0 (can be implemented later with a proper approval system)
     const pendingApprovals = 0;
-
-    // Get recent activity (recent students and supervisors added)
-    const recentStudents = await prisma.student.findMany({
-      where: {
-        campusId: campusId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 3,
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
-    const recentSupervisors = await prisma.fYPSupervisor.findMany({
-      where: {
-        campusId: campusId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 2,
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
 
     // Build recent activity from real data
     const recentActivity = [

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { emitSupervisorAvailability, emitProjectStatus, emitNotificationToUser } from '@/lib/socket-emitters';
 
 // GET - Get group invitations for current user (received or sent)
 export async function GET(request: NextRequest) {
@@ -283,10 +284,20 @@ export async function POST(request: NextRequest) {
         });
 
         if (group.projectId) {
-          await (prisma as any).project.update({
+          const updatedProject = await (prisma as any).project.update({
             where: { projectId: group.projectId },
             data: { status: 'taken' }
           });
+
+          // Emit project status update via WebSocket
+          if (updatedProject.campusId) {
+            emitProjectStatus(updatedProject.campusId, {
+              projectId: group.projectId,
+              status: 'taken',
+              groupId: group.groupId,
+              updatedAt: new Date().toISOString(),
+            });
+          }
         }
       }
 
@@ -343,17 +354,51 @@ export async function POST(request: NextRequest) {
         });
 
         if (group.projectId) {
-          await (prisma as any).project.update({
+          const updatedProject = await (prisma as any).project.update({
             where: { projectId: group.projectId },
             data: { status: 'taken' }
           });
+
+          // Emit project status update via WebSocket
+          if (updatedProject.campusId) {
+            emitProjectStatus(updatedProject.campusId, {
+              projectId: group.projectId,
+              status: 'taken',
+              groupId: group.groupId,
+              updatedAt: new Date().toISOString(),
+            });
+          }
         }
       }
 
       // Update supervisor's total groups count
-      await (prisma as any).fYPSupervisor.updateMany({
+      const updatedSupervisor = await (prisma as any).fYPSupervisor.updateMany({
         where: { userId },
         data: { totalGroups: { increment: 1 } }
+      });
+
+      // Get supervisor data for availability update
+      const supervisor = await prisma.fYPSupervisor.findUnique({
+        where: { userId }
+      });
+
+      if (supervisor) {
+        // Emit supervisor availability update via WebSocket
+        emitSupervisorAvailability(supervisor.campusId, {
+          supervisorId: userId,
+          availableSlots: supervisor.maxGroups - supervisor.totalGroups - 1,
+          maxGroups: supervisor.maxGroups,
+          totalGroups: supervisor.totalGroups + 1,
+        });
+      }
+
+      // Notify the inviter that invitation was accepted
+      emitNotificationToUser(invitation.inviterId, {
+        id: Date.now(),
+        type: 'invitation_accepted',
+        title: 'Invitation Accepted',
+        message: `${session.user.name} has accepted your supervisor invitation`,
+        createdAt: new Date().toISOString(),
       });
 
       return NextResponse.json({ success: true, message: 'You are now supervising this group!' });

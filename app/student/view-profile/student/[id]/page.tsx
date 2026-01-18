@@ -55,14 +55,14 @@ export default function ViewStudentProfilePage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated' && params.id) {
+    } else if (status === 'authenticated' && params?.id) {
       fetchProfile();
     }
-  }, [status, params.id, router]);
+  }, [status, params?.id, router]);
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`/api/profile?userId=${params.id}&role=student`);
+      const response = await fetch(`/api/profile?userId=${params?.id}&role=student`);
       if (response.ok) {
         const data = await response.json();
         setProfile(data);

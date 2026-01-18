@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { auth } from '@/lib/auth';
+import { emitDashboardStatsToCoordinators, emitSupervisorAvailability } from '@/lib/socket-emitters';
 
 export async function POST(request: Request) {
   try {
@@ -107,12 +108,20 @@ export async function POST(request: Request) {
         });
 
         // Create supervisor profile
-        await prisma.fYPSupervisor.create({
+        const newSupervisor = await prisma.fYPSupervisor.create({
           data: {
             userId: user.userId,
             campusId: campusId,
             specialization: specialization || null,
           },
+        });
+
+        // Emit supervisor availability update for the new supervisor
+        emitSupervisorAvailability(campusId, {
+          supervisorId: user.userId,
+          availableSlots: newSupervisor.maxGroups - newSupervisor.totalGroups,
+          maxGroups: newSupervisor.maxGroups,
+          totalGroups: newSupervisor.totalGroups,
         });
 
         results.success.push({
@@ -129,6 +138,18 @@ export async function POST(request: Request) {
           reason: error.message || 'Unknown error',
         });
       }
+    }
+
+    // Emit dashboard stats update if supervisors were added successfully
+    if (results.success.length > 0) {
+      const totalStudents = await prisma.student.count({ where: { campusId } });
+      const totalSupervisors = await prisma.fYPSupervisor.count({ where: { campusId } });
+
+      emitDashboardStatsToCoordinators(campusId, {
+        totalStudents,
+        totalSupervisors,
+        updatedAt: new Date().toISOString(),
+      });
     }
 
     return NextResponse.json({

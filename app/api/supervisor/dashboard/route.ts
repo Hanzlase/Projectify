@@ -28,49 +28,107 @@ export async function GET() {
       return NextResponse.json({ error: "Supervisor not found" }, { status: 404 });
     }
 
-    // Get groups where this supervisor is assigned
-    const assignedGroups = await (prisma as any).group.findMany({
-      where: {
-        supervisorId: userId,
-      },
-      include: {
-        students: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true,
-                profileImage: true,
+    // Run all independent queries in parallel for better performance
+    const [assignedGroups, pendingInvitations, totalStudents, totalProjects, recentNotifications] = await Promise.all([
+      // Get groups where this supervisor is assigned
+      (prisma as any).group.findMany({
+        where: {
+          supervisorId: userId,
+        },
+        include: {
+          students: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  email: true,
+                  profileImage: true,
+                }
               }
+            }
+          },
+          groupChats: {
+            select: {
+              conversationId: true,
+            }
+          },
+        }
+      }),
+      // Get pending group invitations for this supervisor
+      (prisma as any).groupInvitation.findMany({
+        where: {
+          inviteeId: userId,
+          inviteeRole: 'supervisor',
+          status: 'pending'
+        },
+        include: {
+          group: {
+            include: {
+              students: {
+                include: {
+                  user: {
+                    select: {
+                      name: true,
+                      profileImage: true,
+                    }
+                  }
+                }
+              },
             }
           }
         },
-        groupChats: {
-          select: {
-            conversationId: true,
-          }
+        orderBy: { createdAt: 'desc' }
+      }),
+      // Get total students from the supervisor's campus
+      prisma.student.count({
+        where: {
+          campusId: supervisor.campusId,
         },
-      }
-    });
+      }),
+      // Get total projects from the campus
+      prisma.project.count({
+        where: {
+          campusId: supervisor.campusId,
+        },
+      }),
+      // Get notifications for the supervisor
+      prisma.notificationRecipient.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          notification: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 5,
+      })
+    ]);
 
-    // Get projects for these groups
+    // Get projects for groups (need groupIds first)
     const groupIds = assignedGroups.map((g: any) => g.groupId);
-    const groupProjects = groupIds.length > 0 
+    const invitationGroupIds = pendingInvitations.map((inv: any) => inv.group.groupId);
+    const allGroupIds = Array.from(new Set([...groupIds, ...invitationGroupIds]));
+    
+    // Fetch all projects in one query
+    const allProjects = allGroupIds.length > 0 
       ? await (prisma as any).project.findMany({
           where: {
-            groupId: { in: groupIds }
+            groupId: { in: allGroupIds }
           },
           select: {
             projectId: true,
             title: true,
             status: true,
+            description: true,
             groupId: true,
           }
         })
       : [];
 
     // Map projects to groups
-    const projectsByGroupId = groupProjects.reduce((acc: any, project: any) => {
+    const projectsByGroupId = allProjects.reduce((acc: any, project: any) => {
       acc[project.groupId] = project;
       return acc;
     }, {});
@@ -81,88 +139,14 @@ export async function GET() {
       project: projectsByGroupId[group.groupId] || null
     }));
 
-    // Get pending group invitations for this supervisor
-    const pendingInvitations = await (prisma as any).groupInvitation.findMany({
-      where: {
-        inviteeId: userId,
-        inviteeRole: 'supervisor',
-        status: 'pending'
-      },
-      include: {
-        group: {
-          include: {
-            students: {
-              include: {
-                user: {
-                  select: {
-                    name: true,
-                    profileImage: true,
-                  }
-                }
-              }
-            },
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
-
-    // Get projects for invitation groups
-    const invitationGroupIds = pendingInvitations.map((inv: any) => inv.group.groupId);
-    const invitationProjects = invitationGroupIds.length > 0
-      ? await (prisma as any).project.findMany({
-          where: {
-            groupId: { in: invitationGroupIds }
-          },
-          select: {
-            title: true,
-            description: true,
-            groupId: true,
-          }
-        })
-      : [];
-
-    const invProjectsByGroupId = invitationProjects.reduce((acc: any, project: any) => {
-      acc[project.groupId] = project;
-      return acc;
-    }, {});
-
     // Add project info to invitations
     const invitationsWithProjects = pendingInvitations.map((inv: any) => ({
       ...inv,
       group: {
         ...inv.group,
-        project: invProjectsByGroupId[inv.group.groupId] || null
+        project: projectsByGroupId[inv.group.groupId] || null
       }
     }));
-
-    // Get total students from the supervisor's campus
-    const totalStudents = await prisma.student.count({
-      where: {
-        campusId: supervisor.campusId,
-      },
-    });
-
-    // Get total projects from the campus
-    const totalProjects = await prisma.project.count({
-      where: {
-        campusId: supervisor.campusId,
-      },
-    });
-
-    // Get notifications for the supervisor
-    const recentNotifications = await prisma.notificationRecipient.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        notification: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 5,
-    });
 
     const recentActivity = recentNotifications.map((nr) => ({
       action: nr.notification.title,

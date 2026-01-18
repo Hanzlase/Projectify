@@ -85,7 +85,7 @@ export default function GroupDetailsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
-  const groupId = params.groupId as string;
+  const groupId = params?.groupId as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);

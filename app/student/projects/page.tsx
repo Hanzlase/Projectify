@@ -128,7 +128,7 @@ function ProjectsPageContent() {
 
   // Check if we should open the create modal from URL param
   useEffect(() => {
-    if (searchParams.get('addProject') === 'true') {
+    if (searchParams?.get('addProject') === 'true') {
       setShowCreateModal(true);
       // Clear the URL param without refreshing
       router.replace('/student/projects', { scroll: false });

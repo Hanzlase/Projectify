@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { emitPermissionRequest, emitPermissionResponse, emitNotificationToUser } from '@/lib/socket-emitters';
 
 // GET - Check permission status for a project
 export async function GET(
@@ -123,7 +124,7 @@ export async function POST(
 
     // Send notification to the supervisor
     if (supervisor) {
-      await prisma.notification.create({
+      const notification = await prisma.notification.create({
         data: {
           title: 'Project Permission Request',
           message: `**${student.user.name}** (${student.rollNumber}) is requesting permission to use your project "${project.title}" for their FYP.${message ? `\n\n**Message:** ${message}` : ''}`,
@@ -138,6 +139,31 @@ export async function POST(
           }
         }
       });
+
+      // Emit socket events for real-time delivery
+      try {
+        // Emit permission request event
+        emitPermissionRequest(project.createdById, {
+          requestId: permissionRequest.id,
+          projectId,
+          projectTitle: project.title,
+          requesterId: userId,
+          requesterName: student.user.name,
+          message: message || undefined,
+          createdAt: permissionRequest.createdAt.toISOString(),
+        });
+
+        // Also emit notification
+        emitNotificationToUser(project.createdById, {
+          id: notification.notificationId,
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          createdAt: notification.createdAt.toISOString(),
+        });
+      } catch (socketError) {
+        console.error('Socket emit error:', socketError);
+      }
     }
 
     return NextResponse.json({ 
@@ -212,7 +238,7 @@ export async function PUT(
     // Send notification to the requester
     if (requester && student) {
       const statusText = status === 'approved' ? 'approved' : 'declined';
-      await prisma.notification.create({
+      const notification = await prisma.notification.create({
         data: {
           title: `Project Permission ${status === 'approved' ? 'Approved' : 'Declined'}`,
           message: `Your request to use the project "${project.title}" has been ${statusText}.${responseMessage ? `\n\n**Message from supervisor:** ${responseMessage}` : ''}`,
@@ -227,6 +253,28 @@ export async function PUT(
           }
         }
       });
+
+      // Emit socket events for real-time delivery
+      try {
+        // Emit permission response event
+        emitPermissionResponse(parseInt(requesterId), {
+          requestId: permissionRequest.id,
+          projectId,
+          status,
+          responderId: userId,
+        });
+
+        // Also emit notification
+        emitNotificationToUser(parseInt(requesterId), {
+          id: notification.notificationId,
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          createdAt: notification.createdAt.toISOString(),
+        });
+      } catch (socketError) {
+        console.error('Socket emit error:', socketError);
+      }
     }
 
     return NextResponse.json({ 

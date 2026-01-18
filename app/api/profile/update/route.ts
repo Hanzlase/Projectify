@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import bcrypt from 'bcrypt';
+import { emitSupervisorAvailability } from '@/lib/socket-emitters';
 
 export async function POST(request: Request) {
   try {
@@ -106,9 +107,17 @@ export async function POST(request: Request) {
       }
 
       if (Object.keys(supervisorUpdate).length > 0) {
-        await prisma.fYPSupervisor.update({
+        const updatedSupervisor = await prisma.fYPSupervisor.update({
           where: { userId },
           data: supervisorUpdate,
+        });
+
+        // Emit supervisor availability update via WebSocket
+        emitSupervisorAvailability(updatedSupervisor.campusId, {
+          supervisorId: userId,
+          availableSlots: updatedSupervisor.maxGroups - updatedSupervisor.totalGroups,
+          maxGroups: updatedSupervisor.maxGroups,
+          totalGroups: updatedSupervisor.totalGroups,
         });
       }
     }

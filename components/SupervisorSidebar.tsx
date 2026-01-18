@@ -77,7 +77,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
     setShowLogoutModal(true);
   }, []);
 
-  const isActive = useCallback((path: string) => pathname === path, [pathname]);
+  const isActive = useCallback((path: string): boolean => pathname === path || false, [pathname]);
 
   return (
     <motion.aside

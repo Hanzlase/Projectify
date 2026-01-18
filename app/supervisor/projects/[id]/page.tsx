@@ -51,7 +51,7 @@ export default function SupervisorProjectDetailPage() {
   const [error, setError] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const projectId = params.id as string;
+  const projectId = params?.id as string;
 
   useEffect(() => {
     if (status === 'unauthenticated') {

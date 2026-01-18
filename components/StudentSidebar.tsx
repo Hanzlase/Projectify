@@ -130,7 +130,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
     { icon: HelpCircle, label: 'Help', path: '/help' },
   ], []);
 
-  const isActive = useCallback((path: string) => pathname === path || pathname?.startsWith(path + '/'), [pathname]);
+  const isActive = useCallback((path: string): boolean => pathname === path || pathname?.startsWith(path + '/') || false, [pathname]);
 
   const SidebarContent = () => (
     <>

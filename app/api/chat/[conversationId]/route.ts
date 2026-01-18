@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { encryptMessage, decryptMessage } from '@/lib/encryption';
+import { emitChatMessage, emitMessageDeleted } from '@/lib/socket-emitters';
 
 // GET - Get messages for a conversation
 export async function GET(
@@ -233,12 +234,32 @@ export async function POST(
       }
     });
 
-    return NextResponse.json({
+    const responseMessage = {
       ...message,
       content: decryptMessage(message.content), // Decrypt for response
       sender,
       isOwn: true
-    });
+    };
+
+    // Emit socket event for real-time delivery
+    try {
+      emitChatMessage({
+        messageId: message.messageId,
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        content: responseMessage.content,
+        attachmentUrl: message.attachmentUrl,
+        attachmentType: message.attachmentType,
+        attachmentName: message.attachmentName,
+        createdAt: message.createdAt.toISOString(),
+        sender,
+      });
+    } catch (socketError) {
+      console.error('Socket emit error:', socketError);
+      // Don't fail the request if socket emit fails
+    }
+
+    return NextResponse.json(responseMessage);
   } catch (error) {
     console.error('Error sending message:', error);
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { auth } from '@/lib/auth';
+import { emitDashboardStatsToCoordinators, emitDashboardStatsToSupervisors } from '@/lib/socket-emitters';
 
 export async function POST(request: Request) {
   try {
@@ -193,6 +194,27 @@ export async function POST(request: Request) {
       }, {
         timeout: 30000, // 30 second timeout per batch
       });
+    }
+
+    // Emit dashboard stats update via WebSocket if students were added successfully
+    if (results.success.length > 0) {
+      // Get updated student count for dashboard stats
+      const totalStudents = await prisma.student.count({
+        where: { campusId }
+      });
+      const totalSupervisors = await prisma.fYPSupervisor.count({
+        where: { campusId }
+      });
+
+      const statsUpdate = {
+        totalStudents,
+        totalSupervisors,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Notify coordinators and supervisors of the stats change
+      emitDashboardStatsToCoordinators(campusId, statsUpdate);
+      emitDashboardStatsToSupervisors(campusId, statsUpdate);
     }
 
     return NextResponse.json({

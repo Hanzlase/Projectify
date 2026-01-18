@@ -1,8 +1,76 @@
 import { CohereClient } from 'cohere-ai';
 
+// Singleton Cohere client with optimized settings
 const cohere = new CohereClient({
   token: process.env.cohere_api_key || '',
 });
+
+// Request queue for rate limiting concurrent Cohere requests
+const requestQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (error: any) => void;
+  fn: () => Promise<any>;
+}> = [];
+
+let activeRequests = 0;
+const MAX_CONCURRENT_REQUESTS = 5; // Cohere rate limit handling
+const REQUEST_DELAY_MS = 100; // Small delay between requests
+
+// Process the request queue
+async function processQueue() {
+  if (activeRequests >= MAX_CONCURRENT_REQUESTS || requestQueue.length === 0) {
+    return;
+  }
+
+  const item = requestQueue.shift();
+  if (!item) return;
+
+  activeRequests++;
+  
+  try {
+    const result = await item.fn();
+    item.resolve(result);
+  } catch (error) {
+    item.reject(error);
+  } finally {
+    activeRequests--;
+    // Small delay to avoid rate limiting
+    setTimeout(processQueue, REQUEST_DELAY_MS);
+  }
+}
+
+// Wrapper to queue Cohere requests
+function queueRequest<T>(fn: () => Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    requestQueue.push({ resolve, reject, fn });
+    processQueue();
+  });
+}
+
+// Simple in-memory cache for embeddings (LRU-style)
+const embeddingCache = new Map<string, { embedding: number[]; timestamp: number }>();
+const CACHE_MAX_SIZE = 500;
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+function getCachedEmbedding(text: string): number[] | null {
+  const key = text.substring(0, 500); // Use first 500 chars as key
+  const cached = embeddingCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.embedding;
+  }
+  embeddingCache.delete(key);
+  return null;
+}
+
+function setCachedEmbedding(text: string, embedding: number[]): void {
+  const key = text.substring(0, 500);
+  // Simple LRU: delete oldest if cache is full
+  if (embeddingCache.size >= CACHE_MAX_SIZE) {
+    const firstKey = embeddingCache.keys().next().value;
+    if (firstKey) embeddingCache.delete(firstKey);
+  }
+  embeddingCache.set(key, { embedding, timestamp: Date.now() });
+}
 
 export interface EmbeddingResult {
   embedding: number[];
@@ -17,56 +85,77 @@ export interface SimilarityExplanation {
 
 /**
  * Generate embeddings for text using Cohere's embed-english-v3.0 model
+ * Includes caching and request queuing for high concurrency
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  try {
-    const response = await cohere.embed({
-      texts: [text],
-      model: 'embed-english-v3.0',
-      inputType: 'search_document',
-    });
-
-    // Handle different response formats
-    const embeddings = response.embeddings;
-    if (embeddings && Array.isArray(embeddings) && embeddings.length > 0) {
-      // embeddings should be number[][] (array of embedding arrays)
-      const firstEmbedding = embeddings[0];
-      if (Array.isArray(firstEmbedding)) {
-        return firstEmbedding;
-      }
-    }
-    
-    throw new Error('No embeddings returned from Cohere');
-  } catch (error: any) {
-    console.error('Cohere embedding error:', error?.message || error);
-    throw new Error(`Cohere embedding failed: ${error?.message || 'Unknown error'}`);
+  // Check cache first
+  const cached = getCachedEmbedding(text);
+  if (cached) {
+    return cached;
   }
+
+  return queueRequest(async () => {
+    try {
+      const response = await cohere.embed({
+        texts: [text],
+        model: 'embed-english-v3.0',
+        inputType: 'search_document',
+      });
+
+      // Handle different response formats
+      const embeddings = response.embeddings;
+      if (embeddings && Array.isArray(embeddings) && embeddings.length > 0) {
+        // embeddings should be number[][] (array of embedding arrays)
+        const firstEmbedding = embeddings[0];
+        if (Array.isArray(firstEmbedding)) {
+          // Cache the result
+          setCachedEmbedding(text, firstEmbedding);
+          return firstEmbedding;
+        }
+      }
+      
+      throw new Error('No embeddings returned from Cohere');
+    } catch (error: any) {
+      console.error('Cohere embedding error:', error?.message || error);
+      throw new Error(`Cohere embedding failed: ${error?.message || 'Unknown error'}`);
+    }
+  });
 }
 
 /**
  * Generate embeddings for query text (for searching)
+ * Uses request queuing for high concurrency
  */
 export async function generateQueryEmbedding(text: string): Promise<number[]> {
-  try {
-    const response = await cohere.embed({
-      texts: [text],
-      model: 'embed-english-v3.0',
-      inputType: 'search_query',
-    });
-
-    const embeddings = response.embeddings;
-    if (embeddings && Array.isArray(embeddings) && embeddings.length > 0) {
-      const firstEmbedding = embeddings[0];
-      if (Array.isArray(firstEmbedding)) {
-        return firstEmbedding;
-      }
-    }
-    
-    throw new Error('No embeddings returned from Cohere');
-  } catch (error: any) {
-    console.error('Cohere query embedding error:', error?.message || error);
-    throw new Error(`Cohere query embedding failed: ${error?.message || 'Unknown error'}`);
+  // Check cache first (queries can be cached too)
+  const cached = getCachedEmbedding(`query:${text}`);
+  if (cached) {
+    return cached;
   }
+
+  return queueRequest(async () => {
+    try {
+      const response = await cohere.embed({
+        texts: [text],
+        model: 'embed-english-v3.0',
+        inputType: 'search_query',
+      });
+
+      const embeddings = response.embeddings;
+      if (embeddings && Array.isArray(embeddings) && embeddings.length > 0) {
+        const firstEmbedding = embeddings[0];
+        if (Array.isArray(firstEmbedding)) {
+          setCachedEmbedding(`query:${text}`, firstEmbedding);
+          return firstEmbedding;
+        }
+      }
+      
+      throw new Error('No embeddings returned from Cohere');
+    } catch (error: any) {
+      console.error('Cohere query embedding error:', error?.message || error);
+      throw new Error(`Cohere query embedding failed: ${error?.message || 'Unknown error'}`);
+    }
+  });
 }
 
 /**

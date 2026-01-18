@@ -16,6 +16,43 @@ const RETRY_DELAY_MS = 1000;
 
 let qdrantClient: QdrantClient | null = null;
 
+// Request semaphore for limiting concurrent Qdrant operations
+let activeQdrantRequests = 0;
+const MAX_CONCURRENT_QDRANT = 10;
+const qdrantQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (error: any) => void;
+  fn: () => Promise<any>;
+}> = [];
+
+async function processQdrantQueue() {
+  if (activeQdrantRequests >= MAX_CONCURRENT_QDRANT || qdrantQueue.length === 0) {
+    return;
+  }
+
+  const item = qdrantQueue.shift();
+  if (!item) return;
+
+  activeQdrantRequests++;
+  
+  try {
+    const result = await item.fn();
+    item.resolve(result);
+  } catch (error) {
+    item.reject(error);
+  } finally {
+    activeQdrantRequests--;
+    processQdrantQueue();
+  }
+}
+
+function queueQdrantRequest<T>(fn: () => Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    qdrantQueue.push({ resolve, reject, fn });
+    processQdrantQueue();
+  });
+}
+
 /**
  * Sleep helper for retry delays
  */

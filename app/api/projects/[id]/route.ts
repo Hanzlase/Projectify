@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { deleteProjectEmbedding } from '@/lib/qdrant';
+import { emitProjectStatus, emitProjectStatusToUsers } from '@/lib/socket-emitters';
 
 // GET - Fetch single project
 export async function GET(
@@ -165,6 +166,16 @@ export async function PUT(
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
       },
     });
+
+    // Emit project status update via WebSocket
+    if (existingProject.campusId) {
+      emitProjectStatus(existingProject.campusId, {
+        projectId,
+        status: updatedProject.status,
+        title: updatedProject.title,
+        updatedAt: new Date().toISOString(),
+      });
+    }
 
     return NextResponse.json(updatedProject);
   } catch (error) {

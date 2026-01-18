@@ -70,6 +70,7 @@ model FYPSupervisor {
   user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   campus Campus @relation(fields: [campusId], references: [campusId])
 
+  @@index([campusId])
   @@map("fyp_supervisors")
 }
 
@@ -88,6 +89,8 @@ model Group {
   groupChats GroupChat[]
   groupInvitations GroupInvitation[]
 
+  @@index([supervisorId])
+  @@index([createdById])
   @@map("groups")
 }
 
@@ -106,6 +109,8 @@ model GroupInvitation {
   group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 
   @@unique([groupId, inviteeId])
+  @@index([inviteeId, status])
+  @@index([inviterId])
   @@map("group_invitations")
 }
 
@@ -164,6 +169,9 @@ model Student {
   sentInvitations     Invitation[] @relation("SentInvitations")
   receivedInvitations Invitation[] @relation("ReceivedInvitations")
 
+  @@index([campusId])
+  @@index([groupId])
+  @@index([campusId, groupId])
   @@map("students")
 }
 
@@ -182,6 +190,8 @@ model Invitation {
   receiver Student @relation("ReceivedInvitations", fields: [receiverId], references: [studentId], onDelete: Cascade)
 
   @@unique([senderId, receiverId, type])
+  @@index([receiverId, status])
+  @@index([senderId])
   @@map("invitations")
 }
 
@@ -210,6 +220,8 @@ model Notification {
 
   recipients NotificationRecipient[]
 
+  @@index([campusId])
+  @@index([createdAt])
   @@map("notifications")
 }
 
@@ -224,6 +236,8 @@ model NotificationRecipient {
   notification Notification @relation(fields: [notificationId], references: [notificationId], onDelete: Cascade)
 
   @@unique([notificationId, userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
   @@map("notification_recipients")
 }
 
@@ -275,6 +289,7 @@ model ConversationParticipant {
   conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
 
   @@unique([conversationId, userId])
+  @@index([userId])
   @@map("conversation_participants")
 }
 
@@ -293,6 +308,9 @@ model Message {
 
   conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
 
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([conversationId, isRead])
   @@map("messages")
 }
 
@@ -320,6 +338,11 @@ model Project {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  @@index([campusId])
+  @@index([campusId, visibility])
+  @@index([groupId])
+  @@index([createdById])
+  @@index([status])
   @@map("projects")
 }
 

@@ -86,7 +86,7 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
     { icon: Settings, label: 'Settings', path: '/coordinator/profile' },
   ], []);
 
-  const isActive = useCallback((path: string) => pathname === path || pathname?.startsWith(path + '/'), [pathname]);
+  const isActive = useCallback((path: string): boolean => pathname === path || pathname?.startsWith(path + '/') || false, [pathname]);
 
   const handleLogout = useCallback(() => {
     signOut({ callbackUrl: '/login' });

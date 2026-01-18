@@ -112,7 +112,7 @@ function SupervisorProjectsPageContent() {
   }, [status, router, session, filter, categoryFilter]);
 
   useEffect(() => {
-    if (searchParams.get('addProject') === 'true') {
+    if (searchParams?.get('addProject') === 'true') {
       setShowCreateModal(true);
       router.replace('/supervisor/projects', { scroll: false });
     }

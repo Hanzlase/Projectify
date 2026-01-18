@@ -16,7 +16,7 @@ type LoginMode = 'student' | 'staff';
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const [loginMode, setLoginMode] = useState<LoginMode>('student');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');

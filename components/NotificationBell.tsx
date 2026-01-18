@@ -1,21 +1,25 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo, useTransition } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
+import { useNotifications } from '@/lib/socket-client';
 
 function NotificationBell() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [localUnreadCount, setLocalUnreadCount] = useState(0);
+  
+  // Use socket hook for real-time notifications
+  const { unreadCount: socketUnreadCount, isConnected } = useNotifications();
 
+  // Fetch initial count on mount
   const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications');
       if (response.ok) {
         const data = await response.json();
-        setUnreadCount(data.unreadCount);
+        setLocalUnreadCount(data.unreadCount);
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -24,25 +28,37 @@ function NotificationBell() {
 
   useEffect(() => {
     fetchUnreadCount();
-    // Poll for new notifications every 60 seconds (reduced from 30s)
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
   }, [fetchUnreadCount]);
+
+  // Update local count when socket provides updates
+  useEffect(() => {
+    if (socketUnreadCount > 0) {
+      setLocalUnreadCount(prev => prev + socketUnreadCount);
+    }
+  }, [socketUnreadCount]);
+
+  // Fallback polling only when socket is disconnected (every 2 minutes instead of 30 seconds)
+  useEffect(() => {
+    if (!isConnected) {
+      const interval = setInterval(fetchUnreadCount, 120000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected, fetchUnreadCount]);
 
   const handleClick = useCallback(() => {
     // Determine the user role from the current path
-    const pathParts = pathname.split('/');
+    const pathParts = pathname?.split('/') || [];
     const role = pathParts[1]; // student, coordinator, or supervisor
     
-    startTransition(() => {
-      if (role === 'student' || role === 'coordinator' || role === 'supervisor') {
-        router.push(`/${role}/notifications`);
-      } else {
-        // Default to student notifications
-        router.push('/student/notifications');
-      }
-    });
+    if (role === 'student' || role === 'coordinator' || role === 'supervisor') {
+      router.push(`/${role}/notifications`);
+    } else {
+      // Default to student notifications
+      router.push('/student/notifications');
+    }
   }, [pathname, router]);
+
+  const displayCount = localUnreadCount;
 
   return (
     <button
@@ -50,9 +66,9 @@ function NotificationBell() {
       className="relative p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-gray-600"
     >
       <Bell className="w-6 h-6 text-slate-600 dark:text-gray-400" />
-      {unreadCount > 0 && (
+      {displayCount > 0 && (
         <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-          {unreadCount > 9 ? '9+' : unreadCount}
+          {displayCount > 9 ? '9+' : displayCount}
         </span>
       )}
     </button>

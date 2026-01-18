@@ -72,7 +72,7 @@ function SupervisorInvitationsPageContent() {
 
   // Handle URL filter parameter
   useEffect(() => {
-    const filterParam = searchParams.get("filter");
+    const filterParam = searchParams?.get("filter");
     if (filterParam && ["all", "pending", "accepted", "rejected"].includes(filterParam)) {
       setFilter(filterParam as any);
     }

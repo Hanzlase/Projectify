@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SocketProvider } from "@/components/SocketProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -44,7 +45,9 @@ export default function RootLayout({
       <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200`}>
         <SessionProvider>
           <ThemeProvider>
-            {children}
+            <SocketProvider>
+              {children}
+            </SocketProvider>
           </ThemeProvider>
         </SessionProvider>
       </body>
