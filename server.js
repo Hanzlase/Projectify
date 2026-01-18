@@ -4,17 +4,25 @@ const next = require('next');
 const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== 'production';
-// Use 0.0.0.0 to accept connections from any network interface (required for Railway/Docker)
-const hostname = process.env.HOSTNAME || '0.0.0.0';
 const port = parseInt(process.env.PORT || '3000', 10);
 
-const app = next({ dev, hostname, port });
+// Log startup info
+console.log(`Starting server in ${dev ? 'development' : 'production'} mode`);
+console.log(`Port: ${port}`);
+
+const app = next({ dev, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
+    try {
+      const parsedUrl = parse(req.url, true);
+      handle(req, res, parsedUrl);
+    } catch (err) {
+      console.error('Error handling request:', err);
+      res.statusCode = 500;
+      res.end('Internal Server Error');
+    }
   });
 
   // Initialize Socket.IO with scalability optimizations
@@ -210,4 +218,13 @@ app.prepare().then(() => {
     console.log(`> Ready on http://0.0.0.0:${port}`);
     console.log(`> Socket.IO server running on path /api/socketio`);
   });
+
+  // Handle server errors
+  httpServer.on('error', (err) => {
+    console.error('Server error:', err);
+    process.exit(1);
+  });
+}).catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
