@@ -4,7 +4,8 @@ const next = require('next');
 const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+// Use 0.0.0.0 to accept connections from any network interface (required for Railway/Docker)
+const hostname = process.env.HOSTNAME || '0.0.0.0';
 const port = parseInt(process.env.PORT || '3000', 10);
 
 const app = next({ dev, hostname, port });
@@ -204,8 +205,9 @@ app.prepare().then(() => {
   global.socketStats = connectionStats;
   global.userSockets = userSockets;
 
-  httpServer.listen(port, () => {
-    console.log(`> Ready on http://${hostname}:${port}`);
+  // Bind to 0.0.0.0 to accept external connections (required for Railway/Docker)
+  httpServer.listen(port, '0.0.0.0', () => {
+    console.log(`> Ready on http://0.0.0.0:${port}`);
     console.log(`> Socket.IO server running on path /api/socketio`);
   });
 });
