@@ -5,12 +5,16 @@ const globalForPrisma = globalThis as unknown as {
   prismaShutdownRegistered: boolean | undefined;
 };
 
-// Create Prisma client only if DATABASE_URL is available (not during build)
+// Create Prisma client with proper configuration
 const createPrismaClient = () => {
-  // During build time, DATABASE_URL might not be available
+  // Log DATABASE_URL status for debugging
+  console.log('DATABASE_URL status:', process.env.DATABASE_URL ? 'Found' : 'NOT FOUND');
+  if (process.env.DATABASE_URL) {
+    console.log('DATABASE_URL prefix:', process.env.DATABASE_URL.substring(0, 50) + '...');
+  }
+
   if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL not found, using placeholder for build');
-    return new PrismaClient();
+    throw new Error('DATABASE_URL environment variable is not set. Please configure it in Railway.');
   }
   
   return new PrismaClient({
@@ -23,23 +27,38 @@ const createPrismaClient = () => {
   });
 };
 
-// Optimized Prisma client with connection pooling for high concurrency
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-// Prevent multiple instances in development
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-// Graceful shutdown handler - only on server side, registered only once
-// Wrapped in try-catch to handle Edge Runtime where process.once may not exist
-if (typeof window === 'undefined' && !globalForPrisma.prismaShutdownRegistered) {
-  try {
-    if (typeof process !== 'undefined' && typeof process.once === 'function') {
-      globalForPrisma.prismaShutdownRegistered = true;
-      process.once('beforeExit', async () => {
-        await prisma.$disconnect();
-      });
+// Lazy initialization - only create client when first accessed
+function getPrismaClient(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+    
+    // Register shutdown handler only once
+    if (typeof window === 'undefined' && !globalForPrisma.prismaShutdownRegistered) {
+      try {
+        if (typeof process !== 'undefined' && typeof process.once === 'function') {
+          globalForPrisma.prismaShutdownRegistered = true;
+          process.once('beforeExit', async () => {
+            if (globalForPrisma.prisma) {
+              await globalForPrisma.prisma.$disconnect();
+            }
+          });
+        }
+      } catch {
+        // Ignore errors in Edge Runtime
+      }
     }
-  } catch {
-    // Ignore errors in Edge Runtime
   }
+  return globalForPrisma.prisma;
 }
+
+// Export a proxy that lazily initializes the client
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrismaClient();
+    const value = (client as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(client);
+    }
+    return value;
+  },
+});
