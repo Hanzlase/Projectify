@@ -336,9 +336,9 @@ export function useChat(conversationId: number | null) {
       console.log('📨 Received chat message via socket:', message.messageId, 'for conversation:', message.conversationId);
       if (message.conversationId === conversationId) {
         setMessages(prev => {
-          // Avoid duplicates
+          // Avoid duplicates - check by messageId
           if (prev.some(m => m.messageId === message.messageId)) {
-            console.log('⚠️ Duplicate message ignored:', message.messageId);
+            console.log('⚠️ Duplicate message ignored (same messageId):', message.messageId);
             return prev;
           }
           return [...prev, message];

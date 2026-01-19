@@ -16,7 +16,7 @@ import {
 import dynamic from 'next/dynamic';
 import { EmojiClickData, Theme } from 'emoji-picker-react';
 import LoadingScreen from '@/components/LoadingScreen';
-import { useChat, joinConversation, leaveConversation, sendTypingIndicator } from '@/lib/socket-client';
+import { useChat } from '@/lib/socket-client';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
@@ -212,17 +212,23 @@ function ChatPageContent() {
     isConnected: socketConnected 
   } = useChat(selectedConversation);
 
-  // Merge socket messages with local messages
+  // Merge socket messages with local messages (only for messages from OTHER users)
   useEffect(() => {
     if (socketMessages.length > 0) {
+      const currentUserId = parseInt(session?.user?.id || '0');
       setMessages(prevMessages => {
         const existingIds = new Set(prevMessages.map(m => m.messageId));
-        const newMsgs = socketMessages.filter(m => !existingIds.has(m.messageId));
+        // Filter out:
+        // 1. Messages we already have (by ID)
+        // 2. Messages from the current user (already added optimistically)
+        const newMsgs = socketMessages.filter(m => 
+          !existingIds.has(m.messageId) && m.senderId !== currentUserId
+        );
         if (newMsgs.length > 0) {
           const mappedMsgs: Message[] = newMsgs.map(m => ({ 
             ...m, 
             isRead: false,
-            isOwn: m.senderId === parseInt(session?.user?.id || '0'),
+            isOwn: false, // These are always from other users
             sender: m.sender || null,
           }));
           return [...prevMessages, ...mappedMsgs];
@@ -234,15 +240,7 @@ function ChatPageContent() {
     }
   }, [socketMessages, session?.user?.id, setSocketMessages]);
 
-  // Join conversation room when selected
-  useEffect(() => {
-    if (selectedConversation && socketConnected) {
-      joinConversation(selectedConversation);
-      return () => {
-        leaveConversation(selectedConversation);
-      };
-    }
-  }, [selectedConversation, socketConnected]);
+  // Room joining is handled by useChat hook - no need to duplicate here
 
   // Handle typing indicator
   const handleTypingStart = useCallback(() => {
