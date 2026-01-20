@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -196,11 +195,7 @@ export default function BrowseSupervisorsPage() {
       <div className="md:ml-56 mt-14 md:mt-0">
         <main className="p-4 sm:p-6">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
+        <div className="mb-6 animate-fadeIn">
           {/* Hero Section */}
           <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
@@ -241,15 +236,10 @@ export default function BrowseSupervisorsPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Search & Filters Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6 space-y-4"
-        >
+        <div className="mb-6 space-y-4">
           {/* Main Search Bar */}
           <div className="flex gap-3">
             <div className="relative flex-1">
@@ -336,15 +326,9 @@ export default function BrowseSupervisorsPage() {
           </div>
 
           {/* Advanced Filters Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <Card className="border-2 border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+          {showFilters && (
+            <div className="overflow-hidden transition-all duration-200">
+              <Card className="border-2 border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -421,9 +405,8 @@ export default function BrowseSupervisorsPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
 
           {/* Results Count */}
           <div className="flex items-center justify-between">
@@ -439,25 +422,20 @@ export default function BrowseSupervisorsPage() {
               {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Supervisors Grid/List */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div>
           {filteredSupervisors.length > 0 ? (
             <div className={viewMode === 'grid' 
               ? 'grid grid-cols-1 md:grid-cols-2 gap-4' 
               : 'space-y-3'
             }>
               {filteredSupervisors.map((supervisor, index) => (
-                <motion.div
+                <div
                   key={supervisor.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
+                  className="animate-fadeIn"
+                  style={{ animationDelay: `${index * 0.02}s` }}
                 >
                   {viewMode === 'grid' ? (
                     /* Grid Card */
@@ -668,7 +646,7 @@ export default function BrowseSupervisorsPage() {
                       </CardContent>
                     </Card>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
           ) : (
@@ -697,7 +675,7 @@ export default function BrowseSupervisorsPage() {
               </CardContent>
             </Card>
           )}
-        </motion.div>
+        </div>
         </main>
       </div>
     </div>
