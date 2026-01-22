@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
+
+// Production flag for logging
+const isProd = process.env.NODE_ENV === 'production';
 
 export async function POST(request: Request) {
   try {
@@ -13,8 +16,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user by email, roll number, or username (for coordinators)
-    let user = await prisma.user.findFirst({
+    // Optimized: Single query with selective fields
+    const user = await prisma.user.findFirst({
       where: {
         OR: [
           { email: identifier },
@@ -22,10 +25,67 @@ export async function POST(request: Request) {
           { name: identifier }
         ]
       },
-      include: {
-        student: true,
-        supervisor: true,
-        coordinator: true,
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        passwordHash: true,
+        role: true,
+        status: true,
+        profileImage: true,
+        createdAt: true,
+        updatedAt: true,
+        student: {
+          select: {
+            studentId: true,
+            rollNumber: true,
+            batch: true,
+            campusId: true,
+            groupId: true,
+            isGroupAdmin: true,
+            gpa: true,
+            skills: true,
+            interests: true,
+            bio: true,
+            linkedin: true,
+            github: true,
+            campus: {
+              select: {
+                campusId: true,
+                name: true,
+                location: true,
+              }
+            }
+          }
+        },
+        supervisor: {
+          select: {
+            supervisorId: true,
+            campusId: true,
+            description: true,
+            specialization: true,
+            campus: {
+              select: {
+                campusId: true,
+                name: true,
+                location: true,
+              }
+            }
+          }
+        },
+        coordinator: {
+          select: {
+            coordinatorId: true,
+            campusId: true,
+            campus: {
+              select: {
+                campusId: true,
+                name: true,
+                location: true,
+              }
+            }
+          }
+        },
       }
     });
 
@@ -46,32 +106,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Get campusId and campus - already fetched with select
+    const campusId = user.coordinator?.campusId 
+      ?? user.supervisor?.campusId 
+      ?? user.student?.campusId 
+      ?? null;
+    
+    const campus = user.coordinator?.campus 
+      ?? user.supervisor?.campus 
+      ?? user.student?.campus 
+      ?? null;
+
     // Return user data without password
     const { passwordHash, ...userWithoutPassword } = user;
-
-    // Add campusId and campus info to user data
-    let campusId = null;
-    let campus = null;
-    
-    if (user.coordinator) {
-      campusId = user.coordinator.campusId;
-    } else if (user.supervisor) {
-      campusId = user.supervisor.campusId;
-    } else if (user.student) {
-      campusId = user.student.campusId;
-    }
-
-    // Fetch campus details if campusId exists
-    if (campusId) {
-      campus = await prisma.campus.findUnique({
-        where: { campusId },
-        select: {
-          campusId: true,
-          name: true,
-          location: true,
-        },
-      });
-    }
 
     return NextResponse.json({
       success: true,
@@ -84,7 +131,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    if (!isProd) console.error('Login error:', error);
     return NextResponse.json(
       { error: 'An error occurred during login' },
       { status: 500 }

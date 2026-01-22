@@ -22,6 +22,8 @@ model User {
   supervisor   FYPSupervisor?
   student      Student?
 
+  // Index for faster login lookups
+  @@index([email, status])
   @@map("users")
 }
 

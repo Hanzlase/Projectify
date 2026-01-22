@@ -5,6 +5,9 @@ import { useSession } from 'next-auth/react';
 import { initSocket, disconnectSocket, getSocket, authenticateSocket } from '@/lib/socket-client';
 import type { Socket } from 'socket.io-client';
 
+// Production flag for logging
+const isDev = process.env.NODE_ENV === 'development';
+
 interface SocketContextType {
   isConnected: boolean;
   isConnecting: boolean;
@@ -44,11 +47,11 @@ export function SocketProvider({ children }: SocketProviderProps) {
       setError(null);
 
       try {
-        console.log('🔌 SocketProvider: Initializing socket connection...');
+        if (isDev) console.log('🔌 SocketProvider: Initializing socket connection...');
         
         // Connect the socket client directly (no API init needed with custom server)
         const socket = await initSocket();
-        console.log('🔌 SocketProvider: Socket initialized, connected:', socket.connected);
+        if (isDev) console.log('🔌 SocketProvider: Socket initialized, connected:', socket.connected);
         
         if (mounted && socket.connected) {
           // Authenticate the socket with user info
@@ -64,7 +67,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
         
         if (mounted) {
           socket.on('connect', () => {
-            console.log('🔌 SocketProvider: Connected event received');
+            if (isDev) console.log('🔌 SocketProvider: Connected event received');
             if (mounted) {
               setIsConnected(true);
               // Re-authenticate on reconnect
@@ -78,12 +81,12 @@ export function SocketProvider({ children }: SocketProviderProps) {
           });
           
           socket.on('disconnect', () => {
-            console.log('🔌 SocketProvider: Disconnected event received');
+            if (isDev) console.log('🔌 SocketProvider: Disconnected event received');
             if (mounted) setIsConnected(false);
           });
           
           socket.on('connect_error', (err) => {
-            console.error('🔌 SocketProvider: Connection error:', err.message);
+            if (isDev) console.error('🔌 SocketProvider: Connection error:', err.message);
             if (mounted) {
               setError(err.message);
               setIsConnected(false);
@@ -91,7 +94,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
           });
         }
       } catch (err) {
-        console.error('🔌 SocketProvider: Failed to initialize:', err);
+        if (isDev) console.error('🔌 SocketProvider: Failed to initialize:', err);
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Failed to connect');
         }

@@ -4,5 +4,5 @@ export async function GET() {
   return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
 }
 
-// Ensure this runs on Edge for fastest response
-export const runtime = 'edge';
+// Note: Railway uses custom Node.js server, so this runs on Node runtime
+// Health checks are fast regardless since no DB calls are made

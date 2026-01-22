@@ -5,12 +5,14 @@ const globalForPrisma = globalThis as unknown as {
   prismaShutdownRegistered: boolean | undefined;
 };
 
-// Create Prisma client with proper configuration
+// Production flag
+const isProd = process.env.NODE_ENV === 'production';
+
+// Create Prisma client with optimized configuration
 const createPrismaClient = () => {
-  // Log DATABASE_URL status for debugging
-  console.log('DATABASE_URL status:', process.env.DATABASE_URL ? 'Found' : 'NOT FOUND');
-  if (process.env.DATABASE_URL) {
-    console.log('DATABASE_URL prefix:', process.env.DATABASE_URL.substring(0, 50) + '...');
+  // Only log URL status in development
+  if (!isProd) {
+    console.log('DATABASE_URL status:', process.env.DATABASE_URL ? 'Found' : 'NOT FOUND');
   }
 
   if (!process.env.DATABASE_URL) {
@@ -18,7 +20,8 @@ const createPrismaClient = () => {
   }
   
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    // Minimal logging in production for performance
+    log: isProd ? [] : ['error', 'warn'],
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
@@ -32,7 +35,7 @@ function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
     globalForPrisma.prisma = createPrismaClient();
     
-    // Register shutdown handler only once
+    // Register shutdown handler only once (server-side only)
     if (typeof window === 'undefined' && !globalForPrisma.prismaShutdownRegistered) {
       try {
         if (typeof process !== 'undefined' && typeof process.once === 'function') {

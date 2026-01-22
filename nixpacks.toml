@@ -2,15 +2,17 @@
 [variables]
 # Ensure NODE_ENV is set during build
 NODE_ENV = "production"
+# Optimize Node.js for production
+NODE_OPTIONS = "--max-old-space-size=512"
 
 [phases.setup]
 nixPkgs = ["nodejs_18", "npm-9_x", "openssl"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = ["npm ci --omit=dev || npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]
 
 [start]
-cmd = "node server.js"
+cmd = "NODE_ENV=production node server.js"

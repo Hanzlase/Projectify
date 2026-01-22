@@ -105,6 +105,9 @@ type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 let socket: TypedSocket | null = null;
 let connectionPromise: Promise<TypedSocket> | null = null;
 
+// Production flag for logging
+const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
+
 /**
  * Get or create the socket connection
  */
@@ -130,7 +133,7 @@ export async function initSocket(token?: string): Promise<TypedSocket> {
     // For Next.js, connect to the same origin (empty string or window.location.origin)
     const socketUrl = typeof window !== 'undefined' ? window.location.origin : '';
     
-    console.log('🔌 Attempting socket connection to:', socketUrl || 'same origin');
+    if (isDev) console.log('🔌 Attempting socket connection to:', socketUrl || 'same origin');
     
     socket = io(socketUrl, {
       path: '/api/socketio',
@@ -149,18 +152,18 @@ export async function initSocket(token?: string): Promise<TypedSocket> {
     }) as TypedSocket;
 
     socket.on('connect', () => {
-      console.log('🔌 Socket connected:', socket?.id);
+      if (isDev) console.log('🔌 Socket connected:', socket?.id);
       connectionPromise = null;
       resolve(socket!);
     });
 
     socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
+      if (isDev) console.error('Socket connection error:', error.message);
       // Don't reject on connection error, socket.io will retry
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
+      if (isDev) console.log('🔌 Socket disconnected:', reason);
       if (reason === 'io server disconnect') {
         // Server disconnected us, try to reconnect manually
         socket?.connect();
@@ -169,25 +172,25 @@ export async function initSocket(token?: string): Promise<TypedSocket> {
 
     // Manager-level events for reconnection (use io property)
     socket.io.on('reconnect', (attemptNumber: number) => {
-      console.log('🔌 Socket reconnected after', attemptNumber, 'attempts');
+      if (isDev) console.log('🔌 Socket reconnected after', attemptNumber, 'attempts');
     });
 
     socket.io.on('reconnect_attempt', (attemptNumber: number) => {
-      console.log('🔌 Socket reconnection attempt:', attemptNumber);
+      if (isDev) console.log('🔌 Socket reconnection attempt:', attemptNumber);
     });
 
     socket.io.on('reconnect_error', (error: Error) => {
-      console.error('Socket reconnection error:', error.message);
+      if (isDev) console.error('Socket reconnection error:', error.message);
     });
 
     socket.on('error', (data) => {
-      console.error('Socket server error:', data.message);
+      if (isDev) console.error('Socket server error:', data.message);
     });
 
     // Set a timeout for initial connection
     const connectionTimeout = setTimeout(() => {
       if (!socket?.connected) {
-        console.warn('Socket connection timeout, continuing with polling fallback');
+        if (isDev) console.warn('Socket connection timeout, continuing with polling fallback');
         connectionPromise = null;
         resolve(socket!); // Resolve anyway, socket.io will keep trying
       }
@@ -218,7 +221,7 @@ export function disconnectSocket(): void {
 export function authenticateSocket(userId: number, role: string, campusId?: number): void {
   if (socket?.connected) {
     socket.emit('user:auth' as any, { userId, role, campusId });
-    console.log('🔐 Socket authenticated for user:', userId);
+    if (isDev) console.log('🔐 Socket authenticated for user:', userId);
   }
 }
 
@@ -292,7 +295,7 @@ export function useSocket() {
         sock.on('connect', () => setIsConnected(true));
         sock.on('disconnect', () => setIsConnected(false));
       } catch (error) {
-        console.error('Failed to connect socket:', error);
+        if (isDev) console.error('Failed to connect socket:', error);
       } finally {
         setIsConnecting(false);
       }
@@ -333,12 +336,12 @@ export function useChat(conversationId: number | null) {
     if (!socket || !conversationId) return;
 
     const handleMessage = (message: ChatMessage) => {
-      console.log('📨 Received chat message via socket:', message.messageId, 'for conversation:', message.conversationId);
+      if (isDev) console.log('📨 Received chat message via socket:', message.messageId, 'for conversation:', message.conversationId);
       if (message.conversationId === conversationId) {
         setMessages(prev => {
           // Avoid duplicates - check by messageId
           if (prev.some(m => m.messageId === message.messageId)) {
-            console.log('⚠️ Duplicate message ignored (same messageId):', message.messageId);
+            if (isDev) console.log('⚠️ Duplicate message ignored (same messageId):', message.messageId);
             return prev;
           }
           return [...prev, message];
@@ -429,7 +432,7 @@ export function useNotifications() {
     if (!socket) return;
 
     const handleNewNotification = (notification: Notification) => {
-      console.log('📬 Received notification via socket:', notification);
+      if (isDev) console.log('📬 Received notification via socket:', notification);
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
     };

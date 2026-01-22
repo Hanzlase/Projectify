@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { auth } from "@/lib/auth"
 
+// Production flag
+const isProd = process.env.NODE_ENV === 'production';
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
@@ -11,8 +14,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // OPTIMIZATION: Skip auth check for auth API routes - let NextAuth handle them directly
+  // This prevents double auth verification and speeds up login significantly
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next()
+  }
+
   // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/", "/landing", "/api/auth", "/suspended", "/forgot-password", "/help"]
+  const publicRoutes = ["/login", "/", "/landing", "/suspended", "/forgot-password", "/help"]
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
 
   // Get session - wrap in try-catch to handle auth errors gracefully
@@ -20,7 +29,7 @@ export async function middleware(request: NextRequest) {
   try {
     session = await auth()
   } catch (error) {
-    console.error("Auth error in middleware:", error)
+    if (!isProd) console.error("Auth error in middleware:", error)
     // If auth fails on public route, continue; otherwise redirect to login
     if (isPublicRoute) {
       return NextResponse.next()

@@ -6,9 +6,13 @@ const { Server } = require('socket.io');
 const dev = process.env.NODE_ENV !== 'production';
 const port = parseInt(process.env.PORT || '3000', 10);
 
-// Log startup info
-console.log(`Starting server in ${dev ? 'development' : 'production'} mode`);
-console.log(`Port: ${port}`);
+// Minimal startup logging
+if (!dev) {
+  console.log(`Starting server in production mode on port ${port}`);
+} else {
+  console.log(`Starting server in development mode`);
+  console.log(`Port: ${port}`);
+}
 
 const app = next({ dev, port });
 const handle = app.getRequestHandler();
@@ -99,7 +103,7 @@ app.prepare().then(() => {
     connectionStats.activeConnections++;
     connectionStats.peakConnections = Math.max(connectionStats.peakConnections, connectionStats.activeConnections);
     
-    console.log(`🔌 Socket connected: ${socket.id} (Active: ${connectionStats.activeConnections})`);
+    if (dev) console.log(`🔌 Socket connected: ${socket.id} (Active: ${connectionStats.activeConnections})`);
 
     // Handle user authentication/joining rooms
     socket.on('user:auth', (data) => {
@@ -127,19 +131,19 @@ app.prepare().then(() => {
         }
         userSockets.get(data.userId).add(socket.id);
 
-        console.log(`✅ User ${data.userId} (${data.role}) authenticated`);
+        if (dev) console.log(`✅ User ${data.userId} (${data.role}) authenticated`);
       }
     });
 
     // Room management
     socket.on('room:join', (data) => {
       socket.join(data.roomId);
-      console.log(`Socket ${socket.id} joined room: ${data.roomId}`);
+      if (dev) console.log(`Socket ${socket.id} joined room: ${data.roomId}`);
     });
 
     socket.on('room:leave', (data) => {
       socket.leave(data.roomId);
-      console.log(`Socket ${socket.id} left room: ${data.roomId}`);
+      if (dev) console.log(`Socket ${socket.id} left room: ${data.roomId}`);
     });
 
     // Chat: Send message via socket
@@ -200,7 +204,7 @@ app.prepare().then(() => {
           }
         }
       }
-      console.log(`🔌 Socket disconnected: ${socket.id} (${reason}) (Active: ${connectionStats.activeConnections})`);
+      if (dev) console.log(`🔌 Socket disconnected: ${socket.id} (${reason}) (Active: ${connectionStats.activeConnections})`);
     });
 
     // Error handling

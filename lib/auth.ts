@@ -3,6 +3,11 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "./prisma"
 
+// Production logger - only logs errors in production
+const isProd = process.env.NODE_ENV === 'production';
+const log = isProd ? () => {} : console.log;
+const logError = console.error; // Always log errors
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -13,7 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) {
-          console.log("Missing credentials")
+          log("Missing credentials")
           return null
         }
 
@@ -21,45 +26,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials.password as string
 
         try {
-          // Find user by email first
-          let user = await prisma.user.findUnique({
-            where: { email: identifier },
-            include: {
-              student: true,
-              supervisor: true,
-              coordinator: true,
+          // Optimized: Single query that handles both email and roll number lookup
+          // Uses OR condition to avoid separate queries
+          const user = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { email: identifier },
+                { student: { rollNumber: identifier } }
+              ]
+            },
+            select: {
+              userId: true,
+              email: true,
+              name: true,
+              passwordHash: true,
+              role: true,
+              status: true,
+              student: {
+                select: { campusId: true }
+              },
+              supervisor: {
+                select: { campusId: true }
+              },
+              coordinator: {
+                select: { campusId: true }
+              },
             }
           })
 
-          // If not found by email, try to find by roll number (for students)
           if (!user) {
-            const student = await prisma.student.findUnique({
-              where: { rollNumber: identifier },
-              include: {
-                user: {
-                  include: {
-                    student: true,
-                    supervisor: true,
-                    coordinator: true,
-                  }
-                }
-              }
-            })
-            if (student) {
-              user = student.user
-            }
-          }
-
-          if (!user) {
-            console.log("User not found:", identifier)
+            log("User not found:", identifier)
             return null
           }
 
           // Check if user is suspended or removed
-          const userStatus = (user as any).status
-          if (userStatus === 'SUSPENDED') {
-            console.log("User is suspended:", identifier)
-            // Return a special user object that indicates suspension
+          if (user.status === 'SUSPENDED') {
+            log("User is suspended:", identifier)
             return {
               id: 'SUSPENDED',
               email: user.email,
@@ -70,8 +72,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
           
-          if (userStatus === 'REMOVED') {
-            console.log("User account has been removed:", identifier)
+          if (user.status === 'REMOVED') {
+            log("User account has been removed:", identifier)
             return null
           }
 
@@ -79,33 +81,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
 
           if (!isPasswordValid) {
-            console.log("Invalid password for user:", identifier)
+            log("Invalid password for user:", identifier)
             return null
           }
 
-          console.log("Login successful for:", user.email)
+          log("Login successful for:", user.email)
 
-          // Get campusId based on role
-          let campusId: number | null = null
-          if (user.coordinator) {
-            campusId = user.coordinator.campusId
-          } else if (user.supervisor) {
-            campusId = user.supervisor.campusId
-          } else if (user.student) {
-            campusId = user.student.campusId
-          }
+          // Get campusId based on role - already fetched with select
+          const campusId = user.coordinator?.campusId 
+            ?? user.supervisor?.campusId 
+            ?? user.student?.campusId 
+            ?? null
 
-          // Return user object (will be stored in JWT)
+          // Return minimal user object for JWT
           return {
             id: user.userId.toString(),
             email: user.email,
             name: user.name,
             role: user.role,
-            status: (user as any).status || 'ACTIVE',
+            status: user.status || 'ACTIVE',
             campusId: campusId?.toString() || null,
           }
         } catch (error) {
-          console.error("Auth error:", error)
+          logError("Auth error:", error)
           return null
         }
       }
@@ -134,12 +132,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }
   },
   pages: {
-    signIn: "/login", // Custom login page
+    signIn: "/login",
   },
   session: {
-    strategy: "jwt", // Use JWT for sessions
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production",
-  trustHost: true, // Trust the host header (required for Railway/Docker deployments)
+  trustHost: true,
+  // Reduce JWT payload - skip unnecessary claims
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // Match session maxAge
+  },
 })

@@ -11,19 +11,75 @@ const nextConfig = {
         hostname: '*.r2.cloudflarestorage.com',
       },
     ],
+    // Image optimization settings
+    minimumCacheTTL: 60 * 60 * 24, // 24 hours
+    formats: ['image/avif', 'image/webp'],
   },
   transpilePackages: ['three'],
   
   // Performance optimizations
-  reactStrictMode: false, // Disable in dev for faster hot reload (enable for production)
+  reactStrictMode: false, // Disable for production stability
   
-  // Faster builds
+  // Faster builds with SWC
   swcMinify: true,
   
-  // Experimental optimizations (works with both Turbopack and Webpack)
+  // Production optimizations
+  poweredByHeader: false, // Remove X-Powered-By header
+  compress: true, // Enable gzip compression
+  
+  // Experimental optimizations
   experimental: {
-    // Optimize package imports
-    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-label', '@radix-ui/react-slot'],
+    // Optimize package imports - tree-shake these large packages
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      '@radix-ui/react-label',
+      '@radix-ui/react-slot',
+      'recharts',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+    ],
+  },
+  
+  // Logging - reduce noise in production
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
+  
+  // Headers for better caching
+  async headers() {
+    return [
+      {
+        source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/api/auth/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0',
+          },
+        ],
+      },
+    ];
   },
 };
 
