@@ -1,15 +1,12 @@
 # Nixpacks configuration for Railway
 [variables]
-# Ensure NODE_ENV is set during build
 NODE_ENV = "production"
-# Optimize Node.js for production
-NODE_OPTIONS = "--max-old-space-size=512"
 
 [phases.setup]
 nixPkgs = ["nodejs_18", "npm-9_x", "openssl"]
 
 [phases.install]
-cmds = ["npm ci --omit=dev || npm ci"]
+cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]
