@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +31,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingScreen from "@/components/LoadingScreen";
 
-const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { ssr: false });
+const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface Invitation {
   id: string;
@@ -63,6 +66,7 @@ function SupervisorInvitationsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const fetchedRef = useRef(false);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -83,14 +87,12 @@ function SupervisorInvitationsPageContent() {
       router.push("/login");
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
       router.push("/unauthorized");
-    }
-  }, [status, session, router]);
-
-  useEffect(() => {
-    if (status === "authenticated") {
+    } else if (status === "authenticated") {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       fetchInvitations();
     }
-  }, [status]);
+  }, [status, session, router]);
 
   const fetchInvitations = async () => {
     try {

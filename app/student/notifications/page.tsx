@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface Notification {
   id: number;
@@ -36,6 +39,7 @@ interface Notification {
 export default function StudentNotificationsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +65,8 @@ export default function StudentNotificationsPage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated') {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       // Fetch both in parallel for faster loading
       fetchInitialData();
     }
@@ -70,7 +76,7 @@ export default function StudentNotificationsPage() {
     try {
       const [notificationsResponse, profileResponse] = await Promise.all([
         fetch('/api/notifications'),
-        fetch('/api/profile')
+        fetch('/api/page-data?include=profile')
       ]);
 
       if (notificationsResponse.ok) {
@@ -80,24 +86,12 @@ export default function StudentNotificationsPage() {
       
       if (profileResponse.ok) {
         const data = await profileResponse.json();
-        setProfileImage(data.profileImage);
+        setProfileImage(data.profile?.profileImage || null);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile image:', error);
     }
   };
 

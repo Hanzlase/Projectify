@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,9 +14,13 @@ import {
   X, AlertTriangle, CheckCircle2, UserX, Save, Mail,
   ShieldCheck, Loader2
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import NotificationBell from '@/components/NotificationBell';
-import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 import LoadingScreen from '@/components/LoadingScreen';
+
+const CoordinatorSidebar = dynamic(() => import('@/components/CoordinatorSidebar'), {
+  loading: () => null
+});
 
 interface User {
   userId: number;
@@ -39,6 +43,7 @@ interface User {
 export default function ManageUsersPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [loading, setLoading] = useState(true);
   const [campusName, setCampusName] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
@@ -78,38 +83,27 @@ export default function ManageUsersPage() {
       return;
     }
 
-    fetchUsers();
-    fetchProfile();
-  }, [session, status, router]);
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
 
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setCampusName(data.campus || '');
-        setProfileImage(data.profileImage || null);
+    // Fetch users and profile in parallel
+    Promise.all([
+      fetch('/api/coordinator/get-users').then(res => res.ok ? res.json() : null),
+      fetch('/api/page-data?include=profile').then(res => res.ok ? res.json() : null)
+    ]).then(([usersData, profileData]) => {
+      if (usersData?.users) {
+        setUsers(usersData.users);
       }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('/api/coordinator/get-users');
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users || []);
-      } else {
-        console.error('Failed to fetch users');
+      if (profileData?.profile) {
+        setCampusName(profileData.profile.campus || '');
+        setProfileImage(profileData.profile.profileImage || null);
       }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
       setLoading(false);
-    }
-  };
+    }).catch(error => {
+      console.error('Failed to fetch data:', error);
+      setLoading(false);
+    });
+  }, [session, status, router]);
 
   useEffect(() => {
     filterUsers();
@@ -149,6 +143,19 @@ export default function ManageUsersPage() {
   const studentCount = users.filter(u => u.role === 'student').length;
   const supervisorCount = users.filter(u => u.role === 'supervisor').length;
   const suspendedCount = users.filter(u => (u.status || 'ACTIVE') === 'SUSPENDED').length;
+
+  // Refetch users after changes
+  const refetchUsers = async () => {
+    try {
+      const response = await fetch('/api/coordinator/get-users');
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  };
 
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -199,7 +206,7 @@ export default function ManageUsersPage() {
 
       if (res.ok) {
         setActionSuccess('User updated successfully!');
-        await fetchUsers();
+        await refetchUsers();
         setTimeout(() => {
           setShowEditModal(false);
           setSelectedUser(null);
@@ -231,7 +238,7 @@ export default function ManageUsersPage() {
 
         if (res.ok) {
           setActionSuccess('User deleted successfully!');
-          await fetchUsers();
+          await refetchUsers();
           setTimeout(() => {
             setShowActionModal(false);
             setSelectedUser(null);
@@ -252,7 +259,7 @@ export default function ManageUsersPage() {
 
         if (res.ok) {
           setActionSuccess(`User ${actionType === 'suspend' ? 'suspended' : 'activated'} successfully!`);
-          await fetchUsers();
+          await refetchUsers();
           setTimeout(() => {
             setShowActionModal(false);
             setSelectedUser(null);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -18,7 +18,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
   ssr: false,
-  loading: () => <div className="hidden md:block w-56 h-screen bg-white fixed left-0 top-0" />
+  loading: () => null 
 });
 
 interface StudentProfile {
@@ -48,6 +48,7 @@ export default function ViewStudentProfilePage() {
   const router = useRouter();
   const params = useParams();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,6 +57,8 @@ export default function ViewStudentProfilePage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated' && params?.id) {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       fetchProfile();
     }
   }, [status, params?.id, router]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +14,10 @@ import {
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface ReceivedInvitation {
   id: number;
@@ -53,6 +56,7 @@ interface SentInvitation {
 export default function InvitationsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
   const [receivedInvitations, setReceivedInvitations] = useState<ReceivedInvitation[]>([]);
   const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);
@@ -63,6 +67,8 @@ export default function InvitationsPage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated') {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       fetchInvitations();
     }
   }, [status, router]);

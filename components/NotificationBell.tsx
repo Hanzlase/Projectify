@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '@/lib/socket-client';
@@ -9,11 +9,12 @@ function NotificationBell() {
   const router = useRouter();
   const pathname = usePathname();
   const [localUnreadCount, setLocalUnreadCount] = useState(0);
+  const fetchedRef = useRef(false);
   
   // Use socket hook for real-time notifications
   const { unreadCount: socketUnreadCount, isConnected } = useNotifications();
 
-  // Fetch initial count on mount
+  // Fetch initial count on mount - only once
   const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications');
@@ -26,7 +27,10 @@ function NotificationBell() {
     }
   }, []);
 
+  // Initial fetch only once
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
     fetchUnreadCount();
   }, [fetchUnreadCount]);
 
@@ -37,11 +41,16 @@ function NotificationBell() {
     }
   }, [socketUnreadCount]);
 
-  // Fallback polling only when socket is disconnected (every 2 minutes instead of 30 seconds)
+  // Socket.IO handles real-time updates, no polling needed
+  // Only re-fetch if socket reconnects after being disconnected
+  const wasDisconnected = useRef(false);
   useEffect(() => {
     if (!isConnected) {
-      const interval = setInterval(fetchUnreadCount, 120000);
-      return () => clearInterval(interval);
+      wasDisconnected.current = true;
+    } else if (wasDisconnected.current) {
+      // Socket reconnected, refresh the count once
+      wasDisconnected.current = false;
+      fetchUnreadCount();
     }
   }, [isConnected, fetchUnreadCount]);
 

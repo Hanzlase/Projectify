@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -41,7 +41,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface DashboardStats {
   totalGroups: number;
@@ -95,6 +98,7 @@ export default function SupervisorDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const fetchedRef = useRef(false);
 
   // Real-time dashboard stats and supervisor availability via WebSocket
   const { stats: realtimeStats } = useDashboardStats();
@@ -125,22 +129,23 @@ export default function SupervisorDashboard() {
       router.push('/login');
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
       router.push('/unauthorized');
-    } else if (status === 'authenticated') {
+    } else if (status === 'authenticated' && !fetchedRef.current) {
+      fetchedRef.current = true;
       fetchData();
     }
   }, [status, session, router]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       // Fetch both in parallel for faster loading
       const [profileRes, dashboardRes] = await Promise.all([
-        fetch('/api/profile'),
+        fetch('/api/page-data?include=profile'),
         fetch('/api/supervisor/dashboard')
       ]);
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
-        setProfileImage(profileData.profileImage);
+        setProfileImage(profileData.profile?.profileImage || null);
       }
       
       if (dashboardRes.ok) {
@@ -152,7 +157,7 @@ export default function SupervisorDashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const getGreeting = () => {
     const hour = currentTime.getHours();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -9,14 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, UserPlus, User, Hash, Mail, FileUp, ArrowLeft, RefreshCw, Download, Info, CheckCircle2, XCircle, FileSpreadsheet, Search, MessageCircle, GraduationCap } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import * as XLSX from 'xlsx';
-import CoordinatorSidebar from '@/components/CoordinatorSidebar';
+
+const CoordinatorSidebar = dynamic(() => import('@/components/CoordinatorSidebar'), {
+  loading: () => null
+});
 
 export default function AddStudentPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [campusName, setCampusName] = useState<string>('');
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
@@ -54,20 +59,19 @@ export default function AddStudentPage() {
       return;
     }
 
-    // Fetch campus name from profile
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setCampusName(data.campus || '');
-          setProfileImage(data.profileImage || null);
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
+    // Fetch profile from combined endpoint
+    fetch('/api/page-data?include=profile')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.profile) {
+          setCampusName(data.profile.campus || '');
+          setProfileImage(data.profile.profileImage || null);
         }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
-    };
-    fetchProfile();
+      })
+      .catch(error => console.error('Failed to fetch profile:', error));
   }, [session, status, router]);
 
   const handleSingleSubmit = async (e: React.FormEvent) => {

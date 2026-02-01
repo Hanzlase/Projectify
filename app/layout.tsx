@@ -5,7 +5,11 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SocketProvider } from "@/components/SocketProvider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+});
 
 export const metadata: Metadata = {
   title: "Projectify - Final Year Project Management",

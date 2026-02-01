@@ -147,7 +147,7 @@ function ChatPageContent() {
     try {
       const [chatResponse, profileResponse] = await Promise.all([
         fetch('/api/chat'),
-        fetch('/api/profile')
+        fetch('/api/page-data?include=profile')
       ]);
 
       if (chatResponse.ok) {
@@ -158,7 +158,7 @@ function ChatPageContent() {
       
       if (profileResponse.ok) {
         const data = await profileResponse.json();
-        setProfileImage(data.profileImage || null);
+        setProfileImage(data.profile?.profileImage || null);
       }
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
@@ -177,18 +177,6 @@ function ChatPageContent() {
       }
     } catch (error) {
       console.error('Failed to fetch conversations:', error);
-    }
-  };
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage || null);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
     }
   };
 

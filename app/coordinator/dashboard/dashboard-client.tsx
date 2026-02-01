@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,10 +12,15 @@ import {
   TrendingUp, BarChart3, User, Play, Pause, RotateCcw
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
-import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useDashboardStats } from '@/lib/socket-client';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import dynamic from 'next/dynamic';
+
+const CoordinatorSidebar = dynamic(() => import('@/components/CoordinatorSidebar'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface User {
   id: string;
@@ -64,6 +69,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const fetchedRef = useRef(false);
 
   // Real-time dashboard stats via WebSocket
   const { stats: realtimeStats } = useDashboardStats();
@@ -148,12 +154,15 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   };
 
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    
     const fetchAllData = async () => {
       try {
         // Fetch both in parallel for faster loading
         const [dashboardResponse, profileResponse] = await Promise.all([
           fetch('/api/coordinator/dashboard'),
-          fetch('/api/profile')
+          fetch('/api/page-data?include=profile')
         ]);
 
         if (dashboardResponse.ok) {
@@ -163,7 +172,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
         
         if (profileResponse.ok) {
           const data = await profileResponse.json();
-          setProfileImage(data.profileImage);
+          setProfileImage(data.profile?.profileImage || null);
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);

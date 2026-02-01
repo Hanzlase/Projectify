@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, memo } from 'react';
+import { useEffect, useState, useCallback, memo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -30,7 +30,10 @@ import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 import { useSupervisorAvailability, useProjectStatus } from '@/lib/socket-client';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface GroupMember {
   id: number;
@@ -81,6 +84,7 @@ export default function StudentDashboard() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const fetchedRef = useRef(false);
 
   // Real-time supervisor availability and project status via WebSocket
   const { availabilityMap: supervisorAvailability } = useSupervisorAvailability();
@@ -154,15 +158,18 @@ export default function StudentDashboard() {
       router.push('/login');
       return;
     }
+    if (fetchedRef.current) return;
+    
     // Fetch both in parallel for faster loading
+    fetchedRef.current = true;
     fetchAllData();
   }, [status, router]);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     try {
       const [dashboardResponse, profileResponse] = await Promise.all([
         fetch('/api/student/dashboard'),
-        fetch('/api/profile')
+        fetch('/api/page-data?include=profile')
       ]);
 
       if (dashboardResponse.ok) {
@@ -172,14 +179,14 @@ export default function StudentDashboard() {
       
       if (profileResponse.ok) {
         const data = await profileResponse.json();
-        setProfileImage(data.profileImage);
+        setProfileImage(data.profile?.profileImage || null);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleLogout = async () => {
     const { signOut } = await import('next-auth/react');

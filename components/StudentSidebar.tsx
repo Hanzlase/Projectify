@@ -18,6 +18,7 @@ import {
   X,
   UserPlus,
   AlertTriangle,
+  Building2,
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -122,6 +123,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
     { icon: FolderKanban, label: 'Projects', path: '/student/projects' },
+    { icon: Building2, label: 'Industry Projects', path: '/student/industrial-projects' },
     { icon: Users, label: 'Supervisors', path: '/student/browse-supervisors' },
     { icon: User, label: 'Students', path: '/student/browse-students' },
     { icon: UserPlus, label: 'Invitations', path: '/student/invitations' },

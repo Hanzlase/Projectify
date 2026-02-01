@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -15,7 +15,10 @@ import {
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface SupervisorProfile {
   userId: number;
@@ -43,6 +46,7 @@ export default function ViewSupervisorProfilePage() {
   const router = useRouter();
   const params = useParams();
   const { status } = useSession();
+  const fetchedRef = useRef(false);
   const [profile, setProfile] = useState<SupervisorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -51,6 +55,8 @@ export default function ViewSupervisorProfilePage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated' && params?.id) {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       fetchProfile();
     }
   }, [status, params?.id, router]);

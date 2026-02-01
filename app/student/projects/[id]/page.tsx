@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -17,7 +17,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface FeasibilityReport {
   overallFeasibility: 'high' | 'medium' | 'low';
@@ -93,9 +96,16 @@ export default function ProjectDetailPage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated' && projectId) {
-      fetchProject();
-      fetchProfileImage();
-      checkPermissionStatus();
+      // Fetch all data in parallel
+      Promise.all([
+        fetchProject(),
+        checkPermissionStatus(),
+        fetch('/api/page-data?include=profile').then(res => res.ok ? res.json() : null)
+      ]).then(([_, __, profileData]) => {
+        if (profileData?.profile) {
+          setProfileImage(profileData.profile.profileImage || null);
+        }
+      });
     }
   }, [status, router, projectId]);
 
@@ -109,18 +119,6 @@ export default function ProjectDetailPage() {
       }
     } catch (error) {
       console.error('Failed to check permission status:', error);
-    }
-  };
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile image:', error);
     }
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,7 +24,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingScreen from "@/components/LoadingScreen";
 
-const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { ssr: false });
+const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface GroupMember {
   userId: number;
@@ -48,6 +51,7 @@ interface Group {
 export default function SupervisorGroupsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const fetchedRef = useRef(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,14 +62,12 @@ export default function SupervisorGroupsPage() {
       router.push("/login");
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
       router.push("/unauthorized");
-    }
-  }, [status, session, router]);
-
-  useEffect(() => {
-    if (status === "authenticated") {
+    } else if (status === "authenticated") {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
       fetchGroups();
     }
-  }, [status]);
+  }, [status, session, router]);
 
   const fetchGroups = async () => {
     try {

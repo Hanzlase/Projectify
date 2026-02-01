@@ -15,7 +15,10 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface GroupMember {
   studentId: number;

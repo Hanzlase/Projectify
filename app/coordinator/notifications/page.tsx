@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -35,9 +35,13 @@ import {
   Reply,
   Loader2
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import NotificationBell from '@/components/NotificationBell';
-import CoordinatorSidebar from '@/components/CoordinatorSidebar';
 import LoadingScreen from '@/components/LoadingScreen';
+
+const CoordinatorSidebar = dynamic(() => import('@/components/CoordinatorSidebar'), {
+  loading: () => null
+});
 
 interface User {
   id: number;
@@ -61,6 +65,7 @@ interface SentNotification {
 export default function NotificationsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'inbox' | 'create' | 'sent'>('inbox');
   
   // Create notification state
@@ -106,24 +111,21 @@ export default function NotificationsPage() {
       return;
     }
 
-    // Fetch users, sent notifications, and received notifications
-    fetchUsers();
-    fetchSentNotifications();
-    fetchReceivedNotifications();
-    fetchProfileImage();
-  }, [session, status, router]);
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
 
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage || null);
+    // Fetch all data in parallel
+    Promise.all([
+      fetchUsers(),
+      fetchSentNotifications(),
+      fetchReceivedNotifications(),
+      fetch('/api/page-data?include=profile').then(res => res.ok ? res.json() : null)
+    ]).then(([_, __, ___, profileData]) => {
+      if (profileData?.profile) {
+        setProfileImage(profileData.profile.profileImage || null);
       }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
-    }
-  };
+    });
+  }, [session, status, router]);
 
   const fetchUsers = async () => {
     try {

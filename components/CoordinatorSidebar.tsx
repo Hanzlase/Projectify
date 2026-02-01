@@ -17,6 +17,7 @@ import {
   Bell,
   ClipboardList,
   AlertTriangle,
+  Building2,
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -78,6 +79,7 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
     { icon: UserPlus, label: 'Add Student', path: '/coordinator/add-student' },
     { icon: UserPlus, label: 'Add Supervisor', path: '/coordinator/add-supervisor' },
     { icon: Users, label: 'Manage Users', path: '/coordinator/manage-users' },
+    { icon: Building2, label: 'Industry Projects', path: '/coordinator/industrial-projects' },
     { icon: Bell, label: 'Notifications', path: '/coordinator/notifications' },
     { icon: MessageCircle, label: 'Chat', path: '/coordinator/chat' },
   ], []);

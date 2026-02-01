@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +17,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface Student {
   id: number;
@@ -40,6 +43,7 @@ type ViewMode = 'grid' | 'list';
 export default function SupervisorStudentsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,36 +61,27 @@ export default function SupervisorStudentsPage() {
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
       router.push('/unauthorized');
     } else if (status === 'authenticated') {
-      fetchStudents();
-      fetchProfileImage();
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
+      
+      // Fetch both in parallel
+      Promise.all([
+        fetch('/api/coordinator/get-users?role=student').then(res => res.ok ? res.json() : null),
+        fetch('/api/page-data?include=profile').then(res => res.ok ? res.json() : null)
+      ]).then(([studentsData, profileData]) => {
+        if (studentsData?.users) {
+          setStudents(studentsData.users);
+        }
+        if (profileData?.profile) {
+          setProfileImage(profileData.profile.profileImage || null);
+        }
+        setLoading(false);
+      }).catch(error => {
+        console.error('Failed to fetch data:', error);
+        setLoading(false);
+      });
     }
   }, [status, router, session]);
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile image:', error);
-    }
-  };
-
-  const fetchStudents = async () => {
-    try {
-      const response = await fetch('/api/coordinator/get-users?role=student');
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.users || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch students:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Get unique batches and skills for filtering
   const uniqueBatches = useMemo(() => {

@@ -18,7 +18,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 interface Project {
   projectId: number;
@@ -63,6 +66,7 @@ function SupervisorProjectsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
+  const fetchedRef = useRef(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'my' | 'public'>('my');
@@ -106,8 +110,19 @@ function SupervisorProjectsPageContent() {
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
       router.push('/unauthorized');
     } else if (status === 'authenticated') {
+      if (!fetchedRef.current) {
+        fetchedRef.current = true;
+        // Fetch profile once on mount
+        fetch('/api/page-data?include=profile')
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data?.profile) {
+              setProfileImage(data.profile.profileImage || null);
+            }
+          })
+          .catch(err => console.error('Failed to fetch profile:', err));
+      }
       fetchProjects();
-      fetchProfileImage();
     }
   }, [status, router, session, filter, categoryFilter]);
 
@@ -117,18 +132,6 @@ function SupervisorProjectsPageContent() {
       router.replace('/supervisor/projects', { scroll: false });
     }
   }, [searchParams, router]);
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile image:', error);
-    }
-  };
 
   const fetchProjects = async () => {
     setLoading(true);

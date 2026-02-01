@@ -18,7 +18,10 @@ import { EmojiClickData, Theme } from 'emoji-picker-react';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useChat } from '@/lib/socket-client';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 interface OtherUser {
@@ -148,6 +151,13 @@ function ChatPageContent() {
   const [searchProjectQuery, setSearchProjectQuery] = useState('');
   const [searchSupervisorQuery, setSearchSupervisorQuery] = useState('');
   
+  // Industrial project group creation
+  const [selectedIndustrialProject, setSelectedIndustrialProject] = useState<{
+    id: number;
+    title: string;
+    description: string;
+  } | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -189,6 +199,25 @@ function ChatPageContent() {
       const recipientId = searchParams?.get('recipientId');
       if (recipientId) {
         startOrOpenConversation(parseInt(recipientId));
+      }
+      
+      // Check if creating group for industrial project
+      const industrialProjectId = searchParams?.get('createGroupForIndustrial');
+      if (industrialProjectId) {
+        // Fetch the industrial project details
+        fetch(`/api/coordinator/industrial-projects/${industrialProjectId}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) {
+              setSelectedIndustrialProject({
+                id: data.id,
+                title: data.title,
+                description: data.description
+              });
+              setShowCreateGroupModal(true);
+            }
+          })
+          .catch(console.error);
       }
     }
   }, [status, router, searchParams]);
@@ -728,6 +757,65 @@ function ChatPageContent() {
 
   // Create group with project selection
   const createGroup = async () => {
+    // If creating group for industrial project
+    if (selectedIndustrialProject) {
+      if (!selectedSupervisor) {
+        alert('Please select a supervisor');
+        return;
+      }
+
+      setCreatingGroup(true);
+      try {
+        const response = await fetch('/api/groups/industrial', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            industrialProjectId: selectedIndustrialProject.id,
+            studentUserIds: selectedMembers.map(m => m.userId),
+            supervisorUserId: selectedSupervisor.userId
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setShowCreateGroupModal(false);
+          setSelectedIndustrialProject(null);
+          setSelectedProject(null);
+          setSelectedMembers([]);
+          setSelectedSupervisor(null);
+          setSearchStudentQuery('');
+          setSearchProjectQuery('');
+          setSearchSupervisorQuery('');
+          setAvailableStudents([]);
+          setAvailableProjects([]);
+          setAvailableSupervisors([]);
+          setHasCreatedGroup(true);
+          setHasGroup(true);
+          fetchConversations();
+          
+          // Remove the query param
+          router.replace('/student/chat');
+          
+          // Select the new group conversation
+          if (data.group?.conversationId) {
+            selectConversation(data.group.conversationId);
+          }
+          
+          alert(data.message || 'Group created for industrial project! Invitations sent.');
+        } else {
+          const error = await response.json();
+          alert(error.error || 'Failed to create group');
+        }
+      } catch (error) {
+        console.error('Failed to create group:', error);
+        alert('Failed to create group');
+      } finally {
+        setCreatingGroup(false);
+      }
+      return;
+    }
+
+    // Regular project group creation
     if (!selectedProject) {
       alert('Please select a project');
       return;
@@ -1721,11 +1809,21 @@ function ChatPageContent() {
               {/* Modal Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Create FYP Group</h2>
-                  <p className="text-sm text-gray-500 mt-0.5">Create a group for your FYP project collaboration</p>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {selectedIndustrialProject ? 'Create Group for Industrial Project' : 'Create FYP Group'}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {selectedIndustrialProject 
+                      ? 'Create a group to work on this approved industrial project'
+                      : 'Create a group for your FYP project collaboration'}
+                  </p>
                 </div>
                 <button
-                  onClick={() => setShowCreateGroupModal(false)}
+                  onClick={() => {
+                    setShowCreateGroupModal(false);
+                    setSelectedIndustrialProject(null);
+                    router.replace('/student/chat');
+                  }}
                   className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500" />
@@ -1734,7 +1832,25 @@ function ChatPageContent() {
               
               {/* Modal Body */}
               <div className="p-6 space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
-                {/* Select Project */}
+                
+                {/* Industrial Project Info (when creating for industrial project) */}
+                {selectedIndustrialProject && (
+                  <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/10 to-emerald-500/10 rounded-xl border border-[#1a5d1a]/20">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-emerald-600 rounded-lg flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{selectedIndustrialProject.title}</h3>
+                        <p className="text-xs text-[#1a5d1a] font-medium">Industrial Project</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">{selectedIndustrialProject.description}</p>
+                  </div>
+                )}
+
+                {/* Select Project (hidden when creating for industrial project) */}
+                {!selectedIndustrialProject && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Select Project *
@@ -1861,6 +1977,7 @@ function ChatPageContent() {
                     <p className="text-sm text-gray-500 text-center py-4">No available projects found</p>
                   )}
                 </div>
+                )}
                 
                 {/* Select Supervisor */}
                 <div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -9,7 +9,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 
 import {
   ArrowLeft,
@@ -106,6 +109,7 @@ function SimilarityCheckPageContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
+  const fetchedRef = useRef(false);
   
   const [result, setResult] = useState<SimilarityResult | null>(null);
   const [pendingProject, setPendingProject] = useState<any>(null);
@@ -127,8 +131,18 @@ function SimilarityCheckPageContent() {
       return;
     }
 
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
     // Fetch profile image
-    fetchProfileImage();
+    fetch('/api/page-data?include=profile')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.profile) {
+          setProfileImage(data.profile.profileImage || null);
+        }
+      })
+      .catch(err => console.error('Failed to fetch profile:', err));
 
     // Get the similarity result from sessionStorage
     const storedResult = sessionStorage.getItem('similarityResult');
@@ -145,18 +159,6 @@ function SimilarityCheckPageContent() {
       router.push('/student/projects');
     }
   }, [status, router]);
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
-    }
-  };
 
   const handleLogout = async () => {
     const { signOut } = await import('next-auth/react');

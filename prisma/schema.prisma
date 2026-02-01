@@ -7,113 +7,310 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  userId       Int        @id @default(autoincrement()) @map("user_id")
-  name         String     @db.VarChar(255)
-  email        String     @unique @db.VarChar(255)
-  passwordHash String     @db.VarChar(255) @map("password_hash")
-  role         UserRole
-  status       UserStatus @default(ACTIVE)
-  profileImage String?    @db.VarChar(500) @map("profile_image")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  coordinator  FYPCoordinator?
-  supervisor   FYPSupervisor?
-  student      Student?
-
-  // Index for faster login lookups
-  @@index([email, status])
-  @@map("users")
+model campuses {
+  campus_id        Int                @id @default(autoincrement())
+  name             String             @db.VarChar(255)
+  location         String?            @db.VarChar(255)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  fyp_coordinators fyp_coordinators[]
+  fyp_supervisors  fyp_supervisors[]
+  students         students[]
 }
 
-model Campus {
-  campusId     Int      @id @default(autoincrement()) @map("campus_id")
-  name         String   @db.VarChar(255)
-  location     String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model conversation_participants {
+  id              Int           @id @default(autoincrement())
+  conversation_id Int
+  user_id         Int
+  last_read_at    DateTime?
+  createdAt       DateTime      @default(now())
+  conversations   conversations @relation(fields: [conversation_id], references: [conversation_id], onDelete: Cascade)
 
-  coordinators FYPCoordinator[]
-  supervisors  FYPSupervisor[]
-  students     Student[]
-
-  @@map("campuses")
+  @@unique([conversation_id, user_id])
+  @@index([user_id])
 }
 
-model FYPCoordinator {
-  coordinatorId Int      @id @default(autoincrement()) @map("coordinator_id")
-  userId        Int      @unique @map("user_id")
-  campusId      Int      @map("campus_id")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus @relation(fields: [campusId], references: [campusId])
-
-  @@map("fyp_coordinators")
+model conversations {
+  conversation_id           Int                         @id @default(autoincrement())
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  conversation_participants conversation_participants[]
+  messages                  messages[]
 }
 
-model FYPSupervisor {
-  supervisorId   Int      @id @default(autoincrement()) @map("supervisor_id")
-  userId         Int      @unique @map("user_id")
-  campusId       Int      @map("campus_id")
-  description    String?  @db.Text
-  specialization String?  @db.VarChar(255)
-  domains        String?  @db.Text
-  skills         String?  @db.Text
-  achievements   String?  @db.Text
-  maxGroups      Int      @default(7) @map("max_groups")
-  totalGroups    Int      @default(0) @map("total_groups")
-  revertedBy     Int?     @map("reverted_by")
+model fyp_coordinators {
+  coordinator_id Int      @id @default(autoincrement())
+  user_id        Int      @unique
+  campus_id      Int
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus @relation(fields: [campusId], references: [campusId])
-
-  @@index([campusId])
-  @@map("fyp_supervisors")
+  updatedAt      DateTime
+  campuses       campuses @relation(fields: [campus_id], references: [campus_id])
+  users          users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
-model Group {
-  groupId      Int      @id @default(autoincrement()) @map("group_id")
-  groupName    String?  @db.VarChar(255) @map("group_name")
-  groupImage   String?  @db.Text @map("group_image") // Group profile image URL
-  projectId    Int?     @unique @map("project_id") // The project this group is working on
-  createdById  Int      @map("created_by_id") // Student who created the group
-  supervisorId Int?     @map("supervisor_id") // Assigned supervisor user ID (null until accepted)
-  isFull       Boolean  @default(false) @map("is_full") // True when 3 students + 1 supervisor
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model fyp_supervisors {
+  supervisor_id  Int      @id @default(autoincrement())
+  user_id        Int      @unique
+  campus_id      Int
+  description    String?
+  specialization String?  @db.VarChar(255)
+  max_groups     Int      @default(7)
+  total_groups   Int      @default(0)
+  reverted_by    Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  achievements   String?
+  domains        String?
+  skills         String?
+  campuses       campuses @relation(fields: [campus_id], references: [campus_id])
+  users          users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
-  students Student[]
-  groupChats GroupChat[]
-  groupInvitations GroupInvitation[]
-
-  @@index([supervisorId])
-  @@index([createdById])
-  @@map("groups")
+  @@index([campus_id])
 }
 
-// Group Invitations (for students and supervisors to join groups)
-model GroupInvitation {
+model group_chats {
+  id              Int      @id @default(autoincrement())
+  group_id        Int
+  conversation_id Int      @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  groups          groups   @relation(fields: [group_id], references: [group_id], onDelete: Cascade)
+}
+
+model group_invitations {
   id           Int                   @id @default(autoincrement())
-  groupId      Int                   @map("group_id")
-  inviterId    Int                   @map("inviter_id") // User who sent the invite
-  inviteeId    Int                   @map("invitee_id") // User being invited
-  inviteeRole  String                @db.VarChar(20) @map("invitee_role") // 'student' or 'supervisor'
+  group_id     Int
+  inviter_id   Int
+  invitee_id   Int
+  invitee_role String                @db.VarChar(20)
   status       GroupInvitationStatus @default(pending)
-  message      String?               @db.Text
+  message      String?
   createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
+  updatedAt    DateTime
+  groups       groups                @relation(fields: [group_id], references: [group_id], onDelete: Cascade)
 
-  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  @@unique([group_id, invitee_id])
+  @@index([invitee_id, status])
+  @@index([inviter_id])
+}
 
-  @@unique([groupId, inviteeId])
-  @@index([inviteeId, status])
-  @@index([inviterId])
-  @@map("group_invitations")
+model groups {
+  group_id          Int                 @id @default(autoincrement())
+  group_name        String?             @db.VarChar(255)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  created_by_id     Int
+  supervisor_id     Int?
+  is_full           Boolean             @default(false)
+  project_id        Int?                @unique
+  group_image       String?
+  group_chats       group_chats[]
+  group_invitations group_invitations[]
+  students          students[]
+
+  @@index([created_by_id])
+  @@index([supervisor_id])
+}
+
+model industrial_project_requests {
+  id                    Int                            @id @default(autoincrement())
+  industrial_project_id Int
+  requester_id          Int
+  requester_role        String                         @db.VarChar(20)
+  group_id              Int?
+  message               String?
+  status                IndustrialProjectRequestStatus @default(pending)
+  responded_at          DateTime?
+  createdAt             DateTime                       @default(now())
+  updatedAt             DateTime
+  industrial_projects   industrial_projects            @relation(fields: [industrial_project_id], references: [id], onDelete: Cascade)
+
+  @@unique([industrial_project_id, requester_id])
+  @@index([requester_id])
+  @@index([status])
+}
+
+model industrial_projects {
+  id                          Int                           @id @default(autoincrement())
+  title                       String                        @db.VarChar(255)
+  description                 String
+  status                      IndustrialProjectStatus       @default(available)
+  uploaded_by_id              Int
+  campus_id                   Int
+  assigned_group_id           Int?                          @unique
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime
+  features                    String?
+  tech_stack                  String?
+  thumbnail_url               String?                       @db.VarChar(500)
+  industrial_project_requests industrial_project_requests[]
+
+  @@index([campus_id])
+  @@index([status])
+  @@index([uploaded_by_id])
+}
+
+model invitations {
+  invitation_id                              Int              @id @default(autoincrement())
+  sender_id                                  Int
+  receiver_id                                Int
+  message                                    String?
+  status                                     InvitationStatus @default(pending)
+  type                                       InvitationType   @default(group_invite)
+  createdAt                                  DateTime         @default(now())
+  updatedAt                                  DateTime
+  students_invitations_receiver_idTostudents students         @relation("invitations_receiver_idTostudents", fields: [receiver_id], references: [student_id], onDelete: Cascade)
+  students_invitations_sender_idTostudents   students         @relation("invitations_sender_idTostudents", fields: [sender_id], references: [student_id], onDelete: Cascade)
+
+  @@unique([sender_id, receiver_id, type])
+  @@index([receiver_id, status])
+  @@index([sender_id])
+}
+
+model messages {
+  message_id      Int           @id @default(autoincrement())
+  conversation_id Int
+  sender_id       Int
+  content         String
+  is_read         Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  attachment_name String?       @db.VarChar(255)
+  attachment_type String?       @db.VarChar(50)
+  attachment_url  String?       @db.VarChar(500)
+  conversations   conversations @relation(fields: [conversation_id], references: [conversation_id], onDelete: Cascade)
+
+  @@index([conversation_id, createdAt])
+  @@index([conversation_id, is_read])
+  @@index([sender_id])
+}
+
+model notification_recipients {
+  id              Int           @id @default(autoincrement())
+  notification_id Int
+  user_id         Int
+  is_read         Boolean       @default(false)
+  read_at         DateTime?
+  createdAt       DateTime      @default(now())
+  notifications   notifications @relation(fields: [notification_id], references: [notification_id], onDelete: Cascade)
+
+  @@unique([notification_id, user_id])
+  @@index([user_id, createdAt])
+  @@index([user_id, is_read])
+}
+
+model notifications {
+  notification_id         Int                       @id @default(autoincrement())
+  title                   String                    @db.VarChar(255)
+  message                 String
+  type                    NotificationType          @default(general)
+  target_type             NotificationTarget
+  created_by_id           Int?
+  campus_id               Int
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime
+  notification_recipients notification_recipients[]
+
+  @@index([campus_id])
+  @@index([createdAt])
+}
+
+model pinned_conversations {
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  conversation_id Int
+  pinnedAt        DateTime @default(now())
+
+  @@unique([user_id, conversation_id])
+}
+
+model project_permission_requests {
+  id           Int                     @id @default(autoincrement())
+  project_id   Int
+  requester_id Int
+  owner_id     Int
+  group_id     Int?
+  message      String?
+  status       ProjectPermissionStatus @default(pending)
+  responded_at DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime
+
+  @@unique([project_id, requester_id])
+}
+
+model projects {
+  project_id         Int               @id @default(autoincrement())
+  title              String            @db.VarChar(255)
+  description        String
+  category           String?           @db.VarChar(100)
+  status             ProjectStatus     @default(in_progress)
+  visibility         ProjectVisibility @default(private)
+  thumbnail_url      String?           @db.VarChar(500)
+  document_url       String?           @db.VarChar(500)
+  repository_url     String?           @db.VarChar(500)
+  demo_url           String?           @db.VarChar(500)
+  created_by_id      Int
+  group_id           Int?
+  campus_id          Int
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime
+  abstract_text      String?
+  document_name      String?           @db.VarChar(255)
+  embedding_id       String?           @db.VarChar(100)
+  is_unique          Boolean           @default(false)
+  similarity_score   Float?
+  feasibility_report Json?
+
+  @@index([campus_id])
+  @@index([campus_id, visibility])
+  @@index([created_by_id])
+  @@index([group_id])
+  @@index([status])
+}
+
+model students {
+  student_id                                    Int           @id @default(autoincrement())
+  user_id                                       Int           @unique
+  roll_number                                   String        @unique @db.VarChar(50)
+  batch                                         String?       @db.VarChar(20)
+  campus_id                                     Int
+  group_id                                      Int?
+  createdAt                                     DateTime      @default(now())
+  updatedAt                                     DateTime
+  bio                                           String?
+  github                                        String?       @db.VarChar(255)
+  gpa                                           Float?
+  interests                                     String?
+  linkedin                                      String?       @db.VarChar(255)
+  skills                                        String?
+  is_group_admin                                Boolean       @default(false)
+  invitations_invitations_receiver_idTostudents invitations[] @relation("invitations_receiver_idTostudents")
+  invitations_invitations_sender_idTostudents   invitations[] @relation("invitations_sender_idTostudents")
+  campuses                                      campuses      @relation(fields: [campus_id], references: [campus_id])
+  groups                                        groups?       @relation(fields: [group_id], references: [group_id])
+  users                                         users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([campus_id, group_id])
+  @@index([campus_id])
+  @@index([group_id])
+}
+
+model users {
+  user_id          Int               @id @default(autoincrement())
+  name             String            @db.VarChar(255)
+  email            String            @unique @db.VarChar(255)
+  password_hash    String            @db.VarChar(255)
+  role             UserRole
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  profile_image    String?           @db.VarChar(500)
+  status           UserStatus        @default(ACTIVE)
+  fyp_coordinators fyp_coordinators?
+  fyp_supervisors  fyp_supervisors?
+  students         students?
+
+  @@index([email, status])
 }
 
 enum GroupInvitationStatus {
@@ -123,78 +320,16 @@ enum GroupInvitationStatus {
   cancelled
 }
 
-// Group Chat for FYP Groups (visible in chat section)
-model GroupChat {
-  id             Int      @id @default(autoincrement())
-  groupId        Int      @map("group_id")
-  conversationId Int      @unique @map("conversation_id") // Links to Conversation for messages
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
-
-  @@map("group_chats")
+enum IndustrialProjectRequestStatus {
+  pending
+  approved
+  rejected
 }
 
-// Pinned Conversations for users
-model PinnedConversation {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @map("user_id")
-  conversationId Int      @map("conversation_id")
-  pinnedAt       DateTime @default(now())
-
-  @@unique([userId, conversationId])
-  @@map("pinned_conversations")
-}
-
-model Student {
-  studentId    Int      @id @default(autoincrement()) @map("student_id")
-  userId       Int      @unique @map("user_id")
-  rollNumber   String   @unique @db.VarChar(50) @map("roll_number")
-  batch        String?  @db.VarChar(20)
-  campusId     Int      @map("campus_id")
-  groupId      Int?     @map("group_id")
-  isGroupAdmin Boolean  @default(false) @map("is_group_admin") // Whether student is admin of their group
-  gpa          Float?
-  skills       String?  @db.Text
-  interests    String?  @db.Text
-  bio          String?  @db.Text
-  linkedin     String?  @db.VarChar(255)
-  github       String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user   User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus  @relation(fields: [campusId], references: [campusId])
-  group  Group?  @relation(fields: [groupId], references: [groupId])
-  
-  sentInvitations     Invitation[] @relation("SentInvitations")
-  receivedInvitations Invitation[] @relation("ReceivedInvitations")
-
-  @@index([campusId])
-  @@index([groupId])
-  @@index([campusId, groupId])
-  @@map("students")
-}
-
-// Student-to-Student Invitations (Group/Team Invitations)
-model Invitation {
-  invitationId  Int              @id @default(autoincrement()) @map("invitation_id")
-  senderId      Int              @map("sender_id")
-  receiverId    Int              @map("receiver_id")
-  message       String?          @db.Text
-  status        InvitationStatus @default(pending)
-  type          InvitationType   @default(group_invite)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-
-  sender   Student @relation("SentInvitations", fields: [senderId], references: [studentId], onDelete: Cascade)
-  receiver Student @relation("ReceivedInvitations", fields: [receiverId], references: [studentId], onDelete: Cascade)
-
-  @@unique([senderId, receiverId, type])
-  @@index([receiverId, status])
-  @@index([senderId])
-  @@map("invitations")
+enum IndustrialProjectStatus {
+  available
+  booked
+  completed
 }
 
 enum InvitationStatus {
@@ -209,38 +344,11 @@ enum InvitationType {
   collaboration
 }
 
-model Notification {
-  notificationId Int      @id @default(autoincrement()) @map("notification_id")
-  title          String   @db.VarChar(255)
-  message        String   @db.Text
-  type           NotificationType @default(general)
-  targetType     NotificationTarget @map("target_type")
-  createdById    Int?     @map("created_by_id")
-  campusId       Int      @map("campus_id")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  recipients NotificationRecipient[]
-
-  @@index([campusId])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-model NotificationRecipient {
-  id             Int      @id @default(autoincrement())
-  notificationId Int      @map("notification_id")
-  userId         Int      @map("user_id")
-  isRead         Boolean  @default(false) @map("is_read")
-  readAt         DateTime? @map("read_at")
-  createdAt      DateTime @default(now())
-
-  notification Notification @relation(fields: [notificationId], references: [notificationId], onDelete: Cascade)
-
-  @@unique([notificationId, userId])
-  @@index([userId, isRead])
-  @@index([userId, createdAt])
-  @@map("notification_recipients")
+enum NotificationTarget {
+  all_users
+  all_students
+  all_supervisors
+  specific_users
 }
 
 enum NotificationType {
@@ -250,102 +358,10 @@ enum NotificationType {
   reminder
 }
 
-enum NotificationTarget {
-  all_users
-  all_students
-  all_supervisors
-  specific_users
-}
-
-enum UserRole {
-  student
-  supervisor
-  coordinator
-}
-
-enum UserStatus {
-  ACTIVE
-  SUSPENDED
-  REMOVED
-}
-
-// Chat/Messaging System
-model Conversation {
-  conversationId Int      @id @default(autoincrement()) @map("conversation_id")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  participants ConversationParticipant[]
-  messages     Message[]
-
-  @@map("conversations")
-}
-
-model ConversationParticipant {
-  id             Int      @id @default(autoincrement())
-  conversationId Int      @map("conversation_id")
-  userId         Int      @map("user_id")
-  lastReadAt     DateTime? @map("last_read_at")
-  createdAt      DateTime @default(now())
-
-  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
-
-  @@unique([conversationId, userId])
-  @@index([userId])
-  @@map("conversation_participants")
-}
-
-model Message {
-  messageId      Int      @id @default(autoincrement()) @map("message_id")
-  conversationId Int      @map("conversation_id")
-  senderId       Int      @map("sender_id")
-  content        String   @db.Text
-  isRead         Boolean  @default(false) @map("is_read")
-  // Attachment fields
-  attachmentUrl  String?  @db.VarChar(500) @map("attachment_url")
-  attachmentType String?  @db.VarChar(50) @map("attachment_type") // image, file
-  attachmentName String?  @db.VarChar(255) @map("attachment_name")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
-
-  @@index([conversationId, createdAt])
-  @@index([senderId])
-  @@index([conversationId, isRead])
-  @@map("messages")
-}
-
-// Projects System
-model Project {
-  projectId     Int            @id @default(autoincrement()) @map("project_id")
-  title         String         @db.VarChar(255)
-  description   String         @db.Text
-  abstractText  String?        @db.Text @map("abstract_text") // Extracted from document
-  category      String?        @db.VarChar(100)
-  status        ProjectStatus  @default(in_progress)
-  visibility    ProjectVisibility @default(private)
-  thumbnailUrl  String?        @db.VarChar(500) @map("thumbnail_url")
-  documentUrl   String?        @db.VarChar(500) @map("document_url")
-  documentName  String?        @db.VarChar(255) @map("document_name")
-  repositoryUrl String?        @db.VarChar(500) @map("repository_url")
-  demoUrl       String?        @db.VarChar(500) @map("demo_url")
-  embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Qdrant point ID
-  isUnique      Boolean        @default(false) @map("is_unique") // True if passed similarity check
-  similarityScore Float?       @map("similarity_score") // Score when checked
-  feasibilityReport Json?       @map("feasibility_report") // JSON stored feasibility report
-  createdById   Int            @map("created_by_id")
-  groupId       Int?           @map("group_id")
-  campusId      Int            @map("campus_id")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@index([campusId])
-  @@index([campusId, visibility])
-  @@index([groupId])
-  @@index([createdById])
-  @@index([status])
-  @@map("projects")
+enum ProjectPermissionStatus {
+  pending
+  approved
+  rejected
 }
 
 enum ProjectStatus {
@@ -361,25 +377,14 @@ enum ProjectVisibility {
   private
 }
 
-// Project Permission Requests (for supervisor-uploaded projects)
-model ProjectPermissionRequest {
-  id           Int                        @id @default(autoincrement())
-  projectId    Int                        @map("project_id")
-  requesterId  Int                        @map("requester_id") // Student user ID requesting permission
-  ownerId      Int                        @map("owner_id") // Supervisor user ID who uploaded the project
-  groupId      Int?                       @map("group_id") // Student's group (if any)
-  message      String?                    @db.Text
-  status       ProjectPermissionStatus    @default(pending)
-  respondedAt  DateTime?                  @map("responded_at")
-  createdAt    DateTime                   @default(now())
-  updatedAt    DateTime                   @updatedAt
-
-  @@unique([projectId, requesterId])
-  @@map("project_permission_requests")
+enum UserRole {
+  student
+  supervisor
+  coordinator
 }
 
-enum ProjectPermissionStatus {
-  pending
-  approved
-  rejected
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  REMOVED
 }

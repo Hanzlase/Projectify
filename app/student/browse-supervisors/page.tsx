@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback, memo } from 'react';
+import { useEffect, useState, useMemo, useCallback, memo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +16,10 @@ import {
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface Supervisor {
   id: number;
@@ -49,16 +52,18 @@ export default function BrowseSupervisorsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'availability'>('availability');
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated') {
+    } else if (status === 'authenticated' && !fetchedRef.current) {
+      fetchedRef.current = true;
       fetchSupervisors();
     }
   }, [status, router]);
 
-  const fetchSupervisors = async () => {
+  const fetchSupervisors = useCallback(async () => {
     try {
       const response = await fetch('/api/student/dashboard');
       if (response.ok) {
@@ -70,7 +75,7 @@ export default function BrowseSupervisorsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Get unique specializations and domains for filtering
   const uniqueSpecializations = useMemo(() => {

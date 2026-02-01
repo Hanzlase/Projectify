@@ -1146,6 +1146,25 @@ const Footer = () => (
                     Making academic project management intelligent and collaborative for FAST NUCES.
                 </p>
             </div>
+            
+            {/* Team Section */}
+            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-gray-800">
+                <div className="flex flex-col items-center gap-3">
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                        <span className="text-slate-500">Supervisor:</span>{' '}
+                        <span className="text-white font-medium">Saqib Ameer</span>
+                    </p>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                        <span className="text-slate-500">Team:</span>{' '}
+                        <span className="text-white font-medium">Hanzla</span>
+                        <span className="text-slate-600 mx-1">•</span>
+                        <span className="text-white font-medium">Saad</span>
+                        <span className="text-slate-600 mx-1">•</span>
+                        <span className="text-white font-medium">Ahmad</span>
+                    </p>
+                </div>
+            </div>
+            
             <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-gray-800 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
                 <p>© 2025 Projectify. Built with ❤️ for FAST students.</p>
             </div>

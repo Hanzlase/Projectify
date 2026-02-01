@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,7 +19,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
 
-const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { ssr: false });
+const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface Project {
   projectId: number;
@@ -114,17 +117,28 @@ function ProjectsPageContent() {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const fetchedRef = useRef(false);
 
   const userRole = session?.user?.role || 'student';
 
+  // Initial data fetch - only once
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated') {
-      fetchProjects();
-      fetchProfileImage();
+      return;
     }
-  }, [status, router, filter, categoryFilter]);
+    if (status === 'authenticated' && !fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchInitialData();
+    }
+  }, [status, router]);
+
+  // Refetch when filter changes (but not on initial load)
+  useEffect(() => {
+    if (fetchedRef.current && status === 'authenticated') {
+      fetchProjects();
+    }
+  }, [filter, categoryFilter]);
 
   // Check if we should open the create modal from URL param
   useEffect(() => {
@@ -135,40 +149,43 @@ function ProjectsPageContent() {
     }
   }, [searchParams, router]);
 
-  const fetchProfileImage = async () => {
+  const fetchInitialData = useCallback(async () => {
     try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
+      const [projectsRes, profileRes] = await Promise.all([
+        fetch(`/api/projects?filter=${filter}${categoryFilter ? `&category=${categoryFilter}` : ''}`),
+        fetch('/api/page-data?include=profile')
+      ]);
+
+      if (projectsRes.ok) {
+        const data = await projectsRes.json();
+        setProjects(data);
+      }
+
+      if (profileRes.ok) {
+        const data = await profileRes.json();
+        setProfileImage(data.profile?.profileImage || null);
       }
     } catch (error) {
-      console.error('Failed to fetch profile image:', error);
-    }
-  };
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' });
-  };
-
-  const fetchProjects = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.append('filter', filter);
-      if (searchQuery) params.append('search', searchQuery);
-      if (categoryFilter) params.append('category', categoryFilter);
-
-      const response = await fetch(`/api/projects?${params.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProjects(data.projects || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch projects:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
+  }, [filter, categoryFilter]);
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/projects?filter=${filter}${categoryFilter ? `&category=${categoryFilter}` : ''}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+    }
+  }, [filter, categoryFilter]);
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
   };
 
   const handleSearch = () => {

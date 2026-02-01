@@ -19,7 +19,10 @@ import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useChat } from '@/lib/socket-client';
 
-const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
+const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { 
+  ssr: false,
+  loading: () => null 
+});
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 interface OtherUser {
@@ -239,7 +242,7 @@ function SupervisorChatPageContent() {
     try {
       const [chatResponse, profileResponse] = await Promise.all([
         fetch('/api/chat'),
-        fetch('/api/profile')
+        fetch('/api/page-data?include=profile')
       ]);
 
       if (chatResponse.ok) {
@@ -251,7 +254,7 @@ function SupervisorChatPageContent() {
       
       if (profileResponse.ok) {
         const data = await profileResponse.json();
-        setProfileImage(data.profileImage);
+        setProfileImage(data.profile?.profileImage || null);
       }
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
@@ -271,18 +274,6 @@ function SupervisorChatPageContent() {
       }
     } catch (error) {
       console.error('Failed to fetch conversations:', error);
-    }
-  };
-
-  const fetchProfileImage = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile image:', error);
     }
   };
 
