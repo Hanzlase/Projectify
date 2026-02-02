@@ -73,7 +73,12 @@ function LoginPageContent() {
       // Check if user is suspended after successful login
       const session = await getSession();
       if (session?.user?.status === 'SUSPENDED' || session?.user?.role === 'suspended') {
-        router.push('/suspended');
+        // Redirect coordinators to a separate suspension page
+        if (session?.user?.originalRole === 'coordinator') {
+          router.push('/coordinator-suspended');
+        } else {
+          router.push('/suspended');
+        }
         return;
       }
 

@@ -53,6 +53,7 @@ interface IndustrialProject {
   techStack: string | null;
   thumbnailUrl: string | null;
   status: 'available' | 'booked' | 'completed';
+  assignedGroupId: number | null;
   createdAt: string;
   requests: IndustrialProjectRequest[];
 }
@@ -620,15 +621,17 @@ export default function IndustrialProjectsPage() {
                               <Eye className="w-4 h-4" />
                             </Button>
                           )}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => openEditModal(project)}
-                            className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg h-8 w-8 p-0"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          {project.status !== 'booked' && (
+                          {!project.assignedGroupId && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEditModal(project)}
+                              className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg h-8 w-8 p-0"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {project.status !== 'booked' && !project.assignedGroupId && (
                             <Button
                               size="sm"
                               variant="ghost"

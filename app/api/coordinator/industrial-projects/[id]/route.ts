@@ -95,6 +95,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Not authorized to update this project' }, { status: 403 });
     }
 
+    // Don't allow editing if a group has been assigned to this project
+    if (existingProject.assignedGroupId) {
+      return NextResponse.json({ error: 'Cannot edit a project that has been assigned to a group' }, { status: 400 });
+    }
+
     const { title, description, features, techStack, thumbnailUrl, status } = body;
 
     const updatedProject = await (prisma as any).industrialProject.update({
@@ -145,6 +150,11 @@ export async function DELETE(
 
     if (existingProject.uploadedById !== userId) {
       return NextResponse.json({ error: 'Not authorized to delete this project' }, { status: 403 });
+    }
+
+    // Don't allow deletion if a group has been assigned to this project
+    if (existingProject.assignedGroupId) {
+      return NextResponse.json({ error: 'Cannot delete a project that has been assigned to a group' }, { status: 400 });
     }
 
     // Don't allow deletion if project is booked

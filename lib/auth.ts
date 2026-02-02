@@ -28,28 +28,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           // Optimized: Single query that handles both email and roll number lookup
           // Uses OR condition to avoid separate queries
-          const user = await prisma.user.findFirst({
+          const user = await (prisma.user as any).findFirst({
             where: {
               OR: [
                 { email: identifier },
-                { student: { rollNumber: identifier } }
+                { students: { roll_number: identifier } }
               ]
             },
             select: {
-              userId: true,
+              user_id: true,
               email: true,
               name: true,
-              passwordHash: true,
+              password_hash: true,
               role: true,
               status: true,
-              student: {
-                select: { campusId: true }
+              students: {
+                select: { campus_id: true }
               },
-              supervisor: {
-                select: { campusId: true }
+              fyp_supervisors: {
+                select: { campus_id: true }
               },
-              coordinator: {
-                select: { campusId: true }
+              fyp_coordinators: {
+                select: { campus_id: true }
               },
             }
           })
@@ -67,6 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email: user.email,
               name: user.name,
               role: 'suspended',
+              originalRole: user.role, // Preserve original role for proper redirect
               status: 'SUSPENDED',
               campusId: null,
             }
@@ -78,7 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // Compare password with hashed password
-          const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
+          const isPasswordValid = await bcrypt.compare(password, user.password_hash)
 
           if (!isPasswordValid) {
             log("Invalid password for user:", identifier)
@@ -87,15 +88,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           log("Login successful for:", user.email)
 
-          // Get campusId based on role - already fetched with select
-          const campusId = user.coordinator?.campusId 
-            ?? user.supervisor?.campusId 
-            ?? user.student?.campusId 
-            ?? null
+          // Admin doesn't have a campusId
+          let campusId = null;
+          if ((user.role as string) !== 'admin') {
+            campusId = user.fyp_coordinators?.campus_id 
+              ?? user.fyp_supervisors?.campus_id 
+              ?? user.students?.campus_id 
+              ?? null
+          }
 
           // Return minimal user object for JWT
           return {
-            id: user.userId.toString(),
+            id: user.user_id.toString(),
             email: user.email,
             name: user.name,
             role: user.role,
@@ -115,6 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.originalRole = (user as any).originalRole
         token.status = (user as any).status
         token.campusId = user.campusId
       }
@@ -125,6 +130,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string
+        ;(session.user as any).originalRole = token.originalRole
         session.user.status = token.status as string
         session.user.campusId = token.campusId as string | null
       }

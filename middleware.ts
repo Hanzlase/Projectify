@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/", "/landing", "/suspended", "/forgot-password", "/help"]
+  const publicRoutes = ["/login", "/", "/landing", "/suspended", "/coordinator-suspended", "/forgot-password", "/help"]
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
 
   // Get session - wrap in try-catch to handle auth errors gracefully
@@ -48,6 +48,11 @@ export async function middleware(request: NextRequest) {
   // Role-based access control - only if session exists and has user with role
   if (session?.user?.role) {
     const userRole = session.user.role
+
+    // Admin routes
+    if (pathname.startsWith("/admin") && userRole !== "admin") {
+      return NextResponse.redirect(new URL("/unauthorized", request.url))
+    }
 
     // Coordinator routes
     if (pathname.startsWith("/coordinator") && userRole !== "coordinator") {

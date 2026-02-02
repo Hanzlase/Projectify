@@ -7,12 +7,12 @@ async function main() {
   console.log('Starting seed...');
 
   // Check if CFD Campus exists, if not create it
-  let campusCFD = await prisma.campus.findFirst({
+  let campusCFD = await prisma.campuses.findFirst({
     where: { name: 'CFD' },
   });
 
   if (!campusCFD) {
-    campusCFD = await prisma.campus.create({
+    campusCFD = await prisma.campuses.create({
       data: {
         name: 'CFD',
         location: 'Chiniot Fasailabd Campus',
@@ -23,12 +23,12 @@ async function main() {
   console.log('CFD Campus:', campusCFD);
 
   // Check if ISB Campus exists, if not create it
-  let campusISB = await prisma.campus.findFirst({
+  let campusISB = await prisma.campuses.findFirst({
     where: { name: 'ISB' },
   });
 
   if (!campusISB) {
-    campusISB = await prisma.campus.create({
+    campusISB = await prisma.campuses.create({
       data: {
         name: 'ISB',
         location: 'Islamabad Campus',
@@ -43,13 +43,13 @@ async function main() {
   const hashedPasswordISB = await bcrypt.hash('hanzlaisb123', 10);
 
   // Create CFD coordinator user
-  const userCFD = await prisma.user.upsert({
+  const userCFD = await prisma.users.upsert({
     where: { email: 'hanzlasabir309@gmail.com' },
     update: {},
     create: {
       name: 'Hanzla',
       email: 'hanzlasabir309@gmail.com',
-      passwordHash: hashedPasswordCFD,
+      password_hash: hashedPasswordCFD,
       role: 'coordinator',
     },
   });
@@ -57,27 +57,27 @@ async function main() {
   console.log('CFD User created:', userCFD);
 
   // Create CFD coordinator profile
-  const coordinatorCFD = await prisma.fYPCoordinator.upsert({
-    where: { userId: userCFD.userId },
+  const coordinatorCFD = await prisma.fyp_coordinators.upsert({
+    where: { user_id: userCFD.user_id },
     update: {},
     create: {
-      userId: userCFD.userId,
-      campusId: campusCFD.campusId,
+      user_id: userCFD.user_id,
+      campus_id: campusCFD.campus_id,
     },
   });
 
   console.log('CFD Coordinator created:', coordinatorCFD);
 
   // Create ISB coordinator user
-  const userISB = await prisma.user.upsert({
+  const userISB = await prisma.users.upsert({
     where: { email: 'hanzlaisb@gmail.com' },
     update: {
-      passwordHash: hashedPasswordISB, // Update password if user exists
+      password_hash: hashedPasswordISB, // Update password if user exists
     },
     create: {
       name: 'HanzlaISB',
       email: 'hanzlaisb@gmail.com',
-      passwordHash: hashedPasswordISB,
+      password_hash: hashedPasswordISB,
       role: 'coordinator',
     },
   });
@@ -85,16 +85,33 @@ async function main() {
   console.log('ISB User created:', userISB);
 
   // Create ISB coordinator profile
-  const coordinatorISB = await prisma.fYPCoordinator.upsert({
-    where: { userId: userISB.userId },
+  const coordinatorISB = await prisma.fyp_coordinators.upsert({
+    where: { user_id: userISB.user_id },
     update: {},
     create: {
-      userId: userISB.userId,
-      campusId: campusISB.campusId,
+      user_id: userISB.user_id,
+      campus_id: campusISB.campus_id,
     },
   });
 
   console.log('ISB Coordinator created:', coordinatorISB);
+
+  // Create Admin user
+  const hashedAdminPassword = await bcrypt.hash('Admin123', 10);
+  const adminUser = await prisma.users.upsert({
+    where: { email: 'admin@gmail.com' },
+    update: {
+      password_hash: hashedAdminPassword,
+    },
+    create: {
+      name: 'Admin',
+      email: 'admin@gmail.com',
+      password_hash: hashedAdminPassword,
+      role: 'admin',
+    },
+  });
+
+  console.log('Admin User created:', adminUser);
 
   console.log('Seed completed successfully!');
 }

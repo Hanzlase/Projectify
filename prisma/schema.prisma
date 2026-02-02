@@ -13,6 +13,7 @@ model campuses {
   location         String?            @db.VarChar(255)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime
+  max_coordinators Int                @default(5)
   fyp_coordinators fyp_coordinators[]
   fyp_supervisors  fyp_supervisors[]
   students         students[]
@@ -313,6 +314,23 @@ model users {
   @@index([email, status])
 }
 
+model support_tickets {
+  id          Int            @id @default(autoincrement())
+  user_id     Int
+  subject     String         @db.VarChar(255)
+  description String
+  priority    TicketPriority @default(medium)
+  status      TicketStatus   @default(open)
+  admin_reply String?
+  replied_at  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([user_id])
+}
+
 enum GroupInvitationStatus {
   pending
   accepted
@@ -381,10 +399,25 @@ enum UserRole {
   student
   supervisor
   coordinator
+  admin
 }
 
 enum UserStatus {
   ACTIVE
   SUSPENDED
   REMOVED
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  resolved
+  closed
 }
