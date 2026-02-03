@@ -23,10 +23,10 @@ export async function PATCH(
     const { action, name, email, campusId } = body;
 
     // Get the coordinator
-    const coordinator = await (prisma as any).users.findUnique({
-      where: { user_id: userId },
+    const coordinator = await prisma.user.findUnique({
+      where: { userId },
       include: {
-        fyp_coordinators: true,
+        coordinator: true,
       },
     });
 
@@ -36,16 +36,16 @@ export async function PATCH(
 
     // Handle different actions
     if (action === 'suspend') {
-      await (prisma as any).users.update({
-        where: { user_id: userId },
+      await prisma.user.update({
+        where: { userId },
         data: { status: 'SUSPENDED', updatedAt: new Date() },
       });
       return NextResponse.json({ success: true, message: 'Coordinator suspended' });
     }
 
     if (action === 'activate') {
-      await (prisma as any).users.update({
-        where: { user_id: userId },
+      await prisma.user.update({
+        where: { userId },
         data: { status: 'ACTIVE', updatedAt: new Date() },
       });
       return NextResponse.json({ success: true, message: 'Coordinator activated' });
@@ -56,10 +56,10 @@ export async function PATCH(
     if (name) updateData.name = name;
     if (email) {
       // Check if email is taken by another user
-      const existingUser = await (prisma as any).users.findFirst({
+      const existingUser = await prisma.user.findFirst({
         where: {
           email,
-          user_id: { not: userId },
+          userId: { not: userId },
         },
       });
       if (existingUser) {
@@ -69,20 +69,20 @@ export async function PATCH(
     }
 
     // Update user
-    const updatedUser = await (prisma as any).users.update({
-      where: { user_id: userId },
+    const updatedUser = await prisma.user.update({
+      where: { userId },
       data: updateData,
     });
 
     // Update campus if provided
-    if (campusId && coordinator.fyp_coordinators) {
+    if (campusId && coordinator.coordinator) {
       // Check campus max coordinators
-      const campus = await (prisma as any).campuses.findUnique({
-        where: { campus_id: parseInt(campusId) },
+      const campus = await prisma.campus.findUnique({
+        where: { campusId: parseInt(campusId) },
         include: {
-          fyp_coordinators: {
+          coordinators: {
             include: {
-              users: true,
+              user: true,
             },
           },
         },
@@ -93,20 +93,20 @@ export async function PATCH(
       }
 
       // Check if changing campus and if max reached
-      if (coordinator.fyp_coordinators.campus_id !== parseInt(campusId)) {
-        const activeCoordinators = campus.fyp_coordinators.filter(
-          (c: any) => c.users.status !== 'REMOVED'
+      if (coordinator.coordinator.campusId !== parseInt(campusId)) {
+        const activeCoordinators = campus.coordinators.filter(
+          (c: any) => c.user.status !== 'REMOVED'
         );
-        if (activeCoordinators.length >= (campus.max_coordinators || 5)) {
+        if (activeCoordinators.length >= (campus.maxCoordinators || 5)) {
           return NextResponse.json({ 
-            error: `Maximum coordinators (${campus.max_coordinators || 5}) reached for this campus` 
+            error: `Maximum coordinators (${campus.maxCoordinators || 5}) reached for this campus` 
           }, { status: 400 });
         }
       }
 
-      await (prisma as any).fyp_coordinators.update({
-        where: { coordinator_id: coordinator.fyp_coordinators.coordinator_id },
-        data: { campus_id: parseInt(campusId), updatedAt: new Date() },
+      await prisma.fYPCoordinator.update({
+        where: { coordinatorId: coordinator.coordinator.coordinatorId },
+        data: { campusId: parseInt(campusId), updatedAt: new Date() },
       });
     }
 
@@ -136,8 +136,8 @@ export async function DELETE(
     const userId = parseInt(params.userId);
 
     // Get the coordinator
-    const coordinator = await (prisma as any).users.findUnique({
-      where: { user_id: userId },
+    const coordinator = await prisma.user.findUnique({
+      where: { userId },
     });
 
     if (!coordinator || coordinator.role !== 'coordinator') {
@@ -145,8 +145,8 @@ export async function DELETE(
     }
 
     // Soft delete - mark as REMOVED
-    await (prisma as any).users.update({
-      where: { user_id: userId },
+    await prisma.user.update({
+      where: { userId },
       data: { status: 'REMOVED', updatedAt: new Date() },
     });
 

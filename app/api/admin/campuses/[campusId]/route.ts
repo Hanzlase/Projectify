@@ -23,8 +23,8 @@ export async function PATCH(
     const { name, location, maxCoordinators } = body;
 
     // Check if campus exists
-    const campus = await (prisma as any).campuses.findUnique({
-      where: { campus_id: campusId },
+    const campus = await prisma.campus.findUnique({
+      where: { campusId },
     });
 
     if (!campus) {
@@ -33,10 +33,10 @@ export async function PATCH(
 
     // Check if new name conflicts with another campus
     if (name && name !== campus.name) {
-      const existingCampus = await (prisma as any).campuses.findFirst({
+      const existingCampus = await prisma.campus.findFirst({
         where: {
           name,
-          campus_id: { not: campusId },
+          campusId: { not: campusId },
         },
       });
 
@@ -49,20 +49,20 @@ export async function PATCH(
     const updateData: any = { updatedAt: new Date() };
     if (name) updateData.name = name;
     if (location !== undefined) updateData.location = location;
-    if (maxCoordinators !== undefined) updateData.max_coordinators = maxCoordinators;
+    if (maxCoordinators !== undefined) updateData.maxCoordinators = maxCoordinators;
 
-    const updatedCampus = await (prisma as any).campuses.update({
-      where: { campus_id: campusId },
+    const updatedCampus = await prisma.campus.update({
+      where: { campusId },
       data: updateData,
     });
 
     return NextResponse.json({
       success: true,
       campus: {
-        campusId: updatedCampus.campus_id,
+        campusId: updatedCampus.campusId,
         name: updatedCampus.name,
         location: updatedCampus.location,
-        maxCoordinators: updatedCampus.max_coordinators || 5,
+        maxCoordinators: updatedCampus.maxCoordinators || 5,
       },
     });
   } catch (error) {
@@ -90,13 +90,13 @@ export async function DELETE(
     const campusId = parseInt(params.campusId);
 
     // Check if campus exists and has any users
-    const campus = await (prisma as any).campuses.findUnique({
-      where: { campus_id: campusId },
+    const campus = await prisma.campus.findUnique({
+      where: { campusId },
       include: {
         _count: {
           select: {
-            fyp_coordinators: true,
-            fyp_supervisors: true,
+            coordinators: true,
+            supervisors: true,
             students: true,
           },
         },
@@ -107,15 +107,15 @@ export async function DELETE(
       return NextResponse.json({ error: 'Campus not found' }, { status: 404 });
     }
 
-    const totalUsers = campus._count.fyp_coordinators + campus._count.fyp_supervisors + campus._count.students;
+    const totalUsers = campus._count.coordinators + campus._count.supervisors + campus._count.students;
     if (totalUsers > 0) {
       return NextResponse.json({ 
         error: `Cannot delete campus with ${totalUsers} users. Remove all users first.` 
       }, { status: 400 });
     }
 
-    await (prisma as any).campuses.delete({
-      where: { campus_id: campusId },
+    await prisma.campus.delete({
+      where: { campusId },
     });
 
     return NextResponse.json({ success: true, message: 'Campus deleted' });

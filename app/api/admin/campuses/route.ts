@@ -15,11 +15,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const campuses = await (prisma as any).campuses.findMany({
+    const campuses = await prisma.campus.findMany({
       include: {
-        fyp_coordinators: {
+        coordinators: {
           include: {
-            users: {
+            user: {
               select: {
                 status: true,
               },
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         _count: {
           select: {
             students: true,
-            fyp_supervisors: true,
+            supervisors: true,
           },
         },
       },
@@ -38,16 +38,16 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const formattedCampuses = campuses.map((campus: any) => ({
-      campusId: campus.campus_id,
+    const formattedCampuses = campuses.map((campus) => ({
+      campusId: campus.campusId,
       name: campus.name,
       location: campus.location,
-      maxCoordinators: campus.max_coordinators || 5,
-      activeCoordinators: campus.fyp_coordinators.filter(
-        (c: any) => c.users.status !== 'REMOVED'
+      maxCoordinators: campus.maxCoordinators || 5,
+      activeCoordinators: campus.coordinators.filter(
+        (c) => c.user.status !== 'REMOVED'
       ).length,
       totalStudents: campus._count.students,
-      totalSupervisors: campus._count.fyp_supervisors,
+      totalSupervisors: campus._count.supervisors,
     }));
 
     return NextResponse.json({ campuses: formattedCampuses });
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if campus name already exists
-    const existingCampus = await (prisma as any).campuses.findFirst({
+    const existingCampus = await prisma.campus.findFirst({
       where: { name },
     });
 
@@ -86,11 +86,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campus name already exists' }, { status: 400 });
     }
 
-    const campus = await (prisma as any).campuses.create({
+    const campus = await prisma.campus.create({
       data: {
         name,
         location: location || null,
-        max_coordinators: maxCoordinators || 5,
+        maxCoordinators: maxCoordinators || 5,
         updatedAt: new Date(),
       },
     });
@@ -98,10 +98,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       campus: {
-        campusId: campus.campus_id,
+        campusId: campus.campusId,
         name: campus.name,
         location: campus.location,
-        maxCoordinators: campus.max_coordinators || 5,
+        maxCoordinators: campus.maxCoordinators || 5,
       },
     });
   } catch (error) {

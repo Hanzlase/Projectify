@@ -10,17 +10,17 @@ async function createAdmin() {
 
   try {
     // Check if admin already exists
-    const existingAdmin = await prisma.users.findUnique({
+    const existingAdmin = await prisma.user.findUnique({
       where: { email: 'admin@gmail.com' },
     });
 
     if (existingAdmin) {
       console.log('Admin already exists, updating password...');
       const hashedAdminPassword = await bcrypt.hash('Admin123', 10);
-      await prisma.users.update({
+      await prisma.user.update({
         where: { email: 'admin@gmail.com' },
         data: { 
-          password_hash: hashedAdminPassword,
+          passwordHash: hashedAdminPassword,
           updatedAt: new Date(),
         },
       });
@@ -28,11 +28,11 @@ async function createAdmin() {
     } else {
       console.log('Creating new admin user...');
       const hashedAdminPassword = await bcrypt.hash('Admin123', 10);
-      const adminUser = await prisma.users.create({
+      const adminUser = await prisma.user.create({
         data: {
           name: 'Admin',
           email: 'admin@gmail.com',
-          password_hash: hashedAdminPassword,
+          passwordHash: hashedAdminPassword,
           role: 'admin',
           updatedAt: new Date(),
         },

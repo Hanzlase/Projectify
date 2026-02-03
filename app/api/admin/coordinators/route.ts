@@ -16,14 +16,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const coordinators = await (prisma as any).users.findMany({
+    const coordinators = await prisma.user.findMany({
       where: {
         role: 'coordinator',
       },
       include: {
-        fyp_coordinators: {
+        coordinator: {
           include: {
-            campuses: true,
+            campus: true,
           },
         },
       },
@@ -32,17 +32,17 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const formattedCoordinators = coordinators.map((coord: any) => ({
-      userId: coord.user_id,
+    const formattedCoordinators = coordinators.map((coord) => ({
+      userId: coord.userId,
       name: coord.name,
       email: coord.email,
       status: coord.status,
-      profileImage: coord.profile_image,
+      profileImage: coord.profileImage,
       createdAt: coord.createdAt,
-      campus: coord.fyp_coordinators?.campuses ? {
-        campusId: coord.fyp_coordinators.campuses.campus_id,
-        name: coord.fyp_coordinators.campuses.name,
-        location: coord.fyp_coordinators.campuses.location,
+      campus: coord.coordinator?.campus ? {
+        campusId: coord.coordinator.campus.campusId,
+        name: coord.coordinator.campus.name,
+        location: coord.coordinator.campus.location,
       } : null,
     }));
 
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = await (prisma as any).users.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
@@ -83,12 +83,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Check campus exists and get coordinator count
-    const campus = await (prisma as any).campuses.findUnique({
-      where: { campus_id: parseInt(campusId) },
+    const campus = await prisma.campus.findUnique({
+      where: { campusId: parseInt(campusId) },
       include: {
-        fyp_coordinators: {
+        coordinators: {
           include: {
-            users: true,
+            user: true,
           },
         },
       },
@@ -98,38 +98,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campus not found' }, { status: 404 });
     }
 
-    // Check if max coordinators reached
-    const activeCoordinators = campus.fyp_coordinators.filter(
-      (c: any) => c.users.status !== 'REMOVED'
+    // Check if max coordinators reached (default limit: 5)
+    const MAX_COORDINATORS = 5;
+    const activeCoordinators = campus.coordinators.filter(
+      (c) => c.user.status !== 'REMOVED'
     );
 
-    if (activeCoordinators.length >= (campus.max_coordinators || 5)) {
+    if (activeCoordinators.length >= MAX_COORDINATORS) {
       return NextResponse.json({ 
-        error: `Maximum coordinators (${campus.max_coordinators || 5}) reached for this campus` 
+        error: `Maximum coordinators (${MAX_COORDINATORS}) reached for this campus` 
       }, { status: 400 });
     }
 
     // Hash password and create user
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await (prisma as any).users.create({
+    const user = await prisma.user.create({
       data: {
         name,
         email,
-        password_hash: hashedPassword,
+        passwordHash: hashedPassword,
         role: 'coordinator',
         updatedAt: new Date(),
-        fyp_coordinators: {
+        coordinator: {
           create: {
-            campus_id: parseInt(campusId),
+            campusId: parseInt(campusId),
             updatedAt: new Date(),
           },
         },
       },
       include: {
-        fyp_coordinators: {
+        coordinator: {
           include: {
-            campuses: true,
+            campus: true,
           },
         },
       },
@@ -138,14 +139,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       coordinator: {
-        userId: user.user_id,
+        userId: user.userId,
         name: user.name,
         email: user.email,
         status: user.status,
-        campus: user.fyp_coordinators?.campuses ? {
-          campusId: user.fyp_coordinators.campuses.campus_id,
-          name: user.fyp_coordinators.campuses.name,
-          location: user.fyp_coordinators.campuses.location,
+        campus: user.coordinator?.campus ? {
+          campusId: user.coordinator.campus.campusId,
+          name: user.coordinator.campus.name,
+          location: user.coordinator.campus.location,
         } : null,
       },
     });

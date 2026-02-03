@@ -16,13 +16,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const admin = await (prisma.user as any).findUnique({
-      where: { user_id: parseInt(session.user.id) },
+    const admin = await prisma.user.findUnique({
+      where: { userId: parseInt(session.user.id) },
       select: {
-        user_id: true,
+        userId: true,
         name: true,
         email: true,
-        profile_image: true,
+        profileImage: true,
         createdAt: true,
       },
     });
@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ 
       profile: {
-        userId: admin.user_id,
+        userId: admin.userId,
         name: admin.name,
         email: admin.email,
-        profileImage: admin.profile_image,
+        profileImage: admin.profileImage,
         createdAt: admin.createdAt,
       }
     });
@@ -65,8 +65,8 @@ export async function PATCH(req: NextRequest) {
     const userId = parseInt(session.user.id);
 
     // Get current admin user
-    const admin = await (prisma.user as any).findUnique({
-      where: { user_id: userId },
+    const admin = await prisma.user.findUnique({
+      where: { userId },
     });
 
     if (!admin) {
@@ -83,10 +83,10 @@ export async function PATCH(req: NextRequest) {
     // Update email if provided
     if (email && email !== admin.email) {
       // Check if email is already taken
-      const existingUser = await (prisma.user as any).findFirst({
+      const existingUser = await prisma.user.findFirst({
         where: {
           email,
-          user_id: { not: userId },
+          userId: { not: userId },
         },
       });
 
@@ -98,7 +98,7 @@ export async function PATCH(req: NextRequest) {
 
     // Update profile image if provided
     if (profileImage !== undefined) {
-      updateData.profile_image = profileImage;
+      updateData.profileImage = profileImage;
     }
 
     // Update password if provided
@@ -108,34 +108,34 @@ export async function PATCH(req: NextRequest) {
       }
 
       // Verify current password
-      const isPasswordValid = await bcrypt.compare(currentPassword, admin.password_hash);
+      const isPasswordValid = await bcrypt.compare(currentPassword, admin.passwordHash);
       if (!isPasswordValid) {
         return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
       }
 
       // Hash new password
-      updateData.password_hash = await bcrypt.hash(newPassword, 10);
+      updateData.passwordHash = await bcrypt.hash(newPassword, 10);
     }
 
     // Update admin
-    const updatedAdmin = await (prisma.user as any).update({
-      where: { user_id: userId },
+    const updatedAdmin = await prisma.user.update({
+      where: { userId },
       data: updateData,
       select: {
-        user_id: true,
+        userId: true,
         name: true,
         email: true,
-        profile_image: true,
+        profileImage: true,
       },
     });
 
     return NextResponse.json({ 
       success: true, 
       profile: {
-        userId: updatedAdmin.user_id,
+        userId: updatedAdmin.userId,
         name: updatedAdmin.name,
         email: updatedAdmin.email,
-        profileImage: updatedAdmin.profile_image,
+        profileImage: updatedAdmin.profileImage,
       }
     });
   } catch (error) {

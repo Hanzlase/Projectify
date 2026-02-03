@@ -28,28 +28,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           // Optimized: Single query that handles both email and roll number lookup
           // Uses OR condition to avoid separate queries
-          const user = await (prisma.user as any).findFirst({
+          const user = await prisma.user.findFirst({
             where: {
               OR: [
                 { email: identifier },
-                { students: { roll_number: identifier } }
+                { student: { rollNumber: identifier } }
               ]
             },
             select: {
-              user_id: true,
+              userId: true,
               email: true,
               name: true,
-              password_hash: true,
+              passwordHash: true,
               role: true,
               status: true,
-              students: {
-                select: { campus_id: true }
+              student: {
+                select: { campusId: true }
               },
-              fyp_supervisors: {
-                select: { campus_id: true }
+              supervisor: {
+                select: { campusId: true }
               },
-              fyp_coordinators: {
-                select: { campus_id: true }
+              coordinator: {
+                select: { campusId: true }
               },
             }
           })
@@ -79,7 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // Compare password with hashed password
-          const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+          const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
 
           if (!isPasswordValid) {
             log("Invalid password for user:", identifier)
@@ -91,15 +91,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Admin doesn't have a campusId
           let campusId = null;
           if ((user.role as string) !== 'admin') {
-            campusId = user.fyp_coordinators?.campus_id 
-              ?? user.fyp_supervisors?.campus_id 
-              ?? user.students?.campus_id 
+            campusId = user.coordinator?.campusId 
+              ?? user.supervisor?.campusId 
+              ?? user.student?.campusId 
               ?? null
           }
 
           // Return minimal user object for JWT
           return {
-            id: user.user_id.toString(),
+            id: user.userId.toString(),
             email: user.email,
             name: user.name,
             role: user.role,

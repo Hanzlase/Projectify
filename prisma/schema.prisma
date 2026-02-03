@@ -26,11 +26,12 @@ model User {
 }
 
 model Campus {
-  campusId     Int      @id @default(autoincrement()) @map("campus_id")
-  name         String   @db.VarChar(255)
-  location     String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  campusId        Int      @id @default(autoincrement()) @map("campus_id")
+  name            String   @db.VarChar(255)
+  location        String?  @db.VarChar(255)
+  maxCoordinators Int      @default(5) @map("max_coordinators")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   coordinators FYPCoordinator[]
   supervisors  FYPSupervisor[]
@@ -119,6 +120,61 @@ enum GroupInvitationStatus {
   accepted
   rejected
   cancelled
+}
+
+// Industrial Projects (uploaded by coordinators for groups to request)
+model IndustrialProject {
+  id              Int                       @id @default(autoincrement())
+  title           String                    @db.VarChar(255)
+  description     String                    @db.Text
+  features        String?                   @db.Text
+  techStack       String?                   @db.Text @map("tech_stack")
+  thumbnailUrl    String?                   @db.VarChar(500) @map("thumbnail_url")
+  status          IndustrialProjectStatus   @default(available)
+  uploadedById    Int                       @map("uploaded_by_id")
+  campusId        Int                       @map("campus_id")
+  assignedGroupId Int?                      @unique @map("assigned_group_id")
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  requests IndustrialProjectRequest[]
+
+  @@index([campusId])
+  @@index([status])
+  @@index([uploadedById])
+  @@map("industrial_projects")
+}
+
+model IndustrialProjectRequest {
+  id                  Int                            @id @default(autoincrement())
+  industrialProjectId Int                            @map("industrial_project_id")
+  requesterId         Int                            @map("requester_id")
+  requesterRole       String                         @db.VarChar(20) @map("requester_role")
+  groupId             Int?                           @map("group_id")
+  message             String?                        @db.Text
+  status              IndustrialProjectRequestStatus @default(pending)
+  respondedAt         DateTime?                      @map("responded_at")
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+
+  industrialProject IndustrialProject @relation(fields: [industrialProjectId], references: [id], onDelete: Cascade)
+
+  @@unique([industrialProjectId, requesterId])
+  @@index([requesterId])
+  @@index([status])
+  @@map("industrial_project_requests")
+}
+
+enum IndustrialProjectStatus {
+  available
+  booked
+  completed
+}
+
+enum IndustrialProjectRequestStatus {
+  pending
+  approved
+  rejected
 }
 
 // Group Chat for FYP Groups (visible in chat section)
@@ -256,6 +312,7 @@ enum NotificationTarget {
 }
 
 enum UserRole {
+  admin
   student
   supervisor
   coordinator

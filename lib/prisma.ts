@@ -54,36 +54,15 @@ function getPrismaClient(): PrismaClient {
   return globalForPrisma.prisma;
 }
 
-// Model name aliases: map camelCase to snake_case Prisma model names
-const modelAliases: Record<string, string> = {
-  user: 'users',
-  campus: 'campuses',
-  conversationParticipant: 'conversation_participants',
-  conversation: 'conversations',
-  fypCoordinator: 'fyp_coordinators',
-  fypSupervisor: 'fyp_supervisors',
-  groupChat: 'group_chats',
-  groupInvitation: 'group_invitations',
-  group: 'groups',
-  industrialProjectRequest: 'industrial_project_requests',
-  industrialProject: 'industrial_projects',
-  invitation: 'invitations',
-  message: 'messages',
-  notificationRecipient: 'notification_recipients',
-  notification: 'notifications',
-  pinnedConversation: 'pinned_conversations',
-  projectPermissionRequest: 'project_permission_requests',
-  project: 'projects',
-  student: 'students',
-};
-
-// Export a proxy that lazily initializes the client and handles model name aliases
+// Export a proxy that lazily initializes the client
+// The schema uses PascalCase model names which Prisma converts to camelCase accessors:
+// model User → prisma.user
+// model FYPCoordinator → prisma.fYPCoordinator
+// model NotificationRecipient → prisma.notificationRecipient
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = getPrismaClient();
-    // Map camelCase model names to actual snake_case names
-    const actualProp = typeof prop === 'string' && modelAliases[prop] ? modelAliases[prop] : prop;
-    const value = (client as any)[actualProp];
+    const value = (client as any)[prop];
     if (typeof value === 'function') {
       return value.bind(client);
     }
