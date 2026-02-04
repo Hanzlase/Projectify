@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, Loader2, AlertCircle, Mail, GraduationCap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, AlertCircle, Mail, GraduationCap, ExternalLink, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -10,6 +10,8 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [resetUrl, setResetUrl] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +34,10 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess(true);
+      // In development, we get the reset URL back
+      if (data.resetUrl) {
+        setResetUrl(data.resetUrl);
+      }
       setIsLoading(false);
     } catch (err) {
       setError('An unexpected error occurred');
@@ -39,12 +45,18 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(resetUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-green-50/30 p-4 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-400/5 blur-[100px] rounded-full" />
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-[#1E6F3E]/10 to-emerald-400/5 blur-[100px] rounded-full" />
         <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-gradient-to-tl from-emerald-400/10 to-green-300/5 blur-[80px] rounded-full" />
       </div>
       
@@ -68,30 +80,63 @@ export default function ForgotPasswordPage() {
             transition={{ duration: 0.3 }}
           >
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-              <div className="h-1.5 bg-gradient-to-r from-[#1a5d1a] to-emerald-500"></div>
+              <div className="h-1.5 bg-gradient-to-r from-[#1E6F3E] to-emerald-500"></div>
               <div className="p-8 text-center">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1a5d1a] to-emerald-600 rounded-2xl mb-6 shadow-lg shadow-green-900/20"
+                  className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1E6F3E] to-emerald-600 rounded-2xl mb-6 shadow-lg shadow-green-900/20"
                 >
                   <CheckCircle2 className="w-10 h-10 text-white" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Check Your Email</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Reset Link Generated!</h2>
                 <p className="text-slate-600 mb-6">
-                  We've sent a password reset link to <strong className="text-slate-900">{email}</strong>
+                  A password reset link has been created for <strong className="text-slate-900">{email}</strong>
                 </p>
                 
+                {/* Development mode - Show reset link */}
+                {resetUrl && (
+                  <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 border border-amber-200 rounded-xl mb-6">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <ExternalLink className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-left text-sm flex-1">
+                        <p className="font-semibold mb-1 text-amber-800">Development Mode</p>
+                        <p className="text-amber-700 text-xs mb-2">
+                          Click below to reset your password:
+                        </p>
+                        <div className="flex gap-2">
+                          <Link 
+                            href={resetUrl}
+                            className="flex-1 px-3 py-2 bg-[#1E6F3E] text-white text-xs font-medium rounded-lg hover:bg-[#185a32] transition-colors flex items-center justify-center gap-1"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            Open Reset Page
+                          </Link>
+                          <button
+                            onClick={copyToClipboard}
+                            className="px-3 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1"
+                          >
+                            {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                            {copied ? 'Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50/50 border border-green-100 rounded-xl mb-6">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-[#1a5d1a] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-[#1E6F3E] rounded-lg flex items-center justify-center flex-shrink-0">
                       <Mail className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left text-sm">
-                      <p className="font-semibold mb-1 text-slate-900">Didn't receive the email?</p>
+                      <p className="font-semibold mb-1 text-slate-900">Link expires in 1 hour</p>
                       <p className="text-slate-600">
-                        Check your spam folder or contact your FYP coordinator for assistance.
+                        For security, the reset link will expire after 1 hour. Request a new one if needed.
                       </p>
                     </div>
                   </div>
@@ -107,14 +152,14 @@ export default function ForgotPasswordPage() {
           </motion.div>
         ) : (
           <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-            <div className="h-1.5 bg-gradient-to-r from-[#1a5d1a] to-emerald-500"></div>
+            <div className="h-1.5 bg-gradient-to-r from-[#1E6F3E] to-emerald-500"></div>
             <div className="p-8">
               <div className="text-center mb-6">
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="inline-flex items-center justify-center w-16 h-16 bg-[#1a5d1a] rounded-2xl mb-4 shadow-lg shadow-green-900/20"
+                  className="inline-flex items-center justify-center w-16 h-16 bg-[#1E6F3E] rounded-2xl mb-4 shadow-lg shadow-green-900/20"
                 >
                   <GraduationCap className="w-8 h-8 text-white" />
                 </motion.div>
@@ -150,7 +195,7 @@ export default function ForgotPasswordPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] transition-all duration-200 disabled:opacity-50"
+                      className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] transition-all duration-200 disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -158,7 +203,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-[#1a5d1a] hover:bg-[#154d15] text-white font-semibold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-900/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full h-12 bg-[#1E6F3E] hover:bg-[#185a32] text-white font-semibold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-900/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>
@@ -171,7 +216,7 @@ export default function ForgotPasswordPage() {
                 </button>
 
                 <div className="text-center pt-2">
-                  <Link href="/login" className="text-sm text-slate-600 hover:text-[#1a5d1a] transition-colors">
+                  <Link href="/login" className="text-sm text-slate-600 hover:text-[#1E6F3E] transition-colors">
                     ← Back to Login
                   </Link>
                 </div>
@@ -183,7 +228,7 @@ export default function ForgotPasswordPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-slate-500">
-            © 2025 Projectify. Built for FAST NUCES students.
+            © 2026 Projectify. Built for FAST NUCES students.
           </p>
         </div>
       </motion.div>

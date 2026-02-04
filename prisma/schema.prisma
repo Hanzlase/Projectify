@@ -18,9 +18,10 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  coordinator  FYPCoordinator?
-  supervisor   FYPSupervisor?
-  student      Student?
+  coordinator        FYPCoordinator?
+  supervisor         FYPSupervisor?
+  student            Student?
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -595,4 +596,20 @@ model SubmissionAttachment {
 
   @@index([submissionId])
   @@map("submission_attachments")
+}
+
+// Password Reset Tokens - For forgot password functionality
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
