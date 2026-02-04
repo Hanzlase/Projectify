@@ -158,7 +158,7 @@ function ProjectsPageContent() {
 
       if (projectsRes.ok) {
         const data = await projectsRes.json();
-        setProjects(data);
+        setProjects(data.projects || []);
       }
 
       if (profileRes.ok) {
@@ -177,7 +177,7 @@ function ProjectsPageContent() {
       const response = await fetch(`/api/projects?filter=${filter}${categoryFilter ? `&category=${categoryFilter}` : ''}`);
       if (response.ok) {
         const data = await response.json();
-        setProjects(data);
+        setProjects(data.projects || []);
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error);

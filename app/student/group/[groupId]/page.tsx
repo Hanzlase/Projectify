@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import {
   Users, Loader2, ChevronLeft, Crown, UserPlus, UserMinus,
   Shield, ShieldOff, Camera, X, Check, Clock, Mail, Search,
   Trash2, LogOut, AlertCircle, Settings, FolderKanban, ImagePlus,
-  MoreVertical, GraduationCap, Sparkles, Send, FileText, ExternalLink, Link2
+  MoreVertical, GraduationCap, Sparkles, Send, FileText, ExternalLink, Link2,
+  Calendar, Plus, Video, Edit2, CheckCircle, CheckCircle2, Circle, ChevronDown, ChevronRight, ListTodo, CalendarPlus, RefreshCw
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -67,6 +68,47 @@ interface PendingInvitation {
   };
 }
 
+interface Meeting {
+  meetingId: number;
+  title: string;
+  description?: string;
+  meetingLink?: string;
+  scheduledAt: string;
+  duration: number;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  createdById: number;
+  createdByRole: string;
+  creator?: {
+    userId: number;
+    name: string;
+    profileImage?: string;
+  };
+}
+
+interface Task {
+  taskId: number;
+  title: string;
+  description?: string;
+  assignedTo?: number;
+  createdById: number;
+  createdByRole: 'supervisor' | 'student';
+  status: 'pending' | 'in_progress' | 'completed';
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  completedAt?: string;
+  assignee?: {
+    userId: number;
+    name: string;
+    profileImage?: string;
+  };
+  creator?: {
+    userId: number;
+    name: string;
+    profileImage?: string;
+  };
+  subtasks?: Task[];
+}
+
 interface GroupDetails {
   groupId: number;
   groupName: string;
@@ -88,6 +130,7 @@ export default function GroupDetailsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const groupId = params?.groupId as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +145,50 @@ export default function GroupDetailsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  
+  // Tab state - initialize from URL query param
+  const tabParam = searchParams?.get('tab');
+  const [activeTab, setActiveTab] = useState<'details' | 'meetings' | 'tasks' | 'members'>(() => {
+    if (tabParam === 'meetings' || tabParam === 'tasks' || tabParam === 'members') {
+      return tabParam;
+    }
+    return 'details';
+  });
+  
+  // Update tab when URL changes
+  useEffect(() => {
+    if (tabParam === 'meetings' || tabParam === 'tasks' || tabParam === 'members') {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+  
+  // Meetings state
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [meetingForm, setMeetingForm] = useState({
+    title: '',
+    description: '',
+    meetingLink: '',
+    scheduledAt: '',
+    duration: 60
+  });
+  const [savingMeeting, setSavingMeeting] = useState(false);
+  
+  // Tasks state
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [parentTaskId, setParentTaskId] = useState<number | null>(null);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    assignedTo: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    dueDate: ''
+  });
+  const [savingTask, setSavingTask] = useState(false);
+  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -112,8 +199,30 @@ export default function GroupDetailsPage() {
   useEffect(() => {
     if (groupId) {
       fetchGroupDetails();
+      fetchMeetingsAndTasks();
     }
   }, [groupId]);
+
+  const fetchMeetingsAndTasks = async () => {
+    try {
+      const [meetingsRes, tasksRes] = await Promise.all([
+        fetch(`/api/groups/${groupId}/meetings`),
+        fetch(`/api/groups/${groupId}/tasks`)
+      ]);
+
+      if (meetingsRes.ok) {
+        const data = await meetingsRes.json();
+        setMeetings(data.meetings || []);
+      }
+
+      if (tasksRes.ok) {
+        const data = await tasksRes.json();
+        setTasks(data.tasks || []);
+      }
+    } catch (error) {
+      console.error('Error fetching meetings and tasks:', error);
+    }
+  };
 
   const fetchGroupDetails = async () => {
     try {
@@ -423,6 +532,223 @@ export default function GroupDetailsPage() {
     }
   };
 
+  // Meeting Functions
+  const openMeetingModal = (meeting?: Meeting) => {
+    if (meeting) {
+      setEditingMeeting(meeting);
+      setMeetingForm({
+        title: meeting.title,
+        description: meeting.description || '',
+        meetingLink: meeting.meetingLink || '',
+        scheduledAt: new Date(meeting.scheduledAt).toISOString().slice(0, 16),
+        duration: meeting.duration
+      });
+    } else {
+      setEditingMeeting(null);
+      setMeetingForm({
+        title: '',
+        description: '',
+        meetingLink: '',
+        scheduledAt: '',
+        duration: 60
+      });
+    }
+    setShowMeetingModal(true);
+  };
+
+  const saveMeeting = async () => {
+    if (!meetingForm.title || !meetingForm.scheduledAt) return;
+    
+    setSavingMeeting(true);
+    try {
+      const method = editingMeeting ? 'PATCH' : 'POST';
+      const body = editingMeeting 
+        ? { meetingId: editingMeeting.meetingId, ...meetingForm }
+        : meetingForm;
+
+      const res = await fetch(`/api/groups/${groupId}/meetings`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        setShowMeetingModal(false);
+        fetchMeetingsAndTasks();
+      }
+    } catch (error) {
+      console.error("Error saving meeting:", error);
+    } finally {
+      setSavingMeeting(false);
+    }
+  };
+
+  const deleteMeeting = async (meetingId: number) => {
+    if (!confirm('Are you sure you want to delete this meeting?')) return;
+
+    try {
+      const res = await fetch(`/api/groups/${groupId}/meetings?meetingId=${meetingId}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        fetchMeetingsAndTasks();
+      }
+    } catch (error) {
+      console.error("Error deleting meeting:", error);
+    }
+  };
+
+  const updateMeetingStatus = async (meetingId: number, status: string) => {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/meetings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ meetingId, status })
+      });
+
+      if (res.ok) {
+        fetchMeetingsAndTasks();
+      }
+    } catch (error) {
+      console.error("Error updating meeting:", error);
+    }
+  };
+
+  // Task Functions
+  const openTaskModal = (task?: Task, parentId?: number) => {
+    if (task) {
+      setEditingTask(task);
+      setParentTaskId(null);
+      setTaskForm({
+        title: task.title,
+        description: task.description || '',
+        assignedTo: task.assignedTo?.toString() || '',
+        priority: task.priority,
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : ''
+      });
+    } else {
+      setEditingTask(null);
+      setParentTaskId(parentId || null);
+      setTaskForm({
+        title: '',
+        description: '',
+        assignedTo: '',
+        priority: 'medium',
+        dueDate: ''
+      });
+    }
+    setShowTaskModal(true);
+  };
+
+  const saveTask = async () => {
+    if (!taskForm.title) return;
+
+    setSavingTask(true);
+    try {
+      const method = editingTask ? 'PATCH' : 'POST';
+      const body = editingTask
+        ? { taskId: editingTask.taskId, ...taskForm }
+        : { ...taskForm, parentId: parentTaskId };
+
+      const res = await fetch(`/api/groups/${groupId}/tasks`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        setShowTaskModal(false);
+        fetchMeetingsAndTasks();
+      }
+    } catch (error) {
+      console.error("Error saving task:", error);
+    } finally {
+      setSavingTask(false);
+    }
+  };
+
+  const deleteTask = async (taskId: number) => {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+
+    try {
+      const res = await fetch(`/api/groups/${groupId}/tasks?taskId=${taskId}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        fetchMeetingsAndTasks();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to delete task');
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      alert('Failed to delete task');
+    }
+  };
+
+  const updateTaskStatus = async (taskId: number, status: string) => {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/tasks`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId, status })
+      });
+
+      if (res.ok) {
+        fetchMeetingsAndTasks();
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  const toggleTaskExpand = (taskId: number) => {
+    setExpandedTasks(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId);
+      } else {
+        newSet.add(taskId);
+      }
+      return newSet;
+    });
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+      case 'in_progress':
+        return <Clock className="w-4 h-4 text-amber-500" />;
+      default:
+        return <Circle className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      case 'medium':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      default:
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+    }
+  };
+
+  // Check if current user can delete a task
+  // Students cannot delete tasks created by supervisors
+  const canDeleteTask = (task: Task) => {
+    // If task was created by supervisor, students cannot delete it
+    if (task.createdByRole === 'supervisor') {
+      return false;
+    }
+    // Students can delete tasks created by students
+    return true;
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
@@ -466,23 +792,23 @@ export default function GroupDetailsPage() {
   const isCreator = group.currentStudentId === group.createdById;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       <StudentSidebar />
       
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100">
+        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between max-w-5xl mx-auto">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/student/chat')}
-                className="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-all"
+                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Group Details</h1>
-                <p className="text-xs text-gray-500">Manage your FYP group</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Group Details</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Manage your FYP group</p>
               </div>
             </div>
             
@@ -492,7 +818,7 @@ export default function GroupDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowLeaveConfirm(true)}
-                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                  className="text-gray-600 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -502,7 +828,7 @@ export default function GroupDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                  className="text-gray-600 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -512,18 +838,44 @@ export default function GroupDetailsPage() {
         </header>
 
         <main className="p-4 md:p-6 max-w-5xl mx-auto">
+          {/* Tab Navigation */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            {[
+              { id: 'details', label: 'Overview', icon: FolderKanban },
+              { id: 'members', label: 'Members', icon: Users },
+              { id: 'meetings', label: 'Meetings', icon: Calendar },
+              { id: 'tasks', label: 'Tasks', icon: ListTodo }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-[#1a5d1a] text-white'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Details Tab Content */}
+          {activeTab === 'details' && (
+            <>
           {/* Group Header Card - Enhanced Design */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Card className="border-0 shadow-sm rounded-2xl overflow-hidden">
+            <Card className="border-0 shadow-sm rounded-2xl overflow-hidden dark:bg-gray-800">
               <CardContent className="p-5 md:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Group Avatar */}
                   <div className="relative mx-auto sm:mx-0 flex-shrink-0">
-                    <div className="w-20 h-20 rounded-2xl bg-white shadow-lg border-2 border-gray-100 overflow-hidden">
+                    <div className="w-20 h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-lg border-2 border-gray-100 dark:border-gray-600 overflow-hidden">
                       {group.groupImage ? (
                         <img src={group.groupImage} alt={group.groupName} className="w-full h-full object-cover" />
                       ) : (
@@ -536,7 +888,7 @@ export default function GroupDetailsPage() {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingImage}
-                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white"
+                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-gray-800"
                       >
                         {uploadingImage ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -556,7 +908,7 @@ export default function GroupDetailsPage() {
                   
                   {/* Group Info */}
                   <div className="flex-1 text-center sm:text-left">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">{group.groupName}</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{group.groupName}</h2>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1a5d1a]/10 text-[#1a5d1a]">
                         <Users className="w-3.5 h-3.5" />
@@ -921,8 +1273,807 @@ export default function GroupDetailsPage() {
               </motion.div>
             </div>
           </div>
+          </>
+          )}
+
+          {/* Members Tab Content */}
+          {activeTab === 'members' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Team Members</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{group.students.length}/3 members • {group.supervisor ? '1 supervisor' : 'No supervisor'}</p>
+                </div>
+                {group.isAdmin && !group.isFull && (
+                  <Button
+                    onClick={() => setShowAddMemberModal(true)}
+                    size="sm"
+                    className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Add Member
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Supervisor Card */}
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
+                        <GraduationCap className="w-4 h-4 text-[#1a5d1a]" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white">Supervisor</h4>
+                    </div>
+                    
+                    {group.supervisor ? (
+                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/20 dark:to-[#1a5d1a]/30 rounded-xl border border-[#1a5d1a]/20">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold overflow-hidden shadow-md">
+                          {group.supervisor.profileImage ? (
+                            <img src={group.supervisor.profileImage} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            group.supervisor.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 dark:text-white">{group.supervisor.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{group.supervisor.email}</p>
+                        </div>
+                        <CheckCircle className="w-5 h-5 text-[#1a5d1a]" />
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                        <GraduationCap className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No supervisor assigned</p>
+                        {group.isAdmin && (
+                          <Button
+                            onClick={() => {
+                              setInviteType('supervisor');
+                              setShowAddMemberModal(true);
+                            }}
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 rounded-xl"
+                          >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Invite Supervisor
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Students Card */}
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-[#1a5d1a]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Students</h4>
+                      </div>
+                      <span className="text-xs bg-[#1a5d1a]/10 text-[#1a5d1a] px-2 py-1 rounded-full font-medium">
+                        {group.students.length}/3
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {group.students.map((member, idx) => (
+                        <motion.div 
+                          key={member.studentId} 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + idx * 0.05 }}
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden shadow-sm">
+                              {member.user.profileImage ? (
+                                <img src={member.user.profileImage} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                member.user.name.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-medium text-gray-900 dark:text-white text-sm">{member.user.name}</p>
+                                {group.createdById === member.studentId && (
+                                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-medium">
+                                    <Crown className="w-3 h-3" />
+                                    Creator
+                                  </span>
+                                )}
+                                {member.isGroupAdmin && group.createdById !== member.studentId && (
+                                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#1a5d1a]/10 text-[#1a5d1a] text-[10px] font-medium">
+                                    <Shield className="w-3 h-3" />
+                                    Admin
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{member.rollNumber}</p>
+                            </div>
+                          </div>
+                          
+                          {group.isAdmin && member.userId !== parseInt(session?.user?.id || '0') && group.createdById !== member.studentId && (
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {member.isGroupAdmin ? (
+                                <button
+                                  onClick={() => handleRemoveAdmin(member.userId)}
+                                  disabled={actionLoading === `admin-${member.userId}`}
+                                  className="w-8 h-8 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 transition-colors"
+                                  title="Remove admin"
+                                >
+                                  {actionLoading === `admin-${member.userId}` ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <ShieldOff className="w-4 h-4" />
+                                  )}
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleMakeAdmin(member.userId)}
+                                  disabled={actionLoading === `admin-${member.userId}`}
+                                  className="w-8 h-8 rounded-lg hover:bg-[#1a5d1a]/10 flex items-center justify-center text-[#1a5d1a] transition-colors"
+                                  title="Make admin"
+                                >
+                                  {actionLoading === `admin-${member.userId}` ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Shield className="w-4 h-4" />
+                                  )}
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleRemoveMember(member.userId)}
+                                disabled={actionLoading === `remove-${member.userId}`}
+                                className="w-8 h-8 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 transition-colors"
+                                title="Remove member"
+                              >
+                                {actionLoading === `remove-${member.userId}` ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <UserMinus className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                      
+                      {group.students.length < 3 && group.isAdmin && (
+                        <button
+                          onClick={() => {
+                            setInviteType('student');
+                            setShowAddMemberModal(true);
+                          }}
+                          className="w-full p-3 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl text-gray-400 dark:text-gray-500 hover:border-[#1a5d1a] hover:text-[#1a5d1a] transition-colors flex items-center justify-center gap-2"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          <span className="text-sm">Add Student</span>
+                        </button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Pending Invitations */}
+              {group.pendingInvitations.length > 0 && (
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <Send className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Pending Invitations</h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{group.pendingInvitations.length} waiting for response</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {group.pendingInvitations.map((invitation) => {
+                        const { canCancel, hoursRemaining } = canCancelInvitation(invitation);
+                        return (
+                          <div key={invitation.id} className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-xs overflow-hidden">
+                                {invitation.invitee.profileImage ? (
+                                  <img src={invitation.invitee.profileImage} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  invitation.invitee.name.charAt(0).toUpperCase()
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{invitation.invitee.name}</p>
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                    invitation.inviteeRole === 'supervisor'
+                                      ? 'bg-[#1a5d1a]/10 text-[#1a5d1a]'
+                                      : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                                  }`}>
+                                    {invitation.inviteeRole === 'supervisor' ? (
+                                      <GraduationCap className="w-3 h-3" />
+                                    ) : (
+                                      <Users className="w-3 h-3" />
+                                    )}
+                                    {invitation.inviteeRole}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {group.isAdmin && canCancel && (
+                              <button
+                                onClick={() => handleCancelInvitation(invitation)}
+                                disabled={actionLoading === `cancel-${invitation.inviteeId}`}
+                                className="w-8 h-8 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 flex items-center justify-center text-red-500 dark:text-red-400 transition-colors"
+                                title="Cancel invitation"
+                              >
+                                {actionLoading === `cancel-${invitation.inviteeId}` ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <X className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
+
+          {/* Meetings Tab Content */}
+          {activeTab === 'meetings' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Meetings</h3>
+                <Button
+                  onClick={() => openMeetingModal()}
+                  size="sm"
+                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Request Meeting
+                </Button>
+              </div>
+
+              {meetings.length > 0 ? (
+                <div className="space-y-3">
+                  {meetings.map((meeting) => (
+                    <Card key={meeting.meetingId} className="border-0 shadow-sm rounded-2xl dark:bg-gray-800 overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className={`h-1 ${
+                          meeting.status === 'completed' ? 'bg-green-500' :
+                          meeting.status === 'cancelled' ? 'bg-red-500' :
+                          'bg-[#1a5d1a]'
+                        }`} />
+                        <div className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{meeting.title}</h4>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  meeting.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  meeting.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                }`}>
+                                  {meeting.status}
+                                </span>
+                                {meeting.createdByRole === 'student' && (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                                    Student Request
+                                  </span>
+                                )}
+                              </div>
+                              {meeting.description && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{meeting.description}</p>
+                              )}
+                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  {new Date(meeting.scheduledAt).toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  {meeting.duration} min
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 ml-4">
+                              {meeting.meetingLink && meeting.status === 'scheduled' && (
+                                <a
+                                  href={meeting.meetingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 rounded-lg bg-[#1a5d1a] text-white hover:bg-[#145214] transition-colors"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              )}
+                              {meeting.createdById === parseInt(session?.user?.id || '0') && meeting.status === 'scheduled' && (
+                                <>
+                                  <button
+                                    onClick={() => openMeetingModal(meeting)}
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => deleteMeeting(meeting.meetingId)}
+                                    className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                  <CardContent className="py-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Meetings</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Request a meeting with your supervisor</p>
+                    <Button
+                      onClick={() => openMeetingModal()}
+                      className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                    >
+                      <CalendarPlus className="w-4 h-4 mr-2" />
+                      Request Meeting
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
+
+          {/* Tasks Tab Content */}
+          {activeTab === 'tasks' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Project Tasks</h3>
+                <Button
+                  onClick={() => openTaskModal()}
+                  size="sm"
+                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Task
+                </Button>
+              </div>
+
+              {/* Task Progress Overview */}
+              <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{tasks.filter(t => t.status === 'pending').length}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Pending</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-amber-500">{tasks.filter(t => t.status === 'in_progress').length}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">In Progress</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-500">{tasks.filter(t => t.status === 'completed').length}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Completed</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {tasks.length > 0 ? (
+                <div className="space-y-3">
+                  {tasks.map((task) => (
+                    <Card key={task.taskId} className="border-0 shadow-sm rounded-2xl dark:bg-gray-800 overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className={`h-1 ${
+                          task.status === 'completed' ? 'bg-green-500' :
+                          task.status === 'in_progress' ? 'bg-amber-500' :
+                          'bg-gray-300 dark:bg-gray-600'
+                        }`} />
+                        <div className="p-4">
+                          <div className="flex items-start gap-3">
+                            <button
+                              onClick={() => updateTaskStatus(task.taskId, task.status === 'completed' ? 'pending' : task.status === 'pending' ? 'in_progress' : 'completed')}
+                              className="mt-0.5 flex-shrink-0"
+                            >
+                              {getStatusIcon(task.status)}
+                            </button>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                                  {task.title}
+                                </h4>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                                  {task.priority}
+                                </span>
+                                {task.createdByRole === 'supervisor' && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                    By Supervisor
+                                  </span>
+                                )}
+                              </div>
+                              {task.description && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{task.description}</p>
+                              )}
+                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                                {task.assignee && (
+                                  <span className="flex items-center gap-1">
+                                    <div className="w-4 h-4 rounded-full bg-[#1a5d1a] flex items-center justify-center text-white text-[8px] overflow-hidden">
+                                      {task.assignee.profileImage ? (
+                                        <img src={task.assignee.profileImage} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        task.assignee.name.charAt(0)
+                                      )}
+                                    </div>
+                                    {task.assignee.name}
+                                  </span>
+                                )}
+                                {task.dueDate && (
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    Due: {new Date(task.dueDate).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Subtasks */}
+                              {task.subtasks && task.subtasks.length > 0 && (
+                                <div className="mt-3">
+                                  <button
+                                    onClick={() => toggleTaskExpand(task.taskId)}
+                                    className="flex items-center gap-1 text-xs text-[#1a5d1a] dark:text-green-400 font-medium hover:underline"
+                                  >
+                                    {expandedTasks.has(task.taskId) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    {task.subtasks.length} subtask{task.subtasks.length > 1 ? 's' : ''}
+                                  </button>
+                                  {expandedTasks.has(task.taskId) && (
+                                    <div className="mt-2 space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-600">
+                                      {task.subtasks.map((subtask) => (
+                                        <div key={subtask.taskId} className="flex items-center gap-2 py-1">
+                                          <button
+                                            onClick={() => updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
+                                          >
+                                            {getStatusIcon(subtask.status)}
+                                          </button>
+                                          <span className={`text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                            {subtask.title}
+                                          </span>
+                                          {subtask.assignee && (
+                                            <span className="text-xs text-gray-500">({subtask.assignee.name})</span>
+                                          )}
+                                          {subtask.createdByRole === 'supervisor' && (
+                                            <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
+                                              By Supervisor
+                                            </span>
+                                          )}
+                                          <button
+                                            onClick={() => openTaskModal(subtask)}
+                                            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                                          >
+                                            <Edit2 className="w-3 h-3 text-gray-400" />
+                                          </button>
+                                          {canDeleteTask(subtask) && (
+                                            <button
+                                              onClick={() => deleteTask(subtask.taskId)}
+                                              className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30"
+                                            >
+                                              <Trash2 className="w-3 h-3 text-red-400" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => openTaskModal(undefined, task.taskId)}
+                                className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                                title="Add subtask"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => openTaskModal(task)}
+                                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              {canDeleteTask(task) ? (
+                                <button
+                                  onClick={() => deleteTask(task.taskId)}
+                                  className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                  title="Delete task"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <div
+                                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                                  title="Cannot delete supervisor's task"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                  <CardContent className="py-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                      <ListTodo className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Tasks Yet</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Divide your project into manageable tasks</p>
+                    <Button
+                      onClick={() => openTaskModal()}
+                      className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add First Task
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
         </main>
       </div>
+
+      {/* Meeting Modal */}
+      <AnimatePresence>
+        {showMeetingModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowMeetingModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {editingMeeting ? 'Edit Meeting' : 'Request Meeting'}
+                  </h3>
+                  <button
+                    onClick={() => setShowMeetingModal(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+                  <Input
+                    value={meetingForm.title}
+                    onChange={(e) => setMeetingForm({ ...meetingForm, title: e.target.value })}
+                    placeholder="Meeting title"
+                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <textarea
+                    value={meetingForm.description}
+                    onChange={(e) => setMeetingForm({ ...meetingForm, description: e.target.value })}
+                    placeholder="What do you want to discuss?"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meeting Link (optional)</label>
+                  <Input
+                    value={meetingForm.meetingLink}
+                    onChange={(e) => setMeetingForm({ ...meetingForm, meetingLink: e.target.value })}
+                    placeholder="https://meet.google.com/..."
+                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preferred Time *</label>
+                    <Input
+                      type="datetime-local"
+                      value={meetingForm.scheduledAt}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, scheduledAt: e.target.value })}
+                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (min)</label>
+                    <Input
+                      type="number"
+                      value={meetingForm.duration}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, duration: parseInt(e.target.value) || 60 })}
+                      min={15}
+                      step={15}
+                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMeetingModal(false)}
+                  className="flex-1 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={saveMeeting}
+                  disabled={!meetingForm.title || !meetingForm.scheduledAt || savingMeeting}
+                  className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                >
+                  {savingMeeting ? <Loader2 className="w-4 h-4 animate-spin" /> : editingMeeting ? 'Update' : 'Request'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Task Modal */}
+      <AnimatePresence>
+        {showTaskModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowTaskModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {editingTask ? 'Edit Task' : parentTaskId ? 'Add Subtask' : 'Add Task'}
+                  </h3>
+                  <button
+                    onClick={() => setShowTaskModal(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+                  <Input
+                    value={taskForm.title}
+                    onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                    placeholder="Task title"
+                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <textarea
+                    value={taskForm.description}
+                    onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                    placeholder="Task description"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assign To</label>
+                  <select
+                    value={taskForm.assignedTo}
+                    onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="">Unassigned</option>
+                    {group?.students.map((student) => (
+                      <option key={student.userId} value={student.userId}>
+                        {student.user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                    <select
+                      value={taskForm.priority}
+                      onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value as any })}
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                    <Input
+                      type="date"
+                      value={taskForm.dueDate}
+                      onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowTaskModal(false)}
+                  className="flex-1 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={saveTask}
+                  disabled={!taskForm.title || savingTask}
+                  className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                >
+                  {savingTask ? <Loader2 className="w-4 h-4 animate-spin" /> : editingTask ? 'Update' : 'Add'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Add Member Modal */}
       <AnimatePresence>

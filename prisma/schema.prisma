@@ -438,3 +438,161 @@ enum ProjectPermissionStatus {
   approved
   rejected
 }
+
+// Meeting model for group meetings scheduled by supervisors or students
+model Meeting {
+  meetingId    Int           @id @default(autoincrement()) @map("meeting_id")
+  groupId      Int           @map("group_id")
+  title        String        @db.VarChar(255)
+  description  String?       @db.Text
+  meetingLink  String?       @db.VarChar(500) @map("meeting_link")
+  scheduledAt  DateTime      @map("scheduled_at")
+  duration     Int           @default(60) // Duration in minutes
+  status       MeetingStatus @default(scheduled)
+  createdById  Int           @map("created_by_id")
+  createdByRole String       @db.VarChar(20) @map("created_by_role") // 'supervisor' or 'student'
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([groupId])
+  @@index([scheduledAt])
+  @@map("meetings")
+}
+
+enum MeetingStatus {
+  scheduled
+  completed
+  cancelled
+}
+
+// Project Task model for dividing project work among group members
+model ProjectTask {
+  taskId       Int           @id @default(autoincrement()) @map("task_id")
+  groupId      Int           @map("group_id")
+  parentId     Int?          @map("parent_id") // For subtasks
+  title        String        @db.VarChar(255)
+  description  String?       @db.Text
+  assignedTo   Int?          @map("assigned_to") // Student user ID
+  status       TaskStatus    @default(pending)
+  priority     TaskPriority  @default(medium)
+  dueDate      DateTime?     @map("due_date")
+  completedAt  DateTime?     @map("completed_at")
+  createdById  Int           @map("created_by_id")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([groupId])
+  @@index([parentId])
+  @@index([assignedTo])
+  @@index([status])
+  @@map("project_tasks")
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  completed
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
+
+// Evaluation - Announcements/Assignments created by coordinators
+model Evaluation {
+  evaluationId  Int               @id @default(autoincrement()) @map("evaluation_id")
+  title         String            @db.VarChar(255)
+  description   String            @db.Text
+  instructions  String?           @db.Text
+  totalMarks    Int               @default(100) @map("total_marks")
+  dueDate       DateTime          @map("due_date")
+  status        EvaluationStatus  @default(active)
+  createdById   Int               @map("created_by_id") // Coordinator userId
+  campusId      Int               @map("campus_id")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  attachments   EvaluationAttachment[]
+  submissions   EvaluationSubmission[]
+
+  @@index([campusId])
+  @@index([createdById])
+  @@index([status])
+  @@index([dueDate])
+  @@map("evaluations")
+}
+
+enum EvaluationStatus {
+  draft
+  active
+  closed
+  graded
+}
+
+// Evaluation Attachments - Files attached to evaluation announcements
+model EvaluationAttachment {
+  attachmentId  Int         @id @default(autoincrement()) @map("attachment_id")
+  evaluationId  Int         @map("evaluation_id")
+  fileName      String      @db.VarChar(255) @map("file_name")
+  fileUrl       String      @db.VarChar(500) @map("file_url")
+  fileSize      Int?        @map("file_size") // In bytes
+  fileType      String?     @db.VarChar(100) @map("file_type")
+  createdAt     DateTime    @default(now())
+
+  evaluation    Evaluation  @relation(fields: [evaluationId], references: [evaluationId], onDelete: Cascade)
+
+  @@index([evaluationId])
+  @@map("evaluation_attachments")
+}
+
+// Evaluation Submission - Student/Group submissions for evaluations
+model EvaluationSubmission {
+  submissionId    Int                     @id @default(autoincrement()) @map("submission_id")
+  evaluationId    Int                     @map("evaluation_id")
+  groupId         Int                     @map("group_id")
+  submittedById   Int                     @map("submitted_by_id") // Student userId who submitted
+  content         String?                 @db.Text // Text content/notes
+  status          SubmissionStatus        @default(pending)
+  obtainedMarks   Int?                    @map("obtained_marks")
+  feedback        String?                 @db.Text
+  gradedById      Int?                    @map("graded_by_id") // Coordinator/Supervisor userId
+  gradedAt        DateTime?               @map("graded_at")
+  submittedAt     DateTime                @default(now()) @map("submitted_at")
+  updatedAt       DateTime                @updatedAt
+
+  evaluation      Evaluation              @relation(fields: [evaluationId], references: [evaluationId], onDelete: Cascade)
+  attachments     SubmissionAttachment[]
+
+  @@unique([evaluationId, groupId])
+  @@index([evaluationId])
+  @@index([groupId])
+  @@index([submittedById])
+  @@index([status])
+  @@map("evaluation_submissions")
+}
+
+enum SubmissionStatus {
+  pending
+  submitted
+  late
+  graded
+  returned
+}
+
+// Submission Attachments - Files attached to student submissions
+model SubmissionAttachment {
+  attachmentId  Int                   @id @default(autoincrement()) @map("attachment_id")
+  submissionId  Int                   @map("submission_id")
+  fileName      String                @db.VarChar(255) @map("file_name")
+  fileUrl       String                @db.VarChar(500) @map("file_url")
+  fileSize      Int?                  @map("file_size")
+  fileType      String?               @db.VarChar(100) @map("file_type")
+  uploadedAt    DateTime              @default(now()) @map("uploaded_at")
+
+  submission    EvaluationSubmission  @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("submission_attachments")
+}

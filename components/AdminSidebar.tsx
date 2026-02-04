@@ -93,8 +93,8 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
   const SidebarContent = useMemo(() => {
     const Content = () => (
       <div className="flex flex-col h-full">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        {/* Logo - Fixed at top */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
@@ -104,9 +104,9 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Admin Panel</p>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+        {/* Scrollable Navigation */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 sticky top-0 bg-white dark:bg-gray-800 py-1">
             Menu
           </p>
           {sidebarItems.map((item) => (
@@ -125,8 +125,8 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
           ))}
         </nav>
 
-        {/* Bottom Section */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+        {/* Bottom Section - Fixed at bottom */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1 flex-shrink-0 bg-white dark:bg-gray-800">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
             General
           </p>

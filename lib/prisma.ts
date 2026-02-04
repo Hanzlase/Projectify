@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
+// Force regenerate check - prisma generate was run
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   prismaShutdownRegistered: boolean | undefined;

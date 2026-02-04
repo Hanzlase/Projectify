@@ -86,7 +86,8 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       transition={{ duration: 0.5 }}
       className="hidden md:flex w-56 bg-white dark:bg-gray-900 flex-col fixed h-full z-20 shadow-sm dark:shadow-gray-950"
     >
-      <div className="p-5 pb-8">
+      {/* Logo - Fixed at top */}
+      <div className="p-5 pb-4 flex-shrink-0">
         <div 
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/supervisor/dashboard')}
@@ -98,9 +99,10 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
         </div>
       </div>
 
-      <nav className="flex-1 px-3">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3">Menu</p>
-        <div className="space-y-1">
+      {/* Scrollable Main Navigation */}
+      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-gray-900 py-1">Menu</p>
+        <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
             <NavItem
               key={item.label}
@@ -113,7 +115,8 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
         </div>
       </nav>
 
-      <div className="px-3 pb-4">
+      {/* Bottom Navigation - Fixed at bottom */}
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 pt-3 bg-white dark:bg-gray-900">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => (

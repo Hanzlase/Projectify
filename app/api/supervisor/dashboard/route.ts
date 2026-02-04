@@ -106,16 +106,20 @@ export async function GET() {
       })
     ]);
 
-    // Get projects for groups (need groupIds first)
-    const groupIds = assignedGroups.map((g: any) => g.groupId);
-    const invitationGroupIds = pendingInvitations.map((inv: any) => inv.group.groupId);
-    const allGroupIds = Array.from(new Set([...groupIds, ...invitationGroupIds]));
+    // Get projects for groups (need projectIds from groups)
+    const projectIdsFromGroups = assignedGroups
+      .map((g: any) => g.projectId)
+      .filter((id: any) => id !== null);
+    const invitationProjectIds = pendingInvitations
+      .map((inv: any) => inv.group.projectId)
+      .filter((id: any) => id !== null);
+    const allProjectIds = Array.from(new Set([...projectIdsFromGroups, ...invitationProjectIds]));
     
-    // Fetch all projects in one query
-    const allProjects = allGroupIds.length > 0 
+    // Fetch all projects in one query by projectId
+    const allProjects = allProjectIds.length > 0 
       ? await (prisma as any).project.findMany({
           where: {
-            groupId: { in: allGroupIds }
+            projectId: { in: allProjectIds }
           },
           select: {
             projectId: true,
@@ -127,24 +131,24 @@ export async function GET() {
         })
       : [];
 
-    // Map projects to groups
-    const projectsByGroupId = allProjects.reduce((acc: any, project: any) => {
-      acc[project.groupId] = project;
+    // Map projects by projectId for easy lookup
+    const projectsById = allProjects.reduce((acc: any, project: any) => {
+      acc[project.projectId] = project;
       return acc;
     }, {});
 
-    // Add project info to groups
+    // Add project info to groups using group.projectId
     const groupsWithProjects = assignedGroups.map((group: any) => ({
       ...group,
-      project: projectsByGroupId[group.groupId] || null
+      project: group.projectId ? projectsById[group.projectId] || null : null
     }));
 
-    // Add project info to invitations
+    // Add project info to invitations using group.projectId
     const invitationsWithProjects = pendingInvitations.map((inv: any) => ({
       ...inv,
       group: {
         ...inv.group,
-        project: projectsByGroupId[inv.group.groupId] || null
+        project: inv.group.projectId ? projectsById[inv.group.projectId] || null : null
       }
     }));
 

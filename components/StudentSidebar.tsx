@@ -19,6 +19,8 @@ import {
   UserPlus,
   AlertTriangle,
   Building2,
+  UsersRound,
+  FileCheck,
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -67,11 +69,33 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [groupId, setGroupId] = useState<number | null>(null);
 
   // Set mounted on client-side only
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch user's group ID
+  useEffect(() => {
+    const fetchGroupId = async () => {
+      try {
+        const res = await fetch('/api/student/dashboard');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.group?.id) {
+            setGroupId(data.group.id);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch group ID:', error);
+      }
+    };
+    
+    if (session?.user?.id) {
+      fetchGroupId();
+    }
+  }, [session?.user?.id]);
 
   // Smooth navigation with useTransition
   const navigate = useCallback((path: string) => {
@@ -124,11 +148,13 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
     { icon: FolderKanban, label: 'Projects', path: '/student/projects' },
     { icon: Building2, label: 'Industry Projects', path: '/student/industrial-projects' },
+    { icon: FileCheck, label: 'Evaluations', path: '/student/evaluations' },
     { icon: Users, label: 'Supervisors', path: '/student/browse-supervisors' },
     { icon: User, label: 'Students', path: '/student/browse-students' },
     { icon: UserPlus, label: 'Invitations', path: '/student/invitations' },
     { icon: MessageCircle, label: 'Chat', path: '/student/chat' },
-  ], []);
+    ...(groupId ? [{ icon: UsersRound, label: 'FYP Group', path: `/student/group/${groupId}` }] : []),
+  ], [groupId]);
 
   const bottomSidebarItems = useMemo(() => [
     { icon: Settings, label: 'Settings', path: '/student/profile' },
@@ -138,9 +164,9 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
   const isActive = useCallback((path: string): boolean => pathname === path || pathname?.startsWith(path + '/') || false, [pathname]);
 
   const SidebarContent = () => (
-    <>
-      {/* Logo */}
-      <div className="p-5 pb-8">
+    <div className="flex flex-col h-full">
+      {/* Logo - Fixed at top */}
+      <div className="p-5 pb-4 flex-shrink-0">
         <Link 
           href="/student/dashboard"
           prefetch={true}
@@ -154,10 +180,10 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
         </Link>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 px-3">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3">Menu</p>
-        <div className="space-y-1">
+      {/* Scrollable Main Navigation */}
+      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-gray-900 py-1">Menu</p>
+        <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
             <NavItem
               key={item.label}
@@ -171,8 +197,8 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
         </div>
       </nav>
 
-      {/* Bottom Navigation */}
-      <div className="px-3 pb-4">
+      {/* Bottom Navigation - Fixed at bottom */}
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 pt-3 bg-white dark:bg-gray-900">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => {
@@ -203,7 +229,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
 
       {/* User Profile Card (Mobile) */}
       {isMobile && (
-        <div className="px-3 pb-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+        <div className="px-3 pb-4 border-t border-gray-100 dark:border-gray-800 pt-4 flex-shrink-0">
           <Link 
             href="/student/profile"
             prefetch={true}
@@ -224,7 +250,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
           </Link>
         </div>
       )}
-    </>
+    </div>
   );
 
   return (

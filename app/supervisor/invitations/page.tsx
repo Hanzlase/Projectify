@@ -165,13 +165,13 @@ function SupervisorInvitationsPageContent() {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "pending":
-        return { icon: Clock, label: "Pending", bg: "bg-amber-100", text: "text-amber-700" };
+        return { icon: Clock, label: "Pending", bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" };
       case "accepted":
-        return { icon: CheckCircle, label: "Accepted", bg: "bg-green-100", text: "text-green-700" };
+        return { icon: CheckCircle, label: "Accepted", bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" };
       case "rejected":
-        return { icon: XCircle, label: "Declined", bg: "bg-red-100", text: "text-red-600" };
+        return { icon: XCircle, label: "Declined", bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-600 dark:text-red-400" };
       default:
-        return { icon: Clock, label: "Unknown", bg: "bg-gray-100", text: "text-gray-600" };
+        return { icon: Clock, label: "Unknown", bg: "bg-gray-100 dark:bg-gray-700", text: "text-gray-600 dark:text-gray-400" };
     }
   };
 
@@ -180,23 +180,23 @@ function SupervisorInvitationsPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
       <SupervisorSidebar />
       
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100">
+        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between max-w-6xl mx-auto">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/supervisor/dashboard")}
-                className="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-all"
+                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Group Invitations</h1>
-                <p className="text-xs text-gray-500">Manage supervision requests</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Group Invitations</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Manage supervision requests</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -213,7 +213,7 @@ function SupervisorInvitationsPageContent() {
                 variant="outline"
                 size="sm"
                 disabled={refreshing}
-                className="rounded-xl border-gray-200"
+                className="rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
               </Button>
@@ -236,26 +236,26 @@ function SupervisorInvitationsPageContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="border-0 shadow-sm rounded-2xl">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-gray-500">{stat.label}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
                         <p className={`text-2xl font-bold ${
-                          stat.color === "amber" ? "text-amber-600" :
-                          stat.color === "green" ? "text-green-600" :
-                          stat.color === "red" ? "text-red-600" : "text-gray-900"
+                          stat.color === "amber" ? "text-amber-600 dark:text-amber-400" :
+                          stat.color === "green" ? "text-green-600 dark:text-green-400" :
+                          stat.color === "red" ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-white"
                         }`}>{stat.value}</p>
                       </div>
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        stat.color === "amber" ? "bg-amber-100" :
-                        stat.color === "green" ? "bg-green-100" :
-                        stat.color === "red" ? "bg-red-100" : "bg-gray-100"
+                        stat.color === "amber" ? "bg-amber-100 dark:bg-amber-900/30" :
+                        stat.color === "green" ? "bg-green-100 dark:bg-green-900/30" :
+                        stat.color === "red" ? "bg-red-100 dark:bg-red-900/30" : "bg-gray-100 dark:bg-gray-700"
                       }`}>
                         <stat.icon className={`w-5 h-5 ${
-                          stat.color === "amber" ? "text-amber-600" :
-                          stat.color === "green" ? "text-green-600" :
-                          stat.color === "red" ? "text-red-600" : "text-gray-600"
+                          stat.color === "amber" ? "text-amber-600 dark:text-amber-400" :
+                          stat.color === "green" ? "text-green-600 dark:text-green-400" :
+                          stat.color === "red" ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"
                         }`} />
                       </div>
                     </div>
@@ -271,7 +271,7 @@ function SupervisorInvitationsPageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-0 shadow-sm rounded-2xl mb-6">
+            <Card className="border-0 shadow-sm rounded-2xl mb-6 dark:bg-gray-800">
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 relative">
@@ -280,7 +280,7 @@ function SupervisorInvitationsPageContent() {
                       placeholder="Search by group, project, or student..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-10 rounded-xl border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
+                      className="pl-10 h-10 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20"
                     />
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -294,7 +294,7 @@ function SupervisorInvitationsPageContent() {
                               f === "accepted" ? "bg-green-500 text-white" :
                               f === "rejected" ? "bg-red-500 text-white" :
                               "bg-[#1a5d1a] text-white"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                         }`}
                       >
                         {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -323,7 +323,7 @@ function SupervisorInvitationsPageContent() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="border-0 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                      <Card className="border-0 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow dark:bg-gray-800">
                         <CardContent className="p-0">
                           <div className="flex flex-col lg:flex-row">
                             {/* Main Content */}
@@ -335,8 +335,8 @@ function SupervisorInvitationsPageContent() {
                                     {invitation.group.name.charAt(0).toUpperCase()}
                                   </div>
                                   <div>
-                                    <h3 className="font-semibold text-gray-900">{invitation.group.name}</h3>
-                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">{invitation.group.name}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                       <Calendar className="w-3 h-3" />
                                       {formatDate(invitation.createdAt)}
                                     </p>
@@ -349,11 +349,11 @@ function SupervisorInvitationsPageContent() {
                               </div>
 
                               {/* Project Info */}
-                              <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-4">
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2">
                                     <FolderKanban className="w-4 h-4 text-[#1a5d1a]" />
-                                    <span className="text-sm font-medium text-gray-700">Project Idea</span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Project Idea</span>
                                   </div>
                                   {invitation.group.projectId && (
                                     <button
@@ -365,13 +365,13 @@ function SupervisorInvitationsPageContent() {
                                     </button>
                                   )}
                                 </div>
-                                <p className="text-gray-900 font-medium">{invitation.group.name}</p>
+                                <p className="text-gray-900 dark:text-white font-medium">{invitation.group.name}</p>
                               </div>
 
                               {/* Inviter & Members */}
                               <div className="flex flex-wrap gap-4">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs text-gray-500">Invited by:</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Invited by:</span>
                                   <div className="flex items-center gap-2">
                                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xs overflow-hidden">
                                       {invitation.inviter.image ? (
@@ -380,18 +380,18 @@ function SupervisorInvitationsPageContent() {
                                         invitation.inviter.name.charAt(0).toUpperCase()
                                       )}
                                     </div>
-                                    <span className="text-sm font-medium text-gray-900">{invitation.inviter.name}</span>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">{invitation.inviter.name}</span>
                                   </div>
                                 </div>
                                 
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4 text-gray-400" />
-                                  <span className="text-xs text-gray-500">{invitation.group.members.length} members</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">{invitation.group.members.length} members</span>
                                   <div className="flex -space-x-2">
                                     {invitation.group.members.slice(0, 3).map((member) => (
                                       <div
                                         key={member.id}
-                                        className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-[10px] border-2 border-white overflow-hidden"
+                                        className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-[10px] border-2 border-white dark:border-gray-800 overflow-hidden"
                                       >
                                         {member.image ? (
                                           <img src={member.image} alt="" className="w-full h-full object-cover" />
@@ -401,7 +401,7 @@ function SupervisorInvitationsPageContent() {
                                       </div>
                                     ))}
                                     {invitation.group.members.length > 3 && (
-                                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-600 border-2 border-white">
+                                      <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-[10px] text-gray-600 dark:text-gray-300 border-2 border-white dark:border-gray-800">
                                         +{invitation.group.members.length - 3}
                                       </div>
                                     )}
@@ -412,7 +412,7 @@ function SupervisorInvitationsPageContent() {
 
                             {/* Action Panel */}
                             {invitation.status === "pending" ? (
-                              <div className="lg:w-44 bg-gradient-to-b from-gray-50 to-gray-100 p-4 flex lg:flex-col items-center justify-center gap-3 border-t lg:border-t-0 lg:border-l border-gray-100">
+                              <div className="lg:w-44 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-700 p-4 flex lg:flex-col items-center justify-center gap-3 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-700">
                                 <Button
                                   onClick={() => handleInvitationResponse(invitation.id, "accept")}
                                   disabled={actionLoading === invitation.id}
@@ -431,21 +431,21 @@ function SupervisorInvitationsPageContent() {
                                   onClick={() => handleInvitationResponse(invitation.id, "reject")}
                                   disabled={actionLoading === invitation.id}
                                   variant="outline"
-                                  className="flex-1 lg:w-full rounded-xl h-10 border-red-200 text-red-600 hover:bg-red-50"
+                                  className="flex-1 lg:w-full rounded-xl h-10 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
                                 >
                                   <X className="w-4 h-4 mr-2" />
                                   Decline
                                 </Button>
                               </div>
                             ) : (
-                              <div className="lg:w-44 bg-gradient-to-b from-gray-50 to-gray-100 p-4 flex items-center justify-center border-t lg:border-t-0 lg:border-l border-gray-100">
+                              <div className="lg:w-44 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-700 p-4 flex items-center justify-center border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-700">
                                 <div className="text-center">
                                   {invitation.status === "accepted" ? (
                                     <>
-                                      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-                                        <CheckCircle className="w-6 h-6 text-green-600" />
+                                      <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-2">
+                                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                                       </div>
-                                      <p className="text-sm font-medium text-green-700">Accepted</p>
+                                      <p className="text-sm font-medium text-green-700 dark:text-green-400">Accepted</p>
                                       <button
                                         onClick={() => router.push("/supervisor/chat")}
                                         className="mt-2 text-xs text-[#1a5d1a] hover:underline flex items-center gap-1 justify-center"
@@ -456,10 +456,10 @@ function SupervisorInvitationsPageContent() {
                                     </>
                                   ) : (
                                     <>
-                                      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
-                                        <XCircle className="w-6 h-6 text-red-500" />
+                                      <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-2">
+                                        <XCircle className="w-6 h-6 text-red-500 dark:text-red-400" />
                                       </div>
-                                      <p className="text-sm font-medium text-red-600">Declined</p>
+                                      <p className="text-sm font-medium text-red-600 dark:text-red-400">Declined</p>
                                     </>
                                   )}
                                 </div>
@@ -476,13 +476,13 @@ function SupervisorInvitationsPageContent() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Card className="border-0 shadow-sm rounded-2xl">
+                  <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
                     <CardContent className="py-16 text-center">
-                      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                         <Inbox className="w-8 h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No invitations found</h3>
-                      <p className="text-gray-500 text-sm max-w-md mx-auto">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No invitations found</h3>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto">
                         {filter !== "all" 
                           ? `No ${filter} invitations to display.`
                           : searchQuery 
