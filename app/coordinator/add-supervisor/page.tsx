@@ -27,7 +27,6 @@ export default function AddSupervisorPage() {
   
   // Single supervisor state
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   
@@ -76,17 +75,14 @@ export default function AddSupervisorPage() {
       return;
     }
 
-    if (!username.trim()) {
-      alert('Please enter a username');
-      setLoading(false);
-      return;
-    }
-
     if (!email.trim()) {
       alert('Please enter an email');
       setLoading(false);
       return;
     }
+
+    // Auto-generate username from email (part before @)
+    const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
 
     try {
       const response = await fetch('/api/coordinator/add-supervisors', {
@@ -94,7 +90,7 @@ export default function AddSupervisorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           names: [name.trim()],
-          usernames: [username.trim()],
+          usernames: [username],
           emails: [email.trim()],
           specializations: [''],
         }),
@@ -106,7 +102,6 @@ export default function AddSupervisorPage() {
         setResults(data.results);
         if (data.results.success.length > 0) {
           setName('');
-          setUsername('');
           setEmail('');
         }
       } else {
@@ -133,15 +128,21 @@ export default function AddSupervisorPage() {
       const text = await csvFile.text();
       const lines = text.split('\n').filter(line => line.trim());
       
-      const startIndex = lines[0].toLowerCase().includes('name') || lines[0].toLowerCase().includes('username') ? 1 : 0;
+      const startIndex = lines[0].toLowerCase().includes('name') || lines[0].toLowerCase().includes('email') ? 1 : 0;
       
       lines.slice(startIndex).forEach(line => {
         const columns = line.split(',').map(c => c.trim());
-        if (columns.length >= 3) {
-          nameArray.push(columns[0]);
-          usernameArray.push(columns[1]);
-          emailArray.push(columns[2]);
-          specializationArray.push('');
+        if (columns.length >= 2) {
+          const name = columns[0];
+          const email = columns[1];
+          const specialization = columns[2] || '';
+          // Auto-generate username from email
+          const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+          
+          nameArray.push(name);
+          usernameArray.push(username);
+          emailArray.push(email);
+          specializationArray.push(specialization);
         }
       });
     } else if (supervisorsData.trim()) {
@@ -149,11 +150,17 @@ export default function AddSupervisorPage() {
         const trimmedLine = line.trim();
         if (trimmedLine) {
           const parts = trimmedLine.split(',').map(p => p.trim());
-          if (parts.length >= 3) {
-            nameArray.push(parts[0]);
-            usernameArray.push(parts[1]);
-            emailArray.push(parts[2]);
-            specializationArray.push('');
+          if (parts.length >= 2) {
+            const name = parts[0];
+            const email = parts[1];
+            const specialization = parts[2] || '';
+            // Auto-generate username from email
+            const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            nameArray.push(name);
+            usernameArray.push(username);
+            emailArray.push(email);
+            specializationArray.push(specialization);
           }
         }
       });
@@ -351,23 +358,7 @@ export default function AddSupervisorPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="username" className="text-sm font-medium text-gray-700 dark:text-gray-300">Username *</Label>
-                      <div className="relative">
-                        <AtSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <Input
-                          id="username"
-                          type="text"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          placeholder="e.g., johnsmith"
-                          required
-                          className="h-11 pl-10 border-gray-300 focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email *</Label>
+                      <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email *</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <Input
@@ -377,14 +368,15 @@ export default function AddSupervisorPage() {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="e.g., john.smith@university.edu"
                           required
-                          className="h-11 pl-10 border-gray-300 focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
+                          className="h-11 pl-10 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
                         />
                       </div>
                     </div>
 
-                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
-                      <h4 className="font-semibold text-sm text-emerald-900 mb-2">Auto-Generated Credentials:</h4>
-                      <ul className="text-sm text-emerald-700 space-y-1">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                      <h4 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-2">Auto-Generated Credentials:</h4>
+                      <ul className="text-sm text-emerald-700 dark:text-emerald-300 space-y-1">
+                        <li>• Username: Generated from email (part before @)</li>
                         <li>• Password: username + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>
                         <li>• Specialization can be set by the supervisor later</li>
@@ -400,7 +392,7 @@ export default function AddSupervisorPage() {
                 ) : (
                   <form onSubmit={handleBulkSubmit} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="csvFile" className="text-sm font-medium text-gray-700">Upload CSV File</Label>
+                      <Label htmlFor="csvFile" className="text-sm font-medium text-gray-700 dark:text-gray-300">Upload CSV File</Label>
                       <div className="flex items-center gap-2">
                         <div className="relative flex-1">
                           <FileUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
@@ -409,7 +401,7 @@ export default function AddSupervisorPage() {
                             type="file"
                             accept=".csv"
                             onChange={handleFileChange}
-                            className="cursor-pointer h-11 pl-10 border-gray-300 focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                            className="cursor-pointer h-11 pl-10 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900 dark:file:text-emerald-200"
                           />
                         </div>
                         {csvFile && (
@@ -428,17 +420,17 @@ export default function AddSupervisorPage() {
                           </Button>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-1.5">
-                        CSV format: name,username,email,specialization (one per line)
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                        CSV format: name,email,specialization (one per line)
                       </p>
                     </div>
 
                     <div className="text-center">
-                      <span className="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-semibold rounded-full">OR</span>
+                      <span className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-semibold rounded-full">OR</span>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="supervisorsData" className="text-sm font-medium text-gray-700">Enter Supervisor Data (One per line)</Label>
+                      <Label htmlFor="supervisorsData" className="text-sm font-medium text-gray-700 dark:text-gray-300">Enter Supervisor Data (One per line)</Label>
                       <textarea
                         id="supervisorsData"
                         value={supervisorsData}
@@ -446,16 +438,17 @@ export default function AddSupervisorPage() {
                           setSupervisorsData(e.target.value);
                           if (csvFile) setCsvFile(null);
                         }}
-                        placeholder="Format: name,username,email,specialization&#10;Dr. John Smith,johnsmith,john@edu.pk,AI&#10;Dr. Jane Doe,janedoe,jane@edu.pk,ML"
+                        placeholder="Format: name,email,specialization&#10;Dr. John Smith,john@edu.pk,AI&#10;Dr. Jane Doe,jane@edu.pk,ML"
                         rows={8}
-                        className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] font-mono text-sm shadow-sm transition-all duration-200"
+                        className="w-full p-4 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] font-mono text-sm shadow-sm transition-all duration-200"
                         disabled={!!csvFile}
                       />
                     </div>
 
-                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
-                      <h4 className="font-semibold text-sm text-emerald-900 mb-2">Auto-Generated Credentials:</h4>
-                      <ul className="text-sm text-emerald-700 space-y-1">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                      <h4 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-2">Auto-Generated Credentials:</h4>
+                      <ul className="text-sm text-emerald-700 dark:text-emerald-300 space-y-1">
+                        <li>• Username: Generated from email (part before @)</li>
                         <li>• Password: username + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>
                       </ul>

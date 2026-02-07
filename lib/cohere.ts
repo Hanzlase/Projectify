@@ -5,6 +5,9 @@ const cohere = new CohereClient({
   token: process.env.cohere_api_key || '',
 });
 
+// Centralized Cohere model configuration
+const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-03-2025';
+
 // Request queue for rate limiting concurrent Cohere requests
 const requestQueue: Array<{
   resolve: (value: any) => void;
@@ -201,7 +204,7 @@ export async function extractProjectInfo(documentText: string): Promise<{
 
   try {
     const response = await cohere.chat({
-      model: 'command-a-03-2025',
+      model: COHERE_MODEL,
       message: `You are an expert at analyzing academic and FYP (Final Year Project) documents. Your task is to extract detailed information that will be used for similarity comparison with other projects.
 
 CRITICAL: Focus on extracting the CORE FUNCTIONALITY and FEATURES, not just surface-level keywords. Two projects implementing the same core features should be detected as similar even if they use different tech stacks or UI designs.
@@ -312,7 +315,7 @@ Abstract: ${p.abstract}
 `).join('\n\n');
 
     const response = await cohere.chat({
-      model: 'command-a-03-2025',
+      model: COHERE_MODEL,
       message: `Analyze why the following new project idea is similar to existing projects in our database.
 
 NEW PROJECT:
@@ -386,7 +389,7 @@ export async function generateFeasibilityReport(
 ): Promise<FeasibilityReport> {
   try {
     const response = await cohere.chat({
-      model: 'command-a-03-2025',
+      model: COHERE_MODEL,
       message: `You are an expert project analyst for Final Year Projects (FYP). Generate a brief feasibility report for the following project:
 
 PROJECT DETAILS:
@@ -480,7 +483,7 @@ export async function generateSimilarityReason(
     const simFeatures = similarProject.mainFeatures?.join(', ') || '';
     
     const response = await cohere.chat({
-      model: 'command-a-03-2025',
+      model: COHERE_MODEL,
       message: `Compare these two projects and explain their functional similarity in 2-3 complete sentences.
 
 PROJECT A: "${newProject.title}"
@@ -583,7 +586,7 @@ Features: ${p.mainFeatures?.join(', ') || 'N/A'}`
     ).join('\n\n');
 
     const response = await cohere.chat({
-      model: 'command-a-03-2025',
+      model: COHERE_MODEL,
       message: `Analyze feature overlap between a new project and existing similar projects.
 
 NEW PROJECT:

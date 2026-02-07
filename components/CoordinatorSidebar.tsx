@@ -81,6 +81,7 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
     { icon: UserPlus, label: 'Add Supervisor', path: '/coordinator/add-supervisor' },
     { icon: Users, label: 'Manage Users', path: '/coordinator/manage-users' },
     { icon: FileCheck, label: 'Evaluations', path: '/coordinator/evaluations' },
+    { icon: ClipboardList, label: 'Evaluation Panels', path: '/coordinator/evaluation-panels' },
     { icon: Building2, label: 'Industry Projects', path: '/coordinator/industrial-projects' },
     { icon: Bell, label: 'Notifications', path: '/coordinator/notifications' },
     { icon: MessageCircle, label: 'Chat', path: '/coordinator/chat' },

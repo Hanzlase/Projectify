@@ -598,6 +598,78 @@ model SubmissionAttachment {
   @@map("submission_attachments")
 }
 
+// Evaluation Panels - Panels of supervisors for evaluating FYP groups
+model EvaluationPanel {
+  panelId          Int                @id @default(autoincrement()) @map("panel_id")
+  name             String             @db.VarChar(255)
+  description      String?            @db.Text
+  evaluationType   String?            @db.VarChar(100) @map("evaluation_type") // e.g., "Mid-Term", "Final Defense", "Progress Review" - Optional for generic panels
+  minSupervisors   Int                @default(2) @map("min_supervisors") // Minimum supervisors required per panel
+  maxSupervisors   Int                @default(4) @map("max_supervisors") // Maximum supervisors allowed per panel
+  scheduledDate    DateTime?          @map("scheduled_date")
+  status           EvaluationPanelStatus @default(draft)
+  campusId         Int                @map("campus_id")
+  createdById      Int                @map("created_by_id") // Coordinator userId
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  panelMembers     PanelMember[]
+  groupAssignments GroupPanelAssignment[]
+
+  @@index([campusId])
+  @@index([createdById])
+  @@index([status])
+  @@index([scheduledDate])
+  @@map("evaluation_panels")
+}
+
+enum EvaluationPanelStatus {
+  draft
+  active
+  completed
+  cancelled
+}
+
+// Panel Members - Supervisors assigned to evaluation panels
+model PanelMember {
+  id           Int      @id @default(autoincrement())
+  panelId      Int      @map("panel_id")
+  supervisorId Int      @map("supervisor_id") // User ID of supervisor
+  role         PanelMemberRole @default(member)
+  addedAt      DateTime @default(now()) @map("added_at")
+
+  panel EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
+
+  @@unique([panelId, supervisorId])
+  @@index([supervisorId])
+  @@map("panel_members")
+}
+
+enum PanelMemberRole {
+  chair      // Panel chairperson
+  member     // Regular panel member
+  external   // External examiner
+}
+
+// Group Panel Assignment - Assigns groups to evaluation panels
+model GroupPanelAssignment {
+  id        Int      @id @default(autoincrement())
+  panelId   Int      @map("panel_id")
+  groupId   Int      @map("group_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  evaluationDate DateTime? @map("evaluation_date")
+  timeSlot   String?  @db.VarChar(50) @map("time_slot") // e.g., "09:00 AM - 10:00 AM"
+  venue      String?  @db.VarChar(255)
+  remarks    String?  @db.Text
+
+  panel EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
+
+  @@unique([panelId, groupId])
+  @@index([groupId])
+  @@index([evaluationDate])
+  @@map("group_panel_assignments")
+}
+
 // Password Reset Tokens - For forgot password functionality
 model PasswordResetToken {
   id        Int      @id @default(autoincrement())
