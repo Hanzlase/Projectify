@@ -136,21 +136,21 @@ export default function BrowseStudentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <StudentSidebar />
       
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Page Header - Hidden on mobile */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-100 dark:border-gray-700">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
               <Users className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Browse Students</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Find teammates for your FYP</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Browse Students</h1>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">Find teammates for your FYP</p>
             </div>
           </div>
         </header>
@@ -204,7 +204,7 @@ export default function BrowseStudentsPage() {
                   placeholder="Search by name, roll number, skills, interests..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-gray-200 dark:border-gray-600 focus:border-[#1a5d1a] bg-white dark:bg-gray-800 dark:text-white rounded-xl shadow-sm"
+                  className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-gray-200 dark:border-zinc-600 focus:border-[#1a5d1a] bg-white dark:bg-[#27272A] dark:text-[#E4E4E7] rounded-xl shadow-sm"
                 />
                 {searchQuery && (
                   <button 
@@ -221,7 +221,7 @@ export default function BrowseStudentsPage() {
                 className={`h-12 sm:h-14 px-4 sm:px-5 border-2 transition-all ${
                   showFilters || hasActiveFilters
                     ? 'border-[#1a5d1a] bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d]' 
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    : 'border-gray-200 dark:border-zinc-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
                 <SlidersHorizontal className="w-5 h-5 sm:mr-2" />
@@ -241,7 +241,7 @@ export default function BrowseStudentsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeFilter === 'all'
                     ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
-                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-[#1a5d1a] hover:text-[#1a5d1a]'
+                    : 'bg-white dark:bg-[#27272A] border-2 border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-zinc-300 hover:border-[#1a5d1a] hover:text-[#1a5d1a]'
                 }`}
               >
                 All Students
@@ -251,7 +251,7 @@ export default function BrowseStudentsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                   activeFilter === 'no-group'
                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-emerald-400 hover:text-emerald-600'
+                    : 'bg-white dark:bg-[#27272A] border-2 border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-zinc-300 hover:border-emerald-400 hover:text-emerald-600'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function BrowseStudentsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                   activeFilter === 'has-group'
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600'
+                    : 'bg-white dark:bg-[#27272A] border-2 border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-zinc-300 hover:border-blue-400 hover:text-blue-600'
                 }`}
               >
                 <CheckCircle2 className="w-4 h-4" />
@@ -273,10 +273,10 @@ export default function BrowseStudentsPage() {
             {/* Advanced Filters Panel */}
             {showFilters && (
               <div className="overflow-hidden transition-all duration-200">
-                <Card className="border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                <Card className="border-2 border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-sm">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
                         <Filter className="w-4 h-4 text-[#1a5d1a]" />
                         Advanced Filters
                       </h3>
@@ -285,7 +285,7 @@ export default function BrowseStudentsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={clearFilters}
-                          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          className="text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-gray-200"
                         >
                           <X className="w-4 h-4 mr-1" />
                           Clear All
@@ -296,14 +296,14 @@ export default function BrowseStudentsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Batch Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-500" />
                           Batch
                         </label>
                         <select
                           value={selectedBatch}
                           onChange={(e) => setSelectedBatch(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                          className="w-full h-11 px-3 border-2 border-gray-200 dark:border-zinc-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-zinc-700 text-gray-700 dark:text-zinc-200"
                         >
                           {uniqueBatches.map(batch => (
                             <option key={batch} value={batch}>
@@ -315,14 +315,14 @@ export default function BrowseStudentsPage() {
 
                       {/* Skills Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-2">
                           <Code className="w-4 h-4 text-gray-500" />
                           Skills
                         </label>
                         <select
                           value={selectedSkill}
                           onChange={(e) => setSelectedSkill(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                          className="w-full h-11 px-3 border-2 border-gray-200 dark:border-zinc-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-zinc-700 text-gray-700 dark:text-zinc-200"
                         >
                           {uniqueSkills.slice(0, 20).map(skill => (
                             <option key={skill} value={skill}>
@@ -339,14 +339,14 @@ export default function BrowseStudentsPage() {
 
             {/* Results Count */}
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Showing <span className="font-semibold text-gray-700 dark:text-gray-300">{filteredStudents.length}</span> of {students.length} students
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
+                Showing <span className="font-semibold text-gray-700 dark:text-zinc-300">{filteredStudents.length}</span> of {students.length} students
               </p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                className="border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                className="border-2 border-gray-200 dark:border-zinc-600 hover:border-gray-300 dark:hover:border-gray-500"
               >
                 {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
               </Button>
@@ -370,7 +370,7 @@ export default function BrowseStudentsPage() {
                 >
                   {viewMode === 'grid' ? (
                     /* Grid Card - Simplified */
-                    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 overflow-hidden group relative">
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-[#27272A] overflow-hidden group relative">
                       <CardContent className="p-5">
                         {/* Header with Avatar & Status */}
                         <div className="flex items-start gap-4 mb-4">
@@ -383,7 +383,7 @@ export default function BrowseStudentsPage() {
                               )}
                             </div>
                             {/* Online/Status indicator */}
-                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
+                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-800 ${
                               student.hasGroup ? 'bg-[#1a5d1a]' : 'bg-amber-500'
                             }`}>
                               {!student.hasGroup && (
@@ -393,10 +393,10 @@ export default function BrowseStudentsPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white truncate group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] transition-colors">
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-[#E4E4E7] truncate group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] transition-colors">
                               {student.name}
                             </h3>
-                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-gray-400">
+                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-zinc-400">
                               <GraduationCap className="w-4 h-4" />
                               <span>{student.rollNumber}</span>
                             </div>

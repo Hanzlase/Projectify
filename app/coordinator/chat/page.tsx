@@ -564,24 +564,24 @@ function ChatPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0 flex flex-col h-screen">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Messages</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Messages</h1>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex items-center gap-3">
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -592,8 +592,8 @@ function ChatPageContent() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -601,13 +601,13 @@ function ChatPageContent() {
         </header>
 
         {/* Main Chat Container */}
-        <div className="flex-1 flex bg-white dark:bg-gray-800 m-4 rounded-2xl shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
+        <div className="flex-1 flex bg-white dark:bg-[#27272A] m-4 rounded-2xl shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Conversations Sidebar */}
-          <div className={`w-full md:w-[320px] lg:w-[360px] border-r border-gray-100 dark:border-gray-700 flex flex-col bg-white dark:bg-gray-800 ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-[320px] lg:w-[360px] border-r border-gray-100 dark:border-zinc-700 flex flex-col bg-white dark:bg-[#27272A] ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
-            <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-100 dark:border-zinc-700">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white">Chats</h2>
+                <h2 className="text-base font-semibold text-gray-900 dark:text-[#E4E4E7]">Chats</h2>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={openNewChatModal}
@@ -626,7 +626,7 @@ function ChatPageContent() {
                   placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-10 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a]"
+                  className="pl-10 h-10 border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] rounded-xl focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a]"
                 />
               </div>
             </div>
@@ -652,7 +652,7 @@ function ChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20 border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                            : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -668,13 +668,13 @@ function ChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-medium text-sm truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                              <h3 className={`font-medium text-sm truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(conv.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                 >
                                   <Pin className="w-3 h-3 text-[#1a5d1a]" />
                                 </button>
@@ -725,7 +725,7 @@ function ChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 group ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#1a5d1a]/5 dark:bg-[#1a5d1a]/20 border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                            : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -741,13 +741,13 @@ function ChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-medium text-sm truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                              <h3 className={`font-medium text-sm truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(conv.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 >
                                   <PinOff className="w-3 h-3 text-gray-400" />
                                 </button>
@@ -783,7 +783,7 @@ function ChatPageContent() {
                   <div className="w-20 h-20 bg-gradient-to-br from-[#d1e7d1] to-[#e8f5e8] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 rounded-full flex items-center justify-center mb-4">
                     <MessageCircle className="w-10 h-10 text-[#1a5d1a]" />
                   </div>
-                  <h3 className="font-semibold text-slate-800 dark:text-white mb-2">No conversations yet</h3>
+                  <h3 className="font-semibold text-slate-800 dark:text-[#E4E4E7] mb-2">No conversations yet</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-[200px]">
                     Start chatting by clicking "Contact" on someone's profile
                   </p>
@@ -793,23 +793,23 @@ function ChatPageContent() {
           </div>
 
           {/* Chat Area */}
-          <div className={`flex-1 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100/50 dark:from-gray-700 dark:to-gray-800 ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`flex-1 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100/50 dark:from-gray-700 dark:to-[#27272A] ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {selectedConversation && otherUser ? (
               <>
                 {/* Chat Header */}
-                <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex items-center justify-between">
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-zinc-600 bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="md:hidden -ml-2 hover:bg-slate-100 dark:hover:bg-gray-700"
+                      className="md:hidden -ml-2 hover:bg-slate-100 dark:hover:bg-zinc-700"
                       onClick={() => { setShowMobileChat(false); setSelectedConversation(null); }}
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </Button>
                     
                     <div className="relative">
-                      <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${getRoleColor(otherUser.role)} flex items-center justify-center text-white font-bold overflow-hidden ring-2 ring-white dark:ring-gray-700 shadow-md`}>
+                      <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${getRoleColor(otherUser.role)} flex items-center justify-center text-white font-bold overflow-hidden ring-2 ring-white dark:ring-zinc-700 shadow-md`}>
                         {otherUser.profileImage ? (
                           <img src={otherUser.profileImage} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -819,7 +819,7 @@ function ChatPageContent() {
                     </div>
                     
                     <div>
-                      <h3 className="font-bold text-slate-900 dark:text-white">{otherUser.name}</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-[#E4E4E7]">{otherUser.name}</h3>
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                           {otherUser.role}
@@ -833,7 +833,7 @@ function ChatPageContent() {
                       variant="ghost"
                       size="sm"
                       onClick={() => router.push(`/${userRole}/view-profile/${otherUser.role}/${otherUser.userId}`)}
-                      className="w-9 h-9 p-0 rounded-full hover:bg-slate-100 dark:hover:bg-gray-700"
+                      className="w-9 h-9 p-0 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-700"
                     >
                       <Info className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                     </Button>
@@ -860,7 +860,7 @@ function ChatPageContent() {
                           <div key={message.messageId}>
                             {showDate && (
                               <div className="flex justify-center my-6">
-                                <span className="px-4 py-1.5 bg-white dark:bg-gray-700 text-slate-500 dark:text-slate-400 text-xs font-medium rounded-full shadow-sm border border-slate-200 dark:border-gray-600">
+                                <span className="px-4 py-1.5 bg-white dark:bg-zinc-700 text-slate-500 dark:text-slate-400 text-xs font-medium rounded-full shadow-sm border border-slate-200 dark:border-zinc-600">
                                   {new Date(message.createdAt).toLocaleDateString('en-US', {
                                     weekday: 'long',
                                     month: 'short',
@@ -892,7 +892,7 @@ function ChatPageContent() {
                                     className={`shadow-sm overflow-hidden ${
                                       message.isOwn
                                         ? 'bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl rounded-br-md'
-                                        : 'bg-white dark:bg-gray-700 text-slate-800 dark:text-white rounded-2xl rounded-bl-md border border-slate-100 dark:border-gray-600'
+                                        : 'bg-white dark:bg-zinc-700 text-slate-800 dark:text-[#E4E4E7] rounded-2xl rounded-bl-md border border-slate-100 dark:border-zinc-600'
                                     }`}
                                   >
                                     {/* Image Attachment */}
@@ -992,7 +992,7 @@ function ChatPageContent() {
                       <div className="w-24 h-24 bg-gradient-to-br from-[#d1e7d1] to-[#e8f5e8] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 rounded-full flex items-center justify-center mb-4 shadow-lg">
                         <Sparkles className="w-12 h-12 text-[#1a5d1a]" />
                       </div>
-                      <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-2">Start the conversation!</h3>
+                      <h3 className="font-bold text-slate-800 dark:text-[#E4E4E7] text-lg mb-2">Start the conversation!</h3>
                       <p className="text-slate-500 dark:text-slate-400 max-w-xs">
                         Say hello to <span className="font-medium text-[#1a5d1a] dark:text-[#2d7a2d]">{otherUser.name}</span> and start collaborating
                       </p>
@@ -1001,10 +1001,10 @@ function ChatPageContent() {
                 </div>
 
                 {/* Message Input Footer */}
-                <div className="border-t border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4">
+                <div className="border-t border-slate-200 dark:border-zinc-600 bg-white dark:bg-[#27272A] p-4">
                   {/* File Preview */}
                   {selectedFile && (
-                    <div className="mb-3 p-3 bg-slate-50 dark:bg-gray-700 rounded-xl border border-slate-200 dark:border-gray-600">
+                    <div className="mb-3 p-3 bg-slate-50 dark:bg-zinc-700 rounded-xl border border-slate-200 dark:border-zinc-600">
                       <div className="flex items-center gap-3">
                         {filePreview ? (
                           <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
@@ -1014,13 +1014,13 @@ function ChatPageContent() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-800 dark:text-white truncate">{selectedFile.name}</p>
+                          <p className="font-medium text-slate-800 dark:text-[#E4E4E7] truncate">{selectedFile.name}</p>
                           <p className="text-sm text-slate-500 dark:text-slate-400">{formatFileSize(selectedFile.size)}</p>
                         </div>
                         <button 
                           type="button"
                           onClick={clearFileSelection}
-                          className="w-8 h-8 rounded-full bg-slate-200 dark:bg-gray-600 hover:bg-slate-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-full bg-slate-200 dark:bg-zinc-600 hover:bg-slate-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
                         >
                           <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                         </button>
@@ -1072,7 +1072,7 @@ function ChatPageContent() {
                         placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="h-12 pl-4 pr-12 border-2 border-slate-200 dark:border-gray-600 focus:border-[#1a5d1a] rounded-full bg-slate-50 dark:bg-gray-700 dark:text-white focus:bg-white dark:focus:bg-gray-600 transition-colors"
+                        className="h-12 pl-4 pr-12 border-2 border-slate-200 dark:border-zinc-600 focus:border-[#1a5d1a] rounded-full bg-slate-50 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:bg-white dark:focus:bg-gray-600 transition-colors"
                         disabled={sending || uploadingFile}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1131,8 +1131,8 @@ function ChatPageContent() {
                   <div className="w-24 h-24 bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/20 rounded-full flex items-center justify-center mb-6 mx-auto">
                     <MessageCircle className="w-12 h-12 text-[#1a5d1a]" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Select a conversation</h2>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-sm mb-4 text-sm">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-[#E4E4E7] mb-2">Select a conversation</h2>
+                  <p className="text-gray-500 dark:text-zinc-400 max-w-sm mb-4 text-sm">
                     Choose a conversation from the list or start a new one
                   </p>
                   <Button
@@ -1167,7 +1167,7 @@ function ChatPageContent() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
@@ -1192,14 +1192,14 @@ function ChatPageContent() {
               </div>
 
               {/* Search */}
-              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+              <div className="p-4 border-b border-gray-100 dark:border-zinc-700">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Search supervisors..."
                     value={userSearchQuery}
                     onChange={(e) => setUserSearchQuery(e.target.value)}
-                    className="pl-10 h-11 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a]"
+                    className="pl-10 h-11 border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] rounded-xl focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a]"
                   />
                 </div>
               </div>
@@ -1216,7 +1216,7 @@ function ChatPageContent() {
                       <button
                         key={user.userId}
                         onClick={() => startNewConversation(user.userId)}
-                        className="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700"
+                        className="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border border-gray-100 dark:border-zinc-700"
                       >
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold overflow-hidden">
                           {user.profileImage ? (
@@ -1226,12 +1226,12 @@ function ChatPageContent() {
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <h3 className="font-medium text-gray-900 dark:text-white">{user.name}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-[#E4E4E7]">{user.name}</h3>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-gradient-to-r from-teal-500 to-emerald-500 text-white">
                               Supervisor
                             </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</span>
+                            <span className="text-xs text-gray-500 dark:text-zinc-400 truncate">{user.email}</span>
                           </div>
                         </div>
                         <MessageCircle className="w-5 h-5 text-[#1a5d1a]" />
@@ -1240,11 +1240,11 @@ function ChatPageContent() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <UserCheck className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">No supervisors found</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">No supervisors found</h3>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">
                       {userSearchQuery ? 'Try a different search term' : 'No supervisors available on your campus'}
                     </p>
                   </div>

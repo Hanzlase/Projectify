@@ -122,13 +122,13 @@ export default function AdminDashboard() {
   const totalUsers = (stats?.totalCoordinators || 0) + (stats?.totalSupervisors || 0) + (stats?.totalStudents || 0);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <AdminSidebar />
       
       {/* Main Content */}
       <div className="flex-1 md:ml-64 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/admin/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -156,8 +156,8 @@ export default function AdminDashboard() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{adminName}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">System Admin</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{adminName}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">System Admin</p>
                 </div>
               </div>
             </div>
@@ -173,10 +173,10 @@ export default function AdminDashboard() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                   {getGreeting()}, {adminName}! 👋
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                   {formatDate()} • Manage your entire platform from here
                 </p>
               </div>
@@ -225,24 +225,24 @@ export default function AdminDashboard() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
               <Card 
                 onClick={() => router.push('/admin/coordinators')}
-                className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Coordinators</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{stats?.totalCoordinators || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Coordinators</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalCoordinators || 0}</p>
                     </div>
                     <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
                       <UserCheck className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-green-500 flex items-center">
                       <Shield className="w-3 h-3 mr-1" />
                       Active
                     </span>
-                    <ChevronRight className="w-4 h-4 ml-auto text-gray-300 dark:text-gray-600" />
+                    <ChevronRight className="w-4 h-4 ml-auto text-gray-300 dark:text-zinc-400" />
                   </div>
                 </CardContent>
               </Card>
@@ -251,19 +251,19 @@ export default function AdminDashboard() {
             {/* Supervisors */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card 
-                className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{stats?.totalSupervisors || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalSupervisors || 0}</p>
                     </div>
                     <div className="p-2 bg-[#1a5d1a]/10 rounded-xl">
                       <Users className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-[#1a5d1a] flex items-center">
                       <Activity className="w-3 h-3 mr-1" />
                       All campuses
@@ -276,19 +276,19 @@ export default function AdminDashboard() {
             {/* Students */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
               <Card 
-                className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Students</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{stats?.totalStudents || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Students</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalStudents || 0}</p>
                     </div>
                     <div className="p-2 bg-[#1a5d1a]/10 rounded-xl">
                       <GraduationCap className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-[#1a5d1a] flex items-center">
                       <TrendingUp className="w-3 h-3 mr-1" />
                       Enrolled
@@ -308,23 +308,23 @@ export default function AdminDashboard() {
               transition={{ delay: 0.3 }}
               className="lg:col-span-8"
             >
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-                <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-700">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a]/10 to-[#2d7a2d]/10 rounded-xl flex items-center justify-center">
                         <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Campus Overview</h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Statistics for each campus</p>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Campus Overview</h2>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">Statistics for each campus</p>
                       </div>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => router.push('/admin/campuses')}
-                      className="rounded-xl text-xs border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      className="rounded-xl text-xs border-gray-200 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700"
                     >
                       View All
                       <ChevronRight className="w-3 h-3 ml-1" />
@@ -334,11 +334,11 @@ export default function AdminDashboard() {
                 <div className="p-5">
                   {campusStats.length === 0 ? (
                     <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Building className="w-8 h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-gray-900 dark:text-white font-medium mb-1">No campuses yet</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first campus</p>
+                      <h3 className="text-gray-900 dark:text-[#E4E4E7] font-medium mb-1">No campuses yet</h3>
+                      <p className="text-sm text-gray-500 dark:text-zinc-400 mb-4">Get started by adding your first campus</p>
                       <Button 
                         onClick={() => router.push('/admin/campuses')}
                         className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl"
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.4 + index * 0.1 }}
-                          className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer group"
+                          className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all cursor-pointer group"
                           onClick={() => router.push('/admin/campuses')}
                         >
                           <div className="flex items-center gap-4">
@@ -363,9 +363,9 @@ export default function AdminDashboard() {
                               {campus.name.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900 dark:text-white">{campus.name}</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{campus.name}</h3>
                               {campus.location && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <p className="text-xs text-gray-500 dark:text-zinc-400 flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
                                   {campus.location}
                                 </p>
@@ -375,20 +375,20 @@ export default function AdminDashboard() {
                           
                           <div className="flex items-center gap-6">
                             <div className="text-center">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Coordinators</p>
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Coordinators</p>
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]">
                                 {campus.activeCoordinators}/{campus.maxCoordinators}
                               </span>
                             </div>
                             <div className="text-center hidden sm:block">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Supervisors</p>
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white">{campus.totalSupervisors}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Supervisors</p>
+                              <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">{campus.totalSupervisors}</p>
                             </div>
                             <div className="text-center hidden sm:block">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Students</p>
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white">{campus.totalStudents}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Students</p>
+                              <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">{campus.totalStudents}</p>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-[#1a5d1a] transition-colors" />
+                            <ChevronRight className="w-5 h-5 text-gray-300 dark:text-zinc-400 group-hover:text-[#1a5d1a] transition-colors" />
                           </div>
                         </motion.div>
                       ))}
@@ -406,9 +406,9 @@ export default function AdminDashboard() {
               className="lg:col-span-4 space-y-6"
             >
               {/* Quick Actions */}
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-5">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#1a5d1a]" />
                     Quick Actions
                   </h3>
@@ -423,8 +423,8 @@ export default function AdminDashboard() {
                         <UserCheck className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">Manage Coordinators</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Add, edit, or suspend</p>
+                        <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">Manage Coordinators</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">Add, edit, or suspend</p>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[#1a5d1a] transition-colors" />
                     </motion.button>
@@ -433,14 +433,14 @@ export default function AdminDashboard() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => router.push('/admin/campuses')}
-                      className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all group"
+                      className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all group"
                     >
                       <div className="w-10 h-10 bg-[#2d7a2d] rounded-xl flex items-center justify-center">
                         <Building className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">Manage Campuses</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Configure limits</p>
+                        <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">Manage Campuses</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">Configure limits</p>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[#1a5d1a] transition-colors" />
                     </motion.button>
@@ -449,14 +449,14 @@ export default function AdminDashboard() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => router.push('/admin/profile')}
-                      className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all group"
+                      className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all group"
                     >
                       <div className="w-10 h-10 bg-[#145214] rounded-xl flex items-center justify-center">
                         <Settings className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">Profile Settings</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Update your profile</p>
+                        <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">Profile Settings</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">Update your profile</p>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[#1a5d1a] transition-colors" />
                     </motion.button>

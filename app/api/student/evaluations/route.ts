@@ -21,7 +21,68 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    // Fetch active evaluations for student's campus
+    // If student has a group, fetch panels assigned to their group
+    let panels: any[] = [];
+    if (student.groupId) {
+      const panelAssignments = await prisma.groupPanelAssignment.findMany({
+        where: {
+          groupId: student.groupId
+        },
+        include: {
+          panel: {
+            include: {
+              panelMembers: true
+            }
+          }
+        }
+      });
+
+      // Fetch panel members' details
+      const allMemberIds = panelAssignments.flatMap(pa => 
+        pa.panel.panelMembers.map(pm => pm.supervisorId)
+      );
+
+      const memberUsers = await prisma.user.findMany({
+        where: {
+          userId: { in: allMemberIds }
+        },
+        select: {
+          userId: true,
+          name: true,
+          email: true,
+          supervisor: {
+            select: {
+              specialization: true
+            }
+          }
+        }
+      });
+
+      const userMap = new Map(memberUsers.map(u => [u.userId, u]));
+
+      panels = panelAssignments.map(pa => ({
+        panelId: pa.panel.panelId,
+        panelName: pa.panel.name,
+        evaluationType: pa.panel.evaluationType,
+        status: pa.panel.status,
+        scheduledDate: pa.panel.scheduledDate,
+        evaluationDate: pa.evaluationDate,
+        timeSlot: pa.timeSlot,
+        venue: pa.venue,
+        members: pa.panel.panelMembers.map(pm => {
+          const user = userMap.get(pm.supervisorId);
+          return {
+            supervisorId: pm.supervisorId,
+            name: user?.name || 'Unknown',
+            email: user?.email || '',
+            role: pm.role,
+            specialization: user?.supervisor?.specialization || undefined
+          };
+        })
+      }));
+    }
+
+    // Fetch active evaluations for student's campus (coordinator-created tasks)
     const evaluations = await (prisma as any).evaluation.findMany({
       where: {
         campusId: student.campusId,
@@ -69,6 +130,12 @@ export async function GET(req: NextRequest) {
           feedback: submission.feedback,
           submittedAt: submission.submittedAt,
           gradedAt: submission.gradedAt,
+          supervisorScore: submission.supervisorScore,
+          supervisorFeedback: submission.supervisorFeedback,
+          supervisorScoredAt: submission.supervisorScoredAt,
+          panelScore: submission.panelScore,
+          panelFeedback: submission.panelFeedback,
+          panelScoredAt: submission.panelScoredAt,
           attachments: submission.attachments.map((att: any) => ({
             id: att.attachmentId,
             fileName: att.fileName,
@@ -82,6 +149,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       evaluations: formattedEvaluations,
+      panels: panels,
       hasGroup: !!student.groupId,
       groupId: student.groupId,
     });

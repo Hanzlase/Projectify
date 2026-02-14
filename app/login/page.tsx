@@ -93,7 +93,7 @@ function LoginPageContent() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-gray-900">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-[#18181B]">
         {/* Form Container */}
         <div className="w-full max-w-md mx-auto">
           {/* Logo & Welcome */}
@@ -106,10 +106,10 @@ function LoginPageContent() {
               <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Projectify</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-            <p className="text-gray-500 dark:text-gray-400">Enter your credentials to access your account</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Welcome Back</h1>
+            <p className="text-gray-500 dark:text-zinc-400">Enter your credentials to access your account</p>
           </motion.div>
 
           {/* Login Mode Tabs */}
@@ -118,14 +118,14 @@ function LoginPageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="flex mb-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+            <div className="flex mb-6 bg-gray-100 dark:bg-[#27272A] rounded-xl p-1">
               <button
                 type="button"
                 onClick={() => handleModeChange('student')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'student'
-                    ? 'bg-white dark:bg-gray-700 text-[#1a5d1a] dark:text-green-400 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-white dark:bg-zinc-700 text-[#1a5d1a] dark:text-[#22C55E] shadow-sm'
+                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -136,8 +136,8 @@ function LoginPageContent() {
                 onClick={() => handleModeChange('staff')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'staff'
-                    ? 'bg-white dark:bg-gray-700 text-[#1a5d1a] dark:text-green-400 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-white dark:bg-zinc-700 text-[#1a5d1a] dark:text-[#22C55E] shadow-sm'
+                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <Briefcase className="w-4 h-4" />
@@ -158,14 +158,14 @@ function LoginPageContent() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="identifier" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label htmlFor="identifier" className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                   {loginMode === 'student' ? 'Roll Number' : 'Email Address'}
                 </Label>
                 <div className="relative">
                   {loginMode === 'student' ? (
-                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   ) : (
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   )}
                   <Input
                     id="identifier"
@@ -175,18 +175,18 @@ function LoginPageContent() {
                     onChange={handleIdentifierChange}
                     required
                     disabled={isLoading}
-                    className="h-12 pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20 uppercase"
+                    className="h-12 pl-10 rounded-xl bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-zinc-700 text-gray-800 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20 uppercase"
                     style={loginMode === 'staff' ? { textTransform: 'none' } : {}}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -195,12 +195,12 @@ function LoginPageContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="h-12 pl-10 pr-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20"
+                    className="h-12 pl-10 pr-10 rounded-xl bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-zinc-700 text-gray-800 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:border-[#1a5d1a] dark:focus:border-green-500 focus:ring-[#1a5d1a]/20 dark:focus:ring-green-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -209,12 +209,12 @@ function LoginPageContent() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-[#1a5d1a] dark:text-green-500 focus:ring-[#1a5d1a] dark:focus:ring-green-500 bg-white dark:bg-gray-800" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 dark:border-zinc-600 text-[#1a5d1a] dark:text-[#22C55E] focus:ring-[#1a5d1a] dark:focus:ring-green-500 bg-white dark:bg-[#27272A]" />
+                  <span className="text-sm text-gray-600 dark:text-zinc-400">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-[#1a5d1a] dark:text-green-400 hover:text-[#145214] dark:hover:text-green-300 font-medium"
+                  className="text-sm text-[#1a5d1a] dark:text-[#22C55E] hover:text-[#145214] dark:hover:text-green-300 font-medium"
                 >
                   Forgot Password?
                 </Link>
@@ -236,9 +236,9 @@ function LoginPageContent() {
               </Button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+            <p className="text-center text-sm text-gray-500 dark:text-zinc-400 mt-6">
               Don't have an account?{' '}
-              <Link href="/help" className="text-[#1a5d1a] dark:text-green-400 hover:text-[#145214] dark:hover:text-green-300 font-medium">
+              <Link href="/help" className="text-[#1a5d1a] dark:text-[#22C55E] hover:text-[#145214] dark:hover:text-green-300 font-medium">
                 Contact Coordinator
               </Link>
             </p>
@@ -249,7 +249,7 @@ function LoginPageContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-center text-sm text-gray-400 dark:text-gray-500 mt-8"
+            className="text-center text-sm text-gray-400 dark:text-zinc-500 mt-8"
           >
             © {new Date().getFullYear()} Projectify. All rights reserved.
           </motion.div>

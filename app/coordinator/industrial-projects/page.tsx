@@ -315,11 +315,11 @@ export default function IndustrialProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
       case 'booked':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'completed':
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-700 dark:bg-[#27272A] dark:text-zinc-400';
       default:
         return 'bg-gray-100 text-gray-700';
     }
@@ -338,13 +338,13 @@ export default function IndustrialProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -355,7 +355,7 @@ export default function IndustrialProjectsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && fetchProjects()}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
@@ -378,8 +378,8 @@ export default function IndustrialProjectsPage() {
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Industry Projects</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Manage industrial project offerings</p>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Industry Projects</h1>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">Manage industrial project offerings</p>
               </div>
             </div>
             <div className="flex items-center gap-2 md:hidden">
@@ -413,18 +413,18 @@ export default function IndustrialProjectsPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Available</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{projects.filter(p => p.status === 'available').length}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Available</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'available').length}</p>
                     </div>
                     <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-green-500">●</span>
                     <span>Open for requests</span>
                   </div>
@@ -433,18 +433,18 @@ export default function IndustrialProjectsPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Booked</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{projects.filter(p => p.status === 'booked').length}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Booked</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'booked').length}</p>
                     </div>
                     <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                       <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-blue-500">●</span>
                     <span>Assigned to groups</span>
                   </div>
@@ -453,18 +453,18 @@ export default function IndustrialProjectsPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Pending</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{projects.reduce((sum, p) => sum + p.requests.filter(r => r.status === 'pending').length, 0)}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Pending</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.reduce((sum, p) => sum + p.requests.filter(r => r.status === 'pending').length, 0)}</p>
                     </div>
                     <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
                       <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-amber-500">●</span>
                     <span>Awaiting response</span>
                   </div>
@@ -479,7 +479,7 @@ export default function IndustrialProjectsPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full sm:w-auto border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl"
+                className="w-full sm:w-auto border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] rounded-xl"
               >
                 <Filter className="w-4 h-4 mr-2" />
                 {statusFilter === 'all' ? 'All Status' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
@@ -491,7 +491,7 @@ export default function IndustrialProjectsPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-20"
+                    className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#27272A] rounded-xl shadow-lg border border-gray-200 dark:border-zinc-700 py-2 z-20"
                   >
                     {['all', 'available', 'booked', 'completed'].map((s) => (
                       <button
@@ -501,8 +501,8 @@ export default function IndustrialProjectsPage() {
                           setShowFilterDropdown(false);
                           setTimeout(() => fetchProjects(), 0);
                         }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                          statusFilter === s ? 'text-[#1a5d1a] font-medium' : 'text-gray-700 dark:text-gray-300'
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 ${
+                          statusFilter === s ? 'text-[#1a5d1a] font-medium' : 'text-gray-700 dark:text-zinc-300'
                         }`}
                       >
                         {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -512,7 +512,7 @@ export default function IndustrialProjectsPage() {
                 )}
               </AnimatePresence>
             </div>
-            <Button onClick={() => fetchProjects()} variant="outline" disabled={searching} className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl">
+            <Button onClick={() => fetchProjects()} variant="outline" disabled={searching} className="border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] rounded-xl">
               {searching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
               Search
             </Button>
@@ -521,13 +521,13 @@ export default function IndustrialProjectsPage() {
           {/* Projects Grid */}
           {projects.length === 0 ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building2 className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building2 className="w-10 h-10 text-gray-400 dark:text-zinc-500" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Industrial Projects</h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Industrial Projects</h3>
+                  <p className="text-gray-500 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
                     Upload industry projects for students and supervisors to request.
                   </p>
                   <Button onClick={openCreateModal} className="bg-[#1a5d1a] hover:bg-[#144a14] text-white rounded-xl">
@@ -546,7 +546,7 @@ export default function IndustrialProjectsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.01] transition-all group">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.01] transition-all group">
                     {project.thumbnailUrl ? (
                       <div className="h-44 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 relative overflow-hidden">
                         <img
@@ -575,7 +575,7 @@ export default function IndustrialProjectsPage() {
                       </div>
                     )}
                     <CardContent className="p-5">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-[#1a5d1a] transition-colors">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2 line-clamp-1 group-hover:text-[#1a5d1a] transition-colors">
                         {project.title}
                       </h3>
                       
@@ -586,22 +586,22 @@ export default function IndustrialProjectsPage() {
                         </div>
                       )}
 
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                      <p className="text-sm text-gray-600 dark:text-zinc-300 line-clamp-2 mb-3">
                         {project.description}
                       </p>
 
                       {project.features && (
-                        <div className="mb-3 p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Features</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                        <div className="mb-3 p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">Features</p>
+                          <p className="text-xs text-gray-600 dark:text-zinc-300 line-clamp-2">
                             {project.features}
                           </p>
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-zinc-700">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-zinc-400">
                             {formatDate(project.createdAt)}
                           </span>
                           {project.requests.filter(r => r.status === 'pending').length > 0 && (
@@ -670,11 +670,11 @@ export default function IndustrialProjectsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-[#18181B] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <div className="p-6 border-b border-gray-200 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                     {showCreateModal ? 'Add Industrial Project' : 'Edit Industrial Project'}
                   </h2>
                   <Button
@@ -692,7 +692,7 @@ export default function IndustrialProjectsPage() {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                     Project Name *
                   </label>
                   <Input
@@ -703,7 +703,7 @@ export default function IndustrialProjectsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                     Description *
                   </label>
                   <textarea
@@ -711,12 +711,12 @@ export default function IndustrialProjectsPage() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe the project..."
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-[#27272A] text-gray-900 dark:text-[#E4E4E7] resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                     Features
                   </label>
                   <textarea
@@ -724,12 +724,12 @@ export default function IndustrialProjectsPage() {
                     onChange={(e) => setFormData({ ...formData, features: e.target.value })}
                     placeholder="List main features (one per line)..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-[#27272A] text-gray-900 dark:text-[#E4E4E7] resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                     Tech Stack
                   </label>
                   <Input
@@ -740,10 +740,10 @@ export default function IndustrialProjectsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                     Project Image (Optional)
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg p-4">
                     {formData.thumbnailUrl ? (
                       <div className="relative">
                         <img
@@ -785,7 +785,7 @@ export default function IndustrialProjectsPage() {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3">
+              <div className="p-6 border-t border-gray-200 dark:border-zinc-800 flex justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -832,18 +832,18 @@ export default function IndustrialProjectsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6"
+              className="bg-white dark:bg-[#18181B] rounded-2xl shadow-2xl max-w-md w-full p-6"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
                   <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Delete Project</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">This action cannot be undone</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Delete Project</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">This action cannot be undone</p>
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-gray-600 dark:text-zinc-300 mb-6">
                 Are you sure you want to delete "{selectedProject.title}"? All pending requests will also be deleted.
               </p>
               <div className="flex justify-end gap-3">
@@ -885,15 +885,15 @@ export default function IndustrialProjectsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              className="bg-white dark:bg-[#18181B] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <div className="p-6 border-b border-gray-200 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                       Project Requests
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">
                       {selectedProject.title}
                     </p>
                   </div>
@@ -906,19 +906,19 @@ export default function IndustrialProjectsPage() {
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 {selectedProject.requests.length === 0 ? (
                   <div className="text-center py-8">
-                    <Users className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No requests yet</p>
+                    <Users className="w-12 h-12 mx-auto text-gray-300 dark:text-zinc-400 mb-3" />
+                    <p className="text-gray-500 dark:text-zinc-400">No requests yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {selectedProject.requests.map((request) => (
                       <div
                         key={request.id}
-                        className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                        className="p-4 bg-gray-50 dark:bg-[#27272A] rounded-xl"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
+                            <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-700 rounded-full flex items-center justify-center overflow-hidden">
                               {request.requester?.profileImage ? (
                                 <img
                                   src={request.requester.profileImage}
@@ -926,16 +926,16 @@ export default function IndustrialProjectsPage() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                <span className="text-sm font-bold text-gray-500 dark:text-zinc-400">
                                   {request.requester?.name?.charAt(0) || '?'}
                                 </span>
                               )}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
+                              <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">
                                 {request.requester?.name || 'Unknown User'}
                               </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <p className="text-xs text-gray-500 dark:text-zinc-400">
                                 {request.requesterRole} • {formatDate(request.createdAt)}
                               </p>
                             </div>
@@ -945,7 +945,7 @@ export default function IndustrialProjectsPage() {
                               request.status === 'pending'
                                 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                                 : request.status === 'approved'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]'
                                 : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                             }`}
                           >
@@ -954,7 +954,7 @@ export default function IndustrialProjectsPage() {
                         </div>
 
                         {request.message && (
-                          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded-lg">
+                          <p className="mt-3 text-sm text-gray-600 dark:text-zinc-300 bg-white dark:bg-[#18181B] p-3 rounded-lg">
                             "{request.message}"
                           </p>
                         )}

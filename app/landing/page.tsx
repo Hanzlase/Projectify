@@ -222,7 +222,7 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
   return (
     <div
       className={cn(
-        "group relative border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden rounded-xl",
+        "group relative border border-slate-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] overflow-hidden rounded-xl",
         className
       )}
       onMouseMove={handleMouseMove}
@@ -249,8 +249,8 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
 // ============================================
 
 const ChatVisual = () => (
-  <div className="relative w-full h-full bg-slate-50/50 dark:bg-gray-800/50 flex flex-col">
-    <div className="px-4 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-slate-100 dark:border-gray-700 flex items-center justify-between sticky top-0 z-10">
+  <div className="relative w-full h-full bg-slate-50/50 dark:bg-[#27272A]/50 flex flex-col">
+    <div className="px-4 py-3 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-sm border-b border-slate-100 dark:border-zinc-700 flex items-center justify-between sticky top-0 z-10">
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Project Chat</span>
@@ -258,7 +258,7 @@ const ChatVisual = () => (
       <Users className="w-3 h-3 text-slate-400 dark:text-slate-500" />
     </div>
     <div className="flex-1 p-4 space-y-4 overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-gray-800 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-[#27272A] to-transparent pointer-events-none z-10" />
       {[
         { user: 'Hanzla', text: "Just pushed the API updates.", time: "10:42 AM", self: true },
         { user: 'Sarah', text: "Great! I'll connect the frontend.", time: "10:45 AM", self: false },
@@ -278,7 +278,7 @@ const ChatVisual = () => (
               ? "bg-[#1a5d1a] text-white rounded-tr-sm" 
               : msg.supervisor 
                 ? "bg-amber-50 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 border border-amber-100 dark:border-amber-800 rounded-tl-sm"
-                : "bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-gray-600 rounded-tl-sm"
+                : "bg-white dark:bg-zinc-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-zinc-600 rounded-tl-sm"
           )}>
             {msg.text}
           </div>
@@ -337,7 +337,7 @@ const HeroSection = () => {
   const router = useRouter();
 
   return (
-    <section className="relative pt-28 pb-32 sm:pt-32 sm:pb-48 lg:pt-40 lg:pb-64 overflow-hidden bg-gradient-to-b from-white via-white to-slate-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800/50">
+    <section className="relative pt-28 pb-32 sm:pt-32 sm:pb-48 lg:pt-40 lg:pb-64 overflow-hidden bg-gradient-to-b from-white via-white to-slate-50/50 dark:from-[#18181B] dark:via-gray-900 dark:to-[#27272A]/50">
       {/* Noise Texture Overlay */}
       <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
@@ -356,7 +356,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-[800] tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-[800] tracking-tight text-slate-900 dark:text-[#E4E4E7] leading-[1.15]">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -371,8 +371,8 @@ const HeroSection = () => {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="block mt-1 sm:mt-2"
             >
-              <span className="text-slate-900 dark:text-white">for </span>
-              <span className="text-[#1a5d1a] dark:text-green-400 relative">
+              <span className="text-slate-900 dark:text-[#E4E4E7]">for </span>
+              <span className="text-[#1a5d1a] dark:text-[#22C55E] relative">
                 <TypewriterText 
                   words={["Final Year Projects", "Academic Excellence", "Team Collaboration", "Research Success"]}
                   typingSpeed={120}
@@ -609,7 +609,7 @@ const HeroSection = () => {
       </div>
 
       {/* Skewed Bottom Separator */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-slate-50 dark:bg-gray-800 origin-bottom-right -skew-y-3 translate-y-16" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-slate-50 dark:bg-[#27272A] origin-bottom-right -skew-y-3 translate-y-16" />
     </section>
   );
 };
@@ -630,7 +630,7 @@ const LogoMarquee = () => {
   ];
 
   return (
-    <section className="py-8 sm:py-12 bg-white dark:bg-gray-900 border-b border-slate-100 dark:border-gray-800 overflow-hidden">
+    <section className="py-8 sm:py-12 bg-white dark:bg-[#18181B] border-b border-slate-100 dark:border-zinc-800 overflow-hidden">
       <div className="text-center text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 sm:mb-8 px-4">Built for FAST NUCES Campuses</div>
       <div className="relative flex overflow-x-hidden group">
         <div className="whitespace-nowrap flex gap-8 sm:gap-16 items-center animate-marquee group-hover:animate-marquee-slow">
@@ -740,7 +740,7 @@ const FeatureSection = () => {
   ];
 
   return (
-    <section id="features" className="bg-gradient-to-b from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 py-20 sm:py-32 relative z-10">
+    <section id="features" className="bg-gradient-to-b from-slate-50 to-white dark:from-[#27272A] dark:to-[#18181B] py-20 sm:py-32 relative z-10">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -748,10 +748,10 @@ const FeatureSection = () => {
           viewport={{ once: true }}
           className="mb-16 sm:mb-24 max-w-2xl"
         >
-            <span className="text-[#1a5d1a] dark:text-green-400 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 block">Features</span>
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4 sm:mb-6">
+            <span className="text-[#1a5d1a] dark:text-[#22C55E] font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 block">Features</span>
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 dark:text-[#E4E4E7] tracking-tight mb-4 sm:mb-6">
                 Everything you need to <br className="hidden sm:block" />
-                <span className="text-[#1a5d1a] dark:text-green-400">ship on time.</span>
+                <span className="text-[#1a5d1a] dark:text-[#22C55E]">ship on time.</span>
             </h2>
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                 Projectify unifies the fragmented tools students use into a single, cohesive platform designed for academic excellence.
@@ -763,10 +763,10 @@ const FeatureSection = () => {
             <div key={i} className={cn("flex flex-col md:flex-row items-center gap-8 sm:gap-12 md:gap-24", i % 2 === 1 && "md:flex-row-reverse")}>
               {/* Text Side */}
               <div className="flex-1 space-y-4 sm:space-y-6">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700 border border-slate-100 dark:border-gray-700 shadow-xl shadow-green-900/10 flex items-center justify-center text-[#1a5d1a] dark:text-green-400">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#27272A] dark:to-zinc-700 border border-slate-100 dark:border-zinc-700 shadow-xl shadow-green-900/10 flex items-center justify-center text-[#1a5d1a] dark:text-[#22C55E]">
                   <feature.icon className="w-7 h-7 sm:w-8 sm:h-8" />
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{feature.title}</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#E4E4E7]">{feature.title}</h3>
                 <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                   {feature.description}
                 </p>
@@ -779,7 +779,7 @@ const FeatureSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="relative rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl shadow-slate-200/50 dark:shadow-gray-950/50 overflow-hidden bg-white dark:bg-gray-800"
+                  className="relative rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl shadow-slate-200/50 dark:shadow-black/50/50 overflow-hidden bg-white dark:bg-[#27272A]"
                 >
                     <div className="aspect-[4/3]">
                       {feature.visual}
@@ -964,7 +964,7 @@ const Navbar = () => {
         transition={{ duration: 0.5 }}
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          scrolled ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-gray-800/50 h-16 shadow-lg shadow-slate-200/20 dark:shadow-none" : "bg-transparent h-16 sm:h-20"
+          scrolled ? "bg-white/95 dark:bg-[#18181B]/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-zinc-800/50 h-16 shadow-lg shadow-slate-200/20 dark:shadow-none" : "bg-transparent h-16 sm:h-20"
         )}
       >
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
@@ -979,7 +979,7 @@ const Navbar = () => {
               </button>
               
               {/* Logo - Hidden on mobile, shown on desktop */}
-              <div className="hidden md:flex items-center gap-2 sm:gap-3 text-slate-900 dark:text-white cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className="hidden md:flex items-center gap-2 sm:gap-3 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
                     <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
@@ -1002,7 +1002,7 @@ const Navbar = () => {
               {/* Desktop Theme Toggle */}
               <button 
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#27272A] transition-colors"
                 aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -1012,7 +1012,7 @@ const Navbar = () => {
           {/* Right side - Logo (mobile) + Sign In button */}
           <div className="flex items-center gap-3">
               {/* Logo - Shown on mobile, hidden on desktop */}
-              <div className="flex md:hidden items-center gap-2 text-slate-900 dark:text-white cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className="flex md:hidden items-center gap-2 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
                     <Logo className="w-5 h-5" />
                 </div>
@@ -1046,24 +1046,24 @@ const Navbar = () => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-gray-900 z-[70] md:hidden shadow-2xl"
+            className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#18181B] z-[70] md:hidden shadow-2xl"
           >
             <div className="flex flex-col h-full">
               {/* Sidebar Header */}
-              <div className="p-5 border-b border-slate-100 dark:border-gray-800">
+              <div className="p-5 border-b border-slate-100 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg">
                       <Logo className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="font-bold text-slate-900 dark:text-white">Projectify</span>
+                      <span className="font-bold text-slate-900 dark:text-[#E4E4E7]">Projectify</span>
                       <p className="text-xs text-slate-500 dark:text-slate-400">FYP Management</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-[#27272A] rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                   </button>
@@ -1106,7 +1106,7 @@ const Navbar = () => {
               </div>
               
               {/* Bottom Section */}
-              <div className="p-4 border-t border-slate-100 dark:border-gray-800">
+              <div className="p-4 border-t border-slate-100 dark:border-zinc-800">
                 <Button 
                   size="default" 
                   onClick={() => {
@@ -1130,7 +1130,7 @@ const Navbar = () => {
 // COMPONENT: FOOTER
 // ============================================
 const Footer = () => (
-    <footer className="bg-slate-900 dark:bg-gray-950 py-8 sm:py-12 border-t border-slate-800 dark:border-gray-800 text-sm">
+    <footer className="bg-slate-900 dark:bg-[#18181B] py-8 sm:py-12 border-t border-slate-800 dark:border-zinc-800 text-sm">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
                 <div className="flex items-center gap-3">
@@ -1148,7 +1148,7 @@ const Footer = () => (
             </div>
             
             {/* Team Section */}
-            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-gray-800">
+            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800">
                 <div className="flex flex-col items-center gap-3">
                     <p className="text-slate-400 text-xs sm:text-sm">
                         <span className="text-slate-500">Supervisor:</span>{' '}
@@ -1165,7 +1165,7 @@ const Footer = () => (
                 </div>
             </div>
             
-            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-gray-800 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
                 <p>© 2025 Projectify. Built with ❤️ for FAST students.</p>
             </div>
         </div>
@@ -1178,7 +1178,7 @@ const Footer = () => (
 
 export default function EnhancedLandingPage() {
   return (
-    <main className="min-h-screen font-sans selection:bg-green-100 selection:text-green-900 dark:selection:bg-green-900 dark:selection:text-green-100 bg-white dark:bg-gray-900">
+    <main className="min-h-screen font-sans selection:bg-green-100 selection:text-green-900 dark:selection:bg-green-900 dark:selection:text-green-100 bg-white dark:bg-[#18181B]">
       <Navbar />
       <HeroSection />
       <LogoMarquee />

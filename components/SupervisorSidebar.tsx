@@ -6,7 +6,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, FolderKanban, Calendar, Users, 
-  Settings, HelpCircle, LogOut, GraduationCap, MessageCircle, Bell, AlertTriangle, Mail
+  Settings, HelpCircle, LogOut, GraduationCap, MessageCircle, Bell, AlertTriangle, Mail, Award, Package
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -32,7 +32,7 @@ const NavItem = memo(function NavItem({
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
         active
           ? 'bg-[#1a5d1a] text-white font-medium'
-          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+          : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-[#27272A]'
       }`}
     >
       <Icon className="w-[18px] h-[18px]" />
@@ -59,6 +59,8 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard' },
     { icon: FolderKanban, label: 'Projects', path: '/supervisor/projects' },
     { icon: Users, label: 'My Groups', path: '/supervisor/groups' },
+    { icon: Award, label: 'Evaluations', path: '/supervisor/evaluations' },
+    { icon: Package, label: 'Resources', path: '/supervisor/resource-requests' },
     { icon: Mail, label: 'Invitations', path: '/supervisor/invitations' },
     { icon: MessageCircle, label: 'Chat', path: '/supervisor/chat' },
     { icon: Bell, label: 'Notifications', path: '/supervisor/notifications' },
@@ -84,7 +86,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="hidden md:flex w-56 bg-white dark:bg-gray-900 flex-col fixed h-full z-20 shadow-sm dark:shadow-gray-950"
+      className="hidden md:flex w-56 bg-white dark:bg-[#18181B] flex-col fixed h-full z-20 shadow-sm dark:shadow-black/50"
     >
       {/* Logo - Fixed at top */}
       <div className="p-5 pb-4 flex-shrink-0">
@@ -95,13 +97,13 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
           <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">Projectify</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
         </div>
       </div>
 
       {/* Scrollable Main Navigation */}
       <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-gray-900 py-1">Menu</p>
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#18181B] py-1">Menu</p>
         <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
             <NavItem
@@ -116,8 +118,8 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       </nav>
 
       {/* Bottom Navigation - Fixed at bottom */}
-      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 pt-3 bg-white dark:bg-gray-900">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-3">General</p>
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-800 pt-3 bg-white dark:bg-[#18181B]">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => (
             <NavItem
@@ -131,7 +133,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
           <ThemeToggle />
           <button
             onClick={confirmLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-zinc-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
           >
             <LogOut className="w-[18px] h-[18px]" />
             <span>Logout</span>
@@ -153,21 +155,21 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Confirm Logout</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Confirm Logout</h3>
+                <p className="text-gray-600 dark:text-zinc-400 mb-6">
                   Are you sure you want to logout from your account?
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowLogoutModal(false)}
-                    className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                    className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-zinc-700 rounded-xl text-gray-700 dark:text-zinc-300 font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all"
                   >
                     Cancel
                   </button>

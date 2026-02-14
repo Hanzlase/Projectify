@@ -219,23 +219,23 @@ export default function CampusesPage() {
   const usedCoordinatorSlots = campuses.reduce((acc, c) => acc + c.activeCoordinators, 0);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <AdminSidebar />
       
       <div className="flex-1 md:ml-64 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push('/admin/dashboard')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-500" />
               </button>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Campuses</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Configure campuses and coordinator limits</p>
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Campuses</h1>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Configure campuses and coordinator limits</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -258,7 +258,7 @@ export default function CampusesPage() {
         <main className="p-4 md:p-6">
           {/* Mobile Header */}
           <div className="md:hidden flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Campuses</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Campuses</h1>
             <Button
               onClick={() => {
                 setFormData({ name: '', location: '', maxCoordinators: 5 });
@@ -279,7 +279,7 @@ export default function CampusesPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-green-400"
+                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E]"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm">{success}</span>
@@ -309,12 +309,12 @@ export default function CampusesPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">Total Users</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalUsers}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Total Users</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{totalUsers}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                       <Users className="w-5 h-5 text-[#1a5d1a]" />
@@ -325,12 +325,12 @@ export default function CampusesPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">Coordinator Slots</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{usedCoordinatorSlots}/{totalCoordinatorSlots}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Coordinator Slots</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{usedCoordinatorSlots}/{totalCoordinatorSlots}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                       <UserCheck className="w-5 h-5 text-[#2d7a2d]" />
@@ -341,12 +341,12 @@ export default function CampusesPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">Avg Users/Campus</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Avg Users/Campus</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                         {campuses.length > 0 ? Math.round(totalUsers / campuses.length) : 0}
                       </p>
                     </div>
@@ -361,7 +361,7 @@ export default function CampusesPage() {
 
           {/* Search */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl mb-6">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -370,7 +370,7 @@ export default function CampusesPage() {
                     placeholder="Search campuses by name or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                   />
                 </div>
               </CardContent>
@@ -380,13 +380,13 @@ export default function CampusesPage() {
           {/* Campuses Grid */}
           {filteredCampuses.length === 0 ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Building className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-gray-900 dark:text-white font-medium mb-1">No campuses found</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  <h3 className="text-gray-900 dark:text-[#E4E4E7] font-medium mb-1">No campuses found</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400 mb-4">
                     {searchQuery ? 'Try a different search term' : 'Get started by adding your first campus'}
                   </p>
                   {!searchQuery && (
@@ -414,7 +414,7 @@ export default function CampusesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35 + index * 0.05 }}
                 >
-                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all group">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all group">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -422,10 +422,10 @@ export default function CampusesPage() {
                             {campus.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
                               {campus.name}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
                               {campus.location || 'No location set'}
                             </p>
@@ -450,16 +450,16 @@ export default function CampusesPage() {
                       {/* Coordinator Progress */}
                       <div className="mb-4">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">Coordinator Capacity</span>
+                          <span className="text-xs text-gray-500 dark:text-zinc-400">Coordinator Capacity</span>
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                             campus.activeCoordinators >= campus.maxCoordinators
                               ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                              : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                              : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]'
                           }`}>
                             {campus.activeCoordinators}/{campus.maxCoordinators}
                           </span>
                         </div>
-                        <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                           <div 
                             className={`h-full rounded-full transition-all ${
                               campus.activeCoordinators >= campus.maxCoordinators
@@ -474,19 +474,19 @@ export default function CampusesPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                        <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-3">
                           <div className="flex items-center gap-2 mb-1">
                             <Users className="w-4 h-4 text-[#1a5d1a]" />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Supervisors</span>
+                            <span className="text-xs text-gray-500 dark:text-zinc-400">Supervisors</span>
                           </div>
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">{campus.totalSupervisors}</p>
+                          <p className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">{campus.totalSupervisors}</p>
                         </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                        <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-3">
                           <div className="flex items-center gap-2 mb-1">
                             <GraduationCap className="w-4 h-4 text-[#2d7a2d]" />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Students</span>
+                            <span className="text-xs text-gray-500 dark:text-zinc-400">Students</span>
                           </div>
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">{campus.totalStudents}</p>
+                          <p className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">{campus.totalStudents}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -515,18 +515,18 @@ export default function CampusesPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center">
                     <Building className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       Add New Campus
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Configure campus details</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Configure campus details</p>
                   </div>
-                  <button onClick={() => setShowCreateModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <button onClick={() => setShowCreateModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
@@ -540,33 +540,33 @@ export default function CampusesPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campus Name *</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Campus Name *</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g., Main Campus"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Location</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Location</Label>
                     <Input
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       placeholder="e.g., Islamabad"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Coordinators</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Max Coordinators</Label>
                     <Input
                       type="number"
                       min={1}
                       value={formData.maxCoordinators}
                       onChange={(e) => setFormData({ ...formData, maxCoordinators: parseInt(e.target.value) || 5 })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
                       Maximum number of coordinators allowed for this campus
                     </p>
                   </div>
@@ -576,7 +576,7 @@ export default function CampusesPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>
@@ -618,18 +618,18 @@ export default function CampusesPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center">
                     <Edit className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       Edit Campus
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Update campus details</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Update campus details</p>
                   </div>
-                  <button onClick={() => setShowEditModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <button onClick={() => setShowEditModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
@@ -643,31 +643,31 @@ export default function CampusesPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campus Name *</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Campus Name *</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Location</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Location</Label>
                     <Input
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Coordinators</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Max Coordinators</Label>
                     <Input
                       type="number"
                       min={1}
                       value={formData.maxCoordinators}
                       onChange={(e) => setFormData({ ...formData, maxCoordinators: parseInt(e.target.value) || 5 })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
                       Current: {selectedCampus.activeCoordinators} active coordinators
                     </p>
                   </div>
@@ -677,7 +677,7 @@ export default function CampusesPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowEditModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>
@@ -719,22 +719,22 @@ export default function CampusesPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center">
                     <Trash2 className="w-7 h-7 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       Delete Campus
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">
                       {selectedCampus.name}
                     </p>
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl">
+                <p className="text-sm text-gray-600 dark:text-zinc-300 mb-6 bg-gray-50 dark:bg-zinc-700/50 p-3 rounded-xl">
                   Are you sure you want to delete this campus? This can only be done if there are no users assigned to it.
                 </p>
 
@@ -749,7 +749,7 @@ export default function CampusesPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowDeleteModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>

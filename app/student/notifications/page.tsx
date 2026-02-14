@@ -235,29 +235,29 @@ export default function StudentNotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <StudentSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header - Hidden on mobile since StudentSidebar has mobile header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#22C55E]/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
               </button>
               <NotificationBell />
               
@@ -270,8 +270,8 @@ export default function StudentNotificationsPage() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -287,8 +287,8 @@ export default function StudentNotificationsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Notifications</h1>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">
                   {unreadCount > 0 
                     ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
                     : 'All caught up!'
@@ -328,12 +328,12 @@ export default function StudentNotificationsPage() {
             className="flex flex-col sm:flex-row gap-4 mb-6"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
               <Input
                 placeholder="Search notifications..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
+                className="pl-10 h-11 border-gray-200 dark:border-zinc-600 dark:bg-[#27272A] dark:text-[#E4E4E7] dark:placeholder:text-zinc-500 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
               />
               {searchQuery && (
                 <button 
@@ -349,7 +349,7 @@ export default function StudentNotificationsPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="h-11 px-4 border-gray-200 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 min-w-[140px] justify-between rounded-xl"
+                className="h-11 px-4 border-gray-200 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700 min-w-[140px] justify-between rounded-xl"
               >
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
@@ -364,14 +364,14 @@ export default function StudentNotificationsPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 top-14 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-10 min-w-[140px]"
+                    className="absolute right-0 top-14 bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700 overflow-hidden z-10 min-w-[140px]"
                   >
                     {['all', 'unread', 'read'].map((type) => (
                       <button
                         key={type}
                         onClick={() => { setFilterType(type as any); setShowFilterDropdown(false); }}
-                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 capitalize transition-colors ${
-                          filterType === type ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]' : 'text-gray-700 dark:text-gray-300'
+                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-zinc-700 capitalize transition-colors ${
+                          filterType === type ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#4ade80]' : 'text-gray-700 dark:text-zinc-300'
                         }`}
                       >
                         {type}
@@ -389,7 +389,7 @@ export default function StudentNotificationsPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
               <CardContent className="p-0">
                 {filteredNotifications.length > 0 ? (
                   <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -399,7 +399,7 @@ export default function StudentNotificationsPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
+                        className={`p-5 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors cursor-pointer ${
                           !notification.isRead ? 'bg-[#d1e7d1]/20 dark:bg-[#1a5d1a]/10' : ''
                         }`}
                         onClick={() => {

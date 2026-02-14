@@ -451,7 +451,7 @@ model Meeting {
   duration     Int           @default(60) // Duration in minutes
   status       MeetingStatus @default(scheduled)
   createdById  Int           @map("created_by_id")
-  createdByRole String       @db.VarChar(20) @map("created_by_role") // 'supervisor' or 'student'
+  createdByRole String       @db.VarChar(20) @map("created_by_role") // 'supervisor', 'student', or 'coordinator'
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -560,6 +560,16 @@ model EvaluationSubmission {
   feedback        String?                 @db.Text
   gradedById      Int?                    @map("graded_by_id") // Coordinator/Supervisor userId
   gradedAt        DateTime?               @map("graded_at")
+  // Supervisor scoring (group's own supervisor scores separately from panel)
+  supervisorScore     Int?                @map("supervisor_score")
+  supervisorFeedback  String?             @db.Text @map("supervisor_feedback")
+  supervisorScoredById Int?              @map("supervisor_scored_by_id")
+  supervisorScoredAt  DateTime?          @map("supervisor_scored_at")
+  // Panel scoring (panel head scores separately)
+  panelScore          Int?               @map("panel_score")
+  panelFeedback       String?            @db.Text @map("panel_feedback")
+  panelScoredById     Int?               @map("panel_scored_by_id")
+  panelScoredAt       DateTime?          @map("panel_scored_at")
   submittedAt     DateTime                @default(now()) @map("submitted_at")
   updatedAt       DateTime                @updatedAt
 
@@ -661,13 +671,33 @@ model GroupPanelAssignment {
   timeSlot   String?  @db.VarChar(50) @map("time_slot") // e.g., "09:00 AM - 10:00 AM"
   venue      String?  @db.VarChar(255)
   remarks    String?  @db.Text
+  score      Int?     // Score given by panel head (out of 100)
+  scoredById Int?     @map("scored_by_id") // Panel head userId who scored
+  scoredAt   DateTime? @map("scored_at")
 
   panel EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
+  comments PanelComment[]
 
   @@unique([panelId, groupId])
   @@index([groupId])
   @@index([evaluationDate])
   @@map("group_panel_assignments")
+}
+
+// Panel Comments - Comments by panel members on group assignments
+model PanelComment {
+  commentId    Int      @id @default(autoincrement()) @map("comment_id")
+  assignmentId Int      @map("assignment_id") // GroupPanelAssignment id
+  userId       Int      @map("user_id") // Panel member userId who commented
+  content      String   @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assignment GroupPanelAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([userId])
+  @@map("panel_comments")
 }
 
 // Password Reset Tokens - For forgot password functionality
@@ -684,4 +714,56 @@ model PasswordResetToken {
   @@index([token])
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+// Resource Request - Groups request hardware/software resources for their projects
+model ResourceRequest {
+  id              Int                    @id @default(autoincrement())
+  groupId         Int                    @map("group_id")
+  title           String                 @db.VarChar(255)
+  description     String?                @db.Text
+  resourceType    ResourceType           @default(hardware) @map("resource_type")
+  items           String                 @db.Text // JSON array of requested items
+  justification   String?                @db.Text // Why the group needs these resources
+  status          ResourceRequestStatus  @default(pending)
+  // Supervisor review
+  supervisorId    Int?                   @map("supervisor_id") // Supervisor who reviewed
+  supervisorNote  String?                @db.Text @map("supervisor_note")
+  supervisorAction String?              @db.VarChar(20) @map("supervisor_action") // 'approved', 'rejected', 'forwarded'
+  supervisorReviewedAt DateTime?         @map("supervisor_reviewed_at")
+  // Coordinator meeting
+  coordinatorId   Int?                   @map("coordinator_id")
+  coordinatorNote String?                @db.Text @map("coordinator_note")
+  meetingDate     DateTime?              @map("meeting_date")
+  meetingTime     String?                @db.VarChar(50) @map("meeting_time")
+  meetingLink     String?                @db.VarChar(500) @map("meeting_link")
+  meetingVenue    String?                @db.VarChar(255) @map("meeting_venue")
+  meetingType     String?                @db.VarChar(20) @map("meeting_type") // 'online' or 'physical'
+  coordinatorReviewedAt DateTime?        @map("coordinator_reviewed_at")
+  createdById     Int                    @map("created_by_id")
+  campusId        Int                    @map("campus_id")
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([groupId])
+  @@index([campusId])
+  @@index([status])
+  @@index([supervisorId])
+  @@map("resource_requests")
+}
+
+enum ResourceType {
+  hardware
+  software
+  both
+}
+
+enum ResourceRequestStatus {
+  pending           // Initial state - waiting for supervisor
+  supervisor_approved  // Supervisor approved, forwarded to coordinator
+  supervisor_rejected  // Supervisor rejected
+  coordinator_review   // Coordinator is reviewing
+  meeting_scheduled    // Coordinator scheduled a meeting
+  approved          // Fully approved
+  rejected          // Coordinator rejected
 }

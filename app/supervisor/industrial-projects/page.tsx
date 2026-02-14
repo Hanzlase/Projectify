@@ -187,11 +187,11 @@ export default function SupervisorIndustrialProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
       case 'booked':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'completed':
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-700 dark:bg-[#27272A] dark:text-zinc-400';
       default:
         return 'bg-gray-100 text-gray-700';
     }
@@ -210,7 +210,7 @@ export default function SupervisorIndustrialProjectsPage() {
         );
       case 'approved':
         return (
-          <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-medium flex items-center gap-1">
+          <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E] rounded-full text-xs font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" /> Approved
           </span>
         );
@@ -238,21 +238,21 @@ export default function SupervisorIndustrialProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#18181B]">
       <SupervisorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <main className="md:ml-56 min-h-screen">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+        <header className="sticky top-0 z-10 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-800">
           <div className="flex items-center justify-between px-4 sm:px-6 h-16">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-emerald-600 rounded-xl flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Industry Projects</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Browse and request industrial projects</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Industry Projects</h1>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Browse and request industrial projects</p>
               </div>
             </div>
             <NotificationBell />
@@ -288,7 +288,7 @@ export default function SupervisorIndustrialProjectsPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-20"
+                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#27272A] rounded-xl shadow-lg border border-gray-200 dark:border-zinc-700 py-2 z-20"
                   >
                     {['all', 'available', 'booked'].map((s) => (
                       <button
@@ -298,8 +298,8 @@ export default function SupervisorIndustrialProjectsPage() {
                           setShowFilterDropdown(false);
                           setTimeout(() => fetchProjects(), 0);
                         }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                          statusFilter === s ? 'text-[#1a5d1a] font-medium' : 'text-gray-700 dark:text-gray-300'
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 ${
+                          statusFilter === s ? 'text-[#1a5d1a] font-medium' : 'text-gray-700 dark:text-zinc-300'
                         }`}
                       >
                         {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -317,11 +317,11 @@ export default function SupervisorIndustrialProjectsPage() {
 
           {/* Projects Grid */}
           {projects.length === 0 ? (
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
               <CardContent className="p-12 text-center">
-                <Building2 className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Industrial Projects</h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <Building2 className="w-16 h-16 mx-auto text-gray-300 dark:text-zinc-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Industrial Projects</h3>
+                <p className="text-gray-500 dark:text-zinc-400">
                   No industrial projects are available at the moment. Check back later!
                 </p>
               </CardContent>
@@ -336,7 +336,7 @@ export default function SupervisorIndustrialProjectsPage() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Card 
-                    className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer overflow-hidden group"
+                    className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer overflow-hidden group"
                     onClick={() => router.push(`/supervisor/industrial-projects/${project.id}`)}
                   >
                     {/* Thumbnail */}
@@ -361,7 +361,7 @@ export default function SupervisorIndustrialProjectsPage() {
 
                     <CardContent className="p-4">
                       {/* Title */}
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-[#1a5d1a] transition-colors">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2 line-clamp-1 group-hover:text-[#1a5d1a] transition-colors">
                         {project.title}
                       </h3>
 
@@ -374,8 +374,8 @@ export default function SupervisorIndustrialProjectsPage() {
                       )}
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-zinc-700">
+                        <span className="text-xs text-gray-500 dark:text-zinc-400 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(project.createdAt)}
                         </span>

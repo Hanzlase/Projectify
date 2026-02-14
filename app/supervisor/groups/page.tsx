@@ -145,23 +145,23 @@ export default function SupervisorGroupsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#18181B] flex">
       <SupervisorSidebar />
       
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Modern Header */}
-        <header className="bg-white dark:bg-gray-800 sticky top-0 z-20 px-4 md:px-6 py-4 border-b border-gray-100 dark:border-gray-700 shadow-sm">
+        <header className="bg-white dark:bg-[#27272A] sticky top-0 z-20 px-4 md:px-6 py-4 border-b border-gray-100 dark:border-zinc-700 shadow-sm">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push("/supervisor/dashboard")}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">My Groups</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Manage and monitor your supervised groups</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">My Groups</h1>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">Manage and monitor your supervised groups</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -176,9 +176,9 @@ export default function SupervisorGroupsPage() {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
-                <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-300 ${refreshing ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-zinc-300 ${refreshing ? "animate-spin" : ""}`} />
               </button>
             </div>
           </div>
@@ -191,14 +191,14 @@ export default function SupervisorGroupsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-gray-800 overflow-hidden relative">
+              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Groups</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">{groups.length}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Active supervision</p>
+                      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total Groups</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7] tracking-tight">{groups.length}</p>
+                      <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Active supervision</p>
                     </div>
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center shadow-lg shadow-[#1a5d1a]/30">
                       <Users className="w-7 h-7 text-white" />
@@ -213,16 +213,16 @@ export default function SupervisorGroupsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
             >
-              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-gray-800 overflow-hidden relative">
+              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Students</p>
+                      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total Students</p>
                       <p className="text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
                         {groups.reduce((acc, g) => acc + g.studentCount, 0)}
                       </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Across all groups</p>
+                      <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Across all groups</p>
                     </div>
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center shadow-lg shadow-[#1a5d1a]/30">
                       <Sparkles className="w-7 h-7 text-white" />
@@ -237,12 +237,12 @@ export default function SupervisorGroupsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-gray-800 overflow-hidden relative">
+              <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">With Projects</p>
+                      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">With Projects</p>
                       <p className="text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
                         {groups.filter(g => g.projectTitle || g.projectId).length}
                       </p>
@@ -269,7 +269,7 @@ export default function SupervisorGroupsPage() {
             transition={{ delay: 0.15 }}
             className="mb-6"
           >
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-none p-4">
+            <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-none p-4">
               <div className="flex flex-col md:flex-row gap-3">
                 {/* Search Input - Floating Style */}
                 <div className="relative flex-1">
@@ -278,7 +278,7 @@ export default function SupervisorGroupsPage() {
                     placeholder="Search by group name, project, or student..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 text-base shadow-sm"
+                    className="pl-12 h-12 rounded-xl border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 text-base shadow-sm"
                   />
                 </div>
                 
@@ -286,10 +286,10 @@ export default function SupervisorGroupsPage() {
                 <div className="relative">
                   <button
                     onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
-                    className="h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
+                    className="h-12 px-4 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
                   >
                     <Filter className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-gray-700 dark:text-zinc-300">
                       {filterBy === 'all' ? 'All Groups' : filterBy === 'with-project' ? 'With Project' : 'No Project'}
                     </span>
                     <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
@@ -301,7 +301,7 @@ export default function SupervisorGroupsPage() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-30"
+                        className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-100 dark:border-zinc-700 overflow-hidden z-30"
                       >
                         {[
                           { value: 'all', label: 'All Groups' },
@@ -311,8 +311,8 @@ export default function SupervisorGroupsPage() {
                           <button
                             key={option.value}
                             onClick={() => { setFilterBy(option.value as any); setShowFilterMenu(false); }}
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                              filterBy === option.value ? 'bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] font-medium' : 'text-gray-700 dark:text-gray-300'
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors ${
+                              filterBy === option.value ? 'bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] font-medium' : 'text-gray-700 dark:text-zinc-300'
                             }`}
                           >
                             {option.label}
@@ -327,10 +327,10 @@ export default function SupervisorGroupsPage() {
                 <div className="relative">
                   <button
                     onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
-                    className="h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
+                    className="h-12 px-4 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
                   >
                     <SortAsc className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-gray-700 dark:text-zinc-300">
                       {sortBy === 'name' ? 'By Name' : sortBy === 'students' ? 'By Students' : 'By Project'}
                     </span>
                     <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
@@ -342,7 +342,7 @@ export default function SupervisorGroupsPage() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-30"
+                        className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-100 dark:border-zinc-700 overflow-hidden z-30"
                       >
                         {[
                           { value: 'name', label: 'By Name' },
@@ -352,8 +352,8 @@ export default function SupervisorGroupsPage() {
                           <button
                             key={option.value}
                             onClick={() => { setSortBy(option.value as any); setShowSortMenu(false); }}
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                              sortBy === option.value ? 'bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] font-medium' : 'text-gray-700 dark:text-gray-300'
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors ${
+                              sortBy === option.value ? 'bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] font-medium' : 'text-gray-700 dark:text-zinc-300'
                             }`}
                           >
                             {option.label}
@@ -366,9 +366,9 @@ export default function SupervisorGroupsPage() {
               </div>
               
               {/* Results count */}
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Showing <span className="font-semibold text-gray-700 dark:text-gray-300">{filteredGroups.length}</span> of {groups.length} groups
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-700 flex items-center justify-between">
+                <p className="text-sm text-gray-500 dark:text-zinc-400">
+                  Showing <span className="font-semibold text-gray-700 dark:text-zinc-300">{filteredGroups.length}</span> of {groups.length} groups
                 </p>
               </div>
             </div>
@@ -391,14 +391,14 @@ export default function SupervisorGroupsPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.03 }}
                     >
-                      <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card bg-white dark:bg-gray-800 h-full flex flex-col">
+                      <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card bg-white dark:bg-[#27272A] h-full flex flex-col">
                         <CardContent className="p-0 flex flex-col h-full">
                           {/* Card Header with Status */}
-                          <div className="p-5 pb-4 border-b border-gray-100 dark:border-gray-700">
+                          <div className="p-5 pb-4 border-b border-gray-100 dark:border-zinc-700">
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
                                 {/* Group Name as Title */}
-                                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight line-clamp-2 mb-1.5">
+                                <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7] text-base leading-tight line-clamp-2 mb-1.5">
                                   {group.name}
                                 </h3>
                                 {/* Project Info */}
@@ -412,7 +412,7 @@ export default function SupervisorGroupsPage() {
                                 ) : (
                                   <div className="flex items-center gap-1.5">
                                     <AlertCircle className="w-3.5 h-3.5 text-gray-400" />
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">No project yet</span>
+                                    <span className="text-sm text-gray-500 dark:text-zinc-400">No project yet</span>
                                   </div>
                                 )}
                               </div>
@@ -430,8 +430,8 @@ export default function SupervisorGroupsPage() {
                           {/* Members Section - Facepile UI */}
                           <div className="p-5 flex-1">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Team Members</span>
-                              <span className="text-xs font-medium text-gray-400 dark:text-gray-500">{group.studentCount}/3</span>
+                              <span className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Team Members</span>
+                              <span className="text-xs font-medium text-gray-400 dark:text-zinc-500">{group.studentCount}/3</span>
                             </div>
                             
                             {/* Facepile - Overlapping Avatars */}
@@ -462,11 +462,11 @@ export default function SupervisorGroupsPage() {
                               
                               {/* Names */}
                               <div className="ml-3 flex-1 min-w-0">
-                                <p className="text-sm text-gray-700 dark:text-gray-300 truncate font-medium">
+                                <p className="text-sm text-gray-700 dark:text-zinc-300 truncate font-medium">
                                   {group.students.slice(0, 2).map(s => s.name.split(' ')[0]).join(', ')}
                                   {group.students.length > 2 && <span className="text-gray-400"> +{group.students.length - 2}</span>}
                                 </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                                <p className="text-xs text-gray-400 dark:text-zinc-500 truncate">
                                   {group.students[0]?.rollNumber}
                                 </p>
                               </div>
@@ -491,7 +491,7 @@ export default function SupervisorGroupsPage() {
                                     router.push("/supervisor/chat");
                                   }
                                 }}
-                                className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-[#1a5d1a] flex items-center justify-center transition-all group/btn"
+                                className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 hover:border-[#1a5d1a] flex items-center justify-center transition-all group/btn"
                               >
                                 <MessageCircle className="w-5 h-5 text-gray-500 group-hover/btn:text-[#1a5d1a] transition-colors" />
                               </button>
@@ -508,13 +508,13 @@ export default function SupervisorGroupsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="md:col-span-2 lg:col-span-3"
                 >
-                  <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-gray-800">
+                  <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A]">
                     <CardContent className="py-20 text-center">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mx-auto mb-6">
                         <Users className="w-10 h-10 text-gray-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No groups found</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto mb-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">No groups found</h3>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm max-w-md mx-auto mb-6">
                         {searchQuery 
                           ? "No groups match your search criteria. Try adjusting your filters."
                           : "You haven't been assigned to any groups yet. Accept invitations from students to start supervising."

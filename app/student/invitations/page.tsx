@@ -305,7 +305,7 @@ export default function InvitationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B]">
       <StudentSidebar />
       
       <div className="md:ml-56 mt-14 md:mt-0">
@@ -316,8 +316,8 @@ export default function InvitationsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Invitations</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Manage your team and collaboration invitations</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">Invitations</h1>
+            <p className="text-gray-500 dark:text-zinc-400 text-sm">Manage your team and collaboration invitations</p>
           </motion.div>
 
           {/* Tabs */}
@@ -327,7 +327,7 @@ export default function InvitationsPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all ${
                 activeTab === 'received'
                   ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                  : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700'
               }`}
             >
               <Inbox className="w-4 h-4" />
@@ -345,7 +345,7 @@ export default function InvitationsPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all ${
                 activeTab === 'sent'
                   ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                  : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700'
               }`}
             >
               <Send className="w-4 h-4" />
@@ -371,13 +371,13 @@ export default function InvitationsPage() {
                 className="space-y-4"
               >
                 {receivedInvitations.length === 0 ? (
-                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A]">
                     <CardContent className="py-12 text-center">
                       <div className="w-16 h-16 mx-auto mb-4 bg-[#e8f5e8] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center">
                         <Inbox className="w-8 h-8 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Invitations Yet</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">You haven't received any invitations from other students</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Invitations Yet</h3>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">You haven't received any invitations from other students</p>
                       <Button
                         onClick={() => router.push('/student/browse-students')}
                         className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
@@ -395,7 +395,7 @@ export default function InvitationsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
+                      <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-start gap-4">
                             {/* Avatar */}
@@ -417,7 +417,7 @@ export default function InvitationsPage() {
                                   <div className="flex items-center gap-2">
                                     <h3 
                                       onClick={() => router.push(`/student/view-profile/student/${invitation.senderId}`)}
-                                      className="font-semibold text-gray-900 dark:text-white hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
                                     >
                                       {invitation.senderName}
                                     </h3>
@@ -428,14 +428,14 @@ export default function InvitationsPage() {
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  <p className="text-xs text-gray-500 dark:text-zinc-400">
                                     {invitation.isGroupInvitation ? invitation.groupName : invitation.senderRollNumber}
                                   </p>
                                 </div>
                                 {getStatusBadge(invitation.status)}
                               </div>
 
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                              <p className="text-sm text-gray-600 dark:text-zinc-300 mb-3">
                                 {invitation.message || (invitation.isGroupInvitation 
                                   ? `${invitation.senderName} invited you to join their group "${invitation.groupName}".`
                                   : `${invitation.senderName} wants to collaborate with you on a project.`)}
@@ -491,13 +491,13 @@ export default function InvitationsPage() {
                 className="space-y-4"
               >
                 {sentInvitations.length === 0 ? (
-                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A]">
                     <CardContent className="py-12 text-center">
                       <div className="w-16 h-16 mx-auto mb-4 bg-[#e8f5e8] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center">
                         <Send className="w-8 h-8 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Invitations Sent</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">You haven't sent any invitations yet</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Invitations Sent</h3>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">You haven't sent any invitations yet</p>
                       <Button
                         onClick={() => router.push('/student/browse-students')}
                         className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
@@ -515,7 +515,7 @@ export default function InvitationsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
+                      <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-start gap-4">
                             {/* Avatar */}
@@ -537,7 +537,7 @@ export default function InvitationsPage() {
                                   <div className="flex items-center gap-2">
                                     <h3 
                                       onClick={() => router.push(`/student/view-profile/student/${invitation.receiverId}`)}
-                                      className="font-semibold text-gray-900 dark:text-white hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
                                     >
                                       {invitation.receiverName}
                                     </h3>
@@ -548,14 +548,14 @@ export default function InvitationsPage() {
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  <p className="text-xs text-gray-500 dark:text-zinc-400">
                                     {invitation.isGroupInvitation ? invitation.groupName : invitation.receiverRollNumber}
                                   </p>
                                 </div>
                                 {getStatusBadge(invitation.status)}
                               </div>
 
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                              <p className="text-sm text-gray-600 dark:text-zinc-300 mb-3">
                                 {invitation.message || (invitation.isGroupInvitation 
                                   ? `You invited ${invitation.receiverName} to join your group "${invitation.groupName}".`
                                   : `You invited ${invitation.receiverName} to collaborate.`)}
@@ -570,7 +570,7 @@ export default function InvitationsPage() {
                                     variant="outline"
                                     onClick={() => handleCancelInvitation(invitation.id, invitation.isGroupInvitation)}
                                     disabled={actionLoading === invitation.id}
-                                    className="h-8 px-3 text-xs border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                                    className="h-8 px-3 text-xs border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                   >
                                     {actionLoading === invitation.id ? (
                                       <Loader2 className="w-3 h-3 animate-spin" />

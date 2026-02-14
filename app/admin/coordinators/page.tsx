@@ -263,23 +263,23 @@ export default function CoordinatorsPage() {
   const suspendedCount = coordinators.filter((c) => c.status === 'SUSPENDED').length;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <AdminSidebar />
       
       <div className="flex-1 md:ml-64 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push('/admin/dashboard')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-500" />
               </button>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Coordinators</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Manage FYP coordinators across campuses</p>
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Coordinators</h1>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Manage FYP coordinators across campuses</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -302,7 +302,7 @@ export default function CoordinatorsPage() {
         <main className="p-4 md:p-6">
           {/* Mobile Header */}
           <div className="md:hidden flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Coordinators</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Coordinators</h1>
             <Button
               onClick={() => {
                 setFormData({ name: '', email: '', password: '', campusId: '' });
@@ -323,7 +323,7 @@ export default function CoordinatorsPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-green-400"
+                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E]"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm">{success}</span>
@@ -353,11 +353,11 @@ export default function CoordinatorsPage() {
             </motion.div>
             
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">Active</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Active</p>
                       <p className="text-3xl font-bold text-green-600">{activeCount}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
@@ -369,11 +369,11 @@ export default function CoordinatorsPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">Suspended</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Suspended</p>
                       <p className="text-3xl font-bold text-red-600">{suspendedCount}</p>
                     </div>
                     <div className="w-10 h-10 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center">
@@ -387,7 +387,7 @@ export default function CoordinatorsPage() {
 
           {/* Search and Filters */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl mb-6">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="relative flex-1">
@@ -397,7 +397,7 @@ export default function CoordinatorsPage() {
                       placeholder="Search by name, email, or campus..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -408,7 +408,7 @@ export default function CoordinatorsPage() {
                         className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                           statusFilter === filter
                             ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/20'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            : 'bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600'
                         }`}
                       >
                         {filter === 'all' ? 'All' : filter === 'ACTIVE' ? 'Active' : 'Suspended'}
@@ -422,14 +422,14 @@ export default function CoordinatorsPage() {
 
           {/* Coordinators List */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
               {filteredCoordinators.length === 0 ? (
                 <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Users className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-gray-900 dark:text-white font-medium mb-1">No coordinators found</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  <h3 className="text-gray-900 dark:text-[#E4E4E7] font-medium mb-1">No coordinators found</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400 mb-4">
                     {searchQuery || statusFilter !== 'all' 
                       ? 'Try adjusting your search or filters' 
                       : 'Get started by adding your first coordinator'}
@@ -456,7 +456,7 @@ export default function CoordinatorsPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.35 + index * 0.05 }}
-                      className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all group"
+                      className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-all group"
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center overflow-hidden">
@@ -475,21 +475,21 @@ export default function CoordinatorsPage() {
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">
                               {coordinator.name}
                             </h3>
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                 coordinator.status === 'ACTIVE'
-                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]'
                                   : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                               }`}
                             >
                               {coordinator.status === 'ACTIVE' ? 'Active' : 'Suspended'}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{coordinator.email}</p>
-                          <div className="flex items-center gap-1 mt-1 text-xs text-gray-400 dark:text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-zinc-400 truncate">{coordinator.email}</p>
+                          <div className="flex items-center gap-1 mt-1 text-xs text-gray-400 dark:text-zinc-500">
                             <Building className="w-3 h-3" />
                             <span>{coordinator.campus?.name || 'No campus'}</span>
                           </div>
@@ -555,18 +555,18 @@ export default function CoordinatorsPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center">
                     <Plus className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       Add New Coordinator
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Fill in the details below</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Fill in the details below</p>
                   </div>
-                  <button onClick={() => setShowCreateModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <button onClick={() => setShowCreateModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
@@ -580,33 +580,33 @@ export default function CoordinatorsPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Full Name</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter full name"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Email</Label>
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="Enter email address"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Password</Label>
                     <div className="relative mt-1.5">
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         placeholder="Enter password"
-                        className="rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a] pr-10"
+                        className="rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a] pr-10"
                       />
                       <button
                         type="button"
@@ -618,11 +618,11 @@ export default function CoordinatorsPage() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campus</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Campus</Label>
                     <select
                       value={formData.campusId}
                       onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
-                      className="w-full mt-1.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
+                      className="w-full mt-1.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-[#E4E4E7] focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
                     >
                       <option value="">Select campus</option>
                       {campuses.map((campus) => (
@@ -642,7 +642,7 @@ export default function CoordinatorsPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>
@@ -684,18 +684,18 @@ export default function CoordinatorsPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center">
                     <Edit className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       Edit Coordinator
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Update coordinator details</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Update coordinator details</p>
                   </div>
-                  <button onClick={() => setShowEditModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <button onClick={() => setShowEditModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
@@ -709,28 +709,28 @@ export default function CoordinatorsPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Full Name</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Email</Label>
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campus</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Campus</Label>
                     <select
                       value={formData.campusId}
                       onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
-                      className="w-full mt-1.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
+                      className="w-full mt-1.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-[#E4E4E7] focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
                     >
                       <option value="">Select campus</option>
                       {campuses.map((campus) => (
@@ -749,7 +749,7 @@ export default function CoordinatorsPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowEditModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>
@@ -791,7 +791,7 @@ export default function CoordinatorsPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
                     actionType === 'delete'
@@ -809,16 +809,16 @@ export default function CoordinatorsPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">
                       {actionType === 'delete' ? 'Delete' : actionType === 'suspend' ? 'Suspend' : 'Activate'} Coordinator
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">
                       {selectedCoordinator.name}
                     </p>
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl">
+                <p className="text-sm text-gray-600 dark:text-zinc-300 mb-6 bg-gray-50 dark:bg-zinc-700/50 p-3 rounded-xl">
                   {actionType === 'delete'
                     ? 'Are you sure you want to remove this coordinator? This action cannot be undone.'
                     : actionType === 'suspend'
@@ -837,7 +837,7 @@ export default function CoordinatorsPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowActionModal(false)}
-                    className="flex-1 rounded-xl border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>

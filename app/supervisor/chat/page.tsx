@@ -1454,7 +1454,7 @@ function SupervisorChatPageContent() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
@@ -1505,7 +1505,7 @@ function SupervisorChatPageContent() {
                           <button
                             key={user.userId}
                             onClick={() => startNewConversation(user.userId)}
-                            className="w-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700"
+                            className="w-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border border-gray-100 dark:border-zinc-700"
                           >
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
                               {user.profileImage ? (
@@ -1515,14 +1515,14 @@ function SupervisorChatPageContent() {
                               )}
                             </div>
                             <div className="flex-1 text-left">
-                              <h3 className="font-semibold text-gray-900 dark:text-white">{user.name}</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{user.name}</h3>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-700">
                                   <Shield className="w-3 h-3 inline mr-1" />
                                   Coordinator
                                 </span>
                               </div>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">{user.email}</span>
+                              <span className="text-sm text-gray-500 dark:text-zinc-400">{user.email}</span>
                             </div>
                             <MessageCircle className="w-5 h-5 text-[#1a5d1a]" />
                           </button>
@@ -1539,7 +1539,7 @@ function SupervisorChatPageContent() {
                             key={`student-${user.name}`}
                             onClick={() => user.userId > 0 && startNewConversation(user.userId)}
                             disabled={user.userId === 0}
-                            className="w-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700 disabled:opacity-50"
+                            className="w-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border border-gray-100 dark:border-zinc-700 disabled:opacity-50"
                           >
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden">
                               {user.profileImage ? (
@@ -1549,14 +1549,14 @@ function SupervisorChatPageContent() {
                               )}
                             </div>
                             <div className="flex-1 text-left">
-                              <h3 className="font-semibold text-gray-900 dark:text-white">{user.name}</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{user.name}</h3>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] text-[#1a5d1a]">
                                   <GraduationCap className="w-3 h-3 inline mr-1" />
                                   Student
                                 </span>
                               </div>
-                              {user.email && <span className="text-sm text-gray-500 dark:text-gray-400">{user.email}</span>}
+                              {user.email && <span className="text-sm text-gray-500 dark:text-zinc-400">{user.email}</span>}
                             </div>
                             <MessageCircle className="w-5 h-5 text-[#1a5d1a]" />
                           </button>
@@ -1566,11 +1566,11 @@ function SupervisorChatPageContent() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Users className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">No users found</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">No users found</h3>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">
                       No users available to chat with
                     </p>
                   </div>

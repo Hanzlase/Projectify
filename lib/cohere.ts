@@ -6,7 +6,7 @@ const cohere = new CohereClient({
 });
 
 // Centralized Cohere model configuration
-const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-03-2025';
+const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-08-2024';
 
 // Request queue for rate limiting concurrent Cohere requests
 const requestQueue: Array<{

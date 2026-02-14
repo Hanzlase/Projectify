@@ -713,12 +713,12 @@ export default function ProjectDetailPage() {
 
                 {/* Owner Actions */}
                 {isOwner && (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Actions</h3>
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Actions</h3>
                     <div className="space-y-3">
                       <Button
                         variant="outline"
-                        className="w-full justify-start dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                        className="w-full justify-start dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
                         onClick={() => router.push(`/student/projects?edit=${project.projectId}`)}
                       >
                         <Edit className="w-4 h-4 mr-2" />
@@ -739,17 +739,17 @@ export default function ProjectDetailPage() {
 
                 {/* Permission Request Card - For supervisor uploaded projects */}
                 {isSupervisorProject && !isOwner && (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">
                       Project Permission
                     </h3>
                     
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-2">
                         <ShieldCheck className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Supervisor's Project</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">Supervisor's Project</span>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">
                         This project was uploaded by a supervisor. You need their permission to use it for your FYP.
                       </p>
                     </div>
@@ -779,7 +779,7 @@ export default function ProjectDetailPage() {
                           )}
                           {permissionStatus === 'approved' && (
                             <>
-                              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                              <CheckCircle className="w-5 h-5 text-green-600 dark:text-[#22C55E]" />
                               <span className="font-medium text-green-700 dark:text-green-300">Permission Granted</span>
                             </>
                           )}
@@ -790,7 +790,7 @@ export default function ProjectDetailPage() {
                             </>
                           )}
                         </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="text-xs text-gray-600 dark:text-zinc-400">
                           {permissionStatus === 'pending' && 'Waiting for supervisor to respond to your request.'}
                           {permissionStatus === 'approved' && 'You can now use this project for your FYP!'}
                           {permissionStatus === 'rejected' && 'The supervisor has declined your request.'}
@@ -811,7 +811,7 @@ export default function ProjectDetailPage() {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+            className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
           >
             <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] p-6">
               <h2 className="text-xl font-bold text-white">Request Permission</h2>
@@ -822,7 +822,7 @@ export default function ProjectDetailPage() {
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
                   Message to Supervisor (Optional)
                 </label>
                 <textarea
@@ -830,7 +830,7 @@ export default function ProjectDetailPage() {
                   onChange={(e) => setPermissionMessage(e.target.value)}
                   placeholder="Explain why you'd like to work on this project..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] resize-none text-sm"
                 />
               </div>
               
@@ -849,7 +849,7 @@ export default function ProjectDetailPage() {
               <div className="flex gap-3 pt-2">
                 <Button
                   variant="outline"
-                  className="flex-1 dark:border-gray-600 dark:text-gray-300"
+                  className="flex-1 dark:border-zinc-600 dark:text-zinc-300"
                   onClick={() => {
                     setShowPermissionModal(false);
                     setPermissionMessage('');

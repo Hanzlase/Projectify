@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get statistics
-    // Total groups with FYP in progress
+    // Total groups with supervisor assigned (ready for evaluation)
     const totalGroups = await prisma.group.count({
       where: {
         students: {
@@ -73,8 +73,7 @@ export async function GET(request: NextRequest) {
             groupId: { not: null }
           }
         },
-        isFull: true, // Has supervisor assigned
-        projectId: { not: null } // Has project
+        supervisorId: { not: null } // Only require supervisor to be assigned
       }
     });
 
@@ -83,12 +82,26 @@ export async function GET(request: NextRequest) {
       where: { campusId }
     });
 
-    // Get all supervisors with their group counts
+    // Get supervisors already in panels
+    const supervisorsInPanels = await prisma.panelMember.findMany({
+      where: {
+        panel: { campusId }
+      },
+      select: { supervisorId: true },
+      distinct: ['supervisorId']
+    });
+
+    const supervisorIdsInPanels = supervisorsInPanels.map(pm => pm.supervisorId);
+
+    // Get all supervisors NOT already in panels
     const supervisors = await prisma.user.findMany({
       where: {
         role: 'supervisor',
         supervisor: {
           campusId
+        },
+        userId: {
+          notIn: supervisorIdsInPanels
         }
       },
       select: {
@@ -101,7 +114,11 @@ export async function GET(request: NextRequest) {
             supervisorId: true,
             specialization: true,
             maxGroups: true,
-            totalGroups: true
+            totalGroups: true,
+            domains: true,
+            skills: true,
+            achievements: true,
+            description: true
           }
         }
       },
@@ -109,6 +126,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get all groups with their supervisor and project info
+    // Include groups that have a supervisor assigned (ready for evaluation)
     const groups = await prisma.group.findMany({
       where: {
         students: {
@@ -117,14 +135,14 @@ export async function GET(request: NextRequest) {
             groupId: { not: null }
           }
         },
-        isFull: true,
-        projectId: { not: null }
+        supervisorId: { not: null } // Only require supervisor to be assigned
       },
       select: {
         groupId: true,
         groupName: true,
         supervisorId: true,
         projectId: true,
+        isFull: true,
         students: {
           select: {
             userId: true,
@@ -184,6 +202,10 @@ export async function GET(request: NextRequest) {
         email: s.email,
         profileImage: s.profileImage,
         specialization: s.supervisor?.specialization,
+        description: s.supervisor?.description,
+        domains: s.supervisor?.domains,
+        skills: s.supervisor?.skills,
+        achievements: s.supervisor?.achievements,
         maxGroups: s.supervisor?.maxGroups || 0,
         totalGroups: s.supervisor?.totalGroups || 0,
         availableSlots: (s.supervisor?.maxGroups || 0) - (s.supervisor?.totalGroups || 0)
@@ -374,6 +396,60 @@ export async function PATCH(request: NextRequest) {
         }
       });
       return NextResponse.json({ success: true, assignment });
+    }
+
+    if (action === 'updateMemberRole') {
+      // Update panel member role - first reset all to member, then set one as chair
+      const { supervisorId, role } = updateData;
+      
+      // Reset all members of this panel to 'member'
+      await prisma.panelMember.updateMany({
+        where: { panelId },
+        data: { role: 'member' }
+      });
+
+      // Set the specified supervisor as chair
+      await prisma.panelMember.updateMany({
+        where: { 
+          panelId,
+          supervisorId 
+        },
+        data: { role }
+      });
+
+      return NextResponse.json({ success: true });
+    }
+
+    // General update - handle panel info, members, and groups
+    if (updateData.panelMembers || updateData.groupAssignments) {
+      // Delete existing members and groups
+      await prisma.panelMember.deleteMany({ where: { panelId } });
+      await prisma.groupPanelAssignment.deleteMany({ where: { panelId } });
+
+      // Update panel and recreate members/groups
+      const panel = await prisma.evaluationPanel.update({
+        where: { panelId },
+        data: {
+          name: updateData.name,
+          description: updateData.description,
+          minSupervisors: updateData.minSupervisors,
+          maxSupervisors: updateData.maxSupervisors,
+          scheduledDate: updateData.scheduledDate ? new Date(updateData.scheduledDate) : null,
+          panelMembers: updateData.panelMembers ? {
+            create: updateData.panelMembers.map((member: any) => ({
+              supervisorId: member.supervisorId,
+              role: member.role || 'member'
+            }))
+          } : undefined,
+          groupAssignments: updateData.groupAssignments ? {
+            create: updateData.groupAssignments.map((groupId: number) => ({
+              groupId
+            }))
+          } : undefined
+        }
+      });
+
+      return NextResponse.json({ success: true, panel });
     }
 
     // General update

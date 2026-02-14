@@ -8,7 +8,7 @@ const cohere = new CohereClient({
 });
 
 // Centralized Cohere model configuration
-const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-03-2025';
+const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-08-2024';
 
 // POST - Get AI suggestions for panel creation
 export async function POST(request: NextRequest) {
@@ -59,7 +59,9 @@ export async function POST(request: NextRequest) {
               maxGroups: true,
               totalGroups: true,
               domains: true,
-              skills: true
+              skills: true,
+              achievements: true,
+              description: true
             }
           }
         }
@@ -115,13 +117,15 @@ export async function POST(request: NextRequest) {
           userId: s.userId,
           name: s.name,
           specialization: s.supervisor?.specialization || 'Not specified',
+          description: s.supervisor?.description || '',
+          domains: s.supervisor?.domains || '',
+          skills: s.supervisor?.skills || '',
+          achievements: s.supervisor?.achievements || '',
           maxGroups: s.supervisor?.maxGroups || 0,
           currentGroups: s.supervisor?.totalGroups || 0,
           workloadPercentage: s.supervisor?.maxGroups 
             ? Math.round((s.supervisor.totalGroups || 0) / s.supervisor.maxGroups * 100)
-            : 0,
-          domains: s.supervisor?.domains,
-          skills: s.supervisor?.skills
+            : 0
         })),
         groups: groups.map(g => ({
           groupId: g.groupId,
@@ -137,42 +141,38 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Build comprehensive prompt for Cohere
-    const prompt = `You are an expert educational coordinator assistant helping to organize evaluation panels for Final Year Projects (FYP).
+    // Build comprehensive prompt for Cohere with supervisor profiles
+    const supervisorProfiles = contextData.supervisors.map((s: any) => {
+      const parts = [
+        `${s.name}:`,
+        `Specialization: ${s.specialization}`,
+        `Workload: ${s.currentGroups}/${s.maxGroups} groups (${s.workloadPercentage}%)`
+      ];
+      
+      if (s.domains) parts.push(`Research Domains: ${s.domains}`);
+      if (s.skills) parts.push(`Skills: ${s.skills}`);
+      if (s.achievements) parts.push(`Achievements: ${s.achievements}`);
+      
+      return parts.join(' | ');
+    }).join('\n');
 
-CURRENT SITUATION:
-- Total Supervisors: ${contextData.totalSupervisors}
-- Total FYP Groups in Progress: ${contextData.totalGroups}
-- Existing Panels: ${contextData.totalExistingPanels}
+    const prompt = `You are an expert FYP coordinator assistant. Answer the question based on supervisor profiles.
 
-SUPERVISOR DETAILS:
-${contextData.supervisors.map((s: any) => 
-  `- ${s.name}: ${s.specialization} | Current Load: ${s.currentGroups}/${s.maxGroups} groups (${s.workloadPercentage}%)`
-).join('\n')}
+AVAILABLE SUPERVISORS:
+${supervisorProfiles}
 
-IMPORTANT CONSTRAINTS:
-1. Each panel should have 3-5 supervisors ideally
-2. A group's own supervisor MUST be included in their evaluation panel
-3. Distribute workload evenly - avoid overloading supervisors who already have many groups
-4. Consider specialization diversity in panels for fair evaluation
-5. Balance panel sizes to prevent any single panel from being overwhelmed
-
-COORDINATOR'S QUERY:
+COORDINATOR'S QUESTION:
 ${query}
 
-Please provide specific, actionable recommendations considering workload distribution and the constraint that group supervisors must be on their evaluation panels. Format your response clearly with:
-1. Specific panel compositions (which supervisors)
-2. Recommended group assignments per panel
-3. Reasoning for each recommendation
-4. Potential concerns or alternatives`;
+Provide a clear answer in 2-3 sentences. Recommend specific supervisor(s) by name based on their skills, achievements, and specialization that match the question.`;
 
     // Call Cohere API
     const response = await cohere.chat({
       model: COHERE_MODEL,
       message: prompt,
-      temperature: 0.7,
-      maxTokens: 2000,
-      preamble: "You are a helpful assistant specialized in educational administration and fair workload distribution."
+      temperature: 0.5,
+      maxTokens: 300,
+      preamble: "You are a helpful assistant. Provide clear, specific recommendations in 2-3 sentences mentioning supervisor names."
     });
 
     const suggestion = response.text;

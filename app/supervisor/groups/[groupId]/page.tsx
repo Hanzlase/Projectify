@@ -498,7 +498,7 @@ export default function SupervisorGroupDetailsPage() {
       case 'medium':
         return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
       default:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
     }
   };
 
@@ -508,12 +508,12 @@ export default function SupervisorGroupDetailsPage() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex items-center justify-center">
-        <Card className="border-0 shadow-lg rounded-2xl dark:bg-gray-800">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center">
+        <Card className="border-0 shadow-lg rounded-2xl dark:bg-[#27272A]">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Group Not Found</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">This group doesn't exist or you don't have access.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Group Not Found</h2>
+            <p className="text-gray-500 dark:text-zinc-400 mb-4">This group doesn't exist or you don't have access.</p>
             <Button onClick={() => router.push('/supervisor/groups')} className="bg-[#1a5d1a] hover:bg-[#145214]">
               Back to Groups
             </Button>
@@ -524,27 +524,27 @@ export default function SupervisorGroupDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <SupervisorSidebar />
 
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Modern Header - Similar to Student */}
-        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-gray-700">
+        <header className="bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center justify-between max-w-5xl mx-auto">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/supervisor/groups")}
-                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
               </button>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center text-white font-bold shadow-md">
                   {group.groupName?.charAt(0).toUpperCase() || 'G'}
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900 dark:text-white">{group.groupName || 'Unnamed Group'}</h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{group.students.length} members</p>
+                  <h1 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">{group.groupName || 'Unnamed Group'}</h1>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">{group.students.length} members</p>
                 </div>
               </div>
             </div>
@@ -560,15 +560,15 @@ export default function SupervisorGroupDetailsPage() {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
-                <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${refreshing ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="text-gray-600 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl h-9 w-9 p-0"
+                className="text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl h-9 w-9 p-0"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -591,7 +591,7 @@ export default function SupervisorGroupDetailsPage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-[#1a5d1a] text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -607,12 +607,12 @@ export default function SupervisorGroupDetailsPage() {
               animate={{ opacity: 1, y: 0 }}
             >
               {/* Group Header Card - Enhanced Design */}
-              <Card className="border-0 shadow-sm rounded-2xl overflow-hidden dark:bg-gray-800 mb-6">
+              <Card className="border-0 shadow-sm rounded-2xl overflow-hidden dark:bg-[#27272A] mb-6">
                 <CardContent className="p-5 md:p-6">
                   <div className="flex flex-col sm:flex-row gap-4">
                     {/* Group Avatar */}
                     <div className="relative mx-auto sm:mx-0 flex-shrink-0">
-                      <div className="w-20 h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-lg border-2 border-gray-100 dark:border-gray-600 overflow-hidden">
+                      <div className="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-700 shadow-lg border-2 border-gray-100 dark:border-zinc-600 overflow-hidden">
                         {group.groupImage ? (
                           <img src={group.groupImage} alt={group.groupName} className="w-full h-full object-cover" />
                         ) : (
@@ -625,7 +625,7 @@ export default function SupervisorGroupDetailsPage() {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingImage}
-                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-gray-800"
+                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-zinc-800"
                       >
                         {uploadingImage ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -644,7 +644,7 @@ export default function SupervisorGroupDetailsPage() {
                     
                     {/* Group Info */}
                     <div className="flex-1 text-center sm:text-left">
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{group.groupName}</h2>
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">{group.groupName}</h2>
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80]">
                           <Users className="w-3.5 h-3.5" />
@@ -688,21 +688,21 @@ export default function SupervisorGroupDetailsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
                     >
-                      <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                      <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                         <CardContent className="p-5">
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                                 <FolderKanban className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
                               </div>
-                              <h3 className="font-semibold text-gray-900 dark:text-white">Project</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project</h3>
                             </div>
                           </div>
                           
                           <div className="space-y-3">
                             <div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{group.project.title}</h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">{group.project.description}</p>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">{group.project.title}</h4>
+                              <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{group.project.description}</p>
                             </div>
                             
                             <div className="flex flex-wrap items-center gap-2 pt-2">
@@ -730,14 +730,14 @@ export default function SupervisorGroupDetailsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
                   >
-                    <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                    <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                               <Users className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
                             </div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white">Team Members</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Team Members</h3>
                           </div>
                         </div>
 
@@ -754,13 +754,13 @@ export default function SupervisorGroupDetailsPage() {
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-medium text-gray-900 dark:text-white text-sm">{session?.user?.name || 'You'}</p>
+                                  <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">{session?.user?.name || 'You'}</p>
                                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#1a5d1a] text-white text-[10px] font-medium">
                                     <GraduationCap className="w-3 h-3" />
                                     Supervisor
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
+                                <p className="text-xs text-gray-500 dark:text-zinc-400">{session?.user?.email}</p>
                               </div>
                             </div>
                           </div>
@@ -772,7 +772,7 @@ export default function SupervisorGroupDetailsPage() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.1 + idx * 0.05 }}
-                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100/80 dark:hover:bg-gray-700 transition-colors"
+                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100/80 dark:hover:bg-zinc-700 transition-colors"
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden shadow-sm">
@@ -784,7 +784,7 @@ export default function SupervisorGroupDetailsPage() {
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5">
-                                    <p className="font-medium text-gray-900 dark:text-white text-sm">{student.user?.name || 'Unknown'}</p>
+                                    <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">{student.user?.name || 'Unknown'}</p>
                                     {student.isGroupAdmin && (
                                       <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-medium">
                                         <Crown className="w-3 h-3" />
@@ -792,10 +792,10 @@ export default function SupervisorGroupDetailsPage() {
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">{student.rollNumber}</p>
+                                  <p className="text-xs text-gray-500 dark:text-zinc-400">{student.rollNumber}</p>
                                 </div>
                               </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{student.user?.email}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 hidden sm:block">{student.user?.email}</p>
                             </motion.div>
                           ))}
                         </div>
@@ -852,14 +852,14 @@ export default function SupervisorGroupDetailsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
                   >
-                    <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                    <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-2 mb-4">
                           <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                             <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white">Next Meeting</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Next Meeting</h3>
                           </div>
                         </div>
 
@@ -872,8 +872,8 @@ export default function SupervisorGroupDetailsPage() {
                             const meetingDate = new Date(upcomingMeeting.scheduledAt);
                             return (
                               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                                <p className="font-medium text-gray-900 dark:text-white text-sm mb-1">{upcomingMeeting.title}</p>
-                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm mb-1">{upcomingMeeting.title}</p>
+                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400">
                                   <Calendar className="w-3.5 h-3.5" />
                                   {meetingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                                   <Clock className="w-3.5 h-3.5 ml-1" />
@@ -885,8 +885,8 @@ export default function SupervisorGroupDetailsPage() {
                           
                           return (
                             <div className="text-center py-4">
-                              <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                              <p className="text-sm text-gray-500 dark:text-gray-400">No upcoming meetings</p>
+                              <Calendar className="w-10 h-10 text-gray-300 dark:text-zinc-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500 dark:text-zinc-400">No upcoming meetings</p>
                               <Button
                                 onClick={() => setActiveTab('meetings')}
                                 variant="outline"
@@ -915,20 +915,20 @@ export default function SupervisorGroupDetailsPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Team Members</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{group.students.length} students • You are the supervisor</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Team Members</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">{group.students.length} students • You are the supervisor</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Supervisor Card (You) */}
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                         <GraduationCap className="w-4 h-4 text-[#1a5d1a]" />
                       </div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white">Supervisor</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Supervisor</h4>
                     </div>
                     
                     <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/20 dark:to-[#1a5d1a]/30 rounded-xl border border-[#1a5d1a]/20">
@@ -941,10 +941,10 @@ export default function SupervisorGroupDetailsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-900 dark:text-white">{session?.user?.name || 'You'}</p>
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{session?.user?.name || 'You'}</p>
                           <span className="px-2 py-0.5 bg-[#1a5d1a]/10 text-[#1a5d1a] text-xs font-medium rounded-full">You</span>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{session?.user?.email}</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
                       </div>
                       <CheckCircle className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
@@ -952,14 +952,14 @@ export default function SupervisorGroupDetailsPage() {
                 </Card>
 
                 {/* Students Card */}
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                           <Users className="w-4 h-4 text-[#1a5d1a]" />
                         </div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Students</h4>
+                        <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Students</h4>
                       </div>
                       <span className="text-xs bg-[#1a5d1a]/10 text-[#1a5d1a] px-2 py-1 rounded-full font-medium">
                         {group.students.length}/3
@@ -973,7 +973,7 @@ export default function SupervisorGroupDetailsPage() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 + idx * 0.05 }}
-                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-600 transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden shadow-sm">
@@ -985,7 +985,7 @@ export default function SupervisorGroupDetailsPage() {
                             </div>
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <p className="font-medium text-gray-900 dark:text-white text-sm">{student.user?.name || 'Unknown'}</p>
+                                <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">{student.user?.name || 'Unknown'}</p>
                                 {student.isGroupAdmin && (
                                   <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-medium">
                                     <Crown className="w-3 h-3" />
@@ -993,11 +993,11 @@ export default function SupervisorGroupDetailsPage() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{student.rollNumber}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400">{student.rollNumber}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{student.user?.email}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 hidden sm:block">{student.user?.email}</p>
                             {/* Remove Member Button - Supervisor Admin Access */}
                             <Button
                               variant="ghost"
@@ -1017,9 +1017,9 @@ export default function SupervisorGroupDetailsPage() {
                       ))}
                       
                       {group.students.length === 0 && (
-                        <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-                          <Users className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500 dark:text-gray-400">No students in group</p>
+                        <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl">
+                          <Users className="w-10 h-10 text-gray-300 dark:text-zinc-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500 dark:text-zinc-400">No students in group</p>
                         </div>
                       )}
                     </div>
@@ -1040,7 +1040,7 @@ export default function SupervisorGroupDetailsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarPlus className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Group Meetings</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Group Meetings</h3>
                 </div>
                 <Button
                   onClick={() => openMeetingModal()}
@@ -1053,7 +1053,7 @@ export default function SupervisorGroupDetailsPage() {
               </div>
 
               {meetings.length > 0 ? (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-0 divide-y divide-gray-100 dark:divide-gray-700">
                     {meetings.map((meeting, idx) => {
                       const meetingDate = new Date(meeting.scheduledAt);
@@ -1065,7 +1065,7 @@ export default function SupervisorGroupDetailsPage() {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: idx * 0.05 }}
-                          className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors"
                         >
                           <div className="flex items-start gap-4">
                             {/* Date Block */}
@@ -1074,14 +1074,14 @@ export default function SupervisorGroupDetailsPage() {
                                 ? 'bg-emerald-50 dark:bg-emerald-900/20' 
                                 : isToday 
                                   ? 'bg-[#1a5d1a]/10' 
-                                  : 'bg-gray-100 dark:bg-gray-700'
+                                  : 'bg-gray-100 dark:bg-zinc-700'
                             }`}>
                               <p className={`text-xs font-semibold uppercase ${
                                 meeting.status === 'completed' 
                                   ? 'text-emerald-600 dark:text-emerald-400' 
                                   : isToday 
                                     ? 'text-[#1a5d1a] dark:text-[#4ade80]' 
-                                    : 'text-gray-500 dark:text-gray-400'
+                                    : 'text-gray-500 dark:text-zinc-400'
                               }`}>
                                 {meetingDate.toLocaleDateString('en-US', { month: 'short' })}
                               </p>
@@ -1090,7 +1090,7 @@ export default function SupervisorGroupDetailsPage() {
                                   ? 'text-emerald-600 dark:text-emerald-400' 
                                   : isToday 
                                     ? 'text-[#1a5d1a] dark:text-[#4ade80]' 
-                                    : 'text-gray-900 dark:text-white'
+                                    : 'text-gray-900 dark:text-[#E4E4E7]'
                               }`}>
                                 {meetingDate.getDate()}
                               </p>
@@ -1099,7 +1099,7 @@ export default function SupervisorGroupDetailsPage() {
                             {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-gray-900 dark:text-white">{meeting.title}</h4>
+                                <h4 className="font-medium text-gray-900 dark:text-[#E4E4E7]">{meeting.title}</h4>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                   meeting.status === 'completed' 
                                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
@@ -1112,10 +1112,10 @@ export default function SupervisorGroupDetailsPage() {
                               </div>
                               
                               {meeting.description && (
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-1">{meeting.description}</p>
+                                <p className="text-sm text-gray-500 dark:text-zinc-400 mb-2 line-clamp-1">{meeting.description}</p>
                               )}
                               
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-zinc-400">
                                 <span className="flex items-center gap-1">
                                   <Clock className="w-3.5 h-3.5" />
                                   {meetingDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -1141,7 +1141,7 @@ export default function SupervisorGroupDetailsPage() {
                               )}
                               <button
                                 onClick={() => openMeetingModal(meeting)}
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors"
+                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -1159,10 +1159,10 @@ export default function SupervisorGroupDetailsPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-8 text-center">
-                    <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No meetings scheduled yet</p>
+                    <Calendar className="w-12 h-12 text-gray-300 dark:text-zinc-400 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-zinc-400">No meetings scheduled yet</p>
                     <Button
                       onClick={() => openMeetingModal()}
                       className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
@@ -1187,7 +1187,7 @@ export default function SupervisorGroupDetailsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ListTodo className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Project Tasks</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Tasks</h3>
                 </div>
                 <Button
                   onClick={() => openTaskModal()}
@@ -1201,7 +1201,7 @@ export default function SupervisorGroupDetailsPage() {
 
               {/* Task List */}
               {tasks.length > 0 ? (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-0 divide-y divide-gray-100 dark:divide-gray-700">
                     {tasks.map((task, idx) => {
                       const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed';
@@ -1214,7 +1214,7 @@ export default function SupervisorGroupDetailsPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: idx * 0.03 }}
-                            className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                            className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors"
                           >
                             <div className="flex items-start gap-3">
                               {/* Status Checkbox */}
@@ -1235,12 +1235,12 @@ export default function SupervisorGroupDetailsPage() {
                                   {hasSubtasks && (
                                     <button
                                       onClick={() => toggleTaskExpand(task.taskId)}
-                                      className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                                      className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-zinc-600"
                                     >
                                       {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                                     </button>
                                   )}
-                                  <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                                  <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                     {task.title}
                                   </h4>
                                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -1255,10 +1255,10 @@ export default function SupervisorGroupDetailsPage() {
                                 </div>
                                 
                                 {task.description && (
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-1">{task.description}</p>
+                                  <p className="text-xs text-gray-500 dark:text-zinc-400 mb-2 line-clamp-1">{task.description}</p>
                                 )}
                                 
-                                <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                                <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-zinc-400">
                                   {task.dueDate && (
                                     <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-600' : ''}`}>
                                       <Calendar className="w-3.5 h-3.5" />
@@ -1278,7 +1278,7 @@ export default function SupervisorGroupDetailsPage() {
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => openTaskModal(task)}
-                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors"
+                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
@@ -1289,7 +1289,7 @@ export default function SupervisorGroupDetailsPage() {
                                     setTaskForm({ title: '', description: '', assignedTo: '', priority: 'medium', dueDate: '' });
                                     setShowTaskModal(true);
                                   }}
-                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors"
+                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
                                   title="Add subtask"
                                 >
                                   <Plus className="w-4 h-4" />
@@ -1306,9 +1306,9 @@ export default function SupervisorGroupDetailsPage() {
                           
                           {/* Subtasks */}
                           {hasSubtasks && isExpanded && (
-                            <div className="pl-12 bg-gray-50/50 dark:bg-gray-800/50">
+                            <div className="pl-12 bg-gray-50/50 dark:bg-[#27272A]/50">
                               {task.subtasks!.map((subtask, subIdx) => (
-                                <div key={subtask.taskId} className="p-3 border-t border-gray-100 dark:border-gray-700/50">
+                                <div key={subtask.taskId} className="p-3 border-t border-gray-100 dark:border-zinc-700/50">
                                   <div className="flex items-center gap-3">
                                     <button
                                       onClick={() => updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
@@ -1320,7 +1320,7 @@ export default function SupervisorGroupDetailsPage() {
                                     >
                                       {subtask.status === 'completed' && <CheckCircle2 className="w-2.5 h-2.5" />}
                                     </button>
-                                    <span className={`flex-1 text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                    <span className={`flex-1 text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-zinc-300'}`}>
                                       {subtask.title}
                                     </span>
                                     <button
@@ -1340,10 +1340,10 @@ export default function SupervisorGroupDetailsPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-8 text-center">
-                    <ListTodo className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No tasks created yet</p>
+                    <ListTodo className="w-12 h-12 text-gray-300 dark:text-zinc-400 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-zinc-400">No tasks created yet</p>
                     <Button
                       onClick={() => openTaskModal()}
                       className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
@@ -1374,25 +1374,25 @@ export default function SupervisorGroupDetailsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
             >
               {/* Header */}
-              <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700/50 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+              <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-700/50 bg-gradient-to-r from-gray-50 to-white dark:from-[#27272A] dark:to-[#27272A]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#1E6F3E]/10 flex items-center justify-center">
                       <Calendar className="w-5 h-5 text-[#1E6F3E] dark:text-emerald-400" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">
                         {editingMeeting ? 'Edit Meeting' : 'Schedule Meeting'}
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Set up a meeting with your team</p>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Set up a meeting with your team</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowMeetingModal(false)}
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   >
                     <X className="w-5 h-5 text-gray-400" />
                   </button>
@@ -1403,32 +1403,32 @@ export default function SupervisorGroupDetailsPage() {
               <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Meeting Title <span className="text-red-500">*</span>
                   </label>
                   <Input
                     value={meetingForm.title}
                     onChange={(e) => setMeetingForm({ ...meetingForm, title: e.target.value })}
                     placeholder="e.g., Weekly Progress Review"
-                    className="rounded-xl h-11 dark:bg-gray-700/50 dark:border-gray-600 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
+                    className="rounded-xl h-11 dark:bg-zinc-700/50 dark:border-zinc-600 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
                   />
                 </div>
                 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">Description</label>
                   <textarea
                     value={meetingForm.description}
                     onChange={(e) => setMeetingForm({ ...meetingForm, description: e.target.value })}
                     placeholder="What's the meeting about?"
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-gray-700/50 dark:text-white resize-none text-sm"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-zinc-700/50 dark:text-[#E4E4E7] resize-none text-sm"
                   />
                 </div>
                 
                 {/* Meeting Link */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Meeting Link
                     <span className="ml-2 text-xs font-normal text-gray-400">Optional</span>
                   </label>
@@ -1438,19 +1438,19 @@ export default function SupervisorGroupDetailsPage() {
                       value={meetingForm.meetingLink}
                       onChange={(e) => setMeetingForm({ ...meetingForm, meetingLink: e.target.value })}
                       placeholder="https://meet.google.com/..."
-                      className="rounded-xl h-11 pl-10 dark:bg-gray-700/50 dark:border-gray-600"
+                      className="rounded-xl h-11 pl-10 dark:bg-zinc-700/50 dark:border-zinc-600"
                     />
                   </div>
                 </div>
                 
                 {/* Date & Time Section */}
-                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4 space-y-4">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Schedule</p>
+                <div className="bg-gray-50 dark:bg-zinc-700/30 rounded-2xl p-4 space-y-4">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Schedule</p>
                   
                   <div className="grid grid-cols-2 gap-4">
                     {/* Date */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">Date <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
                         <Input
@@ -1461,14 +1461,14 @@ export default function SupervisorGroupDetailsPage() {
                             setMeetingForm({ ...meetingForm, scheduledAt: `${e.target.value}T${currentTime}` });
                           }}
                           min={new Date().toISOString().split('T')[0]}
-                          className="rounded-xl h-11 pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
+                          className="rounded-xl h-11 pl-10 dark:bg-zinc-700 dark:border-zinc-600 dark:text-[#E4E4E7] [color-scheme:light] dark:[color-scheme:dark]"
                         />
                       </div>
                     </div>
                     
                     {/* Time */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">Time <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
                         <Input
@@ -1478,7 +1478,7 @@ export default function SupervisorGroupDetailsPage() {
                             const currentDate = meetingForm.scheduledAt ? meetingForm.scheduledAt.split('T')[0] : new Date().toISOString().split('T')[0];
                             setMeetingForm({ ...meetingForm, scheduledAt: `${currentDate}T${e.target.value}` });
                           }}
-                          className="rounded-xl h-11 pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
+                          className="rounded-xl h-11 pl-10 dark:bg-zinc-700 dark:border-zinc-600 dark:text-[#E4E4E7] [color-scheme:light] dark:[color-scheme:dark]"
                         />
                       </div>
                     </div>
@@ -1486,7 +1486,7 @@ export default function SupervisorGroupDetailsPage() {
                   
                   {/* Duration - Flexible Input */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">Duration</label>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
                         <Timer className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -1496,9 +1496,9 @@ export default function SupervisorGroupDetailsPage() {
                           onChange={(e) => setMeetingForm({ ...meetingForm, duration: Math.max(5, parseInt(e.target.value) || 60) })}
                           min={5}
                           step={5}
-                          className="rounded-xl h-11 pl-10 pr-14 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          className="rounded-xl h-11 pl-10 pr-14 dark:bg-zinc-700 dark:border-zinc-600 dark:text-[#E4E4E7]"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">min</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-zinc-400">min</span>
                       </div>
                       
                       {/* Quick Duration Buttons */}
@@ -1511,7 +1511,7 @@ export default function SupervisorGroupDetailsPage() {
                             className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                               meetingForm.duration === dur 
                                 ? 'bg-[#1E6F3E] text-white' 
-                                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
+                                : 'bg-white dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-600 border border-gray-200 dark:border-zinc-600'
                             }`}
                           >
                             {dur >= 60 ? `${dur/60}h` : `${dur}m`}
@@ -1519,17 +1519,17 @@ export default function SupervisorGroupDetailsPage() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Enter any duration or use quick presets</p>
+                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5">Enter any duration or use quick presets</p>
                   </div>
                 </div>
               </div>
               
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/50 flex gap-3">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700/50 bg-gray-50 dark:bg-[#27272A]/50 flex gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowMeetingModal(false)}
-                  className="flex-1 rounded-xl h-11 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex-1 rounded-xl h-11 border-gray-200 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700"
                 >
                   Cancel
                 </Button>
@@ -1568,10 +1568,10 @@ export default function SupervisorGroupDetailsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
             >
               {/* Header */}
-              <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700/50 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+              <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-700/50 bg-gradient-to-r from-gray-50 to-white dark:from-[#27272A] dark:to-[#27272A]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -1586,17 +1586,17 @@ export default function SupervisorGroupDetailsPage() {
                       )}
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">
                         {editingTask ? 'Edit Task' : parentTaskId ? 'Add Subtask' : 'Create Task'}
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">
                         {parentTaskId ? 'Break down into smaller steps' : 'Add a new task to the project'}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowTaskModal(false)}
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   >
                     <X className="w-5 h-5 text-gray-400" />
                   </button>
@@ -1607,20 +1607,20 @@ export default function SupervisorGroupDetailsPage() {
               <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Task Title <span className="text-red-500">*</span>
                   </label>
                   <Input
                     value={taskForm.title}
                     onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
                     placeholder={parentTaskId ? "e.g., Research data sources" : "e.g., Complete literature review"}
-                    className="rounded-xl h-11 dark:bg-gray-700/50 dark:border-gray-600 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
+                    className="rounded-xl h-11 dark:bg-zinc-700/50 dark:border-zinc-600 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
                   />
                 </div>
                 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Description
                     <span className="ml-2 text-xs font-normal text-gray-400">Optional</span>
                   </label>
@@ -1629,13 +1629,13 @@ export default function SupervisorGroupDetailsPage() {
                     onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
                     placeholder="What needs to be done?"
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-gray-700/50 dark:text-white resize-none text-sm"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-zinc-700/50 dark:text-[#E4E4E7] resize-none text-sm"
                   />
                 </div>
                 
                 {/* Assignee */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Assign To
                   </label>
                   <div className="relative">
@@ -1643,7 +1643,7 @@ export default function SupervisorGroupDetailsPage() {
                     <select
                       value={taskForm.assignedTo}
                       onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
-                      className="w-full h-11 pl-10 pr-4 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-gray-700/50 dark:text-white text-sm appearance-none cursor-pointer"
+                      className="w-full h-11 pl-10 pr-4 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6F3E]/20 focus:border-[#1E6F3E] dark:bg-zinc-700/50 dark:text-[#E4E4E7] text-sm appearance-none cursor-pointer"
                     >
                       <option value="">Unassigned</option>
                       {group?.students.map((student) => (
@@ -1657,13 +1657,13 @@ export default function SupervisorGroupDetailsPage() {
                 </div>
                 
                 {/* Priority & Due Date Section */}
-                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-4 space-y-4">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Details</p>
+                <div className="bg-gray-50 dark:bg-zinc-700/30 rounded-2xl p-4 space-y-4">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Details</p>
                   
                   <div className="grid grid-cols-2 gap-4">
                     {/* Priority */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">Priority</label>
                       <div className="flex gap-2">
                         {(['low', 'medium', 'high'] as const).map((p) => (
                           <button
@@ -1677,7 +1677,7 @@ export default function SupervisorGroupDetailsPage() {
                                   : p === 'medium'
                                     ? 'bg-amber-100 text-amber-700 ring-2 ring-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800'
                                     : 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-800'
-                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600'
                             }`}
                           >
                             {p === 'high' && <Target className="w-3 h-3 inline mr-1" />}
@@ -1689,7 +1689,7 @@ export default function SupervisorGroupDetailsPage() {
                     
                     {/* Due Date */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Due Date</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">Due Date</label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
                         <Input
@@ -1697,7 +1697,7 @@ export default function SupervisorGroupDetailsPage() {
                           value={taskForm.dueDate}
                           onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
                           min={new Date().toISOString().split('T')[0]}
-                          className="rounded-xl h-11 pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
+                          className="rounded-xl h-11 pl-10 dark:bg-zinc-700 dark:border-zinc-600 dark:text-[#E4E4E7] [color-scheme:light] dark:[color-scheme:dark]"
                         />
                       </div>
                     </div>
@@ -1706,11 +1706,11 @@ export default function SupervisorGroupDetailsPage() {
               </div>
               
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/50 flex gap-3">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700/50 bg-gray-50 dark:bg-[#27272A]/50 flex gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowTaskModal(false)}
-                  className="flex-1 rounded-xl h-11 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex-1 rounded-xl h-11 border-gray-200 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700"
                 >
                   Cancel
                 </Button>
@@ -1747,21 +1747,21 @@ export default function SupervisorGroupDetailsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
             >
               <div className="p-6 text-center">
                 <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mx-auto mb-4 flex items-center justify-center">
                   <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Group?</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Delete Group?</h3>
+                <p className="text-gray-500 dark:text-zinc-400 mb-6">
                   This action cannot be undone. All group data, meetings, tasks, and chat history will be permanently deleted.
                 </p>
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 rounded-xl h-11 border-gray-200 dark:border-gray-600"
+                    className="flex-1 rounded-xl h-11 border-gray-200 dark:border-zinc-600"
                   >
                     Cancel
                   </Button>

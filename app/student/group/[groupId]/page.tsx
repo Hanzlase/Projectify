@@ -734,7 +734,7 @@ export default function GroupDetailsPage() {
       case 'medium':
         return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
       default:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
     }
   };
 
@@ -792,23 +792,23 @@ export default function GroupDetailsPage() {
   const isCreator = group.currentStudentId === group.createdById;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <StudentSidebar />
       
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-gray-700">
+        <header className="bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center justify-between max-w-5xl mx-auto">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/student/chat')}
-                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
               </button>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Group Details</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Manage your FYP group</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Group Details</h1>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Manage your FYP group</p>
               </div>
             </div>
             
@@ -818,7 +818,7 @@ export default function GroupDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowLeaveConfirm(true)}
-                  className="text-gray-600 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
+                  className="text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -828,7 +828,7 @@ export default function GroupDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="text-gray-600 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
+                  className="text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -852,7 +852,7 @@ export default function GroupDetailsPage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-[#1a5d1a] text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -870,12 +870,12 @@ export default function GroupDetailsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Card className="border-0 shadow-sm rounded-2xl overflow-hidden dark:bg-gray-800">
+            <Card className="border-0 shadow-sm rounded-2xl overflow-hidden dark:bg-[#27272A]">
               <CardContent className="p-5 md:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Group Avatar */}
                   <div className="relative mx-auto sm:mx-0 flex-shrink-0">
-                    <div className="w-20 h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-lg border-2 border-gray-100 dark:border-gray-600 overflow-hidden">
+                    <div className="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-700 shadow-lg border-2 border-gray-100 dark:border-zinc-600 overflow-hidden">
                       {group.groupImage ? (
                         <img src={group.groupImage} alt={group.groupName} className="w-full h-full object-cover" />
                       ) : (
@@ -888,7 +888,7 @@ export default function GroupDetailsPage() {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingImage}
-                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-gray-800"
+                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-zinc-800"
                       >
                         {uploadingImage ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -908,7 +908,7 @@ export default function GroupDetailsPage() {
                   
                   {/* Group Info */}
                   <div className="flex-1 text-center sm:text-left">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{group.groupName}</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">{group.groupName}</h2>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1a5d1a]/10 text-[#1a5d1a]">
                         <Users className="w-3.5 h-3.5" />
@@ -1285,8 +1285,8 @@ export default function GroupDetailsPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Team Members</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{group.students.length}/3 members • {group.supervisor ? '1 supervisor' : 'No supervisor'}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Team Members</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">{group.students.length}/3 members • {group.supervisor ? '1 supervisor' : 'No supervisor'}</p>
                 </div>
                 {group.isAdmin && !group.isFull && (
                   <Button
@@ -1302,13 +1302,13 @@ export default function GroupDetailsPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Supervisor Card */}
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                         <GraduationCap className="w-4 h-4 text-[#1a5d1a]" />
                       </div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white">Supervisor</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Supervisor</h4>
                     </div>
                     
                     {group.supervisor ? (
@@ -1321,15 +1321,15 @@ export default function GroupDetailsPage() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 dark:text-white">{group.supervisor.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{group.supervisor.email}</p>
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{group.supervisor.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-zinc-400 truncate">{group.supervisor.email}</p>
                         </div>
                         <CheckCircle className="w-5 h-5 text-[#1a5d1a]" />
                       </div>
                     ) : (
-                      <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-                        <GraduationCap className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No supervisor assigned</p>
+                      <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl">
+                        <GraduationCap className="w-10 h-10 text-gray-300 dark:text-zinc-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-zinc-400">No supervisor assigned</p>
                         {group.isAdmin && (
                           <Button
                             onClick={() => {
@@ -1350,14 +1350,14 @@ export default function GroupDetailsPage() {
                 </Card>
 
                 {/* Students Card */}
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                           <Users className="w-4 h-4 text-[#1a5d1a]" />
                         </div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Students</h4>
+                        <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Students</h4>
                       </div>
                       <span className="text-xs bg-[#1a5d1a]/10 text-[#1a5d1a] px-2 py-1 rounded-full font-medium">
                         {group.students.length}/3
@@ -1371,7 +1371,7 @@ export default function GroupDetailsPage() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 + idx * 0.05 }}
-                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group"
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-600 transition-colors group"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden shadow-sm">
@@ -1383,7 +1383,7 @@ export default function GroupDetailsPage() {
                             </div>
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <p className="font-medium text-gray-900 dark:text-white text-sm">{member.user.name}</p>
+                                <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm">{member.user.name}</p>
                                 {group.createdById === member.studentId && (
                                   <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-medium">
                                     <Crown className="w-3 h-3" />
@@ -1397,7 +1397,7 @@ export default function GroupDetailsPage() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{member.rollNumber}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400">{member.rollNumber}</p>
                             </div>
                           </div>
                           
@@ -1453,7 +1453,7 @@ export default function GroupDetailsPage() {
                             setInviteType('student');
                             setShowAddMemberModal(true);
                           }}
-                          className="w-full p-3 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl text-gray-400 dark:text-gray-500 hover:border-[#1a5d1a] hover:text-[#1a5d1a] transition-colors flex items-center justify-center gap-2"
+                          className="w-full p-3 border-2 border-dashed border-gray-200 dark:border-zinc-600 rounded-xl text-gray-400 dark:text-zinc-500 hover:border-[#1a5d1a] hover:text-[#1a5d1a] transition-colors flex items-center justify-center gap-2"
                         >
                           <UserPlus className="w-4 h-4" />
                           <span className="text-sm">Add Student</span>
@@ -1466,15 +1466,15 @@ export default function GroupDetailsPage() {
 
               {/* Pending Invitations */}
               {group.pendingInvitations.length > 0 && (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                         <Send className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Pending Invitations</h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{group.pendingInvitations.length} waiting for response</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Pending Invitations</h4>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">{group.pendingInvitations.length} waiting for response</p>
                       </div>
                     </div>
                     
@@ -1492,7 +1492,7 @@ export default function GroupDetailsPage() {
                                 )}
                               </div>
                               <div className="min-w-0">
-                                <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{invitation.invitee.name}</p>
+                                <p className="font-medium text-gray-900 dark:text-[#E4E4E7] text-sm truncate">{invitation.invitee.name}</p>
                                 <div className="flex items-center gap-1.5">
                                   <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                     invitation.inviteeRole === 'supervisor'
@@ -1542,7 +1542,7 @@ export default function GroupDetailsPage() {
               className="space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Meetings</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Meetings</h3>
                 <Button
                   onClick={() => openMeetingModal()}
                   size="sm"
@@ -1556,7 +1556,7 @@ export default function GroupDetailsPage() {
               {meetings.length > 0 ? (
                 <div className="space-y-3">
                   {meetings.map((meeting) => (
-                    <Card key={meeting.meetingId} className="border-0 shadow-sm rounded-2xl dark:bg-gray-800 overflow-hidden">
+                    <Card key={meeting.meetingId} className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] overflow-hidden">
                       <CardContent className="p-0">
                         <div className={`h-1 ${
                           meeting.status === 'completed' ? 'bg-green-500' :
@@ -1567,9 +1567,9 @@ export default function GroupDetailsPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-semibold text-gray-900 dark:text-white">{meeting.title}</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{meeting.title}</h4>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  meeting.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  meeting.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]' :
                                   meeting.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
                                   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                                 }`}>
@@ -1582,9 +1582,9 @@ export default function GroupDetailsPage() {
                                 )}
                               </div>
                               {meeting.description && (
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{meeting.description}</p>
+                                <p className="text-sm text-gray-600 dark:text-zinc-400 mb-2">{meeting.description}</p>
                               )}
-                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-400">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3.5 h-3.5" />
                                   {new Date(meeting.scheduledAt).toLocaleDateString('en-US', {
@@ -1616,7 +1616,7 @@ export default function GroupDetailsPage() {
                                 <>
                                   <button
                                     onClick={() => openMeetingModal(meeting)}
-                                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
                                   >
                                     <Edit2 className="w-4 h-4" />
                                   </button>
@@ -1636,13 +1636,13 @@ export default function GroupDetailsPage() {
                   ))}
                 </div>
               ) : (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="py-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
                       <Calendar className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Meetings</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Request a meeting with your supervisor</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Meetings</h3>
+                    <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">Request a meeting with your supervisor</p>
                     <Button
                       onClick={() => openMeetingModal()}
                       className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
@@ -1664,7 +1664,7 @@ export default function GroupDetailsPage() {
               className="space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Project Tasks</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Tasks</h3>
                 <Button
                   onClick={() => openTaskModal()}
                   size="sm"
@@ -1676,20 +1676,20 @@ export default function GroupDetailsPage() {
               </div>
 
               {/* Task Progress Overview */}
-              <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+              <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                 <CardContent className="p-4">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{tasks.filter(t => t.status === 'pending').length}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Pending</div>
+                      <div className="text-2xl font-bold text-gray-400 dark:text-zinc-500">{tasks.filter(t => t.status === 'pending').length}</div>
+                      <div className="text-xs text-gray-500 dark:text-zinc-400">Pending</div>
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-amber-500">{tasks.filter(t => t.status === 'in_progress').length}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">In Progress</div>
+                      <div className="text-xs text-gray-500 dark:text-zinc-400">In Progress</div>
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-green-500">{tasks.filter(t => t.status === 'completed').length}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Completed</div>
+                      <div className="text-xs text-gray-500 dark:text-zinc-400">Completed</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1698,12 +1698,12 @@ export default function GroupDetailsPage() {
               {tasks.length > 0 ? (
                 <div className="space-y-3">
                   {tasks.map((task) => (
-                    <Card key={task.taskId} className="border-0 shadow-sm rounded-2xl dark:bg-gray-800 overflow-hidden">
+                    <Card key={task.taskId} className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] overflow-hidden">
                       <CardContent className="p-0">
                         <div className={`h-1 ${
                           task.status === 'completed' ? 'bg-green-500' :
                           task.status === 'in_progress' ? 'bg-amber-500' :
-                          'bg-gray-300 dark:bg-gray-600'
+                          'bg-gray-300 dark:bg-zinc-600'
                         }`} />
                         <div className="p-4">
                           <div className="flex items-start gap-3">
@@ -1715,7 +1715,7 @@ export default function GroupDetailsPage() {
                             </button>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                                <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                   {task.title}
                                 </h4>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
@@ -1728,9 +1728,9 @@ export default function GroupDetailsPage() {
                                 )}
                               </div>
                               {task.description && (
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{task.description}</p>
+                                <p className="text-sm text-gray-600 dark:text-zinc-400 mb-2">{task.description}</p>
                               )}
-                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-400">
                                 {task.assignee && (
                                   <span className="flex items-center gap-1">
                                     <div className="w-4 h-4 rounded-full bg-[#1a5d1a] flex items-center justify-center text-white text-[8px] overflow-hidden">
@@ -1756,13 +1756,13 @@ export default function GroupDetailsPage() {
                                 <div className="mt-3">
                                   <button
                                     onClick={() => toggleTaskExpand(task.taskId)}
-                                    className="flex items-center gap-1 text-xs text-[#1a5d1a] dark:text-green-400 font-medium hover:underline"
+                                    className="flex items-center gap-1 text-xs text-[#1a5d1a] dark:text-[#22C55E] font-medium hover:underline"
                                   >
                                     {expandedTasks.has(task.taskId) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                                     {task.subtasks.length} subtask{task.subtasks.length > 1 ? 's' : ''}
                                   </button>
                                   {expandedTasks.has(task.taskId) && (
-                                    <div className="mt-2 space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-600">
+                                    <div className="mt-2 space-y-2 pl-4 border-l-2 border-gray-200 dark:border-zinc-600">
                                       {task.subtasks.map((subtask) => (
                                         <div key={subtask.taskId} className="flex items-center gap-2 py-1">
                                           <button
@@ -1770,7 +1770,7 @@ export default function GroupDetailsPage() {
                                           >
                                             {getStatusIcon(subtask.status)}
                                           </button>
-                                          <span className={`text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                          <span className={`text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-zinc-300'}`}>
                                             {subtask.title}
                                           </span>
                                           {subtask.assignee && (
@@ -1783,7 +1783,7 @@ export default function GroupDetailsPage() {
                                           )}
                                           <button
                                             onClick={() => openTaskModal(subtask)}
-                                            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700"
                                           >
                                             <Edit2 className="w-3 h-3 text-gray-400" />
                                           </button>
@@ -1812,7 +1812,7 @@ export default function GroupDetailsPage() {
                               </button>
                               <button
                                 onClick={() => openTaskModal(task)}
-                                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -1826,7 +1826,7 @@ export default function GroupDetailsPage() {
                                 </button>
                               ) : (
                                 <div
-                                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                                  className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-400 dark:text-zinc-500 cursor-not-allowed"
                                   title="Cannot delete supervisor's task"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -1840,13 +1840,13 @@ export default function GroupDetailsPage() {
                   ))}
                 </div>
               ) : (
-                <Card className="border-0 shadow-sm rounded-2xl dark:bg-gray-800">
+                <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="py-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
                       <ListTodo className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Tasks Yet</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Divide your project into manageable tasks</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Tasks Yet</h3>
+                    <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">Divide your project into manageable tasks</p>
                     <Button
                       onClick={() => openTaskModal()}
                       className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
@@ -1877,16 +1877,16 @@ export default function GroupDetailsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
             >
-              <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">
                     {editingMeeting ? 'Edit Meeting' : 'Request Meeting'}
                   </h3>
                   <button
                     onClick={() => setShowMeetingModal(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
                   >
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
@@ -1894,57 +1894,57 @@ export default function GroupDetailsPage() {
               </div>
               <div className="p-5 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Title *</label>
                   <Input
                     value={meetingForm.title}
                     onChange={(e) => setMeetingForm({ ...meetingForm, title: e.target.value })}
                     placeholder="Meeting title"
-                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Description</label>
                   <textarea
                     value={meetingForm.description}
                     onChange={(e) => setMeetingForm({ ...meetingForm, description: e.target.value })}
                     placeholder="What do you want to discuss?"
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-zinc-700 dark:text-[#E4E4E7]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meeting Link (optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Meeting Link (optional)</label>
                   <Input
                     value={meetingForm.meetingLink}
                     onChange={(e) => setMeetingForm({ ...meetingForm, meetingLink: e.target.value })}
                     placeholder="https://meet.google.com/..."
-                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preferred Time *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Preferred Time *</label>
                     <Input
                       type="datetime-local"
                       value={meetingForm.scheduledAt}
                       onChange={(e) => setMeetingForm({ ...meetingForm, scheduledAt: e.target.value })}
-                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                      className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (min)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Duration (min)</label>
                     <Input
                       type="number"
                       value={meetingForm.duration}
                       onChange={(e) => setMeetingForm({ ...meetingForm, duration: parseInt(e.target.value) || 60 })}
                       min={15}
                       step={15}
-                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                      className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                     />
                   </div>
                 </div>
               </div>
-              <div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3">
+              <div className="p-5 border-t border-gray-100 dark:border-zinc-700 flex gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowMeetingModal(false)}
@@ -1980,16 +1980,16 @@ export default function GroupDetailsPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
             >
-              <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">
                     {editingTask ? 'Edit Task' : parentTaskId ? 'Add Subtask' : 'Add Task'}
                   </h3>
                   <button
                     onClick={() => setShowTaskModal(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
                   >
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
@@ -1997,30 +1997,30 @@ export default function GroupDetailsPage() {
               </div>
               <div className="p-5 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Title *</label>
                   <Input
                     value={taskForm.title}
                     onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
                     placeholder="Task title"
-                    className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Description</label>
                   <textarea
                     value={taskForm.description}
                     onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
                     placeholder="Task description"
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-zinc-700 dark:text-[#E4E4E7]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assign To</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Assign To</label>
                   <select
                     value={taskForm.assignedTo}
                     onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-zinc-700 dark:text-[#E4E4E7]"
                   >
                     <option value="">Unassigned</option>
                     {group?.students.map((student) => (
@@ -2032,11 +2032,11 @@ export default function GroupDetailsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Priority</label>
                     <select
                       value={taskForm.priority}
                       onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-gray-700 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] dark:bg-zinc-700 dark:text-[#E4E4E7]"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -2044,17 +2044,17 @@ export default function GroupDetailsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Due Date</label>
                     <Input
                       type="date"
                       value={taskForm.dueDate}
                       onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
-                      className="rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                      className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"
                     />
                   </div>
                 </div>
               </div>
-              <div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3">
+              <div className="p-5 border-t border-gray-100 dark:border-zinc-700 flex gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowTaskModal(false)}

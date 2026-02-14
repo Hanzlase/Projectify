@@ -192,7 +192,7 @@ export default function BrowseSupervisorsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B]">
       {/* StudentSidebar */}
       <StudentSidebar />
 
@@ -253,7 +253,7 @@ export default function BrowseSupervisorsPage() {
                 placeholder="Search by name, specialization, research domains, skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-slate-200 dark:border-gray-600 focus:border-[#1a5d1a] bg-white dark:bg-gray-800 dark:text-white rounded-xl shadow-sm"
+                className="pl-12 pr-12 h-12 sm:h-14 text-base border-2 border-slate-200 dark:border-zinc-600 focus:border-[#1a5d1a] bg-white dark:bg-[#27272A] dark:text-[#E4E4E7] rounded-xl shadow-sm"
               />
               {searchQuery && (
                 <button 
@@ -270,7 +270,7 @@ export default function BrowseSupervisorsPage() {
               className={`h-12 sm:h-14 px-5 border-2 transition-all ${
                 showFilters || hasActiveFilters
                   ? 'border-[#1a5d1a] bg-[#e8f5e8] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d]' 
-                  : 'border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500'
+                  : 'border-slate-200 dark:border-zinc-600 hover:border-slate-300 dark:hover:border-gray-500'
               }`}
             >
               <SlidersHorizontal className="w-5 h-5 mr-2" />
@@ -290,7 +290,7 @@ export default function BrowseSupervisorsPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 availabilityFilter === 'all'
                   ? 'bg-[#1a5d1a] text-white shadow-lg shadow-[#1a5d1a]/25'
-                  : 'bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-300 hover:border-[#1a5d1a]/30 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d]'
+                  : 'bg-white dark:bg-[#27272A] border-2 border-slate-200 dark:border-zinc-600 text-slate-600 dark:text-zinc-300 hover:border-[#1a5d1a]/30 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d]'
               }`}
             >
               All Supervisors
@@ -300,7 +300,7 @@ export default function BrowseSupervisorsPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                 availabilityFilter === 'available'
                   ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                  : 'bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-300 hover:border-emerald-300 hover:text-emerald-600'
+                  : 'bg-white dark:bg-[#27272A] border-2 border-slate-200 dark:border-zinc-600 text-slate-600 dark:text-zinc-300 hover:border-emerald-300 hover:text-emerald-600'
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -311,7 +311,7 @@ export default function BrowseSupervisorsPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                 availabilityFilter === 'limited'
                   ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
-                  : 'bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-300 hover:border-amber-300 hover:text-amber-600'
+                  : 'bg-white dark:bg-[#27272A] border-2 border-slate-200 dark:border-zinc-600 text-slate-600 dark:text-zinc-300 hover:border-amber-300 hover:text-amber-600'
               }`}
             >
               <AlertCircle className="w-4 h-4" />
@@ -322,7 +322,7 @@ export default function BrowseSupervisorsPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                 availabilityFilter === 'full'
                   ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                  : 'bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-300 hover:border-red-300 hover:text-red-600'
+                  : 'bg-white dark:bg-[#27272A] border-2 border-slate-200 dark:border-zinc-600 text-slate-600 dark:text-zinc-300 hover:border-red-300 hover:text-red-600'
               }`}
             >
               <XCircle className="w-4 h-4" />
@@ -333,10 +333,10 @@ export default function BrowseSupervisorsPage() {
           {/* Advanced Filters Panel */}
           {showFilters && (
             <div className="overflow-hidden transition-all duration-200">
-              <Card className="border-2 border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+              <Card className="border-2 border-slate-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-sm">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h3 className="font-semibold text-slate-900 dark:text-[#E4E4E7] flex items-center gap-2">
                         <Filter className="w-4 h-4 text-[#1a5d1a]" />
                         Advanced Filters
                       </h3>
@@ -345,7 +345,7 @@ export default function BrowseSupervisorsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={clearFilters}
-                          className="text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          className="text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-gray-200"
                         >
                           <X className="w-4 h-4 mr-1" />
                           Clear All
@@ -356,14 +356,14 @@ export default function BrowseSupervisorsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {/* Specialization Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-gray-300 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-2">
                           <Briefcase className="w-4 h-4 text-slate-500" />
                           Specialization
                         </label>
                         <select
                           value={selectedSpecialization}
                           onChange={(e) => setSelectedSpecialization(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-gray-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200"
+                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-zinc-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-zinc-700 text-slate-700 dark:text-zinc-200"
                         >
                           {uniqueSpecializations.map(spec => (
                             <option key={spec} value={spec}>
@@ -375,14 +375,14 @@ export default function BrowseSupervisorsPage() {
 
                       {/* Domain Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-gray-300 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-2">
                           <Layers className="w-4 h-4 text-slate-500" />
                           Research Domain
                         </label>
                         <select
                           value={selectedDomain}
                           onChange={(e) => setSelectedDomain(e.target.value)}
-                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-gray-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200"
+                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-zinc-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-zinc-700 text-slate-700 dark:text-zinc-200"
                         >
                           {uniqueDomains.slice(0, 20).map(domain => (
                             <option key={domain} value={domain}>
@@ -394,14 +394,14 @@ export default function BrowseSupervisorsPage() {
 
                       {/* Sort By */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-gray-300 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-slate-500" />
                           Sort By
                         </label>
                         <select
                           value={sortBy}
                           onChange={(e) => setSortBy(e.target.value as 'name' | 'availability')}
-                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-gray-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200"
+                          className="w-full h-11 px-3 border-2 border-slate-200 dark:border-zinc-600 rounded-xl focus:border-[#1a5d1a] focus:outline-none bg-white dark:bg-zinc-700 text-slate-700 dark:text-zinc-200"
                         >
                           <option value="availability">Availability (Most First)</option>
                           <option value="name">Name (A-Z)</option>
@@ -415,14 +415,14 @@ export default function BrowseSupervisorsPage() {
 
           {/* Results Count */}
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500 dark:text-gray-400">
-              Showing <span className="font-semibold text-slate-700 dark:text-gray-300">{filteredSupervisors.length}</span> of {supervisors.length} supervisors
+            <p className="text-sm text-slate-500 dark:text-zinc-400">
+              Showing <span className="font-semibold text-slate-700 dark:text-zinc-300">{filteredSupervisors.length}</span> of {supervisors.length} supervisors
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+              className="border-2 border-gray-200 dark:border-zinc-600 hover:border-gray-300 dark:hover:border-gray-500"
             >
               {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
             </Button>
@@ -444,7 +444,7 @@ export default function BrowseSupervisorsPage() {
                 >
                   {viewMode === 'grid' ? (
                     /* Grid Card */
-                    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 overflow-hidden group relative">
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-[#27272A] overflow-hidden group relative">
                       <CardContent className="p-5">
                         {/* Header */}
                         <div className="flex items-start gap-4 mb-4">
@@ -458,7 +458,7 @@ export default function BrowseSupervisorsPage() {
                               )}
                             </div>
                             {/* Availability indicator */}
-                            <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-3 border-white dark:border-gray-800 ${
+                            <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-3 border-white dark:border-zinc-800 ${
                               getAvailabilityStatus(supervisor) === 'available' ? 'bg-emerald-500' :
                               getAvailabilityStatus(supervisor) === 'limited' ? 'bg-amber-500' : 'bg-red-500'
                             }`}>
@@ -469,7 +469,7 @@ export default function BrowseSupervisorsPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white truncate group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] transition-colors">
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-[#E4E4E7] truncate group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] transition-colors">
                               {supervisor.name}
                             </h3>
                             {supervisor.specialization && (

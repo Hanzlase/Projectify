@@ -171,23 +171,23 @@ export default function AdminProfilePage() {
     : 'Unknown';
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       <AdminSidebar />
       
       <div className="flex-1 md:ml-64 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push('/admin/dashboard')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-500" />
               </button>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Profile Settings</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Manage your admin account</p>
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Profile Settings</h1>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Manage your admin account</p>
               </div>
             </div>
             <NotificationBell />
@@ -197,7 +197,7 @@ export default function AdminProfilePage() {
         <main className="p-4 md:p-6">
           {/* Mobile Header */}
           <div className="md:hidden mb-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile Settings</h1>
           </div>
 
           {/* Success/Error Messages */}
@@ -207,7 +207,7 @@ export default function AdminProfilePage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-green-400"
+                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E]"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm">{success}</span>
@@ -221,13 +221,13 @@ export default function AdminProfilePage() {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Profile Card */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="lg:col-span-1 border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+              <Card className="lg:col-span-1 border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
                 {/* Profile Header Background */}
                 <div className="h-24 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d]" />
                 <CardContent className="p-6 -mt-12">
                   <div className="flex flex-col items-center text-center">
                     <div className="relative mb-4">
-                      <div className="w-24 h-24 rounded-2xl bg-white dark:bg-gray-700 p-1 shadow-xl">
+                      <div className="w-24 h-24 rounded-2xl bg-white dark:bg-zinc-700 p-1 shadow-xl">
                         <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center overflow-hidden">
                           {profile?.profileImage ? (
                             <img
@@ -243,7 +243,7 @@ export default function AdminProfilePage() {
                         </div>
                       </div>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                       {profile?.name}
                     </h2>
                     <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-[#1a5d1a]/10 text-[#1a5d1a] rounded-full text-xs font-medium">
@@ -252,13 +252,13 @@ export default function AdminProfilePage() {
                     </span>
                     
                     <div className="w-full mt-6 space-y-3">
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600 dark:text-gray-300 truncate">{profile?.email}</span>
+                        <span className="text-sm text-gray-600 dark:text-zinc-300 truncate">{profile?.email}</span>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600 dark:text-gray-300">Joined {joinedDate}</span>
+                        <span className="text-sm text-gray-600 dark:text-zinc-300">Joined {joinedDate}</span>
                       </div>
                     </div>
                   </div>
@@ -273,15 +273,15 @@ export default function AdminProfilePage() {
               transition={{ delay: 0.15 }}
               className="lg:col-span-2"
             >
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a]/10 to-[#2d7a2d]/10 rounded-xl flex items-center justify-center">
                       <User className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Update your personal information</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Edit Profile</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Update your personal information</p>
                     </div>
                   </div>
 
@@ -294,22 +294,22 @@ export default function AdminProfilePage() {
 
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Full Name</Label>
                       <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter your name"
-                        className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                        className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Email Address</Label>
                       <Input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
-                        className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                        className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                       />
                     </div>
                   </div>
@@ -337,7 +337,7 @@ export default function AdminProfilePage() {
               transition={{ delay: 0.2 }}
               className="lg:col-span-3"
             >
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
@@ -345,8 +345,8 @@ export default function AdminProfilePage() {
                         <Key className="w-5 h-5 text-[#1a5d1a]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Change Password</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Update your security credentials</p>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Change Password</h3>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">Update your security credentials</p>
                       </div>
                     </div>
                     {!showPasswordForm && (
@@ -356,7 +356,7 @@ export default function AdminProfilePage() {
                           setShowPasswordForm(true);
                           setError('');
                         }}
-                        className="rounded-xl border-gray-200 dark:border-gray-600"
+                        className="rounded-xl border-gray-200 dark:border-zinc-600"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Change Password
@@ -375,14 +375,14 @@ export default function AdminProfilePage() {
 
                       <div className="grid md:grid-cols-3 gap-4">
                         <div>
-                          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</Label>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Current Password</Label>
                           <div className="relative mt-1.5">
                             <Input
                               type={showCurrentPassword ? 'text' : 'password'}
                               value={currentPassword}
                               onChange={(e) => setCurrentPassword(e.target.value)}
                               placeholder="Enter current password"
-                              className="rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a] pr-10"
+                              className="rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a] pr-10"
                             />
                             <button
                               type="button"
@@ -394,14 +394,14 @@ export default function AdminProfilePage() {
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">New Password</Label>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">New Password</Label>
                           <div className="relative mt-1.5">
                             <Input
                               type={showNewPassword ? 'text' : 'password'}
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
                               placeholder="Enter new password"
-                              className="rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a] pr-10"
+                              className="rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a] pr-10"
                             />
                             <button
                               type="button"
@@ -413,13 +413,13 @@ export default function AdminProfilePage() {
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</Label>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Confirm New Password</Label>
                           <Input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm new password"
-                            className="mt-1.5 rounded-xl border-gray-200 dark:border-gray-600 focus:ring-[#1a5d1a]"
+                            className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                           />
                         </div>
                       </div>
@@ -434,7 +434,7 @@ export default function AdminProfilePage() {
                             setConfirmPassword('');
                             setError('');
                           }}
-                          className="rounded-xl border-gray-200 dark:border-gray-600"
+                          className="rounded-xl border-gray-200 dark:border-zinc-600"
                         >
                           Cancel
                         </Button>
@@ -453,8 +453,8 @@ export default function AdminProfilePage() {
                       </div>
                     </>
                   ) : (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                      <p className="text-sm text-gray-500 dark:text-zinc-400">
                         Click the button above to change your password. You will need to enter your current password for verification.
                       </p>
                     </div>

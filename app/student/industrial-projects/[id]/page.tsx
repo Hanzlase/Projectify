@@ -168,24 +168,24 @@ export default function StudentIndustrialProjectDetailPage() {
   const StatusIcon = statusConfig.icon;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-950">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B]">
       <StudentSidebar profileImage={profileImage} />
 
       <div className="md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-14 md:top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-800">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={() => router.push('/student/industrial-projects')}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-xl transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                 </button>
                 <div>
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">Project Details</h1>
-                  <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Industrial project information</p>
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-400">Industrial project information</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-4">
@@ -209,8 +209,8 @@ export default function StudentIndustrialProjectDetailPage() {
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
                   <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
+                    <span className="text-sm font-medium text-green-700 dark:text-[#22C55E]">
                       {projectAssignedToGroup ? 'Group Created' : 'Already in Group'}
                     </span>
                   </div>
@@ -281,7 +281,7 @@ export default function StudentIndustrialProjectDetailPage() {
 
             {/* Title */}
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-3">
                 {project.title}
               </h1>
               
@@ -301,22 +301,22 @@ export default function StudentIndustrialProjectDetailPage() {
             </div>
 
             {/* Description Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center">
                   <FileText className="w-4 h-4 text-[#1a5d1a] dark:text-emerald-400" />
                 </div>
                 Description
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+              <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
                 {project.description}
               </p>
             </div>
 
             {/* Features Section */}
             {project.features && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                   <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-emerald-400" />
                   </div>
@@ -324,7 +324,7 @@ export default function StudentIndustrialProjectDetailPage() {
                 </h3>
                 <ul className="space-y-2">
                   {project.features.split('\n').filter(f => f.trim()).map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                    <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-zinc-300">
                       <CheckCircle2 className="w-5 h-5 text-[#1a5d1a] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                       <span>{feature.trim()}</span>
                     </li>
@@ -378,8 +378,8 @@ export default function StudentIndustrialProjectDetailPage() {
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
                   <div className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span className="font-medium text-green-700 dark:text-green-400">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-[#22C55E]" />
+                    <span className="font-medium text-green-700 dark:text-[#22C55E]">
                       {projectAssignedToGroup ? 'Group Created' : 'Already in Group'}
                     </span>
                   </div>
@@ -411,18 +411,18 @@ export default function StudentIndustrialProjectDetailPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+              className="bg-white dark:bg-[#18181B] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="p-6 border-b border-gray-100 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Request Project</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{project.title}</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Request Project</h2>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">{project.title}</p>
                   </div>
                   <button
                     onClick={() => setShowRequestModal(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
@@ -431,7 +431,7 @@ export default function StudentIndustrialProjectDetailPage() {
 
               {/* Modal Body */}
               <div className="p-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
                   Message (Optional)
                 </label>
                 <textarea
@@ -439,7 +439,7 @@ export default function StudentIndustrialProjectDetailPage() {
                   onChange={(e) => setRequestMessage(e.target.value)}
                   placeholder="Tell the coordinator why you're interested in this project..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-zinc-700 rounded-xl bg-gray-50 dark:bg-[#27272A] text-gray-900 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1a5d1a] focus:border-transparent transition-all"
                 />
               </div>
 

@@ -999,21 +999,21 @@ function ChatPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <StudentSidebar />
       
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0 flex flex-col h-screen">
         {/* Page Header - Hidden on mobile */}
-        <header className="hidden md:flex bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100 dark:border-gray-700">
+        <header className="hidden md:flex bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
               <MessageCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Messages</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Messages</h1>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
         </header>
@@ -1021,7 +1021,7 @@ function ChatPageContent() {
         {/* Chat Container */}
         <div className="flex-1 flex overflow-hidden">
           {/* Conversations Sidebar */}
-          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col bg-white dark:bg-gray-800 ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 dark:border-zinc-700 flex flex-col bg-white dark:bg-[#27272A] ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
             <div className="p-4 bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d]">
               <div className="flex items-center justify-between mb-4">
@@ -1076,7 +1076,7 @@ function ChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === group.conversationId 
                             ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                            : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -1084,20 +1084,20 @@ function ChatPageContent() {
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-800 shadow-md">
                               <Users className="w-6 h-6" />
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-zinc-800 flex items-center justify-center">
                               <span className="text-[8px] text-white font-bold">{group.members.length}</span>
                             </div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {group.groupName}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(group.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                 >
                                   <Pin className="w-3 h-3 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                                 </button>
@@ -1114,7 +1114,7 @@ function ChatPageContent() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                              <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-zinc-200 font-medium' : 'text-gray-500 dark:text-zinc-400'}`}>
                                 {group.lastMessage?.content || 'Start chatting...'}
                               </p>
                               {group.unreadCount > 0 && (
@@ -1140,7 +1140,7 @@ function ChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                            : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -1156,13 +1156,13 @@ function ChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={(e) => togglePin(conv.conversationId, e)}
-                                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                                  className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                 >
                                   <Pin className="w-3 h-3 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                                 </button>
@@ -1179,7 +1179,7 @@ function ChatPageContent() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                              <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-zinc-200 font-medium' : 'text-gray-500 dark:text-zinc-400'}`}>
                                 {conv.lastMessage?.content || 'Start a conversation...'}
                               </p>
                               {conv.unreadCount > 0 && (
@@ -1227,28 +1227,28 @@ function ChatPageContent() {
                             className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                               selectedConversation === group.conversationId 
                                 ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
-                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                                : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative flex-shrink-0">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-700 shadow-md">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-zinc-700 shadow-md">
                                   <Users className="w-6 h-6" />
                                 </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#1a5d1a] rounded-full border-2 border-white dark:border-zinc-800 flex items-center justify-center">
                                   <span className="text-[8px] text-white font-bold">{group.members.length}</span>
                                 </div>
                               </div>
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-0.5">
-                                  <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                                  <h3 className={`font-semibold truncate ${selectedConversation === group.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                     {group.groupName}
                                   </h3>
                                   <div className="flex items-center gap-1">
                                     <button
                                       onClick={(e) => togglePin(group.conversationId, e)}
-                                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                     >
                                       <PinOff className="w-3 h-3 text-gray-400" />
                                     </button>
@@ -1270,7 +1270,7 @@ function ChatPageContent() {
                                 </div>
                                 
                                 <div className="flex items-center justify-between">
-                                  <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                                  <p className={`text-sm truncate max-w-[180px] ${group.unreadCount > 0 ? 'text-gray-800 dark:text-zinc-200 font-medium' : 'text-gray-500 dark:text-zinc-400'}`}>
                                     {group.lastMessage?.content || 'Start chatting...'}
                                   </p>
                                   {group.unreadCount > 0 && (
@@ -1295,12 +1295,12 @@ function ChatPageContent() {
                             className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                               selectedConversation === conv.conversationId 
                                 ? 'bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 shadow-md border border-[#1a5d1a]/20' 
-                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'
+                                : 'hover:bg-gray-50 dark:hover:bg-zinc-700 border border-transparent'
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative flex-shrink-0">
-                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-gray-700 shadow-md`}>
+                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getRoleColor(conv.otherUser?.role || 'student')} flex items-center justify-center text-white font-bold text-lg overflow-hidden ring-2 ring-white dark:ring-zinc-700 shadow-md`}>
                                   {conv.otherUser?.profileImage ? (
                                     <img src={conv.otherUser.profileImage} alt="" className="w-full h-full object-cover" />
                                   ) : (
@@ -1311,13 +1311,13 @@ function ChatPageContent() {
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-0.5">
-                                  <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-white'}`}>
+                                  <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a] dark:text-[#2d7a2d]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                     {conv.otherUser?.name}
                                   </h3>
                                   <div className="flex items-center gap-1">
                                     <button
                                       onClick={(e) => togglePin(conv.conversationId, e)}
-                                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                     >
                                       <PinOff className="w-3 h-3 text-gray-400" />
                                     </button>
@@ -1334,7 +1334,7 @@ function ChatPageContent() {
                                 </div>
                                 
                                 <div className="flex items-center justify-between">
-                                  <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-gray-200 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                                  <p className={`text-sm truncate max-w-[180px] ${conv.unreadCount > 0 ? 'text-gray-800 dark:text-zinc-200 font-medium' : 'text-gray-500 dark:text-zinc-400'}`}>
                                     {conv.lastMessage?.content || 'Start a conversation...'}
                                   </p>
                                   {conv.unreadCount > 0 && (
@@ -1368,19 +1368,19 @@ function ChatPageContent() {
           </div>
 
           {/* Chat Area */}
-          <div className={`flex-1 flex flex-col bg-[#f5f5f7] dark:bg-gray-900 ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`flex-1 flex flex-col bg-[#f5f5f7] dark:bg-[#18181B] ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {selectedConversation && (selectedGroupConversation || otherUser) ? (
               <>
                 {/* Chat Header */}
-                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between">
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="md:hidden -ml-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="md:hidden -ml-2 hover:bg-gray-100 dark:hover:bg-zinc-700"
                       onClick={() => { setShowMobileChat(false); setSelectedConversation(null); setSelectedGroupConversation(null); }}
                     >
-                      <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
                     </Button>
                     
                     {selectedGroupConversation ? (
@@ -1396,12 +1396,12 @@ function ChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900 dark:text-white">{selectedGroupConversation.groupName}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7]">{selectedGroupConversation.groupName}</h3>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
                               FYP Group
                             </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="text-xs text-gray-500 dark:text-zinc-400">
                               {selectedGroupConversation.members.length} members{selectedGroupConversation.supervisor ? ' + Supervisor' : ''}
                             </span>
                           </div>
@@ -1421,7 +1421,7 @@ function ChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900 dark:text-white">{otherUser.name}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7]">{otherUser.name}</h3>
                           <div className="flex items-center gap-2">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                               {otherUser.role}
@@ -1475,7 +1475,7 @@ function ChatPageContent() {
                           <div key={message.messageId}>
                             {showDate && (
                               <div className="flex justify-center my-6">
-                                <span className="px-4 py-1.5 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+                                <span className="px-4 py-1.5 bg-white dark:bg-[#27272A] text-gray-500 dark:text-zinc-400 text-xs font-medium rounded-full shadow-sm border border-gray-200 dark:border-zinc-700">
                                   {new Date(message.createdAt).toLocaleDateString('en-US', {
                                     weekday: 'long',
                                     month: 'short',
@@ -1512,7 +1512,7 @@ function ChatPageContent() {
                                     className={`shadow-sm overflow-hidden ${
                                       message.isOwn
                                         ? 'bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl rounded-br-md'
-                                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-bl-md border border-gray-100 dark:border-gray-700'
+                                        : 'bg-white dark:bg-[#27272A] text-gray-800 dark:text-zinc-200 rounded-2xl rounded-bl-md border border-gray-100 dark:border-zinc-700'
                                     }`}
                                   >
                                     {/* Image Attachment */}
@@ -1545,7 +1545,7 @@ function ChatPageContent() {
                                           className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20' 
-                                              : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                              : 'bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600'
                                           }`}
                                         >
                                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
@@ -1555,12 +1555,12 @@ function ChatPageContent() {
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <p className={`text-sm font-medium truncate ${
-                                              message.isOwn ? 'text-white' : 'text-gray-800 dark:text-gray-200'
+                                              message.isOwn ? 'text-white' : 'text-gray-800 dark:text-zinc-200'
                                             }`}>
                                               {message.attachmentName || 'File'}
                                             </p>
                                             <p className={`text-xs ${
-                                              message.isOwn ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'
+                                              message.isOwn ? 'text-white/70' : 'text-gray-500 dark:text-zinc-400'
                                             }`}>
                                               Click to open in new tab
                                             </p>
@@ -1572,7 +1572,7 @@ function ChatPageContent() {
                                           className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20 text-white/80' 
-                                              : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
+                                              : 'bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-300'
                                           }`}
                                           onClick={(e) => e.stopPropagation()}
                                         >
@@ -1629,8 +1629,8 @@ function ChatPageContent() {
                       <div className="w-24 h-24 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center mb-4 shadow-lg">
                         <Sparkles className="w-12 h-12 text-[#1a5d1a] dark:text-[#2d7a2d]" />
                       </div>
-                      <h3 className="font-bold text-gray-800 dark:text-white text-lg mb-2">Start the conversation!</h3>
-                      <p className="text-gray-500 dark:text-gray-400 max-w-xs">
+                      <h3 className="font-bold text-gray-800 dark:text-[#E4E4E7] text-lg mb-2">Start the conversation!</h3>
+                      <p className="text-gray-500 dark:text-zinc-400 max-w-xs">
                         {selectedGroupConversation ? (
                           <>Say hello to <span className="font-medium text-[#1a5d1a]">{selectedGroupConversation.groupName}</span> group</>
                         ) : otherUser ? (
@@ -1644,10 +1644,10 @@ function ChatPageContent() {
                 </div>
 
                 {/* Message Input Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                <div className="border-t border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] p-4">
                   {/* File Preview */}
                   {selectedFile && (
-                    <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <div className="mb-3 p-3 bg-gray-50 dark:bg-zinc-700 rounded-xl border border-gray-200 dark:border-zinc-600">
                       <div className="flex items-center gap-3">
                         {filePreview ? (
                           <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
@@ -1657,15 +1657,15 @@ function ChatPageContent() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-800 dark:text-gray-200 truncate">{selectedFile.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{formatFileSize(selectedFile.size)}</p>
+                          <p className="font-medium text-gray-800 dark:text-zinc-200 truncate">{selectedFile.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-zinc-400">{formatFileSize(selectedFile.size)}</p>
                         </div>
                         <button 
                           type="button"
                           onClick={clearFileSelection}
-                          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
                         >
-                          <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                          <X className="w-4 h-4 text-gray-600 dark:text-zinc-300" />
                         </button>
                       </div>
                     </div>
@@ -1715,7 +1715,7 @@ function ChatPageContent() {
                         placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-gray-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 dark:text-white transition-colors"
+                        className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-zinc-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-zinc-700 focus:bg-white dark:focus:bg-gray-600 dark:text-[#E4E4E7] transition-colors"
                         disabled={sending || uploadingFile}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">

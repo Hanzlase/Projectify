@@ -18,21 +18,21 @@ export default function CoordinatorSuspendedPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex flex-col">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">Projectify</span>
+              <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
             </Link>
             <Button
               onClick={() => signOut({ callbackUrl: '/login' })}
               variant="outline"
-              className="rounded-xl border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+              className="rounded-xl border-gray-300 dark:border-zinc-600 hover:border-gray-400 dark:hover:border-gray-500"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -49,7 +49,7 @@ export default function CoordinatorSuspendedPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm overflow-hidden"
+            className="bg-white dark:bg-[#27272A] rounded-3xl shadow-sm overflow-hidden"
           >
             {/* Icon Section */}
             <div className="flex flex-col items-center pt-12 pb-8 px-6">
@@ -66,7 +66,7 @@ export default function CoordinatorSuspendedPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white text-center mb-2"
+                className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] text-center mb-2"
               >
                 Coordinator Account Suspended
               </motion.h1>
@@ -75,14 +75,14 @@ export default function CoordinatorSuspendedPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-gray-500 dark:text-gray-400 text-center max-w-md"
+                className="text-gray-500 dark:text-zinc-400 text-center max-w-md"
               >
                 Your coordinator access to Projectify has been suspended by the System Administrator.
               </motion.p>
             </div>
 
             {/* Divider */}
-            <div className="border-t border-gray-100 dark:border-gray-700" />
+            <div className="border-t border-gray-100 dark:border-zinc-700" />
 
             {/* Info Section */}
             <div className="p-6 sm:p-8">
@@ -99,8 +99,8 @@ export default function CoordinatorSuspendedPage() {
                       <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-500" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">What does this mean?</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">What does this mean?</h3>
+                      <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
                         Your coordinator privileges have been revoked. You cannot access the coordinator dashboard or manage students/supervisors.
                       </p>
                     </div>
@@ -119,8 +119,8 @@ export default function CoordinatorSuspendedPage() {
                       <Clock className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Temporary Suspension</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Temporary Suspension</h3>
+                      <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
                         This suspension can be lifted by the System Administrator. Contact them for reinstatement.
                       </p>
                     </div>
@@ -135,21 +135,21 @@ export default function CoordinatorSuspendedPage() {
                 transition={{ delay: 0.7 }}
                 className="mt-6"
               >
-                <div className="p-5 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600">
+                <div className="p-5 bg-gray-50 dark:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-600">
                   <div className="flex items-start gap-4">
-                    <div className="p-2.5 bg-white dark:bg-gray-600 rounded-xl shadow-sm">
+                    <div className="p-2.5 bg-white dark:bg-zinc-600 rounded-xl shadow-sm">
                       <Building className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">
                         Contact System Administrator
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      <p className="text-sm text-gray-500 dark:text-zinc-400 mb-3">
                         If you believe this suspension is in error or need more information, please contact the system administrator.
                       </p>
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600 dark:text-gray-300">admin@projectify.edu</span>
+                        <span className="text-gray-600 dark:text-zinc-300">admin@projectify.edu</span>
                       </div>
                     </div>
                   </div>
@@ -158,9 +158,9 @@ export default function CoordinatorSuspendedPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="border-t border-gray-100 dark:border-gray-700 p-6 sm:p-8 bg-gray-50 dark:bg-gray-700/30">
+            <div className="border-t border-gray-100 dark:border-zinc-700 p-6 sm:p-8 bg-gray-50 dark:bg-zinc-700/30">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center sm:text-left">
+                <p className="text-sm text-gray-500 dark:text-zinc-400 text-center sm:text-left">
                   Your account will be restored once the administrator lifts the suspension.
                 </p>
                 <Button

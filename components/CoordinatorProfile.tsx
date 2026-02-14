@@ -169,14 +169,14 @@ export default function CoordinatorProfile() {
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profile?.profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -184,21 +184,21 @@ export default function CoordinatorProfile() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/chat')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
               </button>
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profile?.profileImage ? (
@@ -208,8 +208,8 @@ export default function CoordinatorProfile() {
                   )}
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{profile?.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{profile?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{profile?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">{profile?.email}</p>
                 </div>
               </div>
             </div>
@@ -219,8 +219,8 @@ export default function CoordinatorProfile() {
         <main className="p-4 md:p-6">
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">View and manage your profile details here.</p>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile</h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">View and manage your profile details here.</p>
           </div>
 
           {/* Messages */}
@@ -241,11 +241,11 @@ export default function CoordinatorProfile() {
           )}
 
           {/* Profile Card - Matching Student Layout */}
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+          <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
             <CardContent className="p-0">
               <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Profile Image & Name */}
-                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-700 flex flex-col items-center">
+                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-zinc-700 flex flex-col items-center">
                   <div className="mb-4">
                     <ProfileImageUpload
                       currentImage={profile.profileImage}
@@ -254,7 +254,7 @@ export default function CoordinatorProfile() {
                       colorClass="from-[#1a5d1a] to-[#2d7a2d]"
                     />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{profile.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">{profile.name}</h2>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-[#2d7a2d] rounded-full text-sm font-medium">
                     <Shield className="w-4 h-4" />
                     FYP Coordinator
@@ -268,19 +268,19 @@ export default function CoordinatorProfile() {
 
                   {/* Quick Stats */}
                   <div className="w-full mt-6 grid grid-cols-2 gap-3">
-                    <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-xl text-center">
+                    <div className="bg-gray-50 dark:bg-zinc-700 p-3 rounded-xl text-center">
                       <div className="flex items-center justify-center gap-1 text-[#1a5d1a] mb-1">
                         <GraduationCap className="w-4 h-4" />
                       </div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalStudents}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Students</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalStudents}</p>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Students</p>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-xl text-center">
+                    <div className="bg-gray-50 dark:bg-zinc-700 p-3 rounded-xl text-center">
                       <div className="flex items-center justify-center gap-1 text-[#2d7a2d] mb-1">
                         <Briefcase className="w-4 h-4" />
                       </div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalSupervisors}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Supervisors</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalSupervisors}</p>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Supervisors</p>
                     </div>
                   </div>
 
@@ -298,7 +298,7 @@ export default function CoordinatorProfile() {
                 {/* Right Side - Details */}
                 <div className="lg:w-2/3 p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Account Details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Account Details</h3>
                     {!isEditing && (
                       <div className="w-3 h-3 bg-[#1a5d1a] rounded-full"></div>
                     )}
@@ -311,18 +311,18 @@ export default function CoordinatorProfile() {
                         {/* Left Column */}
                         <div className="space-y-5">
                           <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Full Name</p>
-                            <p className="font-semibold text-gray-900 dark:text-white">{profile.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Full Name</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.name}</p>
                           </div>
                           
                           <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Email Address</p>
-                            <p className="font-semibold text-gray-900 dark:text-white">{profile.email}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Email Address</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.email}</p>
                           </div>
                           
                           <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Role</p>
-                            <p className="font-semibold text-gray-900 dark:text-white">FYP Coordinator</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Role</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">FYP Coordinator</p>
                           </div>
                         </div>
 
@@ -330,24 +330,24 @@ export default function CoordinatorProfile() {
                         <div className="space-y-5">
                           {profile.campus && (
                             <div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Campus</p>
-                              <p className="font-semibold text-gray-900 dark:text-white">{profile.campus}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Campus</p>
+                              <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.campus}</p>
                             </div>
                           )}
                           
                           {profile.campusLocation && (
                             <div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Location</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Location</p>
                               <div className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4 text-gray-400" />
-                                <p className="font-semibold text-gray-900 dark:text-white">{profile.campusLocation}</p>
+                                <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.campusLocation}</p>
                               </div>
                             </div>
                           )}
                           
                           <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Member Since</p>
-                            <p className="font-semibold text-gray-900 dark:text-white">
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Member Since</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
                               {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                             </p>
                           </div>
@@ -355,10 +355,10 @@ export default function CoordinatorProfile() {
                       </div>
 
                       {/* Permissions Card */}
-                      <div className="bg-gray-50 dark:bg-gray-700 p-5 rounded-xl border border-gray-100 dark:border-gray-600">
+                      <div className="bg-gray-50 dark:bg-zinc-700 p-5 rounded-xl border border-gray-100 dark:border-zinc-600">
                         <div className="flex items-center gap-2 mb-4">
-                          <UserCog className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                          <h4 className="font-semibold text-gray-900 dark:text-white">Your Permissions</h4>
+                          <UserCog className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
+                          <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Your Permissions</h4>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="flex items-center gap-2 p-3 rounded-xl text-[#1a5d1a] dark:text-[#2d7a2d] bg-[#d1e7d1] dark:bg-[#1a5d1a]/30">
@@ -369,7 +369,7 @@ export default function CoordinatorProfile() {
                             <Users className="w-4 h-4" />
                             <span className="text-xs font-medium">Manage Supervisors</span>
                           </div>
-                          <div className="flex items-center gap-2 p-3 rounded-xl text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-600">
+                          <div className="flex items-center gap-2 p-3 rounded-xl text-gray-600 dark:text-zinc-300 bg-gray-100 dark:bg-zinc-600">
                             <Settings className="w-4 h-4" />
                             <span className="text-xs font-medium">System Settings</span>
                           </div>
@@ -393,33 +393,33 @@ export default function CoordinatorProfile() {
                     /* Edit Form */
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Full Name</Label>
+                        <Label htmlFor="name" className="text-gray-700 dark:text-zinc-300">Full Name</Label>
                         <Input
                           id="name"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
+                          className="h-11 border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
                           required
                         />
                       </div>
 
                       {/* Password Section */}
-                      <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="pt-4 border-t border-gray-100 dark:border-zinc-700">
                         <div className="flex items-center gap-2 mb-4">
-                          <Lock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Change Password (optional)</h4>
+                          <Lock className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
+                          <h4 className="text-sm font-medium text-gray-700 dark:text-zinc-300">Change Password (optional)</h4>
                         </div>
 
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="currentPassword" className="text-gray-700 dark:text-gray-300">Current Password</Label>
+                            <Label htmlFor="currentPassword" className="text-gray-700 dark:text-zinc-300">Current Password</Label>
                             <div className="relative">
                               <Input
                                 id="currentPassword"
                                 type={showCurrentPassword ? 'text' : 'password'}
                                 value={formData.currentPassword}
                                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                                className="h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
+                                className="h-11 border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] dark:placeholder-zinc-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
                                 placeholder="Enter current password"
                               />
                               <button 
@@ -434,14 +434,14 @@ export default function CoordinatorProfile() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="newPassword" className="text-gray-700 dark:text-gray-300">New Password</Label>
+                              <Label htmlFor="newPassword" className="text-gray-700 dark:text-zinc-300">New Password</Label>
                               <div className="relative">
                                 <Input
                                   id="newPassword"
                                   type={showNewPassword ? 'text' : 'password'}
                                   value={formData.newPassword}
                                   onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                                  className="h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
+                                  className="h-11 border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] dark:placeholder-zinc-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
                                   placeholder="New password"
                                 />
                                 <button 
@@ -454,14 +454,14 @@ export default function CoordinatorProfile() {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password</Label>
+                              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-zinc-300">Confirm Password</Label>
                               <div className="relative">
                                 <Input
                                   id="confirmPassword"
                                   type={showConfirmPassword ? 'text' : 'password'}
                                   value={formData.confirmPassword}
                                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                  className="h-11 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
+                                  className="h-11 border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] dark:placeholder-zinc-400 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl pr-11"
                                   placeholder="Confirm password"
                                 />
                                 <button 
@@ -483,7 +483,7 @@ export default function CoordinatorProfile() {
                           type="button" 
                           variant="outline" 
                           onClick={handleCancel}
-                          className="flex-1 h-11 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 rounded-xl"
+                          className="flex-1 h-11 border-gray-200 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-xl"
                         >
                           <X className="w-4 h-4 mr-2" />
                           Cancel

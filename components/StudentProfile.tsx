@@ -225,29 +225,29 @@ export default function StudentProfile() {
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <StudentSidebar profileImage={profile?.profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header - Hidden on mobile since StudentSidebar has mobile header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#2d7a2d]/30 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#22C55E]/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
               </button>
               <NotificationBell />
               
@@ -260,8 +260,8 @@ export default function StudentProfile() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{profile.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{profile.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{profile.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">{profile.email}</p>
                 </div>
               </div>
             </div>
@@ -271,8 +271,8 @@ export default function StudentProfile() {
         {/* Page Content */}
         <main className="p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">View and manage your profile details here.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile</h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">View and manage your profile details here.</p>
           </div>
 
           {/* Messages */}
@@ -293,11 +293,11 @@ export default function StudentProfile() {
           )}
 
           {/* Profile Card */}
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+          <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
             <CardContent className="p-0">
               <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Profile Image & Name */}
-                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-700 flex flex-col items-center">
+                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-zinc-700 flex flex-col items-center">
                   <div className="mb-4">
                     <ProfileImageUpload
                       currentImage={profile.profileImage}

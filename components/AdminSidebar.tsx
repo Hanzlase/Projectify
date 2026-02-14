@@ -94,19 +94,19 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
     const Content = () => (
       <div className="flex flex-col h-full">
         {/* Logo - Fixed at top */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="p-4 border-b border-gray-200 dark:border-zinc-700 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">Projectify</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Admin Panel</p>
+          <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">Admin Panel</p>
         </div>
 
         {/* Scrollable Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 sticky top-0 bg-white dark:bg-gray-800 py-1">
+          <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 sticky top-0 bg-white dark:bg-[#27272A] py-1">
             Menu
           </p>
           {sidebarItems.map((item) => (
@@ -116,7 +116,7 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive(item.path)
                   ? 'bg-[#1a5d1a] text-white shadow-lg shadow-green-500/20'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700'
               }`}
             >
               <item.icon className="w-5 h-5" />
@@ -126,8 +126,8 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
         </nav>
 
         {/* Bottom Section - Fixed at bottom */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1 flex-shrink-0 bg-white dark:bg-gray-800">
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+        <div className="p-4 border-t border-gray-200 dark:border-zinc-700 space-y-1 flex-shrink-0 bg-white dark:bg-[#27272A]">
+          <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3">
             General
           </p>
           {bottomSidebarItems.map((item) => (
@@ -137,7 +137,7 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive(item.path)
                   ? 'bg-[#1a5d1a] text-white shadow-lg shadow-green-500/20'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700'
               }`}
             >
               <item.icon className="w-5 h-5" />
@@ -168,19 +168,19 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
     <>
       {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">Projectify</span>
+              <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -205,7 +205,7 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-gray-800 z-50 shadow-xl"
+              className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#27272A] z-50 shadow-xl"
             >
               <SidebarContent />
             </motion.div>
@@ -215,7 +215,7 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <div className="fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div className="fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-[#27272A] border-r border-gray-200 dark:border-zinc-700 z-40">
           <SidebarContent />
         </div>
       )}
@@ -237,20 +237,20 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-[101] flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-6">
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-xl max-w-sm w-full p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
                     <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Logout</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to logout?</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Confirm Logout</h3>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Are you sure you want to logout?</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowLogoutModal(false)}
-                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
                   >
                     Cancel
                   </button>

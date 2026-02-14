@@ -209,14 +209,14 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <CoordinatorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -224,7 +224,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
@@ -232,14 +232,14 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => router.push('/coordinator/chat')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
               </button>
               <NotificationBell />
               
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-1.5 pr-3 transition-all"
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
                 onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -250,8 +250,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{user.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">{user.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{user.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-400">{user.email}</p>
                 </div>
               </div>
             </div>
@@ -262,10 +262,10 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           {/* Welcome Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                 {getGreeting()}, {user.name?.split(' ')[0]}!
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate()}</p>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">{formatDate()}</p>
             </div>
             <div className="flex items-center gap-3">
               <Button 
@@ -306,19 +306,19 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
               <Card 
                 onClick={() => router.push('/coordinator/manage-users')}
-                className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{dashboardData?.stats?.totalSupervisors || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalSupervisors || 0}</p>
                     </div>
-                    <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
+                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-green-500">↑</span>
                     <span>Active supervisors</span>
                   </div>
@@ -327,18 +327,18 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Active Projects</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{dashboardData?.stats?.activeProjects || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Active Projects</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.activeProjects || 0}</p>
                     </div>
-                    <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
+                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
                     <span className="text-green-500">↑</span>
                     <span>This semester</span>
                   </div>
@@ -347,18 +347,18 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Pending</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-white">{dashboardData?.stats?.pendingApprovals || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Pending</p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.pendingApprovals || 0}</p>
                     </div>
-                    <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
+                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Awaiting approval</p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400 mt-3">Awaiting approval</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -368,9 +368,9 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl h-full">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-5 text-lg">Quick Actions</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-5 text-lg">Quick Actions</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Add Student Card */}
                     <motion.div
@@ -383,8 +383,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           <UserPlus className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Add Student</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Register new students by roll number</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Add Student</h4>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">Register new students by roll number</p>
                         </div>
                         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
@@ -401,8 +401,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           <UserPlus className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Add Supervisor</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Register new FYP supervisors</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Add Supervisor</h4>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">Register new FYP supervisors</p>
                         </div>
                         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
@@ -419,8 +419,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           <Users className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Manage Users</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">View and manage all users</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Manage Users</h4>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">View and manage all users</p>
                         </div>
                         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
@@ -437,8 +437,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           <Bell className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Send Notifications</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Broadcast announcements</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Send Notifications</h4>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">Broadcast announcements</p>
                         </div>
                         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] dark:group-hover:text-[#2d7a2d] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
@@ -450,10 +450,10 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
 
             {/* Recent Activity */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="lg:col-span-1">
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl h-full">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg">Recent Activity</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Recent Activity</h3>
                     <Clock className="w-5 h-5 text-gray-400" />
                   </div>
                   {recentActivity.length > 0 ? (
@@ -464,21 +464,21 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           initial={{ opacity: 0, x: 20 }} 
                           animate={{ opacity: 1, x: 0 }} 
                           transition={{ delay: 0.35 + index * 0.05 }} 
-                          className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                          className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all"
                         >
                           <div className={`w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 ${
                             activity.type === 'success' ? 'bg-[#1a5d1a]' : 'bg-[#2d7a2d]'
                           }`} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{activity.action}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{activity.user}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-[#E4E4E7] truncate">{activity.action}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">{activity.user}</p>
                             <p className="text-[11px] text-gray-400 mt-0.5">{activity.time}</p>
                           </div>
                         </motion.div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                    <div className="text-center py-12 text-gray-500 dark:text-zinc-400">
                       <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
                       <p className="text-sm">No recent activity</p>
                     </div>
