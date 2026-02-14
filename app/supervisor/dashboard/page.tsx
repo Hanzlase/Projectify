@@ -217,28 +217,7 @@ export default function SupervisorDashboard() {
       {/* Sidebar */}
       <SupervisorSidebar profileImage={profileImage} />
 
-      {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white dark:bg-[#27272A] border-b border-gray-100 dark:border-zinc-700 z-20 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          <div 
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer"
-            onClick={() => router.push('/supervisor/profile')}
-          >
-            {profileImage ? (
-              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              session?.user?.name?.charAt(0).toUpperCase() || 'S'
-            )}
-          </div>
-        </div>
-      </div>      {/* Main Content */}
+      {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Desktop Header */}
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-zinc-700">

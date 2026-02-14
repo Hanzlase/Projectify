@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useCallback, useMemo, memo, useTransition } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, FolderKanban, Calendar, Users, 
-  Settings, HelpCircle, LogOut, GraduationCap, MessageCircle, Bell, AlertTriangle, Mail, Award, Package
+  Settings, HelpCircle, LogOut, GraduationCap, MessageCircle, Bell, AlertTriangle, Mail, Award, Package,
+  Menu, X
 } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
 import ThemeToggle from '@/components/ThemeToggle';
 
 interface SupervisorSidebarProps {
@@ -46,14 +48,47 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Smooth navigation with useTransition
   const navigate = useCallback((path: string) => {
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
     startTransition(() => {
       router.push(path);
     });
-  }, [router]);
+  }, [router, isMobileMenuOpen]);
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setIsMobileMenuOpen(false);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
 
   const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/supervisor/dashboard' },
@@ -79,15 +114,10 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
     setShowLogoutModal(true);
   }, []);
 
-  const isActive = useCallback((path: string): boolean => pathname === path || false, [pathname]);
+  const isActive = useCallback((path: string): boolean => pathname === path || pathname?.startsWith(path + '/') || false, [pathname]);
 
-  return (
-    <motion.aside
-      initial={{ x: -100, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="hidden md:flex w-56 bg-white dark:bg-[#18181B] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950"
-    >
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       {/* Logo - Fixed at top */}
       <div className="p-5 pb-4 flex-shrink-0">
         <div 
@@ -103,7 +133,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
 
       {/* Scrollable Main Navigation */}
       <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#18181B] py-1">Menu</p>
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#27272A] py-1">Menu</p>
         <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
             <NavItem
@@ -118,7 +148,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       </nav>
 
       {/* Bottom Navigation - Fixed at bottom */}
-      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-700 pt-3 bg-white dark:bg-[#18181B]">
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-700 pt-3 bg-white dark:bg-[#27272A]">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => (
@@ -141,6 +171,114 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
         </div>
       </div>
 
+      {/* User Profile Card (Mobile) */}
+      {isMobile && (
+        <div className="px-3 pb-4 border-t border-gray-100 dark:border-zinc-700 pt-4 flex-shrink-0">
+          <div 
+            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl transition-all"
+            onClick={() => navigate('/supervisor/profile')}
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold overflow-hidden">
+              {profileImage ? (
+                <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />
+              ) : (
+                session?.user?.name?.charAt(0).toUpperCase() || 'S'
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">{session?.user?.name}</p>
+              <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
+          >
+            <Menu className="w-6 h-6 text-gray-700 dark:text-zinc-300" />
+          </button>
+          
+          <div 
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/supervisor/dashboard')}
+          >
+            <div className="w-8 h-8 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <div 
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer"
+              onClick={() => navigate('/supervisor/profile')}
+            >
+              {profileImage ? (
+                <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />
+              ) : (
+                session?.user?.name?.charAt(0).toUpperCase() || 'S'
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Sidebar */}
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="md:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-[#27272A] z-50 flex flex-col shadow-xl"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
+              >
+                <X className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
+              </button>
+              
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <motion.aside
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="hidden md:flex w-56 bg-white dark:bg-[#27272A] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950"
+      >
+        <SidebarContent />
+      </motion.aside>
+
       {/* Logout Confirmation Modal */}
       <AnimatePresence>
         {showLogoutModal && (
@@ -148,7 +286,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]"
             onClick={() => setShowLogoutModal(false)}
           >
             <motion.div
@@ -185,7 +323,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.aside>
+    </>
   );
 }
 

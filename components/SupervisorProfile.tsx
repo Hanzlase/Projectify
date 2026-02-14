@@ -205,7 +205,7 @@ export default function SupervisorProfile() {
       <SupervisorSidebar profileImage={profile.profileImage} />
 
       {/* Main Content */}
-      <div className="flex-1 md:ml-56">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
         <header className="bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">

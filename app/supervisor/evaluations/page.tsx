@@ -426,7 +426,7 @@ export default function SupervisorEvaluationsPage() {
     <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#18181B]">
       <SupervisorSidebar />
 
-      <div className="lg:ml-64 min-h-screen">
+      <div className="md:ml-56 mt-14 md:mt-0 min-h-screen">
         <div className="p-4 sm:p-6 lg:p-8">
           {/* Header */}
           <motion.div
