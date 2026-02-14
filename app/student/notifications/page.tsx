@@ -338,7 +338,7 @@ export default function StudentNotificationsPage() {
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -422,7 +422,7 @@ export default function StudentNotificationsPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                   <h4 className={`font-semibold truncate ${
-                                    notification.isRead ? 'text-gray-700' : 'text-gray-900'
+                                    notification.isRead ? 'text-gray-700 dark:text-zinc-300' : 'text-gray-900 dark:text-[#E4E4E7]'
                                   }`}>
                                     {notification.title}
                                   </h4>
@@ -433,7 +433,7 @@ export default function StudentNotificationsPage() {
                                 <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                                   {notification.message}
                                 </p>
-                                <div className="flex items-center gap-3 text-xs text-gray-500">
+                                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-zinc-500">
                                   <span className="flex items-center gap-1">
                                     <Calendar className="w-3.5 h-3.5" />
                                     {formatDate(notification.createdAt)}
@@ -476,7 +476,7 @@ export default function StudentNotificationsPage() {
                             {/* Read Status Icon */}
                             <div className="p-2">
                               {notification.isRead ? (
-                                <MailOpen className="w-4 h-4 text-gray-400" />
+                                <MailOpen className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                               ) : (
                                 <Mail className="w-4 h-4 text-[#1a5d1a]" />
                               )}
@@ -499,7 +499,7 @@ export default function StudentNotificationsPage() {
                   <div className="text-center py-16">
                     <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-xl font-semibold text-gray-700 mb-2">No notifications found</h3>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-zinc-500">
                       {searchQuery || filterType !== 'all' 
                         ? 'Try adjusting your search or filter'
                         : 'You\'re all caught up!'
@@ -527,7 +527,7 @@ export default function StudentNotificationsPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -593,7 +593,7 @@ export default function StudentNotificationsPage() {
                     </div>
                     <div>
                       <p className="text-sm text-[#1a5d1a] font-medium">Sent by</p>
-                      <p className="font-semibold text-gray-900">{selectedNotification.sender.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{selectedNotification.sender.name}</p>
                     </div>
                   </div>
                 )}

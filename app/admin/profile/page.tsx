@@ -183,7 +183,7 @@ export default function AdminProfilePage() {
                 onClick={() => router.push('/admin/dashboard')}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-500" />
+                <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
               </button>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Profile Settings</h1>
@@ -253,11 +253,11 @@ export default function AdminProfilePage() {
                     
                     <div className="w-full mt-6 space-y-3">
                       <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
-                        <Mail className="w-4 h-4 text-gray-400" />
+                        <Mail className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                         <span className="text-sm text-gray-600 dark:text-zinc-300 truncate">{profile?.email}</span>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
-                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <Calendar className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                         <span className="text-sm text-gray-600 dark:text-zinc-300">Joined {joinedDate}</span>
                       </div>
                     </div>

@@ -345,7 +345,7 @@ export default function BrowseSupervisorsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={clearFilters}
-                          className="text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-gray-200"
+                          className="text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                         >
                           <X className="w-4 h-4 mr-1" />
                           Clear All
@@ -580,7 +580,7 @@ export default function BrowseSupervisorsPage() {
                   ) : (
                     /* List View */
                     <Card 
-                      className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white overflow-hidden cursor-pointer group"
+                      className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-[#27272A] overflow-hidden cursor-pointer group"
                       onClick={() => router.push(`/student/view-profile/supervisor/${supervisor.userId}`)}
                     >
                       <CardContent className="p-4">
@@ -655,7 +655,7 @@ export default function BrowseSupervisorsPage() {
               ))}
             </div>
           ) : (
-            <Card className="border-0 shadow-lg bg-white">
+            <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A]">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                   <GraduationCap className="w-10 h-10 text-slate-400" />

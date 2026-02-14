@@ -85,7 +85,7 @@ interface Evaluation {
 const ProgressBar = ({ current, total, className = "" }: { current: number; total: number; className?: string }) => {
   const percentage = total > 0 ? (current / total) * 100 : 0;
   return (
-    <div className={`h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden ${className}`}>
+    <div className={`h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${className}`}>
       <div
         className="h-full bg-[#1E6F3E] rounded-full transition-all duration-500"
         style={{ width: `${percentage}%` }}
@@ -266,14 +266,14 @@ export default function CoordinatorEvaluationsPage() {
     switch (status) {
       case "active":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-[#22C55E] flex items-center gap-1">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             Active
           </span>
         );
       case "closed":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300">
             Closed
           </span>
         );
@@ -295,13 +295,13 @@ export default function CoordinatorEvaluationsPage() {
   const getSubmissionStatusColor = (status: string) => {
     switch (status) {
       case "graded":
-        return "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-[#22C55E]";
+        return "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
       case "late":
         return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400";
       case "submitted":
         return "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400";
       default:
-        return "bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300";
+        return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300";
     }
   };
 
@@ -354,7 +354,7 @@ export default function CoordinatorEvaluationsPage() {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
                 <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
@@ -404,7 +404,7 @@ export default function CoordinatorEvaluationsPage() {
                     <p className="text-xs text-green-500 mt-1">Open for submissions</p>
                   </div>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
-                    <CheckCircle className="w-7 h-7 text-green-600 dark:text-[#22C55E]" />
+                    <CheckCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
                   </div>
                 </div>
               </CardContent>
@@ -438,7 +438,7 @@ export default function CoordinatorEvaluationsPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search evaluations..."
-                    className="pl-12 h-11 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-zinc-700"
+                    className="pl-12 h-11 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-gray-700"
                   />
                 </div>
 
@@ -449,7 +449,7 @@ export default function CoordinatorEvaluationsPage() {
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value as any)}
-                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[140px]"
+                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[140px]"
                     >
                       <option value="all">All Status</option>
                       <option value="active">Active</option>
@@ -464,7 +464,7 @@ export default function CoordinatorEvaluationsPage() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
-                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[140px]"
+                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[140px]"
                     >
                       <option value="newest">Newest First</option>
                       <option value="oldest">Oldest First</option>
@@ -482,7 +482,7 @@ export default function CoordinatorEvaluationsPage() {
             {filteredEvaluations.length === 0 ? (
               <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                 <CardContent className="p-16 text-center">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-10 h-10 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Evaluations Found</h3>
@@ -514,7 +514,7 @@ export default function CoordinatorEvaluationsPage() {
                           {/* Expand Toggle */}
                           <button
                             onClick={() => toggleExpand(evaluation.id)}
-                            className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
+                            className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
                           >
                             {expandedEvaluations.has(evaluation.id) ? (
                               <ChevronDown className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
@@ -624,7 +624,7 @@ export default function CoordinatorEvaluationsPage() {
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                           >
-                            <div className="px-5 pb-5 pt-2 bg-gray-50 dark:bg-[#27272A]/50 border-t border-gray-100 dark:border-zinc-700">
+                            <div className="px-5 pb-5 pt-2 bg-gray-50 dark:bg-zinc-700/50 border-t border-gray-100 dark:border-zinc-700">
                               <h4 className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
                                 Submissions ({evaluation.submissionsCount})
                               </h4>
@@ -732,7 +732,7 @@ export default function CoordinatorEvaluationsPage() {
             >
               <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-700 flex items-center justify-between bg-gradient-to-r from-[#1E6F3E]/5 to-transparent">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Create New Evaluation</h2>
-                <button onClick={() => setShowCreateModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+                <button onClick={() => setShowCreateModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -746,7 +746,7 @@ export default function CoordinatorEvaluationsPage() {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="e.g., FYP Proposal Submission"
-                    className="rounded-xl h-11 dark:bg-zinc-700"
+                    className="rounded-xl h-11 dark:bg-gray-700"
                   />
                 </div>
 
@@ -759,7 +759,7 @@ export default function CoordinatorEvaluationsPage() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe what students need to submit..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none"
                   />
                 </div>
 
@@ -772,7 +772,7 @@ export default function CoordinatorEvaluationsPage() {
                     onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                     placeholder="Additional instructions or guidelines..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none"
                   />
                 </div>
 
@@ -785,7 +785,7 @@ export default function CoordinatorEvaluationsPage() {
                       type="number"
                       value={formData.totalMarks}
                       onChange={(e) => setFormData({ ...formData, totalMarks: parseInt(e.target.value) })}
-                      className="rounded-xl h-11 dark:bg-zinc-700"
+                      className="rounded-xl h-11 dark:bg-gray-700"
                     />
                   </div>
                   <div>
@@ -796,7 +796,7 @@ export default function CoordinatorEvaluationsPage() {
                       type="datetime-local"
                       value={formData.dueDate}
                       onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                      className="rounded-xl h-11 dark:bg-zinc-700"
+                      className="rounded-xl h-11 dark:bg-gray-700"
                     />
                   </div>
                 </div>
@@ -830,7 +830,7 @@ export default function CoordinatorEvaluationsPage() {
                   {attachments.length > 0 && (
                     <div className="mt-3 space-y-2">
                       {attachments.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-3 text-sm text-gray-600 dark:text-zinc-300 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                        <div key={idx} className="flex items-center gap-3 text-sm text-gray-600 dark:text-zinc-300 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                           <File className="w-5 h-5 text-[#1E6F3E]" />
                           <span className="truncate flex-1 font-medium">{file.name}</span>
                           <span className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</span>
@@ -847,7 +847,7 @@ export default function CoordinatorEvaluationsPage() {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => setShowCreateModal(false)} className="flex-1 rounded-xl h-12 font-semibold">
                   Cancel
                 </Button>
@@ -890,7 +890,7 @@ export default function CoordinatorEvaluationsPage() {
 
               <div className="p-6 space-y-5">
                 {/* Submission Info */}
-                <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                   <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">Submitted Content:</p>
                   <p className="text-sm text-gray-600 dark:text-zinc-400 whitespace-pre-wrap">
                     {selectedSubmission.content || "No text content provided"}
@@ -927,7 +927,7 @@ export default function CoordinatorEvaluationsPage() {
                     onChange={(e) => setGradeData({ ...gradeData, obtainedMarks: Math.min(parseInt(e.target.value) || 0, selectedEvaluation.totalMarks) })}
                     max={selectedEvaluation.totalMarks}
                     min={0}
-                    className="rounded-xl h-11 dark:bg-zinc-700"
+                    className="rounded-xl h-11 dark:bg-gray-700"
                   />
                   <div className="mt-2 flex items-center justify-between text-sm">
                     <span className="text-gray-500 dark:text-zinc-400">Percentage:</span>
@@ -947,12 +947,12 @@ export default function CoordinatorEvaluationsPage() {
                     onChange={(e) => setGradeData({ ...gradeData, feedback: e.target.value })}
                     placeholder="Provide feedback for the group..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => setShowGradeModal(false)} className="flex-1 rounded-xl h-12 font-semibold">
                   Cancel
                 </Button>
@@ -1001,7 +1001,7 @@ export default function CoordinatorEvaluationsPage() {
                     </span>
                   </div>
                 </div>
-                <button onClick={() => setShowViewModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+                <button onClick={() => setShowViewModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -1024,11 +1024,11 @@ export default function CoordinatorEvaluationsPage() {
                     <p className="text-2xl font-bold text-[#1E6F3E]">{selectedEvaluation.totalMarks}</p>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">Total Marks</p>
                   </div>
-                  <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl text-center">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
                     <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{selectedEvaluation.submissionsCount}</p>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">Submissions</p>
                   </div>
-                  <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl text-center">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
                     <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{selectedEvaluation.gradedCount}</p>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">Graded</p>
                   </div>
@@ -1054,7 +1054,7 @@ export default function CoordinatorEvaluationsPage() {
                           href={att.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
                         >
                           <File className="w-5 h-5 text-[#1E6F3E]" />
                           <span className="text-sm text-gray-900 dark:text-[#E4E4E7] flex-1 font-medium">{att.fileName}</span>
@@ -1066,7 +1066,7 @@ export default function CoordinatorEvaluationsPage() {
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50">
                 <Button onClick={() => setShowViewModal(false)} variant="outline" className="w-full rounded-xl h-12 font-semibold">
                   Close
                 </Button>

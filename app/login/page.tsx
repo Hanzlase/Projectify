@@ -125,7 +125,7 @@ function LoginPageContent() {
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'student'
                     ? 'bg-white dark:bg-zinc-700 text-[#1a5d1a] dark:text-[#22C55E] shadow-sm'
-                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -137,7 +137,7 @@ function LoginPageContent() {
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   loginMode === 'staff'
                     ? 'bg-white dark:bg-zinc-700 text-[#1a5d1a] dark:text-[#22C55E] shadow-sm'
-                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300'
                 }`}
               >
                 <Briefcase className="w-4 h-4" />
@@ -200,7 +200,7 @@ function LoginPageContent() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-400 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>

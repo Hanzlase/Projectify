@@ -948,7 +948,7 @@ function ChatPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
@@ -972,7 +972,7 @@ function ChatPageContent() {
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
             />
             <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
+              className="w-24 h-24 bg-white dark:bg-[#27272A] rounded-full shadow-lg flex items-center justify-center"
               animate={{ scale: [1, 0.95, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -981,7 +981,7 @@ function ChatPageContent() {
           </div>
           <div className="text-center">
             <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading messages...</motion.p>
+            <motion.p className="text-gray-500 dark:text-zinc-500">Loading messages...</motion.p>
           </div>
           <div className="flex gap-2">
             {[0, 1, 2].map((i) => (
@@ -1033,7 +1033,7 @@ function ChatPageContent() {
               
               {/* Search Bar */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <Input
                   placeholder="Search conversations..."
                   value={searchQuery}
@@ -1250,7 +1250,7 @@ function ChatPageContent() {
                                       onClick={(e) => togglePin(group.conversationId, e)}
                                       className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                     >
-                                      <PinOff className="w-3 h-3 text-gray-400" />
+                                      <PinOff className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                                     </button>
                                     <span className={`text-xs flex-shrink-0 ${group.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                       {group.lastMessage && formatTime(group.lastMessage.createdAt)}
@@ -1319,7 +1319,7 @@ function ChatPageContent() {
                                       onClick={(e) => togglePin(conv.conversationId, e)}
                                       className="p-1 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-full transition-colors"
                                     >
-                                      <PinOff className="w-3 h-3 text-gray-400" />
+                                      <PinOff className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                                     </button>
                                     <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] dark:text-[#2d7a2d] font-semibold' : 'text-gray-400'}`}>
                                       {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
@@ -1461,7 +1461,7 @@ function ChatPageContent() {
                     <div className="flex items-center justify-center h-full">
                       <div className="flex flex-col items-center gap-3">
                         <Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" />
-                        <p className="text-sm text-gray-500">Loading messages...</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-500">Loading messages...</p>
                       </div>
                     </div>
                   ) : messages.length > 0 ? (
@@ -1590,7 +1590,7 @@ function ChatPageContent() {
                                     )}
                                   </div>
                                   <div className={`flex items-center gap-1.5 mt-1 px-1 ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
-                                    <span className="text-[11px] text-gray-400">
+                                    <span className="text-[11px] text-gray-400 dark:text-zinc-500">
                                       {formatMessageTime(message.createdAt)}
                                     </span>
                                     {message.isOwn && (
@@ -1663,7 +1663,7 @@ function ChatPageContent() {
                         <button 
                           type="button"
                           onClick={clearFileSelection}
-                          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-600 hover:bg-gray-300 dark:hover:bg-zinc-500 flex items-center justify-center transition-colors"
                         >
                           <X className="w-4 h-4 text-gray-600 dark:text-zinc-300" />
                         </button>
@@ -1778,7 +1778,7 @@ function ChatPageContent() {
                   <p className="text-gray-500 max-w-sm mb-6">
                     Choose a conversation from the list or start a new one by visiting someone's profile and clicking "Contact"
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-sm text-gray-400">
+                  <div className="flex items-center justify-center gap-3 text-sm text-gray-400 dark:text-zinc-500">
                     <Clock className="w-4 h-4" />
                     <span>Messages are encrypted and secure</span>
                   </div>
@@ -1804,12 +1804,12 @@ function ChatPageContent() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden"
             >
               {/* Modal Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                     {selectedIndustrialProject ? 'Create Group for Industrial Project' : 'Create FYP Group'}
                   </h2>
                   <p className="text-sm text-gray-500 mt-0.5">
@@ -1824,9 +1824,9 @@ function ChatPageContent() {
                     setSelectedIndustrialProject(null);
                     router.replace('/student/chat');
                   }}
-                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full hover:bg-gray-100 dark:bg-zinc-700 flex items-center justify-center transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                 </button>
               </div>
               
@@ -1841,7 +1841,7 @@ function ChatPageContent() {
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{selectedIndustrialProject.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{selectedIndustrialProject.title}</h3>
                         <p className="text-xs text-[#1a5d1a] font-medium">Industrial Project</p>
                       </div>
                     </div>
@@ -1858,7 +1858,7 @@ function ChatPageContent() {
                   
                   {/* Search Projects */}
                   <div className="relative mb-3">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <input
                       type="text"
                       value={searchProjectQuery}
@@ -1963,7 +1963,7 @@ function ChatPageContent() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-zinc-500">
                               {project.category || 'General'} • {project.status}
                               {project.creatorRole === 'supervisor' && (
                                 <span className="text-purple-600"> • By {project.creatorName || 'Supervisor'}</span>
@@ -1987,7 +1987,7 @@ function ChatPageContent() {
                   
                   {/* Search Supervisors */}
                   <div className="relative mb-3">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <input
                       type="text"
                       value={searchSupervisorQuery}
@@ -2038,14 +2038,14 @@ function ChatPageContent() {
                             setSearchSupervisorQuery('');
                             setAvailableSupervisors([]);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 text-left"
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors border-b border-gray-100 last:border-b-0 text-left"
                         >
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                             {supervisor.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900">{supervisor.name}</p>
-                            <p className="text-xs text-gray-500">{supervisor.email}</p>
+                            <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{supervisor.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-500">{supervisor.email}</p>
                           </div>
                         </button>
                       ))}
@@ -2063,7 +2063,7 @@ function ChatPageContent() {
                   
                   {/* Search Students */}
                   <div className="relative mb-3">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <input
                       type="text"
                       value={searchStudentQuery}
@@ -2115,19 +2115,19 @@ function ChatPageContent() {
                             }
                           }}
                           disabled={selectedMembers.length >= 2 || selectedMembers.find(m => m.userId === student.userId) !== undefined}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors border-b border-gray-100 last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
                             {student.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="font-medium text-gray-900">{student.name}</p>
-                            <p className="text-xs text-gray-500">{student.email}</p>
+                            <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{student.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-500">{student.email}</p>
                           </div>
                           {selectedMembers.find(m => m.userId === student.userId) ? (
                             <Check className="w-5 h-5 text-[#1a5d1a]" />
                           ) : (
-                            <Plus className="w-5 h-5 text-gray-400" />
+                            <Plus className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                           )}
                         </button>
                       ))}

@@ -487,7 +487,7 @@ export default function SupervisorGroupDetailsPage() {
       case 'in_progress':
         return <Clock className="w-4 h-4 text-amber-500" />;
       default:
-        return <Circle className="w-4 h-4 text-gray-400" />;
+        return <Circle className="w-4 h-4 text-gray-400 dark:text-zinc-500" />;
     }
   };
 
@@ -1237,7 +1237,7 @@ export default function SupervisorGroupDetailsPage() {
                                       onClick={() => toggleTaskExpand(task.taskId)}
                                       className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-zinc-600"
                                     >
-                                      {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                                      {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" /> : <ChevronRight className="w-4 h-4 text-gray-400 dark:text-zinc-500" />}
                                     </button>
                                   )}
                                   <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
@@ -1394,7 +1394,7 @@ export default function SupervisorGroupDetailsPage() {
                     onClick={() => setShowMeetingModal(false)}
                     className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-400" />
+                    <X className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>
@@ -1430,10 +1430,10 @@ export default function SupervisorGroupDetailsPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Meeting Link
-                    <span className="ml-2 text-xs font-normal text-gray-400">Optional</span>
+                    <span className="ml-2 text-xs font-normal text-gray-400 dark:text-zinc-500">Optional</span>
                   </label>
                   <div className="relative">
-                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <Input
                       value={meetingForm.meetingLink}
                       onChange={(e) => setMeetingForm({ ...meetingForm, meetingLink: e.target.value })}
@@ -1598,7 +1598,7 @@ export default function SupervisorGroupDetailsPage() {
                     onClick={() => setShowTaskModal(false)}
                     className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-400" />
+                    <X className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>
@@ -1622,7 +1622,7 @@ export default function SupervisorGroupDetailsPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                     Description
-                    <span className="ml-2 text-xs font-normal text-gray-400">Optional</span>
+                    <span className="ml-2 text-xs font-normal text-gray-400 dark:text-zinc-500">Optional</span>
                   </label>
                   <textarea
                     value={taskForm.description}

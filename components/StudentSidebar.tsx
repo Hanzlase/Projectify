@@ -52,7 +52,7 @@ const NavItem = memo(function NavItem({
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
         active
           ? 'bg-[#1a5d1a] text-white font-medium'
-          : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-[#27272A]'
+          : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
       }`}
     >
       <Icon className="w-[18px] h-[18px]" />
@@ -183,8 +183,8 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
       </div>
 
       {/* Scrollable Main Navigation */}
-      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#18181B] py-1">Menu</p>
+      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#27272A] py-1">Menu</p>
         <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
             <NavItem
@@ -200,7 +200,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
       </nav>
 
       {/* Bottom Navigation - Fixed at bottom */}
-      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-800 pt-3 bg-white dark:bg-[#18181B]">
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-700 pt-3 bg-white dark:bg-[#27272A]">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => {
@@ -211,7 +211,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
                 href={item.path}
                 prefetch={true}
                 onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-[#27272A] transition-all"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all"
               >
                 <Icon className="w-[18px] h-[18px]" />
                 <span>{item.label}</span>
@@ -231,11 +231,11 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
 
       {/* User Profile Card (Mobile) */}
       {isMobile && (
-        <div className="px-3 pb-4 border-t border-gray-100 dark:border-zinc-800 pt-4 flex-shrink-0">
+        <div className="px-3 pb-4 border-t border-gray-100 dark:border-zinc-700 pt-4 flex-shrink-0">
           <Link 
             href="/student/profile"
             prefetch={true}
-            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#27272A] rounded-xl transition-all"
+            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl transition-all"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold overflow-hidden">
@@ -258,11 +258,11 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white dark:bg-[#18181B] border-b border-gray-200 dark:border-zinc-800">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700">
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-xl transition-all"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
           >
             <Menu className="w-6 h-6 text-gray-700 dark:text-zinc-300" />
           </button>
@@ -306,12 +306,12 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
           
           {/* Sidebar */}
           <aside
-            className="md:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-[#18181B] z-50 flex flex-col shadow-xl animate-[slideInLeft_0.2s_ease-out]"
+            className="md:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-[#27272A] z-50 flex flex-col shadow-xl animate-[slideInLeft_0.2s_ease-out]"
           >
             {/* Close Button */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-xl transition-all"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
             >
               <X className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
             </button>
@@ -323,7 +323,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
 
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden md:flex w-56 bg-white dark:bg-[#18181B] flex-col fixed h-full z-20 shadow-sm dark:shadow-black/50 transition-transform duration-300 ${mounted ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`hidden md:flex w-56 bg-white dark:bg-[#27272A] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950 transition-transform duration-300 ${mounted ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <SidebarContent />
       </aside>

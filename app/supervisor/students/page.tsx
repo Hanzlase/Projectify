@@ -144,31 +144,31 @@ export default function SupervisorStudentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <SupervisorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search students..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700/50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
               </button>
               <NotificationBell />
               
@@ -181,8 +181,8 @@ export default function SupervisorStudentsPage() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-500">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -203,23 +203,23 @@ export default function SupervisorStudentsPage() {
                   <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-gray-900">Students</h1>
-                  <p className="text-sm text-gray-500">{students.length} student{students.length !== 1 ? 's' : ''} in the system</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Students</h1>
+                  <p className="text-sm text-gray-500 dark:text-zinc-500">{students.length} student{students.length !== 1 ? 's' : ''} in the system</p>
                 </div>
               </div>
 
               {/* View Mode Toggle */}
               <div className="flex items-center gap-2">
-                <div className="flex bg-gray-100 rounded-xl p-1">
+                <div className="flex bg-gray-100 dark:bg-zinc-700 rounded-xl p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[#1a5d1a]' : 'text-gray-500'}`}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-600 shadow-sm text-[#1a5d1a]' : 'text-gray-500 dark:text-zinc-400'}`}
                   >
                     <Grid3X3 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-[#1a5d1a]' : 'text-gray-500'}`}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-600 shadow-sm text-[#1a5d1a]' : 'text-gray-500 dark:text-zinc-400'}`}
                   >
                     <List className="w-4 h-4" />
                   </button>
@@ -241,8 +241,8 @@ export default function SupervisorStudentsPage() {
                   <Users className="w-5 h-5 text-[#1a5d1a]" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                  <p className="text-xs text-gray-500">All Students</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.total}</p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-500">All Students</p>
                 </div>
               </CardContent>
             </Card>
@@ -252,8 +252,8 @@ export default function SupervisorStudentsPage() {
                   <XCircle className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.noGroup}</p>
-                  <p className="text-xs text-gray-500">No Group</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.noGroup}</p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-500">No Group</p>
                 </div>
               </CardContent>
             </Card>
@@ -263,8 +263,8 @@ export default function SupervisorStudentsPage() {
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.hasGroup}</p>
-                  <p className="text-xs text-gray-500">Has Group</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.hasGroup}</p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-500">Has Group</p>
                 </div>
               </CardContent>
             </Card>
@@ -276,12 +276,12 @@ export default function SupervisorStudentsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <Card className="border-0 shadow-sm bg-white rounded-2xl mb-6">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Search */}
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <Input
                       placeholder="Search by name, email, roll number, skills..."
                       value={searchQuery}
@@ -291,7 +291,7 @@ export default function SupervisorStudentsPage() {
                     {searchQuery && (
                       <button 
                         onClick={() => setSearchQuery('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -315,7 +315,7 @@ export default function SupervisorStudentsPage() {
                       <Button
                         variant="ghost"
                         onClick={clearFilters}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 dark:text-zinc-300"
                       >
                         <X className="w-4 h-4 mr-1" />
                         Clear
@@ -391,11 +391,11 @@ export default function SupervisorStudentsPage() {
                   onMouseLeave={() => setHoveredStudent(null)}
                 >
                   {viewMode === 'grid' ? (
-                    <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
+                    <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
                       {/* Cover Image */}
                       <div className="h-20 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] relative">
                         <div className="absolute -bottom-8 left-4">
-                          <div className="w-16 h-16 rounded-xl bg-white shadow-lg flex items-center justify-center overflow-hidden border-4 border-white">
+                          <div className="w-16 h-16 rounded-xl bg-white dark:bg-[#27272A] shadow-lg flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-700">
                             {student.profileImage ? (
                               <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover" />
                             ) : (
@@ -416,7 +416,7 @@ export default function SupervisorStudentsPage() {
                       </div>
 
                       <CardContent className="pt-10 pb-4 px-4">
-                        <h3 className="font-bold text-lg text-gray-900 mb-0.5">{student.name}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-[#E4E4E7] mb-0.5">{student.name}</h3>
                         <p className="text-sm text-gray-500 mb-3">{student.rollNumber}</p>
 
                         {student.skills && (
@@ -427,18 +427,18 @@ export default function SupervisorStudentsPage() {
                               </span>
                             ))}
                             {student.skills.split(',').length > 3 && (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">
+                              <span className="px-2 py-0.5 bg-gray-100 dark:bg-zinc-700 text-gray-500 text-xs rounded-full">
                                 +{student.skills.split(',').length - 3}
                               </span>
                             )}
                           </div>
                         )}
 
-                        <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex-1 border-gray-200"
+                            className="flex-1 border-gray-200 dark:border-zinc-700"
                             onClick={() => router.push(`/supervisor/chat?recipientId=${student.userId}`)}
                           >
                             <MessageCircle className="w-4 h-4 mr-1" />
@@ -456,7 +456,7 @@ export default function SupervisorStudentsPage() {
                       </CardContent>
                     </Card>
                   ) : (
-                    <Card className="border-0 shadow-sm bg-white rounded-xl hover:shadow-md transition-all">
+                    <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-xl hover:shadow-md transition-all">
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-lg font-bold overflow-hidden flex-shrink-0">
                           {student.profileImage ? (
@@ -467,7 +467,7 @@ export default function SupervisorStudentsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900 truncate">{student.name}</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">{student.name}</h3>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                               student.hasGroup 
                                 ? 'bg-emerald-100 text-emerald-700' 
@@ -476,7 +476,7 @@ export default function SupervisorStudentsPage() {
                               {student.hasGroup ? 'Has Group' : 'No Group'}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-500">{student.rollNumber} • {student.email}</p>
+                          <p className="text-sm text-gray-500 dark:text-zinc-500">{student.rollNumber} • {student.email}</p>
                           {student.skills && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {student.skills.split(',').slice(0, 4).map((skill, idx) => (
@@ -491,7 +491,7 @@ export default function SupervisorStudentsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-gray-200"
+                            className="border-gray-200 dark:border-zinc-700"
                             onClick={() => router.push(`/supervisor/chat?recipientId=${student.userId}`)}
                           >
                             <MessageCircle className="w-4 h-4" />
@@ -516,7 +516,7 @@ export default function SupervisorStudentsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 bg-[#d1e7d1] rounded-full flex items-center justify-center mx-auto mb-4">
                     <Users className="w-10 h-10 text-[#1a5d1a]" />

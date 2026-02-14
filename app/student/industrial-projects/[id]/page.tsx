@@ -150,9 +150,9 @@ export default function StudentIndustrialProjectDetailPage() {
       case 'booked':
         return { bg: 'bg-blue-100 text-blue-700', text: 'Booked', icon: Clock };
       case 'completed':
-        return { bg: 'bg-gray-100 text-gray-700', text: 'Completed', icon: CheckCircle2 };
+        return { bg: 'bg-gray-100 dark:bg-zinc-700 text-gray-700', text: 'Completed', icon: CheckCircle2 };
       default:
-        return { bg: 'bg-gray-100 text-gray-700', text: projectStatus, icon: Clock };
+        return { bg: 'bg-gray-100 dark:bg-zinc-700 text-gray-700', text: projectStatus, icon: Clock };
     }
   };
 
@@ -424,7 +424,7 @@ export default function StudentIndustrialProjectDetailPage() {
                     onClick={() => setShowRequestModal(false)}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>

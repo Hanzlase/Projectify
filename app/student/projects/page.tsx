@@ -633,14 +633,14 @@ function ProjectsPageContent() {
                           <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
-                              className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-[#1a5d1a] hover:bg-white transition-colors shadow-md"
+                              className="w-8 h-8 bg-white/90 dark:bg-[#27272A]/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 dark:text-zinc-300 hover:text-[#1a5d1a] hover:bg-white dark:hover:bg-[#27272A] transition-colors shadow-md"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); openDeleteModal(project); }}
                               disabled={deleting === project.projectId}
-                              className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-white transition-colors shadow-md"
+                              className="w-8 h-8 bg-white/90 dark:bg-[#27272A]/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-white dark:hover:bg-[#27272A] transition-colors shadow-md"
                             >
                               {deleting === project.projectId ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

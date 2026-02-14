@@ -199,7 +199,7 @@ export default function BrowseStudentsPage() {
             {/* Main Search Bar */}
             <div className="flex gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                 <Input
                   placeholder="Search by name, roll number, skills, interests..."
                   value={searchQuery}
@@ -285,7 +285,7 @@ export default function BrowseStudentsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={clearFilters}
-                          className="text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-gray-200"
+                          className="text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                         >
                           <X className="w-4 h-4 mr-1" />
                           Clear All
@@ -297,7 +297,7 @@ export default function BrowseStudentsPage() {
                       {/* Batch Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <Calendar className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
                           Batch
                         </label>
                         <select
@@ -316,7 +316,7 @@ export default function BrowseStudentsPage() {
                       {/* Skills Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-2">
-                          <Code className="w-4 h-4 text-gray-500" />
+                          <Code className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
                           Skills
                         </label>
                         <select
@@ -452,7 +452,7 @@ export default function BrowseStudentsPage() {
                   ) : (
                     /* List View - Simplified */
                     <Card 
-                      className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white overflow-hidden cursor-pointer group"
+                      className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-[#27272A] overflow-hidden cursor-pointer group"
                       onClick={() => router.push(`/student/view-profile/student/${student.userId}`)}
                     >
                       <CardContent className="p-4">
@@ -519,7 +519,7 @@ export default function BrowseStudentsPage() {
               ))}
             </div>
           ) : (
-            <Card className="border-0 shadow-lg bg-white">
+            <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A]">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                   <Users className="w-10 h-10 text-slate-400" />

@@ -200,7 +200,7 @@ export default function StudentIndustrialProjectsPage() {
       case 'completed':
         return 'bg-gray-100 text-gray-700 dark:bg-[#27272A] dark:text-zinc-400';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
   };
 
@@ -285,7 +285,7 @@ export default function StudentIndustrialProjectsPage() {
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}

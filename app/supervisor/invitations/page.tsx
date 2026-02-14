@@ -275,7 +275,7 @@ function SupervisorInvitationsPageContent() {
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     <Input
                       placeholder="Search by group, project, or student..."
                       value={searchQuery}
@@ -385,7 +385,7 @@ function SupervisorInvitationsPageContent() {
                                 </div>
                                 
                                 <div className="flex items-center gap-2">
-                                  <Users className="w-4 h-4 text-gray-400" />
+                                  <Users className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                                   <span className="text-xs text-gray-500 dark:text-zinc-400">{invitation.group.members.length} members</span>
                                   <div className="flex -space-x-2">
                                     {invitation.group.members.slice(0, 3).map((member) => (
@@ -479,7 +479,7 @@ function SupervisorInvitationsPageContent() {
                   <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                     <CardContent className="py-16 text-center">
                       <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
-                        <Inbox className="w-8 h-8 text-gray-400" />
+                        <Inbox className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No invitations found</h3>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm max-w-md mx-auto">

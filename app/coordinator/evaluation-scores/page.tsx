@@ -269,7 +269,7 @@ export default function CoordinatorEvaluationScoresPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/coordinator/evaluations")}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
                 <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
               </button>
@@ -287,7 +287,7 @@ export default function CoordinatorEvaluationScoresPage() {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
                 <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
@@ -406,7 +406,7 @@ export default function CoordinatorEvaluationScoresPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by group, evaluation, supervisor, or student..."
-                    className="pl-12 h-11 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-zinc-700"
+                    className="pl-12 h-11 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-gray-700"
                   />
                 </div>
 
@@ -415,7 +415,7 @@ export default function CoordinatorEvaluationScoresPage() {
                     <select
                       value={selectedEvaluation}
                       onChange={(e) => setSelectedEvaluation(e.target.value)}
-                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[180px]"
+                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[180px]"
                     >
                       <option value="all">All Evaluations</option>
                       {evaluations.map((ev) => (
@@ -431,7 +431,7 @@ export default function CoordinatorEvaluationScoresPage() {
                     <select
                       value={scoreFilter}
                       onChange={(e) => setScoreFilter(e.target.value)}
-                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[160px]"
+                      className="h-11 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] text-sm font-medium appearance-none bg-white cursor-pointer min-w-[160px]"
                     >
                       <option value="all">All Scores</option>
                       <option value="fully-scored">Fully Scored</option>
@@ -485,7 +485,7 @@ export default function CoordinatorEvaluationScoresPage() {
                   {filteredScores.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-5 py-16 text-center">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                           <BarChart3 className="w-8 h-8 text-gray-300 dark:text-zinc-400" />
                         </div>
                         <h4 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Scores Found</h4>
@@ -503,7 +503,7 @@ export default function CoordinatorEvaluationScoresPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: idx * 0.02 }}
-                        className="hover:bg-gray-50 dark:hover:bg-[#27272A]/50 transition-colors"
+                        className="hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors"
                       >
                         <td className="px-5 py-4">
                           <div>
@@ -577,7 +577,7 @@ export default function CoordinatorEvaluationScoresPage() {
                               Partial
                             </span>
                           ) : (
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 dark:bg-zinc-700 dark:text-zinc-400">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-zinc-400">
                               Pending
                             </span>
                           )}
@@ -612,7 +612,7 @@ export default function CoordinatorEvaluationScoresPage() {
                           <p className="text-[10px] text-gray-400">/{score.totalMarks} ({score.combinedPercentage}%)</p>
                         </div>
                       ) : (
-                        <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-zinc-700 text-gray-500 rounded-full">Pending</span>
+                        <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-full">Pending</span>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-3">

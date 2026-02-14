@@ -174,8 +174,8 @@ export default function ProjectDetailPage() {
       case 'idea': return 'bg-blue-100 text-blue-700';
       case 'in_progress': return 'bg-yellow-100 text-yellow-700';
       case 'completed': return 'bg-green-100 text-green-700';
-      case 'archived': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'archived': return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
+      default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
   };
 
@@ -247,8 +247,8 @@ export default function ProjectDetailPage() {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-        <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white dark:bg-[#27272A] rounded-2xl shadow-xl p-8 text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
             <FolderOpen className="w-10 h-10 text-red-500" />
           </div>
@@ -269,24 +269,24 @@ export default function ProjectDetailPage() {
   const isOwner = project.createdById === parseInt(session?.user?.id || '0');
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B]">
       <StudentSidebar profileImage={profileImage} />
 
       <div className="md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-14 md:top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-700">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={() => router.push('/student/projects')}
-                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                 </button>
                 <div>
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900">Project Details</h1>
-                  <p className="text-xs md:text-sm text-gray-500">View project information</p>
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-500">View project information</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-4">
@@ -368,7 +368,7 @@ export default function ProjectDetailPage() {
                 <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
                   project.visibility === 'public' 
                     ? 'bg-[#d1e7d1] text-[#1a5d1a]' 
-                    : 'bg-gray-100 text-gray-600'
+                    : 'bg-gray-100 dark:bg-zinc-700 text-gray-600'
                 }`}>
                   {project.visibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                   {project.visibility}
@@ -406,7 +406,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 {/* Description Section */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <div className="w-8 h-8 bg-[#d1e7d1] rounded-lg flex items-center justify-center">
                       <FileText className="w-4 h-4 text-[#1a5d1a]" />
@@ -418,7 +418,7 @@ export default function ProjectDetailPage() {
 
                 {/* Abstract Section */}
                 {project.abstractText && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                         <FileText className="w-4 h-4 text-blue-600" />
@@ -430,19 +430,19 @@ export default function ProjectDetailPage() {
                 )}
 
                 {/* Feasibility Report Section */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <button
                     onClick={fetchFeasibilityReport}
                     disabled={loadingFeasibility}
-                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
                         <BarChart3 className="w-5 h-5 text-white" />
                       </div>
                       <div className="text-left">
-                        <h3 className="text-lg font-semibold text-gray-900">AI Feasibility Report</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">AI Feasibility Report</h3>
+                        <p className="text-sm text-gray-500 dark:text-zinc-500">
                           {feasibilityReport ? 'Click to toggle report' : 'Generate comprehensive project analysis'}
                         </p>
                       </div>
@@ -450,9 +450,9 @@ export default function ProjectDetailPage() {
                     {loadingFeasibility ? (
                       <Loader2 className="w-5 h-5 text-[#1a5d1a] animate-spin" />
                     ) : showFeasibilityReport ? (
-                      <ChevronUp className="w-5 h-5 text-gray-400" />
+                      <ChevronUp className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                      <ChevronDown className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                     )}
                   </button>
 
@@ -461,7 +461,7 @@ export default function ProjectDetailPage() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="border-t border-gray-100"
+                      className="border-t border-gray-100 dark:border-zinc-800"
                     >
                       {/* Feasibility Header */}
                       <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] p-4">
@@ -505,9 +505,9 @@ export default function ProjectDetailPage() {
                             <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
                               <div className="flex items-center gap-2 mb-2">
                                 <Users className="w-5 h-5 text-purple-600" />
-                                <h4 className="font-semibold text-gray-900">Target Audience</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Target Audience</h4>
                               </div>
-                              <p className="text-sm text-gray-700">{feasibilityReport.targetAudience}</p>
+                              <p className="text-sm text-gray-700 dark:text-zinc-300">{feasibilityReport.targetAudience}</p>
                             </div>
                           )}
 
@@ -519,8 +519,8 @@ export default function ProjectDetailPage() {
                                 : 'bg-amber-50 border-amber-100'
                             }`}>
                               <div className="flex items-center gap-2 mb-2">
-                                <Clock className="w-5 h-5 text-gray-600" />
-                                <h4 className="font-semibold text-gray-900">Timeline Feasibility</h4>
+                                <Clock className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Timeline Feasibility</h4>
                               </div>
                               <p className={`text-sm font-medium mb-2 ${
                                 feasibilityReport.timelineFeasibility.isPossible ? 'text-green-700' : 'text-amber-700'
@@ -531,7 +531,7 @@ export default function ProjectDetailPage() {
                                 <ul className="space-y-1">
                                   {feasibilityReport.timelineFeasibility.considerations.map((c, i) => (
                                     <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5">
-                                      <span className="text-gray-400">•</span>
+                                      <span className="text-gray-400 dark:text-zinc-500">•</span>
                                       {c}
                                     </li>
                                   ))}
@@ -542,10 +542,10 @@ export default function ProjectDetailPage() {
                         </div>
 
                         {/* Required Skills */}
-                        <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Code className="w-5 h-5 text-[#1a5d1a]" />
-                            <h4 className="font-semibold text-gray-900">Required Skills</h4>
+                            <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Required Skills</h4>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {feasibilityReport.requiredSkills.map((skill, i) => (
@@ -557,10 +557,10 @@ export default function ProjectDetailPage() {
                         </div>
 
                         {/* Supervisor Expertise */}
-                        <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Users className="w-5 h-5 text-[#1a5d1a]" />
-                            <h4 className="font-semibold text-gray-900">Look for Supervisors With</h4>
+                            <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Look for Supervisors With</h4>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {feasibilityReport.recommendedSupervisorExpertise.map((exp, i) => (
@@ -575,11 +575,11 @@ export default function ProjectDetailPage() {
                         <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                           <div className="flex items-center gap-2 mb-3">
                             <Rocket className="w-5 h-5 text-blue-600" />
-                            <h4 className="font-semibold text-gray-900">Suggested Enhancements</h4>
+                            <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Suggested Enhancements</h4>
                           </div>
                           <ul className="space-y-2">
                             {feasibilityReport.suggestedEnhancements.map((enhancement, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                              <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-zinc-300">
                                 <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                                 {enhancement}
                               </li>
@@ -593,7 +593,7 @@ export default function ProjectDetailPage() {
 
                 {/* Document Section */}
                 {project.documentUrl && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                         <FileText className="w-4 h-4 text-purple-600" />
@@ -621,7 +621,7 @@ export default function ProjectDetailPage() {
                       <a
                         href={project.documentUrl}
                         download
-                        className="group flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-all duration-200"
+                        className="group flex items-center gap-3 p-3 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 rounded-xl text-gray-700 transition-all duration-200"
                       >
                         <FileText className="w-5 h-5" />
                         <span className="text-sm font-medium">Download Original File</span>
@@ -634,7 +634,7 @@ export default function ProjectDetailPage() {
               {/* Right Column - Sidebar Info */}
               <div className="space-y-6">
                 {/* Creator Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Created By</h3>
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xl font-bold overflow-hidden">
@@ -652,7 +652,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 {/* Date Info Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Timeline</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -660,8 +660,8 @@ export default function ProjectDetailPage() {
                         <Calendar className="w-5 h-5 text-[#1a5d1a]" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Created</p>
-                        <p className="font-medium text-gray-900">{formatDate(project.createdAt)}</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">Created</p>
+                        <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{formatDate(project.createdAt)}</p>
                       </div>
                     </div>
                     {project.updatedAt !== project.createdAt && (
@@ -670,8 +670,8 @@ export default function ProjectDetailPage() {
                           <Calendar className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Last Updated</p>
-                          <p className="font-medium text-gray-900">{formatDate(project.updatedAt)}</p>
+                          <p className="text-xs text-gray-500 dark:text-zinc-500">Last Updated</p>
+                          <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{formatDate(project.updatedAt)}</p>
                         </div>
                       </div>
                     )}
@@ -680,7 +680,7 @@ export default function ProjectDetailPage() {
 
                 {/* Links Card */}
                 {(project.repositoryUrl || project.demoUrl) && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Links</h3>
                     <div className="space-y-3">
                       {project.repositoryUrl && (

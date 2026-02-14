@@ -245,7 +245,7 @@ export default function SupervisorDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -596,7 +596,7 @@ export default function SupervisorDashboard() {
                           </div>
                           <p className="text-xs text-gray-600 dark:text-zinc-400 truncate">{invitation.projectTitle}</p>
                           <div className="flex items-center gap-1 mt-1.5">
-                            <Users className="w-3 h-3 text-gray-400" />
+                            <Users className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                             <span className="text-xs text-gray-500 dark:text-zinc-400">{invitation.studentCount} students</span>
                           </div>
                         </motion.div>
@@ -669,7 +669,7 @@ export default function SupervisorDashboard() {
                           
                           {group.projectTitle && (
                             <p className="text-xs text-gray-600 dark:text-zinc-400 mb-3 truncate flex items-center gap-1.5">
-                              <FolderKanban className="w-3.5 h-3.5 text-gray-400" />
+                              <FolderKanban className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500" />
                               {group.projectTitle}
                             </p>
                           )}
@@ -732,7 +732,7 @@ export default function SupervisorDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Recent Activity</h3>
-                    <Clock className="w-5 h-5 text-gray-400" />
+                    <Clock className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </div>
                   {recentActivity.length > 0 ? (
                     <div className="space-y-3">
@@ -771,7 +771,7 @@ export default function SupervisorDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Your Info</h3>
-                    <BookOpen className="w-5 h-5 text-gray-400" />
+                    <BookOpen className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <div className="space-y-4">
                     <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20">
@@ -800,7 +800,7 @@ export default function SupervisorDashboard() {
                     {dashboardData?.campusName && (
                       <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <div className="flex items-center gap-2">
-                          <Building className="w-4 h-4 text-gray-400" />
+                          <Building className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           <div>
                             <p className="text-xs text-gray-500 dark:text-zinc-400">Campus</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-[#E4E4E7]">{dashboardData.campusName}</p>
@@ -840,7 +840,7 @@ export default function SupervisorDashboard() {
                         <div className="space-y-2">
                           {group.students.slice(0, 3).map((student, idx) => (
                             <div key={idx} className="flex items-center gap-2 text-xs">
-                              <UserCircle className="w-3.5 h-3.5 text-gray-400" />
+                              <UserCircle className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500" />
                               <span className="text-gray-600 dark:text-zinc-300">{student.name}</span>
                               <span className="text-gray-400 dark:text-zinc-500">({student.rollNumber})</span>
                             </div>

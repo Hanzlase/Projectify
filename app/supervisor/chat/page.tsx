@@ -714,21 +714,21 @@ function SupervisorChatPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <SupervisorSidebar profileImage={profileImage} />
       
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0 flex flex-col h-screen">
         {/* Page Header - Hidden on mobile */}
-        <header className="hidden md:flex bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100">
+        <header className="hidden md:flex bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 items-center justify-between border-b border-gray-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
               <MessageCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Messages</h1>
-              <p className="text-xs text-gray-500">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Messages</h1>
+              <p className="text-xs text-gray-500 dark:text-zinc-500">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -746,7 +746,7 @@ function SupervisorChatPageContent() {
         {/* Chat Container */}
         <div className="flex-1 flex overflow-hidden">
           {/* Conversations Sidebar */}
-          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col bg-white ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-80 lg:w-96 border-r border-gray-200 dark:border-zinc-700 flex flex-col bg-white dark:bg-[#27272A] ${showMobileChat && selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
             <div className="p-4 bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d]">
               <div className="flex items-center justify-between mb-4">
@@ -761,7 +761,7 @@ function SupervisorChatPageContent() {
               </div>
               
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <Input
                   placeholder="Search conversations..."
                   value={searchQuery}
@@ -815,7 +815,7 @@ function SupervisorChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            : 'hover:bg-gray-50 dark:bg-zinc-700/50 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -827,7 +827,7 @@ function SupervisorChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.groupName || 'Group Chat'}
                               </h3>
                               <div className="flex items-center gap-1">
@@ -876,7 +876,7 @@ function SupervisorChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            : 'hover:bg-gray-50 dark:bg-zinc-700/50 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -892,7 +892,7 @@ function SupervisorChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
@@ -949,7 +949,7 @@ function SupervisorChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            : 'hover:bg-gray-50 dark:bg-zinc-700/50 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -961,7 +961,7 @@ function SupervisorChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.groupName || 'Group Chat'}
                               </h3>
                               <div className="flex items-center gap-1">
@@ -969,7 +969,7 @@ function SupervisorChatPageContent() {
                                   onClick={(e) => togglePin(conv.conversationId, e)}
                                   className="p-1 hover:bg-gray-200 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 >
-                                  <PinOff className="w-3 h-3 text-gray-400" />
+                                  <PinOff className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                                 </button>
                                 <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
                                   {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
@@ -1018,7 +1018,7 @@ function SupervisorChatPageContent() {
                         className={`mx-2 mb-1 p-3 rounded-xl cursor-pointer transition-all duration-200 group ${
                           selectedConversation === conv.conversationId 
                             ? 'bg-[#d1e7d1] shadow-md border border-[#1a5d1a]/20' 
-                            : 'hover:bg-gray-50 border border-transparent'
+                            : 'hover:bg-gray-50 dark:bg-zinc-700/50 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -1034,7 +1034,7 @@ function SupervisorChatPageContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold truncate ${selectedConversation === conv.conversationId ? 'text-[#1a5d1a]' : 'text-gray-900 dark:text-[#E4E4E7]'}`}>
                                 {conv.otherUser?.name}
                               </h3>
                               <div className="flex items-center gap-1">
@@ -1042,7 +1042,7 @@ function SupervisorChatPageContent() {
                                   onClick={(e) => togglePin(conv.conversationId, e)}
                                   className="p-1 hover:bg-gray-200 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 >
-                                  <PinOff className="w-3 h-3 text-gray-400" />
+                                  <PinOff className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                                 </button>
                                 <span className={`text-xs flex-shrink-0 ${conv.unreadCount > 0 ? 'text-[#1a5d1a] font-semibold' : 'text-gray-400'}`}>
                                   {conv.lastMessage && formatTime(conv.lastMessage.createdAt)}
@@ -1094,19 +1094,19 @@ function SupervisorChatPageContent() {
           </div>
 
           {/* Chat Area */}
-          <div className={`flex-1 flex flex-col bg-[#f5f5f7] ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`flex-1 flex flex-col bg-[#f5f5f7] dark:bg-[#18181B] ${!showMobileChat && !selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {selectedConversation && (selectedGroupConversation || otherUser) ? (
               <>
                 {/* Chat Header */}
-                <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="md:hidden -ml-2 hover:bg-gray-100"
+                      className="md:hidden -ml-2 hover:bg-gray-100 dark:bg-zinc-700"
                       onClick={() => { setShowMobileChat(false); setSelectedConversation(null); setSelectedGroupConversation(null); }}
                     >
-                      <ChevronLeft className="w-5 h-5 text-gray-600" />
+                      <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                     </Button>
                     
                     {selectedGroupConversation ? (
@@ -1118,12 +1118,12 @@ function SupervisorChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900">{selectedGroupConversation.groupName}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7]">{selectedGroupConversation.groupName}</h3>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#d1e7d1] text-[#1a5d1a]">
                               Group Chat
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 dark:text-zinc-500">
                               {selectedGroupConversation.members.length} members
                             </span>
                           </div>
@@ -1142,7 +1142,7 @@ function SupervisorChatPageContent() {
                         </div>
                         
                         <div>
-                          <h3 className="font-bold text-gray-900">{otherUser.name}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7]">{otherUser.name}</h3>
                           <div className="flex items-center gap-2">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getRoleBadgeStyle(otherUser.role)}`}>
                               {otherUser.role}
@@ -1166,7 +1166,7 @@ function SupervisorChatPageContent() {
                     <div className="flex items-center justify-center h-full">
                       <div className="flex flex-col items-center gap-3">
                         <Loader2 className="w-8 h-8 animate-spin text-[#1a5d1a]" />
-                        <p className="text-sm text-gray-500">Loading messages...</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-500">Loading messages...</p>
                       </div>
                     </div>
                   ) : messages.length > 0 ? (
@@ -1183,7 +1183,7 @@ function SupervisorChatPageContent() {
                           <div key={message.messageId}>
                             {showDate && (
                               <div className="flex justify-center my-6">
-                                <span className="px-4 py-1.5 bg-white text-gray-500 text-xs font-medium rounded-full shadow-sm border border-gray-200">
+                                <span className="px-4 py-1.5 bg-white dark:bg-[#27272A] text-gray-500 dark:text-zinc-400 text-xs font-medium rounded-full shadow-sm border border-gray-200 dark:border-zinc-700">
                                   {new Date(message.createdAt).toLocaleDateString('en-US', {
                                     weekday: 'long',
                                     month: 'short',
@@ -1218,7 +1218,7 @@ function SupervisorChatPageContent() {
                                     className={`shadow-sm overflow-hidden ${
                                       message.isOwn
                                         ? 'bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl rounded-br-md'
-                                        : 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100'
+                                        : 'bg-white dark:bg-[#27272A] text-gray-800 dark:text-zinc-200 rounded-2xl rounded-bl-md border border-gray-100 dark:border-zinc-700'
                                     }`}
                                   >
                                     {message.attachmentUrl && message.attachmentType === 'image' && (
@@ -1249,7 +1249,7 @@ function SupervisorChatPageContent() {
                                           className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20' 
-                                              : 'bg-gray-50 hover:bg-gray-100'
+                                              : 'bg-gray-50 dark:bg-zinc-700/50 hover:bg-gray-100'
                                           }`}
                                         >
                                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
@@ -1276,7 +1276,7 @@ function SupervisorChatPageContent() {
                                           className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
                                             message.isOwn 
                                               ? 'bg-white/10 hover:bg-white/20 text-white/80' 
-                                              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                              : 'bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 text-gray-600'
                                           }`}
                                           onClick={(e) => e.stopPropagation()}
                                         >
@@ -1293,7 +1293,7 @@ function SupervisorChatPageContent() {
                                     )}
                                   </div>
                                   <div className={`flex items-center gap-1.5 mt-1 px-1 ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
-                                    <span className="text-[11px] text-gray-400">
+                                    <span className="text-[11px] text-gray-400 dark:text-zinc-500">
                                       {formatMessageTime(message.createdAt)}
                                     </span>
                                     {message.isOwn && (
@@ -1344,9 +1344,9 @@ function SupervisorChatPageContent() {
                 </div>
 
                 {/* Message Input Footer */}
-                <div className="border-t border-gray-200 bg-white p-4">
+                <div className="border-t border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] p-4">
                   {selectedFile && (
-                    <div className="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="mb-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700">
                       <div className="flex items-center gap-3">
                         {filePreview ? (
                           <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
@@ -1357,14 +1357,14 @@ function SupervisorChatPageContent() {
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-gray-800 truncate">{selectedFile.name}</p>
-                          <p className="text-sm text-gray-500">{formatFileSize(selectedFile.size)}</p>
+                          <p className="text-sm text-gray-500 dark:text-zinc-500">{formatFileSize(selectedFile.size)}</p>
                         </div>
                         <button 
                           type="button"
                           onClick={clearFileSelection}
                           className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
                         >
-                          <X className="w-4 h-4 text-gray-600" />
+                          <X className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
                         </button>
                       </div>
                     </div>
@@ -1389,7 +1389,7 @@ function SupervisorChatPageContent() {
                         placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="h-12 pl-4 pr-12 border-2 border-gray-200 focus:border-[#1a5d1a] rounded-full bg-gray-50 focus:bg-white transition-colors"
+                        className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-zinc-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-zinc-700/50 focus:bg-white dark:focus:bg-zinc-600 dark:text-[#E4E4E7] transition-colors"
                         disabled={sending || uploadingFile}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1429,7 +1429,7 @@ function SupervisorChatPageContent() {
                   <p className="text-gray-500 max-w-sm mb-6">
                     Choose a conversation from the list to start messaging
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-sm text-gray-400">
+                  <div className="flex items-center justify-center gap-3 text-sm text-gray-400 dark:text-zinc-500">
                     <Clock className="w-4 h-4" />
                     <span>Messages are encrypted and secure</span>
                   </div>
@@ -1479,7 +1479,7 @@ function SupervisorChatPageContent() {
                 
                 {/* Search */}
                 <div className="relative mt-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   <Input
                     placeholder="Search users..."
                     value={userSearchQuery}
@@ -1567,7 +1567,7 @@ function SupervisorChatPageContent() {
                 ) : (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-8 h-8 text-gray-400" />
+                      <Users className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">No users found</h3>
                     <p className="text-sm text-gray-500 dark:text-zinc-400">

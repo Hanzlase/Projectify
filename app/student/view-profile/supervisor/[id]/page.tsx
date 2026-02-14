@@ -468,7 +468,7 @@ export default function ViewSupervisorProfilePage() {
                     </Button>
                     <Button 
                       disabled={!profile.available || slotsAvailable === 0}
-                      className="bg-white text-[#1a5d1a] hover:bg-[#e8f5e8] disabled:bg-white/50 disabled:text-[#1a5d1a]/50"
+                      className="bg-white dark:bg-[#27272A] text-[#1a5d1a] hover:bg-[#e8f5e8] dark:hover:bg-zinc-700 disabled:bg-white/50 disabled:text-[#1a5d1a]/50"
                     >
                       <UserPlus className="w-4 h-4 mr-2" />
                       Request

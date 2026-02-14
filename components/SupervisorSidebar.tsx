@@ -32,7 +32,7 @@ const NavItem = memo(function NavItem({
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
         active
           ? 'bg-[#1a5d1a] text-white font-medium'
-          : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-[#27272A]'
+          : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
       }`}
     >
       <Icon className="w-[18px] h-[18px]" />
@@ -86,7 +86,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="hidden md:flex w-56 bg-white dark:bg-[#18181B] flex-col fixed h-full z-20 shadow-sm dark:shadow-black/50"
+      className="hidden md:flex w-56 bg-white dark:bg-[#18181B] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950"
     >
       {/* Logo - Fixed at top */}
       <div className="p-5 pb-4 flex-shrink-0">
@@ -102,7 +102,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       </div>
 
       {/* Scrollable Main Navigation */}
-      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+      <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3 sticky top-0 bg-white dark:bg-[#18181B] py-1">Menu</p>
         <div className="space-y-1 pb-4">
           {sidebarItems.map((item) => (
@@ -118,7 +118,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       </nav>
 
       {/* Bottom Navigation - Fixed at bottom */}
-      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-800 pt-3 bg-white dark:bg-[#18181B]">
+      <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-700 pt-3 bg-white dark:bg-[#18181B]">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
           {bottomSidebarItems.map((item) => (

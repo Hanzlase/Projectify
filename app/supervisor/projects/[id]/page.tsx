@@ -106,11 +106,11 @@ export default function SupervisorProjectDetailPage() {
 
   const getStatusColor = (projectStatus: string) => {
     switch (projectStatus) {
-      case 'idea': return 'bg-blue-100 text-blue-700';
-      case 'in_progress': return 'bg-yellow-100 text-yellow-700';
-      case 'completed': return 'bg-green-100 text-green-700';
-      case 'archived': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'idea': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400';
+      case 'in_progress': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400';
+      case 'completed': return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400';
+      case 'archived': return 'bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300';
+      default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300';
     }
   };
 
@@ -120,13 +120,13 @@ export default function SupervisorProjectDetailPage() {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-        <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white dark:bg-[#27272A] rounded-2xl shadow-xl p-8 text-center">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
             <FolderOpen className="w-10 h-10 text-red-500" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Project Not Found</h3>
-          <p className="text-slate-500 mb-6">{error || 'Unable to load this project'}</p>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-[#E4E4E7] mb-2">Project Not Found</h3>
+          <p className="text-slate-500 dark:text-zinc-400 mb-6">{error || 'Unable to load this project'}</p>
           <Button 
             onClick={() => router.push('/supervisor/projects')}
             className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23]"
@@ -140,24 +140,24 @@ export default function SupervisorProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B]">
       <SupervisorSidebar profileImage={profileImage} />
 
       <div className="md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-14 md:top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-700">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={() => router.push('/supervisor/projects')}
-                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                 </button>
                 <div>
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900">Project Details</h1>
-                  <p className="text-xs md:text-sm text-gray-500">View project information</p>
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-500">View project information</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-4">
@@ -213,7 +213,7 @@ export default function SupervisorProjectDetailPage() {
                 <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
                   project.visibility === 'public' 
                     ? 'bg-[#d1e7d1] text-[#1a5d1a]' 
-                    : 'bg-gray-100 text-gray-600'
+                    : 'bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300'
                 }`}>
                   {project.visibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                   {project.visibility}
@@ -222,7 +222,7 @@ export default function SupervisorProjectDetailPage() {
                   {project.status.replace('_', ' ')}
                 </span>
                 {project.isUnique && (
-                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-emerald-100 text-emerald-700">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
                     <Sparkles className="w-4 h-4" />
                     Unique
                   </span>
@@ -236,7 +236,7 @@ export default function SupervisorProjectDetailPage() {
               <div className="lg:col-span-2 space-y-8">
                 {/* Title */}
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{project.title}</h1>
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-4">{project.title}</h1>
                   
                   {/* Categories */}
                   {project.category && (
@@ -251,34 +251,34 @@ export default function SupervisorProjectDetailPage() {
                 </div>
 
                 {/* Description Section */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                     <div className="w-8 h-8 bg-[#d1e7d1] rounded-lg flex items-center justify-center">
                       <FileText className="w-4 h-4 text-[#1a5d1a]" />
                     </div>
                     Description
                   </h3>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{project.description}</p>
+                  <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{project.description}</p>
                 </div>
 
                 {/* Abstract Section */}
                 {project.abstractText && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                         <FileText className="w-4 h-4 text-blue-600" />
                       </div>
                       Abstract
                     </h3>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{project.abstractText}</p>
+                    <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{project.abstractText}</p>
                   </div>
                 )}
 
                 {/* Document Section */}
                 {project.documentUrl && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
                         <FileText className="w-4 h-4 text-purple-600" />
                       </div>
                       Attached Document
@@ -304,7 +304,7 @@ export default function SupervisorProjectDetailPage() {
                       <a
                         href={project.documentUrl}
                         download
-                        className="group flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-all duration-200"
+                        className="group flex items-center gap-3 p-3 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-xl text-gray-700 dark:text-zinc-300 transition-all duration-200"
                       >
                         <FileText className="w-5 h-5" />
                         <span className="text-sm font-medium">Download Original File</span>
@@ -317,8 +317,8 @@ export default function SupervisorProjectDetailPage() {
               {/* Right Column - Sidebar Info */}
               <div className="space-y-6">
                 {/* Creator Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Created By</h3>
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                  <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Created By</h3>
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white text-xl font-bold overflow-hidden">
                       {project.creator?.profileImage ? (
@@ -328,8 +328,8 @@ export default function SupervisorProjectDetailPage() {
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 text-lg">{project.creator?.name || 'Unknown'}</p>
-                      <p className="text-sm text-gray-500 capitalize">{project.creator?.role || 'User'}</p>
+                      <p className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">{project.creator?.name || 'Unknown'}</p>
+                      <p className="text-sm text-gray-500 dark:text-zinc-400 capitalize">{project.creator?.role || 'User'}</p>
                     </div>
                   </div>
                   
@@ -344,26 +344,26 @@ export default function SupervisorProjectDetailPage() {
                 </div>
 
                 {/* Date Info Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Timeline</h3>
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                  <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Timeline</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-[#d1e7d1] rounded-lg flex items-center justify-center">
                         <Calendar className="w-5 h-5 text-[#1a5d1a]" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Created</p>
-                        <p className="font-medium text-gray-900">{formatDate(project.createdAt)}</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">Created</p>
+                        <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{formatDate(project.createdAt)}</p>
                       </div>
                     </div>
                     {project.updatedAt !== project.createdAt && (
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                           <Calendar className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Last Updated</p>
-                          <p className="font-medium text-gray-900">{formatDate(project.updatedAt)}</p>
+                          <p className="text-xs text-gray-500 dark:text-zinc-500">Last Updated</p>
+                          <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{formatDate(project.updatedAt)}</p>
                         </div>
                       </div>
                     )}
@@ -372,8 +372,8 @@ export default function SupervisorProjectDetailPage() {
 
                 {/* Links Card */}
                 {(project.repositoryUrl || project.demoUrl) && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Links</h3>
+                  <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-800">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Links</h3>
                     <div className="space-y-3">
                       {project.repositoryUrl && (
                         <a

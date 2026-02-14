@@ -17,21 +17,21 @@ export default function SuspendedPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex flex-col">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900">Projectify</span>
+              <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
             </Link>
             <Button
               onClick={() => signOut({ callbackUrl: '/login' })}
               variant="outline"
-              className="rounded-xl border-gray-300 hover:border-gray-400"
+              className="rounded-xl border-gray-300 dark:border-zinc-600 hover:border-gray-400 dark:hover:border-zinc-500 dark:text-zinc-300"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -48,7 +48,7 @@ export default function SuspendedPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl shadow-sm overflow-hidden"
+            className="bg-white dark:bg-[#27272A] rounded-3xl shadow-sm overflow-hidden"
           >
             {/* Icon Section */}
             <div className="flex flex-col items-center pt-12 pb-8 px-6">
@@ -56,7 +56,7 @@ export default function SuspendedPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-6"
+                className="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6"
               >
                 <ShieldX className="w-12 h-12 text-red-500" />
               </motion.div>
@@ -65,7 +65,7 @@ export default function SuspendedPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2"
+                className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] text-center mb-2"
               >
                 Account Suspended
               </motion.h1>
@@ -74,14 +74,14 @@ export default function SuspendedPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-gray-500 text-center max-w-md"
+                className="text-gray-500 dark:text-zinc-400 text-center max-w-md"
               >
                 Your access to Projectify has been temporarily restricted by your FYP Coordinator.
               </motion.p>
             </div>
 
             {/* Divider */}
-            <div className="border-t border-gray-100" />
+            <div className="border-t border-gray-100 dark:border-zinc-700" />
 
             {/* Info Section */}
             <div className="p-6 sm:p-8">
@@ -91,15 +91,15 @@ export default function SuspendedPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="bg-amber-50 rounded-2xl p-5"
+                  className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-5"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="p-2.5 bg-amber-100 rounded-xl flex-shrink-0">
-                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex-shrink-0">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-500" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">What does this mean?</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">What does this mean?</h3>
+                      <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
                         Your account has been suspended. This may be due to policy violations, academic issues, or administrative reasons.
                       </p>
                     </div>
@@ -118,8 +118,8 @@ export default function SuspendedPage() {
                       <Clock className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Temporary Restriction</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">Temporary Restriction</h3>
+                      <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
                         This suspension is temporary and can be lifted by your FYP Coordinator at any time.
                       </p>
                     </div>
@@ -136,17 +136,17 @@ export default function SuspendedPage() {
               >
                 <Link
                   href="/help"
-                  className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-200 hover:border-[#1a5d1a] hover:bg-[#1a5d1a]/5 transition-all group"
+                  className="flex items-center justify-between p-5 bg-gray-50 dark:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-700 hover:border-[#1a5d1a] hover:bg-[#1a5d1a]/5 dark:hover:bg-[#1a5d1a]/10 transition-all group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-2.5 bg-white rounded-xl shadow-sm group-hover:bg-[#1a5d1a]/10 transition-colors">
-                      <HelpCircle className="w-5 h-5 text-gray-500 group-hover:text-[#1a5d1a] transition-colors" />
+                    <div className="p-2.5 bg-white dark:bg-zinc-700 rounded-xl shadow-sm group-hover:bg-[#1a5d1a]/10 transition-colors">
+                      <HelpCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400 group-hover:text-[#1a5d1a] transition-colors" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 group-hover:text-[#1a5d1a] transition-colors">
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] group-hover:text-[#1a5d1a] transition-colors">
                         Need Help?
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-zinc-400">
                         Visit our help center for more information and support
                       </p>
                     </div>
@@ -157,9 +157,9 @@ export default function SuspendedPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="border-t border-gray-100 p-6 sm:p-8 bg-gray-50">
+            <div className="border-t border-gray-100 dark:border-zinc-700 p-6 sm:p-8 bg-gray-50 dark:bg-[#27272A]">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className="text-sm text-gray-500 text-center sm:text-left">
+                <p className="text-sm text-gray-500 dark:text-zinc-400 text-center sm:text-left">
                   If you believe this is a mistake, please contact your coordinator.
                 </p>
                 <Button

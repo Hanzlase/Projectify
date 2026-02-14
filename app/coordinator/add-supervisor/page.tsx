@@ -235,7 +235,7 @@ export default function AddSupervisorPage() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function AddSupervisorPage() {
                           onChange={(e) => setName(e.target.value)}
                           placeholder="e.g., Dr. John Smith"
                           required
-                          className="h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
+                          className="h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
                         />
                       </div>
                     </div>
@@ -368,7 +368,7 @@ export default function AddSupervisorPage() {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="e.g., john.smith@university.edu"
                           required
-                          className="h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
+                          className="h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl"
                         />
                       </div>
                     </div>
@@ -401,7 +401,7 @@ export default function AddSupervisorPage() {
                             type="file"
                             accept=".csv"
                             onChange={handleFileChange}
-                            className="cursor-pointer h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900 dark:file:text-emerald-200"
+                            className="cursor-pointer h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900 dark:file:text-emerald-200"
                           />
                         </div>
                         {csvFile && (
@@ -426,7 +426,7 @@ export default function AddSupervisorPage() {
                     </div>
 
                     <div className="text-center">
-                      <span className="px-4 py-2 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-full">OR</span>
+                      <span className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-full">OR</span>
                     </div>
 
                     <div className="space-y-2">
@@ -440,7 +440,7 @@ export default function AddSupervisorPage() {
                         }}
                         placeholder="Format: name,email,specialization&#10;Dr. John Smith,john@edu.pk,AI&#10;Dr. Jane Doe,jane@edu.pk,ML"
                         rows={8}
-                        className="w-full p-4 border-2 border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] font-mono text-sm shadow-sm transition-all duration-200"
+                        className="w-full p-4 border-2 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] rounded-xl focus:ring-2 focus:ring-[#1a5d1a]/20 focus:border-[#1a5d1a] font-mono text-sm shadow-sm transition-all duration-200"
                         disabled={!!csvFile}
                       />
                     </div>
@@ -512,15 +512,15 @@ export default function AddSupervisorPage() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="bg-white p-3 rounded-lg border border-[#1a5d1a]/10 hover:border-[#1a5d1a]/30 transition-all"
+                              className="bg-white dark:bg-[#27272A] p-3 rounded-lg border border-[#1a5d1a]/10 hover:border-[#1a5d1a]/30 transition-all"
                             >
-                              <p className="font-semibold text-gray-900 mb-1">{item.name || item.username}</p>
+                              <p className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">{item.name || item.username}</p>
                               <div className="space-y-0.5 text-xs">
-                                <p className="text-gray-600">Username: <span className="font-medium">{item.username}</span></p>
-                                <p className="text-gray-600">Email: <span className="font-medium">{item.email}</span></p>
-                                <p className="text-gray-600">Password: <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">{item.password}</span></p>
+                                <p className="text-gray-600 dark:text-zinc-400">Username: <span className="font-medium">{item.username}</span></p>
+                                <p className="text-gray-600 dark:text-zinc-400">Email: <span className="font-medium">{item.email}</span></p>
+                                <p className="text-gray-600 dark:text-zinc-400">Password: <span className="font-mono bg-gray-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded">{item.password}</span></p>
                                 {item.specialization && (
-                                  <p className="text-gray-600">Specialization: <span className="font-medium">{item.specialization}</span></p>
+                                  <p className="text-gray-600 dark:text-zinc-400">Specialization: <span className="font-medium">{item.specialization}</span></p>
                                 )}
                               </div>
                             </motion.div>
@@ -534,7 +534,7 @@ export default function AddSupervisorPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-red-50 border-2 border-red-200 rounded-xl p-4"
+                        className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-700 rounded-xl p-4"
                       >
                         <div className="flex items-center gap-2 mb-3">
                           <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -551,9 +551,9 @@ export default function AddSupervisorPage() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="bg-white p-3 rounded-lg border border-red-100 hover:border-red-200 transition-all"
+                              className="bg-white dark:bg-[#27272A] p-3 rounded-lg border border-red-100 dark:border-red-800 hover:border-red-200 transition-all"
                             >
-                              <p className="font-semibold text-gray-900 mb-1">{item.username || item.name}</p>
+                              <p className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-1">{item.username || item.name}</p>
                               <p className="text-xs text-red-600"><span className="font-medium">Reason:</span> {item.reason}</p>
                             </motion.div>
                           ))}

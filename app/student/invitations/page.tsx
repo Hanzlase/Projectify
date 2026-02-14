@@ -287,7 +287,7 @@ export default function InvitationsPage() {
         );
       case 'cancelled':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-zinc-700 text-gray-600 rounded-full text-xs font-medium">
             <X className="w-3 h-3" />
             Cancelled
           </span>
@@ -442,7 +442,7 @@ export default function InvitationsPage() {
                               </p>
 
                               <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-400">{formatDate(invitation.createdAt)}</span>
+                                <span className="text-xs text-gray-400 dark:text-zinc-500">{formatDate(invitation.createdAt)}</span>
                                 
                                 {invitation.status === 'pending' && (
                                   <div className="flex gap-2">
@@ -562,7 +562,7 @@ export default function InvitationsPage() {
                               </p>
 
                               <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-400">{formatDate(invitation.createdAt)}</span>
+                                <span className="text-xs text-gray-400 dark:text-zinc-500">{formatDate(invitation.createdAt)}</span>
                                 
                                 {invitation.status === 'pending' && (
                                   <Button

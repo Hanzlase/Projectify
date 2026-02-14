@@ -200,29 +200,29 @@ export default function SupervisorProfile() {
   const availableSlots = (profile.maxGroups || 7) - (profile.totalGroups || 0);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <SupervisorSidebar profileImage={profile.profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700/50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all">
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all">
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
               </button>
               <NotificationBell />
               
@@ -236,7 +236,7 @@ export default function SupervisorProfile() {
                 </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-semibold text-gray-900 leading-tight">{profile.name}</p>
-                  <p className="text-[10px] text-gray-500">{profile.email}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-500">{profile.email}</p>
                 </div>
               </div>
             </div>
@@ -246,8 +246,8 @@ export default function SupervisorProfile() {
         {/* Page Content */}
         <main className="p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="text-sm text-gray-500">View and manage your profile details here.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile</h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-500">View and manage your profile details here.</p>
           </div>
 
           {/* Messages */}
@@ -268,7 +268,7 @@ export default function SupervisorProfile() {
           )}
 
           {/* Profile Card */}
-          <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
+          <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
             <CardContent className="p-0">
               <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Profile Image & Name */}
@@ -289,12 +289,12 @@ export default function SupervisorProfile() {
                   
                   {/* Capacity Info */}
                   <div className="mt-6 w-full">
-                    <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">Available Slots</span>
+                        <span className="text-sm text-gray-600 dark:text-zinc-400">Available Slots</span>
                         <span className="text-lg font-bold text-[#1a5d1a]">{availableSlots}</span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-zinc-500">
                         <span>Total Groups: {profile.totalGroups || 0}</span>
                         <span>Max: {profile.maxGroups || 7}</span>
                       </div>
@@ -305,7 +305,7 @@ export default function SupervisorProfile() {
                 {/* Right Side - Bio & Other Details */}
                 <div className="lg:w-2/3 p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Profile Details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Profile Details</h3>
                     {!isEditing && (
                       <div className="w-3 h-3 bg-[#1a5d1a] rounded-full"></div>
                     )}
@@ -317,26 +317,26 @@ export default function SupervisorProfile() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Email</p>
-                          <p className="font-semibold text-gray-900">{profile.email}</p>
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.email}</p>
                         </div>
                         
                         {profile.specialization && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Specialization</p>
-                            <p className="font-semibold text-gray-900">{profile.specialization}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.specialization}</p>
                           </div>
                         )}
                         
                         {profile.campus && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Campus</p>
-                            <p className="font-semibold text-gray-900">{profile.campus}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.campus}</p>
                           </div>
                         )}
                         
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Member Since</p>
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
                             {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                           </p>
                         </div>
@@ -344,7 +344,7 @@ export default function SupervisorProfile() {
 
                       {/* Description */}
                       {profile.description && (
-                        <div className="pt-4 border-t border-gray-100">
+                        <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
                           <p className="text-xs text-gray-500 mb-2">About Me</p>
                           <p className="text-gray-700 leading-relaxed">{profile.description}</p>
                         </div>
@@ -352,7 +352,7 @@ export default function SupervisorProfile() {
 
                       {/* Domains & Skills */}
                       {(profile.domains || profile.skills) && (
-                        <div className="pt-4 border-t border-gray-100">
+                        <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {profile.domains && (
                               <div>
@@ -363,7 +363,7 @@ export default function SupervisorProfile() {
                             {profile.skills && (
                               <div>
                                 <p className="text-xs text-gray-500 mb-2">Technical Skills</p>
-                                {renderTags(profile.skills, 'bg-gray-100 text-gray-700')}
+                                {renderTags(profile.skills, 'bg-gray-100 dark:bg-zinc-700 text-gray-700')}
                               </div>
                             )}
                           </div>
@@ -372,11 +372,11 @@ export default function SupervisorProfile() {
 
                       {/* Achievements */}
                       {profile.achievements && (
-                        <div className="pt-4 border-t border-gray-100">
+                        <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
                           <p className="text-xs text-gray-500 mb-3">Achievements</p>
                           <div className="space-y-2">
                             {profile.achievements.split('\n').filter(a => a.trim()).map((achievement, index) => (
-                              <div key={index} className="flex items-start gap-2 text-gray-700">
+                              <div key={index} className="flex items-start gap-2 text-gray-700 dark:text-zinc-300">
                                 <Star className="w-4 h-4 text-[#1a5d1a] flex-shrink-0 mt-0.5" />
                                 <p className="text-sm">{achievement}</p>
                               </div>
@@ -390,7 +390,7 @@ export default function SupervisorProfile() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="text-gray-700">Full Name</Label>
+                          <Label htmlFor="name" className="text-gray-700 dark:text-zinc-300">Full Name</Label>
                           <Input
                             id="name"
                             value={formData.name}
@@ -400,7 +400,7 @@ export default function SupervisorProfile() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="specialization" className="text-gray-700">Specialization</Label>
+                          <Label htmlFor="specialization" className="text-gray-700 dark:text-zinc-300">Specialization</Label>
                           <Input
                             id="specialization"
                             value={formData.specialization}
@@ -412,7 +412,7 @@ export default function SupervisorProfile() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="description" className="text-gray-700">About Me</Label>
+                        <Label htmlFor="description" className="text-gray-700 dark:text-zinc-300">About Me</Label>
                         <textarea
                           id="description"
                           value={formData.description}
@@ -424,7 +424,7 @@ export default function SupervisorProfile() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="domains" className="text-gray-700">Research Domains (comma-separated)</Label>
+                          <Label htmlFor="domains" className="text-gray-700 dark:text-zinc-300">Research Domains (comma-separated)</Label>
                           <Input
                             id="domains"
                             value={formData.domains}
@@ -434,7 +434,7 @@ export default function SupervisorProfile() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="skills" className="text-gray-700">Skills (comma-separated)</Label>
+                          <Label htmlFor="skills" className="text-gray-700 dark:text-zinc-300">Skills (comma-separated)</Label>
                           <Input
                             id="skills"
                             value={formData.skills}
@@ -446,7 +446,7 @@ export default function SupervisorProfile() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="achievements" className="text-gray-700">Achievements (one per line)</Label>
+                        <Label htmlFor="achievements" className="text-gray-700 dark:text-zinc-300">Achievements (one per line)</Label>
                         <textarea
                           id="achievements"
                           value={formData.achievements}
@@ -457,15 +457,15 @@ export default function SupervisorProfile() {
                       </div>
 
                       {/* Password Section */}
-                      <div className="pt-4 border-t border-gray-100">
+                      <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
                         <div className="flex items-center gap-2 mb-4">
-                          <Lock className="w-4 h-4 text-gray-500" />
-                          <h4 className="text-sm font-semibold text-gray-700">Change Password (optional)</h4>
+                          <Lock className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Change Password (optional)</h4>
                         </div>
 
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="currentPassword" className="text-gray-700">Current Password</Label>
+                            <Label htmlFor="currentPassword" className="text-gray-700 dark:text-zinc-300">Current Password</Label>
                             <div className="relative">
                               <Input
                                 id="currentPassword"
@@ -476,7 +476,7 @@ export default function SupervisorProfile() {
                                 placeholder="Enter current password"
                               />
                               <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                 {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                               </button>
                             </div>
@@ -484,7 +484,7 @@ export default function SupervisorProfile() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="newPassword" className="text-gray-700">New Password</Label>
+                              <Label htmlFor="newPassword" className="text-gray-700 dark:text-zinc-300">New Password</Label>
                               <div className="relative">
                                 <Input
                                   id="newPassword"
@@ -495,13 +495,13 @@ export default function SupervisorProfile() {
                                   placeholder="New password"
                                 />
                                 <button type="button" onClick={() => setShowNewPassword(!showNewPassword)}
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                   {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
+                              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-zinc-300">Confirm Password</Label>
                               <div className="relative">
                                 <Input
                                   id="confirmPassword"
@@ -512,7 +512,7 @@ export default function SupervisorProfile() {
                                   placeholder="Confirm password"
                                 />
                                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                               </div>
@@ -524,7 +524,7 @@ export default function SupervisorProfile() {
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-4">
                         <Button type="button" variant="outline" onClick={handleCancel}
-                          className="flex-1 h-11 border-gray-200 hover:bg-gray-50 rounded-xl">
+                          className="flex-1 h-11 border-gray-200 hover:bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                           <X className="w-4 h-4 mr-2" />
                           Cancel
                         </Button>
@@ -539,7 +539,7 @@ export default function SupervisorProfile() {
 
                   {/* Edit Button */}
                   {!isEditing && (
-                    <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-zinc-800">
                       <Button
                         onClick={() => setIsEditing(true)}
                         className="w-full h-11 bg-[#1a5d1a] hover:bg-[#145214] text-white font-medium rounded-xl"

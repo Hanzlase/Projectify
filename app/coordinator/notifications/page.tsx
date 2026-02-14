@@ -270,7 +270,7 @@ export default function NotificationsPage() {
       case 'urgent': return 'bg-red-100 text-red-700 border-red-200';
       case 'announcement': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'reminder': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700 border-gray-200';
     }
   };
 
@@ -405,7 +405,7 @@ export default function NotificationsPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -531,7 +531,7 @@ export default function NotificationsPage() {
                   <CardContent className="py-16">
                     <div className="text-center">
                       <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <MailOpen className="w-8 h-8 text-gray-400" />
+                        <MailOpen className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No notifications yet</h3>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm">When you receive notifications, they'll appear here</p>
@@ -656,7 +656,7 @@ export default function NotificationsPage() {
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                            <ChevronDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           </div>
                         </div>
                       </motion.div>
@@ -874,7 +874,7 @@ export default function NotificationsPage() {
                       <CardHeader className="pb-3 border-b border-gray-100 dark:border-zinc-700">
                         <CardTitle className="text-base dark:text-[#E4E4E7]">Select Recipients</CardTitle>
                         <div className="relative mt-2">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           <Input
                             placeholder="Search users..."
                             value={searchQuery}
@@ -995,7 +995,7 @@ export default function NotificationsPage() {
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
-                              <ChevronDown className="w-4 h-4 text-gray-400" />
+                              <ChevronDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                             </div>
                           </div>
                         </motion.div>
@@ -1159,7 +1159,7 @@ export default function NotificationsPage() {
                   </Button>
                   <Button
                     onClick={() => setSelectedNotification(null)}
-                    className="bg-gray-200 dark:bg-zinc-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-[#E4E4E7] rounded-xl"
+                    className="bg-gray-200 dark:bg-zinc-600 hover:bg-gray-300 dark:hover:bg-zinc-500 text-gray-700 dark:text-[#E4E4E7] rounded-xl"
                   >
                     Close
                   </Button>
@@ -1184,7 +1184,7 @@ export default function NotificationsPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1225,14 +1225,14 @@ export default function NotificationsPage() {
                 <div className="space-y-4">
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-xl">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 p-4 rounded-xl">
                       <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
                         <Users className="w-3.5 h-3.5" />
                         Recipients
                       </div>
                       <p className="font-semibold text-gray-900 text-lg">{selectedSentNotification.recipientCount}</p>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-xl">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 p-4 rounded-xl">
                       <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
                         <Eye className="w-3.5 h-3.5" />
                         Read by
@@ -1248,7 +1248,7 @@ export default function NotificationsPage() {
                     <span className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize ${getTypeColor(selectedSentNotification.type)}`}>
                       {selectedSentNotification.type}
                     </span>
-                    <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 capitalize">
+                    <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-zinc-700 text-gray-700 capitalize">
                       {selectedSentNotification.targetType.replace('_', ' ')}
                     </span>
                   </div>
@@ -1259,7 +1259,7 @@ export default function NotificationsPage() {
                       <MessageCircle className="w-3.5 h-3.5" />
                       Message
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-xl">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 p-4 rounded-xl">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{selectedSentNotification.message}</p>
                     </div>
                   </div>
@@ -1267,7 +1267,7 @@ export default function NotificationsPage() {
               </div>
 
               {/* Footer */}
-              <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+              <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 border-t border-gray-100 flex justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1331,13 +1331,13 @@ export default function NotificationsPage() {
                   <div className="space-y-2">
                     {replyNotification.parsedDetails?.from && (
                       <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-gray-400" />
+                        <User className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                         <span className="text-gray-700 dark:text-zinc-300">{replyNotification.parsedDetails.from}</span>
                       </div>
                     )}
                     {replyNotification.parsedDetails?.email && (
                       <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
+                        <Mail className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                         <span className="text-gray-700 dark:text-zinc-300">{replyNotification.parsedDetails.email}</span>
                       </div>
                     )}

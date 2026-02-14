@@ -222,7 +222,7 @@ export default function StudentResourceRequestsPage() {
       supervisor_rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected by Supervisor" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Under Review" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-[#22C55E]", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[status] || configs.pending;
@@ -257,7 +257,7 @@ export default function StudentResourceRequestsPage() {
               <button
                 onClick={() => { setRefreshing(true); fetchRequests(); }}
                 disabled={refreshing}
-                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
                 <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
@@ -288,7 +288,7 @@ export default function StudentResourceRequestsPage() {
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">{stat.label}</p>
                       <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">{stat.count}</p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                       <stat.icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                   </div>
@@ -301,7 +301,7 @@ export default function StudentResourceRequestsPage() {
           {requests.length === 0 ? (
             <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
               <CardContent className="p-16 text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                   <Package className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Resource Requests</h3>
@@ -340,7 +340,7 @@ export default function StudentResourceRequestsPage() {
                           {/* Items Preview */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.slice(0, 3).map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -447,7 +447,7 @@ export default function StudentResourceRequestsPage() {
                     Request resources needed for your FYP project
                   </p>
                 </div>
-                <button onClick={() => { setShowCreateModal(false); setShowEditModal(false); resetForm(); }} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+                <button onClick={() => { setShowCreateModal(false); setShowEditModal(false); resetForm(); }} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -470,7 +470,7 @@ export default function StudentResourceRequestsPage() {
                     onChange={(e) => setFormDescription(e.target.value)}
                     placeholder="Describe what you need and why..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
                   />
                 </div>
 
@@ -481,7 +481,7 @@ export default function StudentResourceRequestsPage() {
                       <button
                         key={t}
                         onClick={() => setFormType(t)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${formType === t ? 'bg-[#1E6F3E] text-white' : 'bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600'}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${formType === t ? 'bg-[#1E6F3E] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                       >
                         {t === "hardware" ? <Cpu className="w-4 h-4" /> : t === "software" ? <Monitor className="w-4 h-4" /> : <Package className="w-4 h-4" />}
                         {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -540,12 +540,12 @@ export default function StudentResourceRequestsPage() {
                     onChange={(e) => setFormJustification(e.target.value)}
                     placeholder="Why does your project need these resources?"
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => { setShowCreateModal(false); setShowEditModal(false); resetForm(); }} className="flex-1 rounded-xl h-12 font-semibold">Cancel</Button>
                 <Button
                   onClick={showEditModal ? handleEdit : handleCreate}
@@ -582,7 +582,7 @@ export default function StudentResourceRequestsPage() {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">{selectedRequest.title}</h2>
                   <div className="flex items-center gap-2 mt-1">{getStatusBadge(selectedRequest.status)}</div>
                 </div>
-                <button onClick={() => { setShowDetailModal(false); setSelectedRequest(null); }} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600">
+                <button onClick={() => { setShowDetailModal(false); setSelectedRequest(null); }} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -599,7 +599,7 @@ export default function StudentResourceRequestsPage() {
                   <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-2">Requested Items</h3>
                   <div className="space-y-2">
                     {selectedRequest.items.map((item, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                         <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E] font-bold text-sm">{i + 1}</div>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{item.name}</p>
@@ -662,7 +662,7 @@ export default function StudentResourceRequestsPage() {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50">
                 <Button onClick={() => { setShowDetailModal(false); setSelectedRequest(null); }} variant="outline" className="w-full rounded-xl h-12 font-semibold">Close</Button>
               </div>
             </motion.div>

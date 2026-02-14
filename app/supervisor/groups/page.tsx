@@ -136,7 +136,7 @@ export default function SupervisorGroupsPage() {
       case "in_progress":
         return { icon: Clock, label: status?.replace('_', ' ') || "In Progress", bg: "bg-amber-100", text: "text-amber-700", show: true };
       default:
-        return { icon: FolderKanban, label: "No project", bg: "bg-gray-100", text: "text-gray-600", show: false };
+        return { icon: FolderKanban, label: "No project", bg: "bg-gray-100 dark:bg-zinc-700", text: "text-gray-600 dark:text-zinc-400", show: false };
     }
   };
 
@@ -273,7 +273,7 @@ export default function SupervisorGroupsPage() {
               <div className="flex flex-col md:flex-row gap-3">
                 {/* Search Input - Floating Style */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   <Input
                     placeholder="Search by group name, project, or student..."
                     value={searchQuery}
@@ -288,7 +288,7 @@ export default function SupervisorGroupsPage() {
                     onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
                     className="h-12 px-4 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
                   >
-                    <Filter className="w-4 h-4 text-gray-500" />
+                    <Filter className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
                     <span className="text-sm text-gray-700 dark:text-zinc-300">
                       {filterBy === 'all' ? 'All Groups' : filterBy === 'with-project' ? 'With Project' : 'No Project'}
                     </span>
@@ -329,7 +329,7 @@ export default function SupervisorGroupsPage() {
                     onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
                     className="h-12 px-4 rounded-xl border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 flex items-center gap-2 transition-all min-w-[140px] shadow-sm"
                   >
-                    <SortAsc className="w-4 h-4 text-gray-500" />
+                    <SortAsc className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
                     <span className="text-sm text-gray-700 dark:text-zinc-300">
                       {sortBy === 'name' ? 'By Name' : sortBy === 'students' ? 'By Students' : 'By Project'}
                     </span>
@@ -411,7 +411,7 @@ export default function SupervisorGroupsPage() {
                                   </div>
                                 ) : (
                                   <div className="flex items-center gap-1.5">
-                                    <AlertCircle className="w-3.5 h-3.5 text-gray-400" />
+                                    <AlertCircle className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500" />
                                     <span className="text-sm text-gray-500 dark:text-zinc-400">No project yet</span>
                                   </div>
                                 )}
@@ -447,7 +447,7 @@ export default function SupervisorGroupsPage() {
                                     style={{ zIndex: 3 - idx }}
                                   >
                                     <div
-                                      className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center text-white text-sm font-semibold ring-3 ring-white dark:ring-gray-800 overflow-hidden shadow-sm"
+                                      className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center text-white text-sm font-semibold ring-3 ring-white dark:ring-[#27272A] overflow-hidden shadow-sm"
                                       title={student.name}
                                     >
                                       {student.profileImage ? (
@@ -464,7 +464,7 @@ export default function SupervisorGroupsPage() {
                               <div className="ml-3 flex-1 min-w-0">
                                 <p className="text-sm text-gray-700 dark:text-zinc-300 truncate font-medium">
                                   {group.students.slice(0, 2).map(s => s.name.split(' ')[0]).join(', ')}
-                                  {group.students.length > 2 && <span className="text-gray-400"> +{group.students.length - 2}</span>}
+                                  {group.students.length > 2 && <span className="text-gray-400 dark:text-zinc-500"> +{group.students.length - 2}</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-zinc-500 truncate">
                                   {group.students[0]?.rollNumber}
@@ -511,7 +511,7 @@ export default function SupervisorGroupsPage() {
                   <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A]">
                     <CardContent className="py-20 text-center">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mx-auto mb-6">
-                        <Users className="w-10 h-10 text-gray-400" />
+                        <Users className="w-10 h-10 text-gray-400 dark:text-zinc-500" />
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">No groups found</h3>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm max-w-md mx-auto mb-6">

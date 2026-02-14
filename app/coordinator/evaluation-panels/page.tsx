@@ -697,7 +697,7 @@ export default function EvaluationPanelsPage() {
     switch (status) {
       case "active":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-[#22C55E]">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
             Active
           </span>
         );
@@ -709,7 +709,7 @@ export default function EvaluationPanelsPage() {
         );
       case "cancelled":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300">
             Cancelled
           </span>
         );
@@ -733,7 +733,7 @@ export default function EvaluationPanelsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-[#18181B] dark:via-[#18181B] dark:to-[#18181B]">
       <CoordinatorSidebar />
 
       <div className="lg:ml-64 min-h-screen">
@@ -758,7 +758,7 @@ export default function EvaluationPanelsPage() {
                 <Button
                   onClick={() => setShowAIAssistant(true)}
                   variant="outline"
-                  className="border-2 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-[#27272A]"
+                  className="border-2 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   AI Assistant
@@ -1017,7 +1017,7 @@ export default function EvaluationPanelsPage() {
                                 {panel.panelMembers.map((member) => (
                                   <div
                                     key={member.id}
-                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#27272A]/50 rounded-lg"
+                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-lg"
                                   >
                                     <div className="flex items-center gap-3">
                                       <div className="w-10 h-10 bg-gradient-to-br from-[#1E6F3E] to-[#15803d] rounded-full flex items-center justify-center text-white font-semibold">
@@ -1112,7 +1112,7 @@ export default function EvaluationPanelsPage() {
                                     return (
                                       <div
                                         key={assignment.groupId}
-                                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#27272A]/50 rounded-lg"
+                                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-lg"
                                       >
                                         <div>
                                           <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">
@@ -1211,11 +1211,11 @@ export default function EvaluationPanelsPage() {
                   <div id="panel-creation-info" className="mt-2 p-4 bg-white dark:bg-[#27272A] border border-blue-200 dark:border-blue-800 rounded-lg">
                     <ul className="text-sm text-gray-700 dark:text-zinc-300 space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-[#22C55E] flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                         <span><strong>{statistics.totalGroups}</strong> groups need evaluation panels</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-[#22C55E] flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                         <span><strong>{statistics.totalSupervisors}</strong> supervisors available in {campusName}</span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -1311,7 +1311,7 @@ export default function EvaluationPanelsPage() {
                             ? 'text-red-600 dark:text-red-400'
                             : selectedSupervisors.length > formData.maxSupervisors
                             ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-green-600 dark:text-[#22C55E]'
+                            : 'text-green-600 dark:text-green-400'
                         }`}>
                           {selectedSupervisors.length} / {formData.minSupervisors}-{formData.maxSupervisors}
                         </span>
@@ -1424,7 +1424,7 @@ export default function EvaluationPanelsPage() {
                                   ) : (
                                     <AlertCircle className="w-3 h-3 text-amber-600" />
                                   )}
-                                  <span className={supervisorInPanel ? 'text-green-600 dark:text-[#22C55E]' : 'text-amber-600 dark:text-amber-400'}>
+                                  <span className={supervisorInPanel ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}>
                                     Supervisor: {supervisor?.name || 'Unknown'}
                                   </span>
                                 </div>
@@ -1437,7 +1437,7 @@ export default function EvaluationPanelsPage() {
                   </div>
                 </div>
 
-                <div className="p-6 border-t border-gray-200 dark:border-zinc-700 flex-shrink-0 flex items-center justify-between bg-gray-50 dark:bg-[#27272A]/50">
+                <div className="p-6 border-t border-gray-200 dark:border-zinc-700 flex-shrink-0 flex items-center justify-between bg-gray-50 dark:bg-zinc-700/50">
                   <Button
                     onClick={() => setShowCreateModal(false)}
                     variant="outline"
@@ -1468,7 +1468,7 @@ export default function EvaluationPanelsPage() {
               {/* Resize Handle */}
               <div
                 onMouseDown={() => setIsCreatePanelResizing(true)}
-                className="w-1 bg-gray-200 dark:bg-zinc-700 hover:bg-[#1E6F3E] dark:hover:bg-[#1E6F3E] cursor-col-resize transition-colors flex-shrink-0"
+                className="w-1 bg-gray-200 dark:bg-gray-700 hover:bg-[#1E6F3E] dark:hover:bg-[#1E6F3E] cursor-col-resize transition-colors flex-shrink-0"
               />
             </motion.div>
           </>
@@ -1491,7 +1491,7 @@ export default function EvaluationPanelsPage() {
               {/* Resize Handle */}
               <div
                 onMouseDown={() => setIsAiResizing(true)}
-                className="w-1 bg-gray-200 dark:bg-zinc-700 hover:bg-[#1E6F3E] dark:hover:bg-[#1E6F3E] cursor-col-resize transition-colors flex-shrink-0"
+                className="w-1 bg-gray-200 dark:bg-gray-700 hover:bg-[#1E6F3E] dark:hover:bg-[#1E6F3E] cursor-col-resize transition-colors flex-shrink-0"
               />
 
               {/* Sidebar Content */}

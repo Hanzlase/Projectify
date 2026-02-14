@@ -87,7 +87,7 @@ const CircularProgress = ({ percentage, size = 48, strokeWidth = 4 }: { percenta
     <div className="relative" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
         <circle
-          className="text-gray-200 dark:text-zinc-400"
+          className="text-gray-200 dark:text-gray-700"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"
@@ -246,14 +246,14 @@ export default function StudentEvaluationsPage() {
       );
     } else if (days <= 7) {
       return (
-        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-400 flex items-center gap-1">
+        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400 flex items-center gap-1">
           <Clock className="w-3 h-3" />
           Due in {days} days
         </span>
       );
     } else {
       return (
-        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-400 flex items-center gap-1">
+        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400 flex items-center gap-1">
           <Calendar className="w-3 h-3" />
           Due in {days} days
         </span>
@@ -314,7 +314,7 @@ export default function StudentEvaluationsPage() {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all self-end md:self-auto"
+              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all self-end md:self-auto"
             >
               <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
             </button>
@@ -470,7 +470,7 @@ export default function StudentEvaluationsPage() {
                   <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                     activeTab === tab.id
                       ? "bg-white/20 text-white"
-                      : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-zinc-300"
                   }`}>
                     {tab.count}
                   </span>
@@ -498,7 +498,7 @@ export default function StudentEvaluationsPage() {
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
                             panel.status === 'active'
                               ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20'
-                              : 'bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300'
                           }`}>
                             {panel.status}
                           </span>
@@ -559,7 +559,7 @@ export default function StudentEvaluationsPage() {
                               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                                 member.role === 'chair'
                                   ? 'bg-[#1E6F3E] text-white'
-                                  : 'bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300'
+                                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300'
                               }`}>
                                 {member.role === 'chair' ? 'Panel Head' : member.role === 'external' ? 'External' : 'Member'}
                               </span>
@@ -579,7 +579,7 @@ export default function StudentEvaluationsPage() {
             {filteredEvaluations.length === 0 ? (
               <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
                 <CardContent className="p-16 text-center">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-10 h-10 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">
@@ -621,7 +621,7 @@ export default function StudentEvaluationsPage() {
                                   ? "bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20"
                                   : evaluation.submission.status === "late"
                                   ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
-                                  : "bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300"
+                                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300"
                               }`}>
                                 {evaluation.submission.status === "graded" ? (
                                   <><CheckCheck className="w-3 h-3" /> Graded</>
@@ -782,7 +782,7 @@ export default function StudentEvaluationsPage() {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Submit Evaluation</h2>
                   <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">{selectedEvaluation.title}</p>
                 </div>
-                <button onClick={() => setShowSubmitModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+                <button onClick={() => setShowSubmitModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -819,7 +819,7 @@ export default function StudentEvaluationsPage() {
                     onChange={(e) => setSubmitContent(e.target.value)}
                     placeholder="Write your submission here..."
                     rows={6}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -852,7 +852,7 @@ export default function StudentEvaluationsPage() {
                   {attachments.length > 0 && (
                     <div className="mt-3 space-y-2">
                       {attachments.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-3 text-sm text-gray-600 dark:text-zinc-300 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                        <div key={idx} className="flex items-center gap-3 text-sm text-gray-600 dark:text-zinc-300 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                           <File className="w-5 h-5 text-[#1E6F3E]" />
                           <span className="truncate flex-1 font-medium">{file.name}</span>
                           <span className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</span>
@@ -881,7 +881,7 @@ export default function StudentEvaluationsPage() {
                           href={att.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors group"
+                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors group"
                         >
                           <File className="w-5 h-5 text-[#1E6F3E]" />
                           <span className="text-sm text-gray-900 dark:text-[#E4E4E7] flex-1 font-medium">{att.fileName}</span>
@@ -893,7 +893,7 @@ export default function StudentEvaluationsPage() {
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => setShowSubmitModal(false)} className="flex-1 rounded-xl h-12 font-semibold">
                   Cancel
                 </Button>
@@ -944,7 +944,7 @@ export default function StudentEvaluationsPage() {
                     </span>
                   </div>
                 </div>
-                <button onClick={() => setShowViewModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+                <button onClick={() => setShowViewModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
@@ -967,7 +967,7 @@ export default function StudentEvaluationsPage() {
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Total Marks</p>
                     <p className="text-2xl font-bold text-[#1E6F3E]">{selectedEvaluation.totalMarks}</p>
                   </div>
-                  <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Status</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] capitalize">
                       {selectedEvaluation.submission?.status || "Pending"}
@@ -985,7 +985,7 @@ export default function StudentEvaluationsPage() {
                           href={att.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
                         >
                           <File className="w-5 h-5 text-[#1E6F3E]" />
                           <span className="text-sm text-gray-900 dark:text-[#E4E4E7] flex-1 font-medium">{att.fileName}</span>
@@ -999,7 +999,7 @@ export default function StudentEvaluationsPage() {
 
               {/* Submit Button if not submitted */}
               {!selectedEvaluation.submission && hasGroup && (
-                <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50">
+                <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50">
                   <Button
                     onClick={() => {
                       setShowViewModal(false);
@@ -1061,9 +1061,9 @@ export default function StudentEvaluationsPage() {
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-3 uppercase tracking-wider">Score Breakdown</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Supervisor Score */}
-                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50'}`}>
+                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'bg-blue-500' : 'bg-gray-300 dark:bg-zinc-600'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
                             <Award className="w-4 h-4 text-white" />
                           </div>
                           <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Supervisor Score</span>
@@ -1086,9 +1086,9 @@ export default function StudentEvaluationsPage() {
                       </div>
 
                       {/* Panel Head Score */}
-                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50'}`}>
+                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'bg-purple-500' : 'bg-gray-300 dark:bg-zinc-600'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
                             <Award className="w-4 h-4 text-white" />
                           </div>
                           <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel Head Score</span>
@@ -1126,7 +1126,7 @@ export default function StudentEvaluationsPage() {
 
                 {/* Feedback */}
                 {selectedEvaluation.submission!.feedback && (
-                  <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <h3 className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2 flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-[#1E6F3E]" />
                       Feedback from Coordinator
@@ -1144,7 +1144,7 @@ export default function StudentEvaluationsPage() {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50">
                 <Button onClick={() => setShowGradeModal(false)} variant="outline" className="w-full rounded-xl h-12 font-semibold">
                   Close
                 </Button>

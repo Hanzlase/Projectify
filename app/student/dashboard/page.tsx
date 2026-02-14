@@ -355,7 +355,7 @@ export default function StudentDashboard() {
       case 'progress': return 'bg-[#3d8c40]/20 text-[#1a5d1a]';
       case 'pending': return 'bg-[#7cb87c]/30 text-[#1a5d1a]';
       case 'new': return 'bg-[#d1e7d1] text-[#1a5d1a]';
-      default: return 'bg-gray-100 text-gray-700';
+      default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
   };
 
@@ -835,7 +835,7 @@ export default function StudentDashboard() {
                         <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
                           <svg className="w-28 h-28 sm:w-32 sm:h-32 transform -rotate-90">
                             {/* Background track */}
-                            <circle cx="50%" cy="50%" r="42%" stroke="#f3f4f6" strokeWidth="16" fill="none" className="dark:stroke-gray-700" />
+                            <circle cx="50%" cy="50%" r="42%" stroke="#f3f4f6" strokeWidth="16" fill="none" className="dark:stroke-zinc-700" />
                             {/* Pending segment (medium light green) */}
                             {pendingPercent > 0 && (
                               <motion.circle 

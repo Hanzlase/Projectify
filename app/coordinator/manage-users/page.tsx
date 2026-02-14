@@ -313,7 +313,7 @@ export default function ManageUsersPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -525,7 +525,7 @@ export default function ManageUsersPage() {
                     Search Users
                   </Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
                     <Input
                       id="search"
                       type="text"
@@ -555,7 +555,7 @@ export default function ManageUsersPage() {
                       <option value="supervisor">Supervisors Only</option>
                     </select>
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -580,7 +580,7 @@ export default function ManageUsersPage() {
                       <option value="SUSPENDED">Suspended</option>
                     </select>
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -697,7 +697,7 @@ export default function ManageUsersPage() {
                                 className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg ${
                                   u.role === 'student'
                                     ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
-                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'
+                                    : 'bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-300'
                                 }`}
                               >
                                 {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
@@ -794,7 +794,7 @@ export default function ManageUsersPage() {
                                   className={`px-2 py-0.5 inline-flex text-xs font-semibold rounded-lg ${
                                     u.role === 'student'
                                       ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
-                                      : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'
+                                      : 'bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-300'
                                   }`}
                                 >
                                   {u.role.charAt(0).toUpperCase() + u.role.slice(1)}

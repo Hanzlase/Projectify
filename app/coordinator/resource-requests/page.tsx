@@ -169,7 +169,7 @@ export default function CoordinatorResourceRequestsPage() {
       supervisor_approved: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: ArrowRight, label: "Needs Review" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Under Review" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-[#22C55E]", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[st] || { bg: "bg-gray-100", text: "text-gray-600", icon: Clock, label: st };
@@ -208,7 +208,7 @@ export default function CoordinatorResourceRequestsPage() {
             <button
               onClick={() => { setRefreshing(true); fetchRequests(); }}
               disabled={refreshing}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all self-end md:self-auto"
+              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all self-end md:self-auto"
             >
               <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
             </button>
@@ -231,7 +231,7 @@ export default function CoordinatorResourceRequestsPage() {
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">{stat.label}</p>
                       <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">{stat.count}</p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                       <stat.icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                   </div>
@@ -262,7 +262,7 @@ export default function CoordinatorResourceRequestsPage() {
           {filteredRequests.length === 0 ? (
             <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
               <CardContent className="p-16 text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                   <Package className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Requests</h3>
@@ -300,7 +300,7 @@ export default function CoordinatorResourceRequestsPage() {
                           {/* Items */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -373,7 +373,7 @@ export default function CoordinatorResourceRequestsPage() {
 
               <div className="p-6 overflow-y-auto flex-1 space-y-5">
                 {/* Request Summary */}
-                <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Users className="w-4 h-4 text-[#1E6F3E]" />
                     <span className="text-sm font-semibold text-gray-700 dark:text-zinc-300">{selectedRequest.groupName}</span>
@@ -407,7 +407,7 @@ export default function CoordinatorResourceRequestsPage() {
                       className={`p-4 rounded-xl border-2 transition-all text-center ${actionType === "approve" ? "border-green-500 bg-green-50 dark:bg-green-900/20" : "border-gray-200 dark:border-zinc-700 hover:border-green-300"}`}
                     >
                       <CheckCircle className={`w-6 h-6 mx-auto mb-2 ${actionType === "approve" ? "text-green-600" : "text-gray-400"}`} />
-                      <p className={`text-sm font-semibold ${actionType === "approve" ? "text-green-700 dark:text-[#22C55E]" : "text-gray-600 dark:text-zinc-400"}`}>Approve</p>
+                      <p className={`text-sm font-semibold ${actionType === "approve" ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-zinc-400"}`}>Approve</p>
                     </button>
                     <button
                       onClick={() => setActionType("reject")}
@@ -440,10 +440,10 @@ export default function CoordinatorResourceRequestsPage() {
                     <div>
                       <label className="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1">Meeting Type</label>
                       <div className="flex gap-2">
-                        <button onClick={() => setMeetingType("physical")} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${meetingType === "physical" ? "bg-indigo-600 text-white" : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-600"}`}>
+                        <button onClick={() => setMeetingType("physical")} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${meetingType === "physical" ? "bg-indigo-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-600"}`}>
                           <MapPin className="w-4 h-4" /> Physical
                         </button>
-                        <button onClick={() => setMeetingType("online")} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${meetingType === "online" ? "bg-indigo-600 text-white" : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-600"}`}>
+                        <button onClick={() => setMeetingType("online")} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${meetingType === "online" ? "bg-indigo-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-600"}`}>
                           <Video className="w-4 h-4" /> Online
                         </button>
                       </div>
@@ -479,12 +479,12 @@ export default function CoordinatorResourceRequestsPage() {
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Add any notes or instructions..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => { setShowActionModal(false); resetForm(); }} className="flex-1 rounded-xl h-12 font-semibold">Cancel</Button>
                 <Button
                   onClick={handleAction}

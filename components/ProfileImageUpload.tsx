@@ -156,11 +156,11 @@ export default function ProfileImageUpload({
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 min-w-[160px]"
+              className="absolute top-full left-0 mt-2 bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 min-w-[160px]"
             >
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-zinc-700/50 flex items-center gap-2 transition-colors"
               >
                 <Upload className="w-4 h-4" />
                 Upload Photo

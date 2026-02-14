@@ -27,14 +27,14 @@ export default function UnauthorizedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         className="relative z-10 max-w-md w-full"
       >
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+        <div className="bg-white dark:bg-[#27272A] rounded-2xl border border-gray-200 dark:border-zinc-700 p-8 shadow-sm">
           <div className="text-center">
             {/* Icon */}
             <motion.div
@@ -51,7 +51,7 @@ export default function UnauthorizedPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl font-bold text-gray-900 mb-3"
+              className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-3"
             >
               Access Denied
             </motion.h1>
@@ -61,7 +61,7 @@ export default function UnauthorizedPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-gray-500 mb-8"
+              className="text-gray-500 dark:text-zinc-400 mb-8"
             >
               You don't have permission to access this page. Please contact your administrator if you believe this is an error.
             </motion.p>
@@ -75,7 +75,7 @@ export default function UnauthorizedPage() {
             >
               <button
                 onClick={() => router.back()}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-gray-700 font-medium"
+                className="flex-1 px-4 py-3 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-gray-700 dark:text-zinc-300 font-medium"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Go Back
@@ -105,7 +105,7 @@ export default function UnauthorizedPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-center text-gray-400 text-sm mt-6"
+          className="text-center text-gray-400 dark:text-zinc-500 text-sm mt-6"
         >
           Need help?{' '}
           <a href="mailto:support@projectify.com" className="text-[#1a5d1a] hover:underline">

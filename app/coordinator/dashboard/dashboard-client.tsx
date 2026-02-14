@@ -220,7 +220,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -454,7 +454,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Recent Activity</h3>
-                    <Clock className="w-5 h-5 text-gray-400" />
+                    <Clock className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </div>
                   {recentActivity.length > 0 ? (
                     <div className="space-y-3">
@@ -492,7 +492,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             {/* User Growth Chart - Always show */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
@@ -585,7 +585,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
 
             {/* User Distribution Chart - Always show */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
@@ -649,25 +649,25 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Campus Info */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Campus Overview</h3>
-                    <BookOpen className="w-4 h-4 text-gray-400" />
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Campus Overview</h3>
+                    <BookOpen className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <div className="space-y-4">
                     <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20">
                       <p className="text-sm text-gray-500 mb-1">Campus Name</p>
-                      <p className="text-lg font-semibold text-gray-900">{campusName}</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">{campusName}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 bg-gray-50 rounded-xl">
+                      <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <p className="text-xs text-gray-500 mb-1">Your Role</p>
-                        <p className="text-sm font-semibold text-gray-900">FYP Coordinator</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">FYP Coordinator</p>
                       </div>
-                      <div className="p-3 bg-gray-50 rounded-xl">
+                      <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <p className="text-xs text-gray-500 mb-1">Total Users</p>
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">
                           {(dashboardData?.stats?.totalStudents || 0) + (dashboardData?.stats?.totalSupervisors || 0)}
                         </p>
                       </div>
@@ -679,11 +679,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
 
             {/* Upcoming Deadlines */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-              <Card className="border-0 shadow-sm bg-white rounded-2xl">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Upcoming Deadlines</h3>
-                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Upcoming Deadlines</h3>
+                    <Calendar className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   </div>
                   {upcomingDeadlines.length > 0 ? (
                     <div className="space-y-3">
@@ -693,7 +693,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                           initial={{ opacity: 0, x: 20 }} 
                           animate={{ opacity: 1, x: 0 }} 
                           transition={{ delay: 0.6 + index * 0.05 }} 
-                          className="p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all"
+                          className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:bg-zinc-700 transition-all"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
@@ -715,7 +715,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-gray-500 dark:text-zinc-500">
                       <Calendar className="w-10 h-10 mx-auto mb-2 opacity-30" />
                       <p className="text-sm">No upcoming deadlines</p>
                     </div>

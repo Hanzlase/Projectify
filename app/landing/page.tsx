@@ -165,7 +165,7 @@ const AnimatedText = ({
 const Button = ({ className, variant = 'primary', size = 'default', children, icon: Icon, ...props }: any) => {
   const variants = {
     primary: "bg-[#1a5d1a] text-white hover:bg-[#144a14] shadow-lg shadow-green-900/20 border border-transparent",
-    secondary: "bg-white text-slate-900 hover:bg-slate-50 border border-slate-200 shadow-sm",
+    secondary: "bg-white dark:bg-[#27272A] text-slate-900 dark:text-[#E4E4E7] hover:bg-slate-50 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 shadow-sm",
     ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
     dark: "bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20",
     outline: "bg-transparent border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
@@ -337,7 +337,7 @@ const HeroSection = () => {
   const router = useRouter();
 
   return (
-    <section className="relative pt-28 pb-32 sm:pt-32 sm:pb-48 lg:pt-40 lg:pb-64 overflow-hidden bg-gradient-to-b from-white via-white to-slate-50/50 dark:from-[#18181B] dark:via-gray-900 dark:to-[#27272A]/50">
+    <section className="relative pt-28 pb-32 sm:pt-32 sm:pb-48 lg:pt-40 lg:pb-64 overflow-hidden bg-gradient-to-b from-white via-white to-slate-50/50 dark:from-[#18181B] dark:via-[#18181B] dark:to-[#27272A]/50">
       {/* Noise Texture Overlay */}
       <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
@@ -475,13 +475,13 @@ const HeroSection = () => {
             transition={{ delay: 1.5, duration: 0.8 }}
             className="absolute -left-16 top-24 z-20 hidden lg:block"
           >
-            <div className="bg-white p-4 rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-100 flex items-center gap-3 hover:scale-105 transition-transform cursor-default">
+            <div className="bg-white dark:bg-[#27272A] p-4 rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-zinc-700 flex items-center gap-3 hover:scale-105 transition-transform cursor-default">
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-50 rounded-xl flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <div className="text-sm font-bold text-slate-900">Proposal Approved</div>
-                <div className="text-xs text-slate-500">Just now</div>
+                <div className="text-sm font-bold text-slate-900 dark:text-[#E4E4E7]">Proposal Approved</div>
+                <div className="text-xs text-slate-500 dark:text-zinc-400">Just now</div>
               </div>
             </div>
           </motion.div>
@@ -493,42 +493,42 @@ const HeroSection = () => {
             transition={{ delay: 1.6, duration: 0.8 }}
             className="absolute -right-8 top-40 z-20 hidden lg:block"
           >
-            <div className="bg-white p-3 rounded-xl shadow-2xl shadow-slate-200/50 border border-slate-100 hover:scale-105 transition-transform cursor-default">
+            <div className="bg-white dark:bg-[#27272A] p-3 rounded-xl shadow-2xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-zinc-700 hover:scale-105 transition-transform cursor-default">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wide">Live Activity</span>
+                <span className="text-[10px] font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wide">Live Activity</span>
               </div>
               <div className="space-y-1.5">
                 {[1,2,3].map(i => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-100 to-slate-200" />
-                    <div className="h-2 bg-slate-100 rounded w-16" />
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-zinc-600 dark:to-zinc-700" />
+                    <div className="h-2 bg-slate-100 dark:bg-zinc-600 rounded w-16" />
                   </div>
                 ))}
               </div>
             </div>
           </motion.div>
 
-          <div className="relative bg-white rounded-xl border border-slate-200/80 shadow-[0_30px_60px_-15px_rgba(50,50,93,0.15)] overflow-hidden transition-all duration-500 hover:shadow-[0_40px_80px_-15px_rgba(50,50,93,0.2)]">
+          <div className="relative bg-white dark:bg-[#27272A] rounded-xl border border-slate-200/80 dark:border-zinc-700 shadow-[0_30px_60px_-15px_rgba(50,50,93,0.15)] dark:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden transition-all duration-500 hover:shadow-[0_40px_80px_-15px_rgba(50,50,93,0.2)]">
             {/* Window Controls */}
-            <div className="h-10 border-b border-slate-100 bg-slate-50/80 backdrop-blur-md flex items-center px-4 gap-2 sticky top-0 z-10">
+            <div className="h-10 border-b border-slate-100 dark:border-zinc-700 bg-slate-50/80 dark:bg-zinc-800/80 backdrop-blur-md flex items-center px-4 gap-2 sticky top-0 z-10">
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-slate-200" />
-                <div className="w-3 h-3 rounded-full bg-slate-200" />
-                <div className="w-3 h-3 rounded-full bg-slate-200" />
+                <div className="w-3 h-3 rounded-full bg-slate-200 dark:bg-zinc-600" />
+                <div className="w-3 h-3 rounded-full bg-slate-200 dark:bg-zinc-600" />
+                <div className="w-3 h-3 rounded-full bg-slate-200 dark:bg-zinc-600" />
               </div>
-              <div className="ml-4 px-3 py-1 bg-white rounded-md border border-slate-100 text-[10px] text-slate-400 font-mono flex items-center gap-2">
+              <div className="ml-4 px-3 py-1 bg-white dark:bg-zinc-700 rounded-md border border-slate-100 dark:border-zinc-600 text-[10px] text-slate-400 dark:text-zinc-400 font-mono flex items-center gap-2">
                 <Lock className="w-3 h-3" />
                 projectify.edu/dashboard
               </div>
             </div>
             
             {/* Dashboard Content Mock */}
-            <div className="p-8 bg-slate-50/50 min-h-[500px]">
+            <div className="p-8 bg-slate-50/50 dark:bg-[#18181B]/50 min-h-[500px]">
               <div className="flex justify-between items-center mb-8">
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900">Dashboard</h3>
-                  <p className="text-sm text-slate-500">Overview for Fall 2025 Semester</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">Dashboard</h3>
+                  <p className="text-sm text-slate-500 dark:text-zinc-400">Overview for Fall 2025 Semester</p>
                 </div>
                 <div className="flex gap-3">
                     <Button size="sm" variant="white" className="shadow-sm border border-slate-200">
@@ -548,15 +548,15 @@ const HeroSection = () => {
                   { icon: Users, color: "text-blue-700", bg: "bg-blue-50", val: "Team", label: "Members Active", avatars: true },
                   { icon: ShieldCheck, color: "text-purple-700", bg: "bg-purple-50", val: "98%", label: "Originality", badge: "Safe" }
                 ].map((card, i) => (
-                  <div key={i} className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-200 hover:-translate-y-1">
+                  <div key={i} className="bg-white dark:bg-[#27272A] p-6 rounded-xl border border-slate-100 dark:border-zinc-700 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-200 dark:hover:border-zinc-600 hover:-translate-y-1">
                       <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-4", card.bg)}>
                           <card.icon className={cn("w-5 h-5", card.color)} />
                       </div>
-                      <div className="text-2xl font-bold text-slate-900">{card.val}</div>
-                      <div className="text-sm text-slate-500 font-medium">{card.label}</div>
+                      <div className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">{card.val}</div>
+                      <div className="text-sm text-slate-500 dark:text-zinc-400 font-medium">{card.label}</div>
                       
                       {card.progress && (
-                        <div className="mt-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-zinc-600 rounded-full overflow-hidden">
                             <div className={cn("h-full rounded-full animate-[width_1s_ease-out]", card.bar)} style={{ width: `${card.progress}%` }} />
                         </div>
                       )}
@@ -564,7 +564,7 @@ const HeroSection = () => {
                       {card.avatars && (
                         <div className="mt-4 flex -space-x-2">
                             {[1,2,3].map(a => (
-                              <div key={a} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">
+                              <div key={a} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-zinc-600 border-2 border-white dark:border-[#27272A] flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-zinc-300">
                                 {String.fromCharCode(64+a)}
                               </div>
                             ))}
@@ -581,10 +581,10 @@ const HeroSection = () => {
               </div>
 
               {/* Activity Chart Area */}
-              <div className="mt-6 bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+              <div className="mt-6 bg-white dark:bg-[#27272A] p-6 rounded-xl border border-slate-100 dark:border-zinc-700 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <h4 className="font-bold text-slate-900 text-sm">Sprint Velocity</h4>
-                  <select className="text-xs bg-slate-50 border-none rounded-md px-2 py-1 text-slate-600 outline-none">
+                  <h4 className="font-bold text-slate-900 dark:text-[#E4E4E7] text-sm">Sprint Velocity</h4>
+                  <select className="text-xs bg-slate-50 dark:bg-zinc-700 border-none rounded-md px-2 py-1 text-slate-600 dark:text-zinc-300 outline-none">
                     <option>Last 7 Days</option>
                   </select>
                 </div>
@@ -597,7 +597,7 @@ const HeroSection = () => {
                       transition={{ duration: 0.5, delay: i * 0.05 }}
                       className={cn(
                         "flex-1 rounded-t-sm transition-all duration-300 hover:bg-[#1a5d1a]",
-                        i >= 8 ? "bg-[#1a5d1a]" : "bg-slate-100"
+                        i >= 8 ? "bg-[#1a5d1a]" : "bg-slate-100 dark:bg-zinc-600"
                       )} 
                     />
                   ))}
@@ -687,26 +687,26 @@ const FeatureSection = () => {
       visual: (
         <SpotlightCard className="h-full border-none shadow-none bg-slate-50/50">
           <div className="p-8 space-y-4">
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-slate-100 dark:border-zinc-700 shadow-sm">
                   <div className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center" />
                       <span className="text-sm font-medium text-slate-700">Setup React Environment</span>
                   </div>
                   <Badge>Done</Badge>
               </div>
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200 shadow-md shadow-green-900/5 ring-1 ring-green-500/20">
+              <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-green-200 dark:border-green-700 shadow-md shadow-green-900/5 ring-1 ring-green-500/20">
                   <div className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-sm font-bold text-slate-900">API Integration</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-[#E4E4E7]">API Integration</span>
                   </div>
                   <div className="flex -space-x-2">
                       <div className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white" />
                       <div className="w-6 h-6 rounded-full bg-green-100 border-2 border-white" />
                   </div>
               </div>
-              <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-slate-100 opacity-60">
+              <div className="flex items-center justify-between p-3 bg-white/50 dark:bg-zinc-800/50 rounded-lg border border-slate-100 dark:border-zinc-700 opacity-60">
                   <div className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
                       <span className="text-sm font-medium text-slate-700">Final Documentation</span>

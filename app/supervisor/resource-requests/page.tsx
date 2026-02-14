@@ -137,7 +137,7 @@ export default function SupervisorResourceRequestsPage() {
       supervisor_rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Coordinator Reviewing" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-[#22C55E]", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[st] || configs.pending;
@@ -173,7 +173,7 @@ export default function SupervisorResourceRequestsPage() {
             <button
               onClick={() => { setRefreshing(true); fetchRequests(); }}
               disabled={refreshing}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all self-end md:self-auto"
+              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all self-end md:self-auto"
             >
               <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
             </button>
@@ -195,7 +195,7 @@ export default function SupervisorResourceRequestsPage() {
               >
                 {tab.label}
                 {tab.count > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${filterStatus === tab.id ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300'}`}>{tab.count}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${filterStatus === tab.id ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-zinc-300'}`}>{tab.count}</span>
                 )}
               </button>
             ))}
@@ -205,7 +205,7 @@ export default function SupervisorResourceRequestsPage() {
           {filteredRequests.length === 0 ? (
             <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
               <CardContent className="p-16 text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                   <Package className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Resource Requests</h3>
@@ -245,7 +245,7 @@ export default function SupervisorResourceRequestsPage() {
                           {/* Items */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -322,7 +322,7 @@ export default function SupervisorResourceRequestsPage() {
                   <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-2">Requested Items</h3>
                   <div className="space-y-2">
                     {selectedRequest.items.map((item, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                         <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E] font-bold text-sm">{i + 1}</div>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{item.name}</p>
@@ -350,7 +350,7 @@ export default function SupervisorResourceRequestsPage() {
                       className={`flex-1 p-4 rounded-xl border-2 transition-all ${reviewAction === "approved" ? "border-green-500 bg-green-50 dark:bg-green-900/20" : "border-gray-200 dark:border-zinc-700 hover:border-green-300"}`}
                     >
                       <ThumbsUp className={`w-6 h-6 mx-auto mb-2 ${reviewAction === "approved" ? "text-green-600" : "text-gray-400"}`} />
-                      <p className={`text-sm font-semibold ${reviewAction === "approved" ? "text-green-700 dark:text-[#22C55E]" : "text-gray-600 dark:text-zinc-400"}`}>Approve & Forward</p>
+                      <p className={`text-sm font-semibold ${reviewAction === "approved" ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-zinc-400"}`}>Approve & Forward</p>
                       <p className="text-xs text-gray-500 mt-1">Forward to coordinator for arrangement</p>
                     </button>
                     <button
@@ -370,13 +370,13 @@ export default function SupervisorResourceRequestsPage() {
                       onChange={(e) => setReviewNote(e.target.value)}
                       placeholder="Add your suggestion or feedback..."
                       rows={3}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-zinc-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none focus:ring-2 focus:ring-[#1E6F3E] focus:border-transparent"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
                 <Button variant="outline" onClick={() => { setShowReviewModal(false); setSelectedRequest(null); }} className="flex-1 rounded-xl h-12 font-semibold">Cancel</Button>
                 <Button
                   onClick={handleReview}

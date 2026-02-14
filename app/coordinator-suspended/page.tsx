@@ -148,7 +148,7 @@ export default function CoordinatorSuspendedPage() {
                         If you believe this suspension is in error or need more information, please contact the system administrator.
                       </p>
                       <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
+                        <Mail className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                         <span className="text-gray-600 dark:text-zinc-300">admin@projectify.edu</span>
                       </div>
                     </div>
@@ -181,7 +181,7 @@ export default function CoordinatorSuspendedPage() {
             transition={{ delay: 0.9 }}
             className="text-center mt-8"
           >
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 dark:text-zinc-500">
               <span className="font-semibold text-[#1a5d1a]">Projectify</span> • FYP Management System
             </p>
           </motion.div>

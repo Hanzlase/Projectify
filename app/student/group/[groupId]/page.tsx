@@ -723,7 +723,7 @@ export default function GroupDetailsPage() {
       case 'in_progress':
         return <Clock className="w-4 h-4 text-amber-500" />;
       default:
-        return <Circle className="w-4 h-4 text-gray-400" />;
+        return <Circle className="w-4 h-4 text-gray-400 dark:text-zinc-500" />;
     }
   };
 
@@ -751,7 +751,7 @@ export default function GroupDetailsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
@@ -775,7 +775,7 @@ export default function GroupDetailsPage() {
               animate={{ rotate: 360 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
             />
-            <div className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <div className="w-20 h-20 bg-white dark:bg-[#27272A] rounded-full shadow-lg flex items-center justify-center">
               <Users className="w-8 h-8 text-[#1a5d1a]" />
             </div>
           </div>
@@ -964,7 +964,7 @@ export default function GroupDetailsPage() {
                           <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                             <FolderKanban className="w-4 h-4 text-[#1a5d1a]" />
                           </div>
-                          <h3 className="font-semibold text-gray-900">Project</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project</h3>
                         </div>
                         {group.project.documentUrl && (
                           <a
@@ -995,7 +995,7 @@ export default function GroupDetailsPage() {
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
                             group.project.status === 'approved' ? 'bg-green-100 text-green-700' :
                             group.project.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                            'bg-gray-100 text-gray-700'
+                            'bg-gray-100 dark:bg-zinc-700 text-gray-700'
                           }`}>
                             {group.project.status.charAt(0).toUpperCase() + group.project.status.slice(1)}
                           </span>
@@ -1019,7 +1019,7 @@ export default function GroupDetailsPage() {
                         <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
                           <Users className="w-4 h-4 text-[#1a5d1a]" />
                         </div>
-                        <h3 className="font-semibold text-gray-900">Team Members</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Team Members</h3>
                       </div>
                     </div>
 
@@ -1043,7 +1043,7 @@ export default function GroupDetailsPage() {
                                   Supervisor
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500">{group.supervisor.email}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-500">{group.supervisor.email}</p>
                             </div>
                           </div>
                         </div>
@@ -1056,7 +1056,7 @@ export default function GroupDetailsPage() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 + idx * 0.05 }}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100/80 transition-colors group"
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100/80 transition-colors group"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden shadow-sm">
@@ -1082,7 +1082,7 @@ export default function GroupDetailsPage() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500">{member.rollNumber}</p>
+                              <p className="text-xs text-gray-500 dark:text-zinc-500">{member.rollNumber}</p>
                             </div>
                           </div>
                           
@@ -1152,8 +1152,8 @@ export default function GroupDetailsPage() {
                         <Send className="w-4 h-4 text-amber-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">Pending Invites</h3>
-                        <p className="text-xs text-gray-500">{group.pendingInvitations.length} waiting</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Pending Invites</h3>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">{group.pendingInvitations.length} waiting</p>
                       </div>
                     </div>
 
@@ -1223,10 +1223,10 @@ export default function GroupDetailsPage() {
                       </div>
                     ) : (
                       <div className="text-center py-6">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                          <Mail className="w-5 h-5 text-gray-400" />
+                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-3">
+                          <Mail className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                         </div>
-                        <p className="text-sm text-gray-500">No pending invitations</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-500">No pending invitations</p>
                       </div>
                     )}
                   </CardContent>
@@ -1639,7 +1639,7 @@ export default function GroupDetailsPage() {
                 <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="py-12 text-center">
                     <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="w-8 h-8 text-gray-400" />
+                      <Calendar className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Meetings</h3>
                     <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">Request a meeting with your supervisor</p>
@@ -1774,7 +1774,7 @@ export default function GroupDetailsPage() {
                                             {subtask.title}
                                           </span>
                                           {subtask.assignee && (
-                                            <span className="text-xs text-gray-500">({subtask.assignee.name})</span>
+                                            <span className="text-xs text-gray-500 dark:text-zinc-500">({subtask.assignee.name})</span>
                                           )}
                                           {subtask.createdByRole === 'supervisor' && (
                                             <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
@@ -1785,7 +1785,7 @@ export default function GroupDetailsPage() {
                                             onClick={() => openTaskModal(subtask)}
                                             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700"
                                           >
-                                            <Edit2 className="w-3 h-3 text-gray-400" />
+                                            <Edit2 className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                                           </button>
                                           {canDeleteTask(subtask) && (
                                             <button
@@ -1843,7 +1843,7 @@ export default function GroupDetailsPage() {
                 <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="py-12 text-center">
                     <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
-                      <ListTodo className="w-8 h-8 text-gray-400" />
+                      <ListTodo className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Tasks Yet</h3>
                     <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">Divide your project into manageable tasks</p>
@@ -1888,7 +1888,7 @@ export default function GroupDetailsPage() {
                     onClick={() => setShowMeetingModal(false)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>
@@ -1991,7 +1991,7 @@ export default function GroupDetailsPage() {
                     onClick={() => setShowTaskModal(false)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>
@@ -2090,31 +2090,31 @@ export default function GroupDetailsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
             >
-              <div className="p-5 border-b border-gray-100">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#1a5d1a]/10 flex items-center justify-center">
                       <UserPlus className="w-5 h-5 text-[#1a5d1a]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Add Member</h3>
-                      <p className="text-xs text-gray-500">Invite students or supervisors</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Add Member</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-500">Invite students or supervisors</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowAddMemberModal(false)}
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:bg-zinc-700 flex items-center justify-center transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-400" />
+                    <X className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                   </button>
                 </div>
               </div>
 
               <div className="p-5">
                 {/* Type Toggle */}
-                <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
+                <div className="flex gap-2 mb-4 p-1 bg-gray-100 dark:bg-zinc-700 rounded-xl">
                   <button
                     onClick={() => {
                       setInviteType('student');
@@ -2123,8 +2123,8 @@ export default function GroupDetailsPage() {
                     }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
                       inviteType === 'student'
-                        ? 'bg-white shadow-sm text-[#1a5d1a]'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white dark:bg-zinc-600 shadow-sm text-[#1a5d1a]'
+                        : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300'
                     }`}
                   >
                     <Users className="w-4 h-4" />
@@ -2138,8 +2138,8 @@ export default function GroupDetailsPage() {
                     }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
                       inviteType === 'supervisor'
-                        ? 'bg-white shadow-sm text-[#1a5d1a]'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white dark:bg-zinc-600 shadow-sm text-[#1a5d1a]'
+                        : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300'
                     }`}
                   >
                     <GraduationCap className="w-4 h-4" />
@@ -2160,7 +2160,7 @@ export default function GroupDetailsPage() {
                 )}
 
                 <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   <Input
                     type="text"
                     value={searchQuery}
@@ -2182,7 +2182,7 @@ export default function GroupDetailsPage() {
                     searchResults.map((user) => (
                       <div
                         key={user.userId}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:bg-zinc-700 transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
@@ -2194,7 +2194,7 @@ export default function GroupDetailsPage() {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 text-sm">{user.name}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-zinc-500">
                               {inviteType === 'student' ? user.rollNumber : user.department || 'Supervisor'}
                             </p>
                           </div>
@@ -2223,10 +2223,10 @@ export default function GroupDetailsPage() {
                     ))
                   ) : searchQuery ? (
                     <div className="text-center py-8">
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                        <Search className="w-5 h-5 text-gray-400" />
+                      <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-3">
+                        <Search className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-zinc-500">
                         No {inviteType === 'student' ? 'students' : 'supervisors'} found
                       </p>
                     </div>
@@ -2239,7 +2239,7 @@ export default function GroupDetailsPage() {
                           <GraduationCap className="w-5 h-5 text-[#1a5d1a]" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-zinc-500">
                         Search for {inviteType === 'student' ? 'students' : 'supervisors'} to invite
                       </p>
                     </div>
@@ -2266,14 +2266,14 @@ export default function GroupDetailsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-sm w-full p-6"
             >
               <div className="text-center mb-5">
                 <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                   <Trash2 className="w-7 h-7 text-red-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Delete Group?</h3>
-                <p className="text-sm text-gray-500">This action cannot be undone. All members will be removed.</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-500">This action cannot be undone. All members will be removed.</p>
               </div>
 
               <div className="flex gap-3">
@@ -2316,14 +2316,14 @@ export default function GroupDetailsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-sm w-full p-6"
             >
               <div className="text-center mb-5">
                 <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
                   <LogOut className="w-7 h-7 text-amber-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Leave Group?</h3>
-                <p className="text-sm text-gray-500">You can rejoin later if invited again.</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-500">You can rejoin later if invited again.</p>
               </div>
 
               <div className="flex gap-3">

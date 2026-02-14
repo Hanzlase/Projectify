@@ -205,7 +205,7 @@ function SimilarityCheckPageContent() {
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
@@ -230,7 +230,7 @@ function SimilarityCheckPageContent() {
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
             />
             <motion.div 
-              className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center"
+              className="w-24 h-24 bg-white dark:bg-[#27272A] rounded-full shadow-lg flex items-center justify-center"
               animate={{ scale: [1, 0.95, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -238,8 +238,8 @@ function SimilarityCheckPageContent() {
             </motion.div>
           </div>
           <div className="text-center">
-            <motion.h2 className="text-2xl font-bold text-gray-900 mb-2">Projectify</motion.h2>
-            <motion.p className="text-gray-500">Loading similarity results...</motion.p>
+            <motion.h2 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Projectify</motion.h2>
+            <motion.p className="text-gray-500 dark:text-zinc-500">Loading similarity results...</motion.p>
           </div>
         </motion.div>
       </div>
@@ -264,19 +264,19 @@ function SimilarityCheckPageContent() {
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <div className="sticky top-14 md:top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <div className="sticky top-14 md:top-0 z-10 bg-white/95 dark:bg-[#18181B]/95 backdrop-blur-sm border-b border-gray-200 dark:border-zinc-700 shadow-sm">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between max-w-5xl mx-auto">
               <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={handleGoBack}
-                  className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="p-2.5 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                 </button>
                 <div>
-                  <h1 className="text-lg md:text-xl font-bold text-gray-900">Similarity Check</h1>
-                  <p className="text-xs md:text-sm text-gray-500">Review your project's uniqueness</p>
+                  <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Similarity Check</h1>
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-500">Review your project's uniqueness</p>
                 </div>
               </div>
               <div className="hidden md:flex items-center gap-4">
@@ -302,7 +302,7 @@ function SimilarityCheckPageContent() {
         <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
           {/* Project Title Header */}
           <div className="bg-gradient-to-r from-[#1a5d1a]/5 via-emerald-50/50 to-[#1a5d1a]/5 rounded-2xl p-4 mb-4 border border-[#1a5d1a]/10">
-            <p className="text-gray-900 font-semibold text-lg">{result.extractedInfo.title}</p>
+            <p className="text-gray-900 dark:text-[#E4E4E7] font-semibold text-lg">{result.extractedInfo.title}</p>
           </div>
 
           {/* Status Card - Hero Section */}
@@ -365,15 +365,15 @@ function SimilarityCheckPageContent() {
               className="lg:col-span-2 space-y-6 order-2 lg:order-1"
             >
               {/* Extracted Info Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 dark:border-zinc-800">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="font-semibold text-gray-900">Extracted from Your Document</h2>
-                      <p className="text-xs text-gray-500">AI-generated analysis</p>
+                      <h2 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Extracted from Your Document</h2>
+                      <p className="text-xs text-gray-500 dark:text-zinc-500">AI-generated analysis</p>
                     </div>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ function SimilarityCheckPageContent() {
                   <div>
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Project Title</label>
                     <div className="bg-gradient-to-r from-[#1a5d1a]/5 to-emerald-50 rounded-xl p-4 border border-[#1a5d1a]/10">
-                      <p className="text-gray-900 font-semibold">{result.extractedInfo.title}</p>
+                      <p className="text-gray-900 dark:text-[#E4E4E7] font-semibold">{result.extractedInfo.title}</p>
                     </div>
                   </div>
                   
@@ -405,7 +405,7 @@ function SimilarityCheckPageContent() {
                   {/* Abstract */}
                   <div>
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Abstract</label>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 max-h-32 overflow-y-auto">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4 border border-gray-100 max-h-32 overflow-y-auto">
                       <p className="text-gray-600 text-sm leading-relaxed">{result.extractedInfo.abstract}</p>
                     </div>
                   </div>
@@ -413,7 +413,7 @@ function SimilarityCheckPageContent() {
                   {/* Description */}
                   <div>
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Description</label>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4 border border-gray-100 dark:border-zinc-800">
                       <p className="text-gray-600 text-sm leading-relaxed">{result.extractedInfo.description}</p>
                     </div>
                   </div>
@@ -422,16 +422,16 @@ function SimilarityCheckPageContent() {
 
           {/* Similar Projects */}
           {result.similarProjects.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+              <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 dark:border-zinc-800">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
                         <Layers className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h2 className="font-semibold text-gray-900">Similar Projects</h2>
-                        <p className="text-xs text-gray-500">{result.similarProjects.length} projects with overlapping concepts</p>
+                        <h2 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Similar Projects</h2>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">{result.similarProjects.length} projects with overlapping concepts</p>
                       </div>
                     </div>
                   </div>
@@ -444,7 +444,7 @@ function SimilarityCheckPageContent() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.1 }}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+                    className="bg-white dark:bg-[#27272A] rounded-xl shadow-sm border border-gray-200 overflow-hidden"
                   >
                     <div 
                       className="p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
@@ -453,7 +453,7 @@ function SimilarityCheckPageContent() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900 text-sm break-words">{project.title}</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm break-words">{project.title}</h3>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap self-start ${
                               project.similarityScore >= 0.7 
                                 ? 'bg-red-100 text-red-700'
@@ -476,11 +476,11 @@ function SimilarityCheckPageContent() {
                           )}
                           <p className="text-xs text-gray-500 line-clamp-2">{project.description}</p>
                         </div>
-                        <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
+                        <button className="p-1.5 hover:bg-gray-100 dark:bg-zinc-700 rounded-lg transition-colors shrink-0">
                           {expandedProject === project.projectId ? (
-                            <ChevronUp className="w-4 h-4 text-gray-400" />
+                            <ChevronUp className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                            <ChevronDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           )}
                         </button>
                       </div>
@@ -491,7 +491,7 @@ function SimilarityCheckPageContent() {
                           <span className="font-medium">Similarity Score</span>
                           <span className="font-semibold">{project.similarityPercentage}%</span>
                         </div>
-                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-gray-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                           <div 
                             className={`h-full rounded-full transition-all duration-500 ${
                               project.similarityScore >= 0.7 
@@ -549,7 +549,7 @@ function SimilarityCheckPageContent() {
               {/* Sticky wrapper for both cards */}
               <div className="lg:sticky lg:top-20 space-y-4">
                 {/* Quick Stats Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e]">
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4 text-white" />
@@ -557,22 +557,22 @@ function SimilarityCheckPageContent() {
                     </div>
                   </div>
                   <div className="p-4 space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Uniqueness Score</span>
+                  <div className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                    <span className="text-xs text-gray-500 dark:text-zinc-500">Uniqueness Score</span>
                     <span className={`text-sm font-bold ${result.isUnique ? 'text-[#1a5d1a]' : 'text-amber-600'}`}>
                       {result.similarProjects.length > 0 ? `${(100 - highestSimilarity * 100).toFixed(0)}%` : '100%'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Similar Projects</span>
-                    <span className="text-sm font-bold text-gray-900">{result.similarProjects.length}</span>
+                  <div className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                    <span className="text-xs text-gray-500 dark:text-zinc-500">Similar Projects</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">{result.similarProjects.length}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Categories</span>
-                    <span className="text-sm font-bold text-gray-900">{result.extractedInfo.categories.length}</span>
+                  <div className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                    <span className="text-xs text-gray-500 dark:text-zinc-500">Categories</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">{result.extractedInfo.categories.length}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-500">Status</span>
+                  <div className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                    <span className="text-xs text-gray-500 dark:text-zinc-500">Status</span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                       result.isUnique 
                         ? 'bg-[#1a5d1a]/10 text-[#1a5d1a]' 
@@ -586,7 +586,7 @@ function SimilarityCheckPageContent() {
 
               {/* Feasibility Quick View */}
               {result.feasibilityReport && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-white" />
@@ -613,8 +613,8 @@ function SimilarityCheckPageContent() {
                       <p className="text-[10px] text-gray-500 mt-0.5">Feasibility Rating</p>
                     </div>
                     {result.feasibilityReport.timelineFeasibility && (
-                      <div className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-zinc-700/50 rounded-lg">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-zinc-500">
                           <Clock className="w-3 h-3" />
                           Timeline
                         </div>
@@ -657,7 +657,7 @@ function SimilarityCheckPageContent() {
               )}
 
               {/* Feature Analysis */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-[#27272A] rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="px-4 py-3 bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e]">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-white" />
@@ -730,15 +730,15 @@ function SimilarityCheckPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6"
             >
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a5d1a]/20">
                   <Lightbulb className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">AI Analysis</h2>
-                  <p className="text-sm text-gray-500">Why your project is similar</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">AI Analysis</h2>
+                  <p className="text-sm text-gray-500 dark:text-zinc-500">Why your project is similar</p>
                 </div>
               </div>
 
@@ -790,7 +790,7 @@ function SimilarityCheckPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6"
             >
               {/* Feasibility Header */}
               <div className="bg-gradient-to-r from-[#1a5d1a] to-[#2e7d2e] px-5 py-4">
@@ -832,7 +832,7 @@ function SimilarityCheckPageContent() {
                     <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100">
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="w-4 h-4 text-blue-600" />
-                        <h3 className="font-semibold text-gray-900 text-sm">Target Audience</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Target Audience</h3>
                       </div>
                       <p className="text-gray-600 text-xs leading-relaxed">{result.feasibilityReport.targetAudience}</p>
                     </div>
@@ -850,7 +850,7 @@ function SimilarityCheckPageContent() {
                           ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 
                           : <Clock className="w-4 h-4 text-amber-600" />
                         }
-                        <h3 className="font-semibold text-gray-900 text-sm">Timeline (3 members • 2 sem)</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Timeline (3 members • 2 sem)</h3>
                       </div>
                       <p className={`text-xs font-medium ${
                         result.feasibilityReport.timelineFeasibility.isPossible ? 'text-emerald-700' : 'text-amber-700'
@@ -864,10 +864,10 @@ function SimilarityCheckPageContent() {
                 {/* Two column layout for skills and supervisor expertise */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   {/* Required Skills */}
-                  <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Code className="w-4 h-4 text-[#1a5d1a]" />
-                      <h3 className="font-semibold text-gray-900 text-sm">Required Skills</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Required Skills</h3>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.feasibilityReport.requiredSkills.map((skill, i) => (
@@ -879,10 +879,10 @@ function SimilarityCheckPageContent() {
                   </div>
 
                   {/* Supervisor Expertise */}
-                  <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="bg-gray-50 dark:bg-zinc-700/50 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <GraduationCap className="w-4 h-4 text-[#1a5d1a]" />
-                      <h3 className="font-semibold text-gray-900 text-sm">Supervisor Expertise</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Supervisor Expertise</h3>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.feasibilityReport.recommendedSupervisorExpertise.map((exp, i) => (
@@ -898,7 +898,7 @@ function SimilarityCheckPageContent() {
                 <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100">
                   <div className="flex items-center gap-2 mb-3">
                     <Rocket className="w-4 h-4 text-purple-600" />
-                    <h3 className="font-semibold text-gray-900 text-sm">Suggested Enhancements</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Suggested Enhancements</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {result.feasibilityReport.suggestedEnhancements.map((enhancement, i) => (
@@ -922,7 +922,7 @@ function SimilarityCheckPageContent() {
           >
             <button
               onClick={handleGoBack}
-              className="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center shadow-sm"
+              className="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 dark:bg-zinc-700/50 rounded-xl font-medium transition-colors text-center shadow-sm"
             >
               {result.isUnique ? 'Cancel' : 'Go Back'}
             </button>

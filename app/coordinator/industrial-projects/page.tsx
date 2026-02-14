@@ -321,7 +321,7 @@ export default function IndustrialProjectsPage() {
       case 'completed':
         return 'bg-gray-100 text-gray-700 dark:bg-[#27272A] dark:text-zinc-400';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
   };
 
@@ -348,7 +348,7 @@ export default function IndustrialProjectsPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search projects..."
@@ -754,7 +754,7 @@ export default function IndustrialProjectsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                          className="absolute top-2 right-2 bg-white/80 dark:bg-[#27272A]/80 hover:bg-white dark:hover:bg-[#27272A]"
                           onClick={() => setFormData({ ...formData, thumbnailUrl: '' })}
                         >
                           <X className="w-4 h-4" />
@@ -762,11 +762,11 @@ export default function IndustrialProjectsPage() {
                       </div>
                     ) : (
                       <label className="flex flex-col items-center gap-2 cursor-pointer">
-                        <ImageIcon className="w-8 h-8 text-gray-400" />
-                        <span className="text-sm text-gray-500">
+                        <ImageIcon className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
+                        <span className="text-sm text-gray-500 dark:text-zinc-500">
                           {uploadingImage ? 'Uploading...' : 'Click to upload image'}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-400 dark:text-zinc-500">
                           PNG, JPG, WEBP (Max 5MB)
                         </span>
                         <input

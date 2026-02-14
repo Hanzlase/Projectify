@@ -343,7 +343,7 @@ export default function HelpPage() {
                             <span className="text-[#1a5d1a]">*</span>
                           </label>
                           <div className="relative">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                             <Input
                               value={name}
                               onChange={(e) => setName(e.target.value)}
@@ -359,7 +359,7 @@ export default function HelpPage() {
                             <span className="text-[#1a5d1a]">*</span>
                           </label>
                           <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                             <Input
                               type="email"
                               value={email}
@@ -381,7 +381,7 @@ export default function HelpPage() {
                           </span>
                         </label>
                         <div className="relative">
-                          <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                           <Input
                             value={rollNumber}
                             onChange={(e) =>
@@ -421,7 +421,7 @@ export default function HelpPage() {
                                 className={`w-5 h-5 ${
                                   issueType === type.value
                                     ? "text-[#1a5d1a] dark:text-[#2d7a2d]"
-                                    : "text-gray-400"
+                                    : "text-gray-400 dark:text-zinc-500"
                                 }`}
                               />
                               <span>{type.label}</span>

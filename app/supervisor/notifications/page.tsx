@@ -322,29 +322,29 @@ export default function SupervisorNotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex">
       {/* Sidebar */}
       <SupervisorSidebar profileImage={profileImage} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
-        <header className="hidden md:block bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
+        <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700/50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
-                <MessageCircle className="w-5 h-5 text-gray-500" />
+              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
+                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
               </button>
               <NotificationBell />
               
@@ -357,8 +357,8 @@ export default function SupervisorNotificationsPage() {
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">{session?.user?.name}</p>
-                  <p className="text-[10px] text-gray-500">{session?.user?.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-zinc-500">{session?.user?.email}</p>
                 </div>
               </div>
             </div>
@@ -374,8 +374,8 @@ export default function SupervisorNotificationsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Notifications</h1>
+                <p className="text-sm text-gray-500 dark:text-zinc-500">
                   {unreadCount > 0 
                     ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
                     : 'All caught up!'
@@ -415,7 +415,7 @@ export default function SupervisorNotificationsPage() {
             className="flex flex-col sm:flex-row gap-4 mb-6"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
               <Input
                 placeholder="Search notifications..."
                 value={searchQuery}
@@ -425,7 +425,7 @@ export default function SupervisorNotificationsPage() {
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -451,13 +451,13 @@ export default function SupervisorNotificationsPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 top-14 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-10 min-w-[140px]"
+                    className="absolute right-0 top-14 bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-200 overflow-hidden z-10 min-w-[140px]"
                   >
                     {['all', 'unread', 'read'].map((type) => (
                       <button
                         key={type}
                         onClick={() => { setFilterType(type as any); setShowFilterDropdown(false); }}
-                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 capitalize transition-colors ${
+                        className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:bg-zinc-700/50 capitalize transition-colors ${
                           filterType === type ? 'bg-[#d1e7d1] text-[#1a5d1a]' : 'text-gray-700'
                         }`}
                       >
@@ -476,7 +476,7 @@ export default function SupervisorNotificationsPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
+            <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
               <CardContent className="p-0">
                 {filteredNotifications.length > 0 ? (
                   <div className="divide-y divide-gray-100">
@@ -486,7 +486,7 @@ export default function SupervisorNotificationsPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`p-5 hover:bg-gray-50 transition-colors cursor-pointer ${
+                        className={`p-5 hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors cursor-pointer ${
                           !notification.isRead ? 'bg-[#d1e7d1]/20' : ''
                         }`}
                         onClick={() => {
@@ -509,7 +509,7 @@ export default function SupervisorNotificationsPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                   <h4 className={`font-semibold truncate ${
-                                    notification.isRead ? 'text-gray-700' : 'text-gray-900'
+                                    notification.isRead ? 'text-gray-700 dark:text-zinc-300' : 'text-gray-900 dark:text-[#E4E4E7]'
                                   }`}>
                                     {notification.title}
                                   </h4>
@@ -520,7 +520,7 @@ export default function SupervisorNotificationsPage() {
                                 <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                                   {notification.message}
                                 </p>
-                                <div className="flex items-center gap-3 text-xs text-gray-500">
+                                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-zinc-500">
                                   <span className="flex items-center gap-1">
                                     <Calendar className="w-3.5 h-3.5" />
                                     {formatDate(notification.createdAt)}
@@ -563,7 +563,7 @@ export default function SupervisorNotificationsPage() {
                             {/* Read Status Icon */}
                             <div className="p-2">
                               {notification.isRead ? (
-                                <MailOpen className="w-4 h-4 text-gray-400" />
+                                <MailOpen className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                               ) : (
                                 <Mail className="w-4 h-4 text-[#1a5d1a]" />
                               )}
@@ -586,7 +586,7 @@ export default function SupervisorNotificationsPage() {
                   <div className="text-center py-16">
                     <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-xl font-semibold text-gray-700 mb-2">No notifications found</h3>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-zinc-500">
                       {searchQuery || filterType !== 'all' 
                         ? 'Try adjusting your search or filter'
                         : 'You\'re all caught up!'
@@ -614,7 +614,7 @@ export default function SupervisorNotificationsPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -666,7 +666,7 @@ export default function SupervisorNotificationsPage() {
                             {' '}for their FYP.
                           </p>
                           {parsed.message && (
-                            <div className="mt-3 p-3 bg-white rounded-lg border border-slate-200">
+                            <div className="mt-3 p-3 bg-white dark:bg-[#27272A] rounded-lg border border-slate-200">
                               <p className="text-xs font-medium text-slate-500 mb-1">Message from student:</p>
                               <p className="text-slate-700 text-sm italic">"{parsed.message}"</p>
                             </div>
@@ -705,7 +705,7 @@ export default function SupervisorNotificationsPage() {
                     </div>
                     <div>
                       <p className="text-sm text-[#1a5d1a] font-medium">Sent by</p>
-                      <p className="font-semibold text-gray-900">{selectedNotification.sender.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{selectedNotification.sender.name}</p>
                     </div>
                   </div>
                 )}

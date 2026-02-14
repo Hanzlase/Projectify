@@ -316,14 +316,14 @@ export default function StudentProfile() {
                   <div className="flex gap-3 mt-6">
                     {profile.linkedin && (
                       <a href={profile.linkedin} target="_blank" rel="noopener noreferrer"
-                        className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-[#d1e7d1] transition-colors">
-                        <Linkedin className="w-5 h-5 text-gray-600" />
+                        className="w-10 h-10 bg-gray-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center hover:bg-[#d1e7d1] transition-colors">
+                        <Linkedin className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                       </a>
                     )}
                     {profile.github && (
                       <a href={profile.github} target="_blank" rel="noopener noreferrer"
-                        className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-[#d1e7d1] transition-colors">
-                        <Github className="w-5 h-5 text-gray-600" />
+                        className="w-10 h-10 bg-gray-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center hover:bg-[#d1e7d1] transition-colors">
+                        <Github className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                       </a>
                     )}
                   </div>
@@ -332,7 +332,7 @@ export default function StudentProfile() {
                 {/* Right Side - Bio & Other Details */}
                 <div className="lg:w-2/3 p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Bio & other details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Bio & other details</h3>
                     {!isEditing && (
                       <div className="w-3 h-3 bg-[#1a5d1a] rounded-full"></div>
                     )}
@@ -344,32 +344,32 @@ export default function StudentProfile() {
                       <div className="space-y-5">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Roll Number</p>
-                          <p className="font-semibold text-gray-900">{profile.rollNumber || 'Not set'}</p>
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.rollNumber || 'Not set'}</p>
                         </div>
                         
                         {profile.batch && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Batch</p>
-                            <p className="font-semibold text-gray-900">20{profile.batch}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">20{profile.batch}</p>
                           </div>
                         )}
                         
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Email</p>
-                          <p className="font-semibold text-gray-900">{profile.email}</p>
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.email}</p>
                         </div>
                         
                         {profile.campus && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Campus</p>
-                            <p className="font-semibold text-gray-900">{profile.campus}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.campus}</p>
                           </div>
                         )}
                         
                         {profile.bio && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Bio</p>
-                            <p className="text-gray-700">{profile.bio}</p>
+                            <p className="text-gray-700 dark:text-zinc-300">{profile.bio}</p>
                           </div>
                         )}
                       </div>
@@ -379,20 +379,20 @@ export default function StudentProfile() {
                         {profile.gpa !== undefined && profile.gpa !== null && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">CGPA</p>
-                            <p className="font-semibold text-gray-900">{profile.gpa.toFixed(2)}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.gpa.toFixed(2)}</p>
                           </div>
                         )}
                         
                         {profile.group && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">FYP Group</p>
-                            <p className="font-semibold text-gray-900">{profile.group}</p>
+                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.group}</p>
                           </div>
                         )}
                         
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Member Since</p>
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
                             {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                           </p>
                         </div>
@@ -407,7 +407,7 @@ export default function StudentProfile() {
                         {profile.interests && (
                           <div>
                             <p className="text-xs text-gray-500 mb-2">Interests</p>
-                            {renderTags(profile.interests, 'bg-gray-100 text-gray-700')}
+                            {renderTags(profile.interests, 'bg-gray-100 dark:bg-zinc-700 text-gray-700')}
                           </div>
                         )}
                       </div>
@@ -417,7 +417,7 @@ export default function StudentProfile() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="text-gray-700">Full Name</Label>
+                          <Label htmlFor="name" className="text-gray-700 dark:text-zinc-300">Full Name</Label>
                           <Input
                             id="name"
                             value={formData.name}
@@ -427,7 +427,7 @@ export default function StudentProfile() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="gpa" className="text-gray-700">CGPA (0-4)</Label>
+                          <Label htmlFor="gpa" className="text-gray-700 dark:text-zinc-300">CGPA (0-4)</Label>
                           <Input
                             id="gpa"
                             type="number"
@@ -443,7 +443,7 @@ export default function StudentProfile() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="bio" className="text-gray-700">Bio</Label>
+                        <Label htmlFor="bio" className="text-gray-700 dark:text-zinc-300">Bio</Label>
                         <textarea
                           id="bio"
                           value={formData.bio}
@@ -455,7 +455,7 @@ export default function StudentProfile() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="skills" className="text-gray-700">Skills (comma-separated)</Label>
+                          <Label htmlFor="skills" className="text-gray-700 dark:text-zinc-300">Skills (comma-separated)</Label>
                           <Input
                             id="skills"
                             value={formData.skills}
@@ -465,7 +465,7 @@ export default function StudentProfile() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="interests" className="text-gray-700">Interests (comma-separated)</Label>
+                          <Label htmlFor="interests" className="text-gray-700 dark:text-zinc-300">Interests (comma-separated)</Label>
                           <Input
                             id="interests"
                             value={formData.interests}
@@ -504,15 +504,15 @@ export default function StudentProfile() {
                       </div>
 
                       {/* Password Section */}
-                      <div className="pt-4 border-t border-gray-100">
+                      <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
                         <div className="flex items-center gap-2 mb-4">
-                          <Lock className="w-4 h-4 text-gray-500" />
-                          <h4 className="text-sm font-semibold text-gray-700">Change Password (optional)</h4>
+                          <Lock className="w-4 h-4 text-gray-500 dark:text-zinc-500" />
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Change Password (optional)</h4>
                         </div>
 
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="currentPassword" className="text-gray-700">Current Password</Label>
+                            <Label htmlFor="currentPassword" className="text-gray-700 dark:text-zinc-300">Current Password</Label>
                             <div className="relative">
                               <Input
                                 id="currentPassword"
@@ -523,7 +523,7 @@ export default function StudentProfile() {
                                 placeholder="Enter current password"
                               />
                               <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                 {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                               </button>
                             </div>
@@ -531,7 +531,7 @@ export default function StudentProfile() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="newPassword" className="text-gray-700">New Password</Label>
+                              <Label htmlFor="newPassword" className="text-gray-700 dark:text-zinc-300">New Password</Label>
                               <div className="relative">
                                 <Input
                                   id="newPassword"
@@ -542,13 +542,13 @@ export default function StudentProfile() {
                                   placeholder="New password"
                                 />
                                 <button type="button" onClick={() => setShowNewPassword(!showNewPassword)}
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                   {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
+                              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-zinc-300">Confirm Password</Label>
                               <div className="relative">
                                 <Input
                                   id="confirmPassword"
@@ -559,7 +559,7 @@ export default function StudentProfile() {
                                   placeholder="Confirm password"
                                 />
                                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-zinc-400">
                                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                               </div>
@@ -571,7 +571,7 @@ export default function StudentProfile() {
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-4">
                         <Button type="button" variant="outline" onClick={handleCancel}
-                          className="flex-1 h-11 border-gray-200 hover:bg-gray-50 rounded-xl">
+                          className="flex-1 h-11 border-gray-200 hover:bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                           <X className="w-4 h-4 mr-2" />
                           Cancel
                         </Button>
@@ -586,7 +586,7 @@ export default function StudentProfile() {
 
                   {/* Edit Button */}
                   {!isEditing && (
-                    <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-zinc-800">
                       <Button
                         onClick={() => setIsEditing(true)}
                         className="w-full h-11 bg-[#1a5d1a] hover:bg-[#145214] text-white font-medium rounded-xl"

@@ -231,7 +231,7 @@ export default function CampusesPage() {
                 onClick={() => router.push('/admin/dashboard')}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-500" />
+                <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
               </button>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Campuses</h1>
@@ -364,7 +364,7 @@ export default function CampusesPage() {
             <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   <input
                     type="text"
                     placeholder="Search campuses by name or location..."
@@ -383,7 +383,7 @@ export default function CampusesPage() {
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <div className="p-12 text-center">
                   <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Building className="w-8 h-8 text-gray-400" />
+                    <Building className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <h3 className="text-gray-900 dark:text-[#E4E4E7] font-medium mb-1">No campuses found</h3>
                   <p className="text-sm text-gray-500 dark:text-zinc-400 mb-4">
@@ -527,7 +527,7 @@ export default function CampusesPage() {
                     <p className="text-sm text-gray-500 dark:text-zinc-400">Configure campus details</p>
                   </div>
                   <button onClick={() => setShowCreateModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                   </button>
                 </div>
 
@@ -630,7 +630,7 @@ export default function CampusesPage() {
                     <p className="text-sm text-gray-500 dark:text-zinc-400">Update campus details</p>
                   </div>
                   <button onClick={() => setShowEditModal(false)} className="ml-auto p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors">
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
                   </button>
                 </div>
 

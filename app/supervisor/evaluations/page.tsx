@@ -385,13 +385,13 @@ export default function SupervisorEvaluationsPage() {
         );
       case "completed":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300">
             Completed
           </span>
         );
       default:
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-400">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400">
             {status}
           </span>
         );
@@ -401,8 +401,8 @@ export default function SupervisorEvaluationsPage() {
   const getRoleBadge = (role: string) => {
     const colors = {
       chair: "bg-[#1E6F3E] text-white",
-      member: "bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300",
-      external: "bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-zinc-300",
+      member: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300",
+      external: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300",
     };
     
     const labels = {
@@ -509,7 +509,7 @@ export default function SupervisorEvaluationsPage() {
             {panels.length === 0 ? (
               <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
                 <CardContent className="p-12 text-center">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                     <Award className="w-10 h-10 text-gray-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">
@@ -564,7 +564,7 @@ export default function SupervisorEvaluationsPage() {
                           </Button>
                           <button
                             onClick={() => togglePanel(panel.panelId)}
-                            className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-colors"
+                            className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
                           >
                             {expandedPanels.includes(panel.panelId) ? (
                               <ChevronUp className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
@@ -593,7 +593,7 @@ export default function SupervisorEvaluationsPage() {
                                 {panel.groups.map((group) => (
                                   <div
                                     key={group.groupId}
-                                    className="p-4 bg-gray-50 dark:bg-[#27272A]/50 rounded-xl border border-gray-200 dark:border-zinc-700"
+                                    className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700"
                                   >
                                     <div className="flex items-start justify-between mb-3">
                                       <div>
@@ -726,7 +726,7 @@ export default function SupervisorEvaluationsPage() {
                 </div>
                 <button
                   onClick={() => setShowMembersModal(false)}
-                  className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
@@ -735,7 +735,7 @@ export default function SupervisorEvaluationsPage() {
               <div className="p-6 overflow-y-auto flex-1">
                 {!selectedPanel.members || selectedPanel.members.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                       <Users className="w-8 h-8 text-gray-400" />
                     </div>
                     <p className="text-gray-600 dark:text-zinc-400">No members in this panel</p>
@@ -745,7 +745,7 @@ export default function SupervisorEvaluationsPage() {
                     {selectedPanel.members.map((member) => (
                       <div
                         key={member.supervisorId}
-                        className="p-4 bg-gray-50 dark:bg-[#27272A]/50 rounded-xl border border-gray-200 dark:border-zinc-700 hover:border-[#1E6F3E]/20 transition-colors"
+                        className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700 hover:border-[#1E6F3E]/20 transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3 flex-1">
@@ -784,7 +784,7 @@ export default function SupervisorEvaluationsPage() {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50">
                 <Button
                   variant="outline"
                   onClick={() => setShowMembersModal(false)}
@@ -842,7 +842,7 @@ export default function SupervisorEvaluationsPage() {
                 </div>
                 <button
                   onClick={() => setShowGroupModal(false)}
-                  className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-zinc-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors ml-3 flex-shrink-0"
+                  className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ml-3 flex-shrink-0"
                 >
                   <X className="w-4 h-4 text-gray-500" />
                 </button>
@@ -867,14 +867,14 @@ export default function SupervisorEvaluationsPage() {
                     {tab === "score-submissions" ? "Score" : tab}
                     {tab === "submissions" && groupDetails && (
                       <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
-                        groupModalTab === tab ? "bg-[#1E6F3E] text-white" : "bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300"
+                        groupModalTab === tab ? "bg-[#1E6F3E] text-white" : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
                       }`}>
                         {groupDetails.submissions.length}
                       </span>
                     )}
                     {tab === "comments" && groupDetails && (
                       <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
-                        groupModalTab === tab ? "bg-[#1E6F3E] text-white" : "bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300"
+                        groupModalTab === tab ? "bg-[#1E6F3E] text-white" : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
                       }`}>
                         {groupDetails.comments.length}
                       </span>
@@ -980,15 +980,15 @@ export default function SupervisorEvaluationsPage() {
 
                         {/* Quick Stats Row */}
                         <div className="grid grid-cols-3 gap-3">
-                          <div className="p-4 bg-gray-50 dark:bg-[#27272A]/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
+                          <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
                             <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{groupDetails.group?.students?.length || 0}</p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Members</p>
                           </div>
-                          <div className="p-4 bg-gray-50 dark:bg-[#27272A]/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
+                          <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
                             <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{groupDetails.submissions.length}</p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Submissions</p>
                           </div>
-                          <div className="p-4 bg-gray-50 dark:bg-[#27272A]/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
+                          <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
                             <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{groupDetails.comments.length}</p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Comments</p>
                           </div>
@@ -1014,7 +1014,7 @@ export default function SupervisorEvaluationsPage() {
                               {groupDetails.project.category && (
                                 <div>
                                   <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Category</p>
-                                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300">
+                                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-zinc-300">
                                     {groupDetails.project.category}
                                   </span>
                                 </div>
@@ -1028,7 +1028,7 @@ export default function SupervisorEvaluationsPage() {
                               {groupDetails.project.abstract && (
                                 <div>
                                   <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Abstract</p>
-                                  <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap bg-gray-50 dark:bg-[#27272A]/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-700">
+                                  <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap bg-gray-50 dark:bg-zinc-700/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-700">
                                     {groupDetails.project.abstract}
                                   </p>
                                 </div>
@@ -1040,7 +1040,7 @@ export default function SupervisorEvaluationsPage() {
                                     href={groupDetails.project.repoUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-zinc-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-zinc-600 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
                                   >
                                     <Code className="w-4 h-4" />
                                     Repository
@@ -1074,7 +1074,7 @@ export default function SupervisorEvaluationsPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="p-8 bg-gray-50 dark:bg-[#27272A]/50 rounded-2xl border border-dashed border-gray-300 dark:border-zinc-600 text-center">
+                          <div className="p-8 bg-gray-50 dark:bg-zinc-700/50 rounded-2xl border border-dashed border-gray-300 dark:border-zinc-600 text-center">
                             <BookOpen className="w-10 h-10 text-gray-300 dark:text-zinc-400 mx-auto mb-2" />
                             <p className="text-gray-500 dark:text-zinc-400 font-medium">No project assigned to this group</p>
                           </div>
@@ -1085,7 +1085,7 @@ export default function SupervisorEvaluationsPage() {
                           <div className="px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700 flex items-center gap-2">
                             <Users className="w-5 h-5 text-[#1E6F3E]" />
                             <h3 className="font-bold text-gray-900 dark:text-[#E4E4E7]">Group Members</h3>
-                            <span className="ml-auto text-xs text-gray-500 bg-gray-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full font-medium">
+                            <span className="ml-auto text-xs text-gray-500 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
                               {groupDetails.group?.students?.length || 0}
                             </span>
                           </div>
@@ -1125,11 +1125,11 @@ export default function SupervisorEvaluationsPage() {
                                     className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium ${
                                       m.role === "chair"
                                         ? "bg-[#1E6F3E] text-white shadow-sm"
-                                        : "bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
+                                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-zinc-300"
                                     }`}
                                   >
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                      m.role === "chair" ? "bg-white/20 text-white" : "bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300"
+                                      m.role === "chair" ? "bg-white/20 text-white" : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
                                     }`}>
                                       {m.name?.charAt(0) || "?"}
                                     </div>
@@ -1154,7 +1154,7 @@ export default function SupervisorEvaluationsPage() {
                             <div className="p-4 bg-white dark:bg-[#27272A]">
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {groupDetails.assignment.evaluationDate && (
-                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <Calendar className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
                                     <div>
                                       <p className="text-xs text-gray-500 dark:text-zinc-400">Date</p>
@@ -1165,7 +1165,7 @@ export default function SupervisorEvaluationsPage() {
                                   </div>
                                 )}
                                 {groupDetails.assignment.timeSlot && (
-                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <Clock className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
                                     <div>
                                       <p className="text-xs text-gray-500 dark:text-zinc-400">Time</p>
@@ -1174,7 +1174,7 @@ export default function SupervisorEvaluationsPage() {
                                   </div>
                                 )}
                                 {groupDetails.assignment.venue && (
-                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                                  <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <Building className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
                                     <div>
                                       <p className="text-xs text-gray-500 dark:text-zinc-400">Venue</p>
@@ -1194,7 +1194,7 @@ export default function SupervisorEvaluationsPage() {
                       <div className="space-y-4">
                         {groupDetails.submissions.length === 0 ? (
                           <div className="text-center py-20">
-                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                               <FileText className="w-8 h-8 text-gray-300 dark:text-zinc-400" />
                             </div>
                             <h4 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Submissions Yet</h4>
@@ -1236,7 +1236,7 @@ export default function SupervisorEvaluationsPage() {
                                       ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                                       : sub.status === "returned"
                                       ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                                      : "bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-400"
+                                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400"
                                   }`}>
                                     {sub.status}
                                   </span>
@@ -1275,7 +1275,7 @@ export default function SupervisorEvaluationsPage() {
                                 {sub.content && (
                                   <div>
                                     <p className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Submission Content</p>
-                                    <div className="p-4 bg-gray-50 dark:bg-zinc-700/30 rounded-xl border border-gray-100 dark:border-zinc-700">
+                                    <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-100 dark:border-zinc-700">
                                       <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">{sub.content}</p>
                                     </div>
                                   </div>
@@ -1318,7 +1318,7 @@ export default function SupervisorEvaluationsPage() {
                                           href={att.fileUrl || att.url}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-zinc-700/30 rounded-xl border border-gray-200 dark:border-zinc-700 text-sm hover:border-[#1E6F3E]/30 hover:bg-[#1E6F3E]/5 transition-all group"
+                                          className="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-zinc-700 text-sm hover:border-[#1E6F3E]/30 hover:bg-[#1E6F3E]/5 transition-all group"
                                         >
                                           <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#1E6F3E]/20 transition-colors">
                                             <Download className="w-4 h-4 text-[#1E6F3E]" />
@@ -1344,7 +1344,7 @@ export default function SupervisorEvaluationsPage() {
 
                                 {/* No content, no attachments */}
                                 {!sub.content && (!sub.attachments || sub.attachments.length === 0) && (
-                                  <div className="p-4 bg-gray-50 dark:bg-zinc-700/30 rounded-xl text-center">
+                                  <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl text-center">
                                     <p className="text-sm text-gray-400 dark:text-zinc-500">
                                       No content or files attached to this submission
                                     </p>
@@ -1383,7 +1383,7 @@ export default function SupervisorEvaluationsPage() {
 
                         {groupDetails.submissions.length === 0 ? (
                           <div className="text-center py-16">
-                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                               <FileText className="w-8 h-8 text-gray-300 dark:text-zinc-400" />
                             </div>
                             <h4 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Submissions to Score</h4>
@@ -1432,9 +1432,9 @@ export default function SupervisorEvaluationsPage() {
                                   {/* Score Display Grid */}
                                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     {/* Supervisor Score */}
-                                    <div className={`p-4 rounded-xl border-2 ${hasSupervisorScore ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50'}`}>
+                                    <div className={`p-4 rounded-xl border-2 ${hasSupervisorScore ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasSupervisorScore ? 'bg-blue-500' : 'bg-gray-300 dark:bg-zinc-600'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasSupervisorScore ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                           <User className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Supervisor</span>
@@ -1454,9 +1454,9 @@ export default function SupervisorEvaluationsPage() {
                                     </div>
 
                                     {/* Panel Score */}
-                                    <div className={`p-4 rounded-xl border-2 ${hasPanelScore ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50'}`}>
+                                    <div className={`p-4 rounded-xl border-2 ${hasPanelScore ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasPanelScore ? 'bg-purple-500' : 'bg-gray-300 dark:bg-zinc-600'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasPanelScore ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                           <Award className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel</span>
@@ -1476,9 +1476,9 @@ export default function SupervisorEvaluationsPage() {
                                     </div>
 
                                     {/* Combined Score */}
-                                    <div className={`p-4 rounded-xl border-2 ${combinedScore !== null ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50'}`}>
+                                    <div className={`p-4 rounded-xl border-2 ${combinedScore !== null ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${combinedScore !== null ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-zinc-600'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${combinedScore !== null ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                           <CheckCircle className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Combined</span>
@@ -1688,7 +1688,7 @@ export default function SupervisorEvaluationsPage() {
                         <div className="space-y-3 flex-1 overflow-y-auto">
                           {groupDetails.comments.length === 0 ? (
                             <div className="text-center py-16">
-                              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                                 <MessageSquare className="w-8 h-8 text-gray-300 dark:text-zinc-400" />
                               </div>
                               <h4 className="text-base font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Comments Yet</h4>
@@ -1706,14 +1706,14 @@ export default function SupervisorEvaluationsPage() {
                                 className={`p-4 rounded-xl border transition-colors ${
                                   comment.isOwn
                                     ? "bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border-[#1E6F3E]/20 hover:border-[#1E6F3E]/30"
-                                    : "bg-white dark:bg-[#27272A]/50 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600"
+                                    : "bg-white dark:bg-zinc-700/50 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600"
                                 }`}
                               >
                                 <div className="flex items-start gap-3">
                                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                     comment.isOwn 
                                       ? "bg-[#1E6F3E] text-white" 
-                                      : "bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300"
+                                      : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
                                   }`}>
                                     {comment.userName?.charAt(0) || "?"}
                                   </div>
@@ -1758,7 +1758,7 @@ export default function SupervisorEvaluationsPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-[#27272A]/50 flex-shrink-0">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50 flex-shrink-0">
                 <Button
                   variant="outline"
                   onClick={() => setShowGroupModal(false)}
