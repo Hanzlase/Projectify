@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/button';
 import { 
   Users, UserPlus, Clock, Calendar, 
   ArrowRight, Activity, BookOpen, MessageCircle, 
-  Search, ChevronRight, Plus, GraduationCap, Bell,
-  TrendingUp, BarChart3, User, Play, Pause, RotateCcw
+  ChevronRight, Plus, GraduationCap, Bell,
+  TrendingUp, BarChart3, User
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
+import SearchCommand from '@/components/SearchCommand';
 import { useDashboardStats } from '@/lib/socket-client';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import dynamic from 'next/dynamic';
@@ -67,8 +68,6 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
   const fetchedRef = useRef(false);
 
   // Real-time dashboard stats via WebSocket
@@ -94,64 +93,6 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
     }, 60000);
     return () => clearInterval(timer);
   }, []);
-
-  // Load timer state from localStorage on mount
-  useEffect(() => {
-    const savedTimer = localStorage.getItem('coordinator_timer');
-    const savedRunning = localStorage.getItem('coordinator_timer_running');
-    const savedStartTime = localStorage.getItem('coordinator_timer_start');
-    
-    if (savedTimer) {
-      const savedSeconds = parseInt(savedTimer, 10);
-      if (savedRunning === 'true' && savedStartTime) {
-        const startTime = parseInt(savedStartTime, 10);
-        const now = Date.now();
-        const elapsedSinceStart = Math.floor((now - startTime) / 1000);
-        setSeconds(savedSeconds + elapsedSinceStart);
-        setTimerRunning(true);
-      } else {
-        setSeconds(savedSeconds);
-      }
-    }
-  }, []);
-
-  // Timer interval effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (timerRunning) {
-      localStorage.setItem('coordinator_timer_start', Date.now().toString());
-      localStorage.setItem('coordinator_timer_running', 'true');
-      
-      interval = setInterval(() => {
-        setSeconds(s => {
-          const newSeconds = s + 1;
-          localStorage.setItem('coordinator_timer', newSeconds.toString());
-          return newSeconds;
-        });
-      }, 1000);
-    } else {
-      localStorage.setItem('coordinator_timer_running', 'false');
-    }
-    return () => clearInterval(interval);
-  }, [timerRunning]);
-
-  const formatTime = (totalSeconds: number) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const handleTimerToggle = () => {
-    setTimerRunning(!timerRunning);
-  };
-
-  const handleTimerReset = () => {
-    setSeconds(0);
-    setTimerRunning(false);
-    localStorage.setItem('coordinator_timer', '0');
-    localStorage.setItem('coordinator_timer_running', 'false');
-  };
 
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -218,16 +159,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
         {/* Header */}
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 dark:text-[#E4E4E7] border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
-                />
-              </div>
-            </div>
+            <SearchCommand role="coordinator" />
 
             <div className="flex items-center gap-3">
               <button 
@@ -496,8 +428,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-lg">User Registration Trend</h3>
-                      <p className="text-xs text-gray-500 mt-1">Monthly growth pattern</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">User Registration Trend</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">Monthly growth pattern</p>
                     </div>
                     <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
                       <TrendingUp className="w-5 h-5 text-[#1a5d1a]" />
@@ -572,11 +504,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                     <div className="flex items-center justify-center gap-8 mt-4">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-[#1a5d1a]" />
-                        <span className="text-sm text-gray-600 font-medium">Students ({dashboardData?.stats?.totalStudents || 0})</span>
+                        <span className="text-sm text-gray-600 dark:text-zinc-400 font-medium">Students ({dashboardData?.stats?.totalStudents || 0})</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-[#2d7a2d]" />
-                        <span className="text-sm text-gray-600 font-medium">Supervisors ({dashboardData?.stats?.totalSupervisors || 0})</span>
+                        <span className="text-sm text-gray-600 dark:text-zinc-400 font-medium">Supervisors ({dashboardData?.stats?.totalSupervisors || 0})</span>
                       </div>
                     </div>
                   </CardContent>
@@ -589,8 +521,8 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-lg">User Distribution</h3>
-                      <p className="text-xs text-gray-500 mt-1">By role type</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">User Distribution</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">By role type</p>
                     </div>
                     <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
                       <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
@@ -633,11 +565,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                   <div className="flex items-center justify-center gap-8 mt-4">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-[#1a5d1a]" />
-                      <span className="text-sm text-gray-600 font-medium">Students ({dashboardData?.stats?.totalStudents || 0})</span>
+                      <span className="text-sm text-gray-600 dark:text-zinc-400 font-medium">Students ({dashboardData?.stats?.totalStudents || 0})</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-[#2d7a2d]" />
-                      <span className="text-sm text-gray-600 font-medium">Supervisors ({dashboardData?.stats?.totalSupervisors || 0})</span>
+                      <span className="text-sm text-gray-600 dark:text-zinc-400 font-medium">Supervisors ({dashboardData?.stats?.totalSupervisors || 0})</span>
                     </div>
                   </div>
                 </CardContent>
@@ -656,17 +588,17 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                     <BookOpen className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                   </div>
                   <div className="space-y-4">
-                    <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 rounded-xl border border-[#1a5d1a]/20">
-                      <p className="text-sm text-gray-500 mb-1">Campus Name</p>
+                    <div className="p-4 bg-gradient-to-r from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/20 dark:to-[#1a5d1a]/30 rounded-xl border border-[#1a5d1a]/20">
+                      <p className="text-sm text-gray-500 dark:text-zinc-400 mb-1">Campus Name</p>
                       <p className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">{campusName}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
-                        <p className="text-xs text-gray-500 mb-1">Your Role</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Your Role</p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">FYP Coordinator</p>
                       </div>
                       <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
-                        <p className="text-xs text-gray-500 mb-1">Total Users</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Total Users</p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">
                           {(dashboardData?.stats?.totalStudents || 0) + (dashboardData?.stats?.totalSupervisors || 0)}
                         </p>
@@ -697,16 +629,16 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-semibold text-gray-900 truncate">{deadline.title}</h4>
-                              <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                              <h4 className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">{deadline.title}</h4>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 flex items-center gap-1 mt-1">
                                 <Calendar className="w-3 h-3" />
                                 {deadline.date}
                               </p>
                             </div>
                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${
                               deadline.daysLeft <= 7 
-                                ? 'bg-red-100 text-red-700' 
-                                : 'bg-[#1a5d1a]/10 text-[#1a5d1a]'
+                                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' 
+                                : 'bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80]'
                             }`}>
                               {deadline.daysLeft}d
                             </span>

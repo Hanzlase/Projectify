@@ -10,7 +10,6 @@ import {
   Settings,
   LayoutDashboard,
   Users,
-  UserPlus,
   MessageCircle,
   Menu,
   X,
@@ -79,8 +78,6 @@ function CoordinatorSidebar({ profileImage }: CoordinatorSidebarProps) {
   // Memoized navigation items
   const sidebarItems = useMemo(() => [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/coordinator/dashboard' },
-    { icon: UserPlus, label: 'Add Student', path: '/coordinator/add-student' },
-    { icon: UserPlus, label: 'Add Supervisor', path: '/coordinator/add-supervisor' },
     { icon: Users, label: 'Manage Users', path: '/coordinator/manage-users' },
     { icon: FileCheck, label: 'Evaluations', path: '/coordinator/evaluations' },
     { icon: ClipboardList, label: 'Evaluation Panels', path: '/coordinator/evaluation-panels' },

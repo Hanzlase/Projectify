@@ -40,6 +40,7 @@ interface ResourceItem {
   name: string;
   quantity: number;
   details?: string;
+  type?: "hardware" | "software";
 }
 
 interface ResourceRequest {
@@ -300,7 +301,8 @@ export default function CoordinatorResourceRequestsPage() {
                           {/* Items */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300 flex items-center gap-1">
+                                {(item.type || req.resourceType) === "hardware" ? <Cpu className="w-3 h-3 text-[#1E6F3E]" /> : <Monitor className="w-3 h-3 text-[#1E6F3E]" />}
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -381,7 +383,8 @@ export default function CoordinatorResourceRequestsPage() {
                   <p className="text-sm text-gray-600 dark:text-zinc-400">{selectedRequest.description || "No description"}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedRequest.items.map((item, i) => (
-                      <span key={i} className="text-xs px-2 py-1 bg-white dark:bg-[#27272A] rounded-lg border border-gray-200 dark:border-zinc-600 text-gray-700 dark:text-zinc-300">
+                      <span key={i} className="text-xs px-2 py-1 bg-white dark:bg-[#27272A] rounded-lg border border-gray-200 dark:border-zinc-600 text-gray-700 dark:text-zinc-300 flex items-center gap-1">
+                        {(item.type || selectedRequest.resourceType) === "hardware" ? <Cpu className="w-3 h-3 text-[#1E6F3E]" /> : <Monitor className="w-3 h-3 text-[#1E6F3E]" />}
                         {item.name} x{item.quantity}
                       </span>
                     ))}

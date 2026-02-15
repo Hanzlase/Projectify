@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import {
   Building, Users, GraduationCap, UserCheck, 
   TrendingUp, BarChart3, MapPin, ChevronRight, Plus,
-  Activity, Shield, Globe, Search, Bell, Settings,
+  Activity, Shield, Globe, Bell, Settings,
   ArrowUpRight, ArrowDownRight, Sparkles
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
 import NotificationBell from '@/components/NotificationBell';
+import SearchCommand from '@/components/SearchCommand';
 
 const AdminSidebar = dynamic(() => import('@/components/AdminSidebar'), {
   ssr: false,
@@ -130,16 +131,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
-                />
-              </div>
-            </div>
+            <SearchCommand role="admin" />
 
             <div className="flex items-center gap-3">
               <NotificationBell />
@@ -465,26 +457,28 @@ export default function AdminDashboard() {
               </Card>
 
               {/* Platform Stats */}
-              <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl overflow-hidden">
-                <CardContent className="p-5">
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-[#1a5d1a] to-[#0d3d0d] text-white rounded-2xl overflow-hidden relative">
+                <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/5"></div>
+                <div className="absolute bottom-4 left-4 w-10 h-10 rounded-full bg-white/5"></div>
+                <CardContent className="p-5 relative z-10">
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-green-400" />
+                    <Activity className="w-4 h-4 text-green-300" />
                     Platform Overview
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">Total Users</span>
+                      <span className="text-white/70 text-sm">Total Users</span>
                       <span className="font-bold text-xl">{totalUsers}</span>
                     </div>
-                    <div className="h-px bg-gray-700" />
+                    <div className="h-px bg-white/10" />
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">Active Groups</span>
+                      <span className="text-white/70 text-sm">Active Groups</span>
                       <span className="font-bold text-xl">{stats?.totalGroups || 0}</span>
                     </div>
-                    <div className="h-px bg-gray-700" />
+                    <div className="h-px bg-white/10" />
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">System Status</span>
-                      <span className="flex items-center gap-2 text-green-400 text-sm font-medium">
+                      <span className="text-white/70 text-sm">System Status</span>
+                      <span className="flex items-center gap-2 text-green-300 text-sm font-medium">
                         <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                         Operational
                       </span>

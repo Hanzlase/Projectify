@@ -30,6 +30,27 @@ export async function middleware(request: NextRequest) {
     session = await auth()
   } catch (error) {
     if (!isProd) console.error("Auth error in middleware:", error)
+    
+    // If JWT decryption fails (e.g. secret changed), clear stale auth cookies
+    // so the user can log in fresh instead of getting stuck in a redirect loop
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    if (errorMsg.includes('decryption') || errorMsg.includes('JWE') || errorMsg.includes('JWTSessionError')) {
+      const response = isPublicRoute 
+        ? NextResponse.next() 
+        : NextResponse.redirect(new URL("/login", request.url))
+      
+      // Delete all auth-related cookies to force a fresh login
+      response.cookies.delete('authjs.session-token')
+      response.cookies.delete('__Secure-authjs.session-token')
+      response.cookies.delete('authjs.callback-url')
+      response.cookies.delete('authjs.csrf-token')
+      response.cookies.delete('next-auth.session-token')
+      response.cookies.delete('__Secure-next-auth.session-token')
+      response.cookies.delete('next-auth.callback-url')
+      response.cookies.delete('next-auth.csrf-token')
+      return response
+    }
+    
     // If auth fails on public route, continue; otherwise redirect to login
     if (isPublicRoute) {
       return NextResponse.next()

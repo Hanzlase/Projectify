@@ -40,6 +40,7 @@ interface ResourceItem {
   name: string;
   quantity: number;
   details?: string;
+  type?: "hardware" | "software";
 }
 
 interface ResourceRequest {
@@ -245,7 +246,8 @@ export default function SupervisorResourceRequestsPage() {
                           {/* Items */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300 flex items-center gap-1">
+                                {(item.type || req.resourceType) === "hardware" ? <Cpu className="w-3 h-3 text-[#1E6F3E]" /> : <Monitor className="w-3 h-3 text-[#1E6F3E]" />}
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -323,10 +325,15 @@ export default function SupervisorResourceRequestsPage() {
                   <div className="space-y-2">
                     {selectedRequest.items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                        <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E] font-bold text-sm">{i + 1}</div>
+                        <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E]">
+                          {(item.type || selectedRequest.resourceType) === "hardware" ? <Cpu className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
+                        </div>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{item.name}</p>
-                          {item.details && <p className="text-xs text-gray-500 dark:text-zinc-400">{item.details}</p>}
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">
+                            {(item.type || selectedRequest.resourceType) === "hardware" ? "Hardware" : "Software"}
+                            {item.details && ` • ${item.details}`}
+                          </p>
                         </div>
                         <span className="text-sm font-semibold text-gray-600 dark:text-zinc-300">x{item.quantity}</span>
                       </div>

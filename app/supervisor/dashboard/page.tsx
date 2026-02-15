@@ -8,12 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import dynamic from 'next/dynamic';
 import { useDashboardStats, useSupervisorAvailability } from '@/lib/socket-client';
+import SearchCommand from '@/components/SearchCommand';
 import { 
   Users, 
   GraduationCap, 
   BookOpen, 
   MessageCircle,
-  Search,
   ChevronRight,
   Clock,
   Calendar,
@@ -222,16 +222,7 @@ export default function SupervisorDashboard() {
         {/* Desktop Header */}
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 transition-all"
-                />
-              </div>
-            </div>
+            <SearchCommand role="supervisor" />
 
             <div className="flex items-center gap-3">
               <button 
@@ -368,8 +359,13 @@ export default function SupervisorDashboard() {
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Activity Trend</h3>
-                    <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Activity Trend</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Monthly overview</p>
+                    </div>
+                    <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
+                      <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
+                    </div>
                   </div>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -391,22 +387,23 @@ export default function SupervisorDashboard() {
                             backgroundColor: 'white', 
                             border: 'none', 
                             borderRadius: '12px', 
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            padding: '12px'
                           }}
                         />
-                        <Area type="monotone" dataKey="meetings" stroke="#1a5d1a" fillOpacity={1} fill="url(#colorMeetings)" strokeWidth={2} />
-                        <Area type="monotone" dataKey="reviews" stroke="#2d7a2d" fillOpacity={1} fill="url(#colorReviews)" strokeWidth={2} />
+                        <Area type="monotone" dataKey="meetings" stroke="#1a5d1a" fillOpacity={1} fill="url(#colorMeetings)" strokeWidth={2.5} />
+                        <Area type="monotone" dataKey="reviews" stroke="#2d7a2d" fillOpacity={1} fill="url(#colorReviews)" strokeWidth={2.5} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="flex items-center justify-center gap-6 mt-4">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-[#1a5d1a]"></div>
-                      <span className="text-xs text-gray-600 dark:text-zinc-400">Meetings</span>
+                      <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Meetings</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-[#2d7a2d]"></div>
-                      <span className="text-xs text-gray-600 dark:text-zinc-400">Reviews</span>
+                      <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Reviews</span>
                     </div>
                   </div>
                 </CardContent>
@@ -418,18 +415,23 @@ export default function SupervisorDashboard() {
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Status</h3>
-                    <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Status</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">By approval stage</p>
+                    </div>
+                    <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
+                      <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
+                    </div>
                   </div>
-                  <div className="h-[200px]">
+                  <div className="h-[200px] flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={projectDistributionData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={50}
-                          outerRadius={80}
+                          innerRadius={55}
+                          outerRadius={85}
                           paddingAngle={5}
                           dataKey="value"
                         >
@@ -442,7 +444,8 @@ export default function SupervisorDashboard() {
                             backgroundColor: 'white', 
                             border: 'none', 
                             borderRadius: '12px', 
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            padding: '12px'
                           }}
                         />
                       </PieChart>
@@ -452,7 +455,7 @@ export default function SupervisorDashboard() {
                     {projectDistributionData.map((item, index) => (
                       <div key={index} className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                        <span className="text-xs text-gray-600 dark:text-zinc-400">{item.name} ({item.value})</span>
+                        <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">{item.name} ({item.value})</span>
                       </div>
                     ))}
                   </div>
@@ -600,10 +603,10 @@ export default function SupervisorDashboard() {
             </motion.div>
           </div>
 
-          {/* My Groups & Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          {/* My Groups & Recent Activity & Info */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
             {/* My Groups */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="lg:col-span-2">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="lg:col-span-5">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
@@ -706,7 +709,7 @@ export default function SupervisorDashboard() {
               </Card>
             </motion.div>
             {/* Recent Activity */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="lg:col-span-4">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">
@@ -745,7 +748,7 @@ export default function SupervisorDashboard() {
             </motion.div>
 
             {/* Supervisor Info */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="lg:col-span-3">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-5">

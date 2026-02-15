@@ -18,17 +18,15 @@ import {
   LayoutDashboard,
   FolderKanban,
   HelpCircle,
-  Search,
   Calendar,
   Plus,
-  Play,
-  Pause,
-  RotateCcw,
+  Clock,
   ExternalLink,
   Copy
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
+import SearchCommand from '@/components/SearchCommand';
 import dynamic from 'next/dynamic';
 import { useSupervisorAvailability, useProjectStatus } from '@/lib/socket-client';
 
@@ -115,77 +113,40 @@ export default function StudentDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [meetings, setMeetings] = useState<MeetingData[]>([]);
   const [upcomingMeetings, setUpcomingMeetings] = useState<MeetingData[]>([]);
+  const [nextDeadline, setNextDeadline] = useState<{ title: string; dueDate: string } | null>(null);
+  const [countdownSeconds, setCountdownSeconds] = useState(0);
   const fetchedRef = useRef(false);
 
   // Real-time supervisor availability and project status via WebSocket
   const { availabilityMap: supervisorAvailability } = useSupervisorAvailability();
   const { statusMap: projectStatusMap } = useProjectStatus();
 
-  // Load timer state from localStorage on mount
+  // Countdown timer for nearest submission deadline
   useEffect(() => {
-    const savedTimer = localStorage.getItem('projectify_timer');
-    const savedRunning = localStorage.getItem('projectify_timer_running');
-    const savedStartTime = localStorage.getItem('projectify_timer_start');
+    if (!nextDeadline) return;
     
-    if (savedTimer) {
-      const savedSeconds = parseInt(savedTimer, 10);
-      if (savedRunning === 'true' && savedStartTime) {
-        // Calculate elapsed time since last save
-        const startTime = parseInt(savedStartTime, 10);
-        const now = Date.now();
-        const elapsedSinceStart = Math.floor((now - startTime) / 1000);
-        setSeconds(savedSeconds + elapsedSinceStart);
-        setTimerRunning(true);
-      } else {
-        setSeconds(savedSeconds);
-      }
-    }
-  }, []);
-
-  // Timer interval effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (timerRunning) {
-      // Save start time when timer starts
-      localStorage.setItem('projectify_timer_start', Date.now().toString());
-      localStorage.setItem('projectify_timer_running', 'true');
-      
-      interval = setInterval(() => {
-        setSeconds(s => {
-          const newSeconds = s + 1;
-          localStorage.setItem('projectify_timer', newSeconds.toString());
-          return newSeconds;
-        });
-      }, 1000);
-    } else {
-      localStorage.setItem('projectify_timer_running', 'false');
-    }
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const deadline = new Date(nextDeadline.dueDate).getTime();
+      const diff = Math.max(0, Math.floor((deadline - now) / 1000));
+      setCountdownSeconds(diff);
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [timerRunning]);
+  }, [nextDeadline]);
 
-  // Save timer when component unmounts or seconds change
-  useEffect(() => {
-    localStorage.setItem('projectify_timer', seconds.toString());
-  }, [seconds]);
-
-  const formatTimer = (totalSeconds: number) => {
-    const hrs = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
+  const formatCountdown = (totalSeconds: number) => {
+    if (totalSeconds <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, label: "Deadline passed" };
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const resetTimer = () => {
-    setSeconds(0);
-    setTimerRunning(false);
-    localStorage.setItem('projectify_timer', '0');
-    localStorage.setItem('projectify_timer_running', 'false');
-    localStorage.removeItem('projectify_timer_start');
+    return { days, hours, minutes, seconds: secs, label: "" };
   };
 
   useEffect(() => {
@@ -203,10 +164,11 @@ export default function StudentDashboard() {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [dashboardResponse, profileResponse, tasksMeetingsResponse] = await Promise.all([
+      const [dashboardResponse, profileResponse, tasksMeetingsResponse, evaluationsResponse] = await Promise.all([
         fetch('/api/student/dashboard'),
         fetch('/api/page-data?include=profile'),
-        fetch('/api/student/dashboard/tasks-meetings')
+        fetch('/api/student/dashboard/tasks-meetings'),
+        fetch('/api/student/evaluations')
       ]);
 
       if (dashboardResponse.ok) {
@@ -224,6 +186,19 @@ export default function StudentDashboard() {
         setTasks(data.tasks || []);
         setMeetings(data.meetings || []);
         setUpcomingMeetings(data.upcomingMeetings || []);
+      }
+
+      if (evaluationsResponse.ok) {
+        const data = await evaluationsResponse.json();
+        const evaluations = data.evaluations || [];
+        // Find the nearest future deadline
+        const now = new Date().getTime();
+        const upcoming = evaluations
+          .filter((e: any) => new Date(e.dueDate).getTime() > now && e.status === 'active')
+          .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+        if (upcoming.length > 0) {
+          setNextDeadline({ title: upcoming[0].title, dueDate: upcoming[0].dueDate });
+        }
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -380,16 +355,7 @@ export default function StudentDashboard() {
       <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Search task"
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-700 border-0 rounded-xl text-sm text-gray-900 dark:text-[#E4E4E7] placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20 dark:focus:ring-[#22C55E]/30 transition-all"
-                />
-              </div>
-            </div>
+            <SearchCommand role="student" />
 
             <div className="flex items-center gap-3">
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all">
@@ -987,41 +953,61 @@ export default function StudentDashboard() {
                 <div className="absolute top-12 right-12 w-8 h-8 rounded-full bg-white/10"></div>
                 
                 <CardContent className="p-5 relative z-10 h-full flex flex-col">
-                  <h3 className="font-semibold text-white mb-2">Time Tracker</h3>
-                  <p className="text-white/60 text-xs mb-auto">Track your work hours</p>
+                  <h3 className="font-semibold text-white mb-1">Submission Deadline</h3>
+                  <p className="text-white/60 text-xs mb-auto truncate">
+                    {nextDeadline ? nextDeadline.title : 'No upcoming deadlines'}
+                  </p>
                   
-                  <div className="text-center py-4">
-                    <motion.div 
-                      className="text-4xl font-mono font-bold text-white mb-6 tracking-wider"
-                      initial={{ opacity: 0, scale: 0.5 }} 
-                      animate={{ opacity: 1, scale: 1 }} 
-                      transition={{ delay: 0.7, duration: 0.5 }}
-                    >
-                      {formatTimer(seconds)}
-                    </motion.div>
-                    <div className="flex items-center justify-center gap-4">
-                      <motion.button 
-                        onClick={() => setTimerRunning(!timerRunning)} 
-                        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg ${
-                          timerRunning 
-                            ? 'bg-white text-[#1a5d1a]' 
-                            : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
-                        }`}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {timerRunning ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
-                      </motion.button>
-                      <motion.button 
-                        onClick={resetTimer} 
-                        className="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all border border-white/20"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                      </motion.button>
+                  {nextDeadline ? (() => {
+                    const cd = formatCountdown(countdownSeconds);
+                    return (
+                      <div className="text-center py-4">
+                        {countdownSeconds > 0 ? (
+                          <>
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              {[
+                                { value: cd.days, label: 'Days' },
+                                { value: cd.hours, label: 'Hours' },
+                                { value: cd.minutes, label: 'Mins' },
+                                { value: cd.seconds, label: 'Secs' },
+                              ].map((unit, i) => (
+                                <motion.div
+                                  key={unit.label}
+                                  className="flex flex-col items-center"
+                                  initial={{ opacity: 0, scale: 0.5 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  transition={{ delay: 0.7 + i * 0.1, duration: 0.4 }}
+                                >
+                                  <div className="w-full bg-white/10 backdrop-blur-sm rounded-xl py-2.5 border border-white/20">
+                                    <span className="text-2xl font-mono font-bold text-white">{String(unit.value).padStart(2, '0')}</span>
+                                  </div>
+                                  <span className="text-[10px] text-white/50 mt-1 font-medium">{unit.label}</span>
+                                </motion.div>
+                              ))}
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                              <span className="text-xs text-white/70 font-medium">Time remaining</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center py-4">
+                            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-3">
+                              <Clock className="w-6 h-6 text-red-300" />
+                            </div>
+                            <span className="text-sm text-red-300 font-semibold">Deadline Passed</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })() : (
+                    <div className="text-center py-6 flex flex-col items-center justify-center flex-1">
+                      <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                        <Calendar className="w-7 h-7 text-white/40" />
+                      </div>
+                      <span className="text-sm text-white/50">All caught up!</span>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

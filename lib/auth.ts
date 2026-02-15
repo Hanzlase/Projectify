@@ -31,7 +31,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const user = await prisma.user.findFirst({
             where: {
               OR: [
-                { email: identifier },
+                { email: { equals: identifier, mode: 'insensitive' } },
                 { student: { rollNumber: identifier } }
               ]
             },

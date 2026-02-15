@@ -1,18 +1,18 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { v4 as uuidv4 } from 'uuid';
 
-// Use environment variable for cluster URL, with fallback
-let QDRANT_URL = process.env.clusterurl || process.env.QDRANT_URL || '';
+// Use QDRANT_URL environment variable
+let QDRANT_URL = process.env.QDRANT_URL || '';
 // Remove port :6333 if present (Qdrant Cloud doesn't use it)
 if (QDRANT_URL.includes(':6333')) {
   QDRANT_URL = QDRANT_URL.replace(':6333', '');
 }
 // Clean up API key in case it has line breaks
-const QDRANT_API_KEY = (process.env.QDRANT_API_KEY || process.env.qdrant || '').replace(/\s+/g, '');
+const QDRANT_API_KEY = (process.env.QDRANT_API_KEY || '').replace(/\s+/g, '');
 const COLLECTION_NAME = 'project_embeddings';
 const VECTOR_SIZE = 1024; // Cohere embed-english-v3.0 produces 1024-dimensional vectors
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 500;
 
 let qdrantClient: QdrantClient | null = null;
 
@@ -92,13 +92,13 @@ function getQdrantClient(): QdrantClient {
   if (!qdrantClient) {
     console.log('Initializing Qdrant client with URL:', QDRANT_URL);
     if (!QDRANT_URL) {
-      throw new Error('Qdrant URL not configured. Set clusterurl or QDRANT_URL in .env');
+      throw new Error('Qdrant URL not configured. Set QDRANT_URL in .env');
     }
     qdrantClient = new QdrantClient({
       url: QDRANT_URL,
       apiKey: QDRANT_API_KEY,
       checkCompatibility: false, // Skip version check to avoid errors
-      timeout: 30000, // 30 second timeout
+      timeout: 10000, // 10 second timeout
     });
   }
   return qdrantClient;

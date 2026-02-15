@@ -43,6 +43,7 @@ interface ResourceItem {
   name: string;
   quantity: number;
   details?: string;
+  type?: "hardware" | "software";
 }
 
 interface ResourceRequest {
@@ -83,9 +84,8 @@ export default function StudentResourceRequestsPage() {
   // Form states
   const [formTitle, setFormTitle] = useState("");
   const [formDescription, setFormDescription] = useState("");
-  const [formType, setFormType] = useState<"hardware" | "software" | "both">("hardware");
   const [formJustification, setFormJustification] = useState("");
-  const [formItems, setFormItems] = useState<ResourceItem[]>([{ name: "", quantity: 1, details: "" }]);
+  const [formItems, setFormItems] = useState<ResourceItem[]>([{ name: "", quantity: 1, details: "", type: "hardware" }]);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
 
@@ -117,14 +117,17 @@ export default function StudentResourceRequestsPage() {
     }
     setSubmitting(true);
     try {
+      const filteredItems = formItems.filter(i => i.name.trim());
+      const types = new Set(filteredItems.map(i => i.type || "hardware"));
+      const derivedType = types.size > 1 ? "both" : (types.values().next().value || "hardware");
       const res = await fetch("/api/student/resource-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formTitle,
           description: formDescription,
-          resourceType: formType,
-          items: formItems.filter(i => i.name.trim()),
+          resourceType: derivedType,
+          items: filteredItems,
           justification: formJustification,
         }),
       });
@@ -147,6 +150,9 @@ export default function StudentResourceRequestsPage() {
     if (!selectedRequest || !formTitle.trim()) return;
     setSubmitting(true);
     try {
+      const filteredItems = formItems.filter(i => i.name.trim());
+      const types = new Set(filteredItems.map(i => i.type || "hardware"));
+      const derivedType = types.size > 1 ? "both" : (types.values().next().value || "hardware");
       const res = await fetch("/api/student/resource-requests", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -154,8 +160,8 @@ export default function StudentResourceRequestsPage() {
           requestId: selectedRequest.id,
           title: formTitle,
           description: formDescription,
-          resourceType: formType,
-          items: formItems.filter(i => i.name.trim()),
+          resourceType: derivedType,
+          items: filteredItems,
           justification: formJustification,
         }),
       });
@@ -191,9 +197,8 @@ export default function StudentResourceRequestsPage() {
   const resetForm = () => {
     setFormTitle("");
     setFormDescription("");
-    setFormType("hardware");
     setFormJustification("");
-    setFormItems([{ name: "", quantity: 1, details: "" }]);
+    setFormItems([{ name: "", quantity: 1, details: "", type: "hardware" }]);
     setSelectedRequest(null);
   };
 
@@ -201,13 +206,12 @@ export default function StudentResourceRequestsPage() {
     setSelectedRequest(req);
     setFormTitle(req.title);
     setFormDescription(req.description || "");
-    setFormType(req.resourceType as any);
     setFormJustification(req.justification || "");
-    setFormItems(req.items.length > 0 ? req.items : [{ name: "", quantity: 1, details: "" }]);
+    setFormItems(req.items.length > 0 ? req.items.map(i => ({ ...i, type: i.type || (req.resourceType as any) || "hardware" })) : [{ name: "", quantity: 1, details: "", type: "hardware" }]);
     setShowEditModal(true);
   };
 
-  const addItem = () => setFormItems([...formItems, { name: "", quantity: 1, details: "" }]);
+  const addItem = () => setFormItems([...formItems, { name: "", quantity: 1, details: "", type: "hardware" }]);
   const removeItem = (idx: number) => setFormItems(formItems.filter((_, i) => i !== idx));
   const updateItem = (idx: number, field: string, value: any) => {
     const updated = [...formItems];
@@ -340,7 +344,8 @@ export default function StudentResourceRequestsPage() {
                           {/* Items Preview */}
                           <div className="flex flex-wrap gap-2 mt-2 ml-[52px]">
                             {req.items.slice(0, 3).map((item, i) => (
-                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300">
+                              <span key={i} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-zinc-300 flex items-center gap-1">
+                                {(item.type || req.resourceType) === "hardware" ? <Cpu className="w-3 h-3 text-[#1E6F3E]" /> : <Monitor className="w-3 h-3 text-[#1E6F3E]" />}
                                 {item.name} x{item.quantity}
                               </span>
                             ))}
@@ -475,56 +480,54 @@ export default function StudentResourceRequestsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">Resource Type</label>
-                  <div className="flex gap-2">
-                    {(["hardware", "software", "both"] as const).map(t => (
-                      <button
-                        key={t}
-                        onClick={() => setFormType(t)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${formType === t ? 'bg-[#1E6F3E] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-                      >
-                        {t === "hardware" ? <Cpu className="w-4 h-4" /> : t === "software" ? <Monitor className="w-4 h-4" /> : <Package className="w-4 h-4" />}
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">Items *</label>
                   <div className="space-y-3">
                     {formItems.map((item, idx) => (
-                      <div key={idx} className="flex gap-2 items-start">
-                        <div className="flex-1">
-                          <Input
-                            value={item.name}
-                            onChange={(e) => updateItem(idx, "name", e.target.value)}
-                            placeholder="Item name"
-                            className="rounded-xl"
-                          />
+                      <div key={idx} className="space-y-2 p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
+                        <div className="flex gap-2 items-center">
+                          <div className="flex gap-1">
+                            {(["hardware", "software"] as const).map(t => (
+                              <button
+                                key={t}
+                                onClick={() => updateItem(idx, "type", t)}
+                                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${(item.type || "hardware") === t ? 'bg-[#1E6F3E] text-white' : 'bg-white dark:bg-zinc-600 text-gray-500 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-500 border border-gray-200 dark:border-zinc-500'}`}
+                              >
+                                {t === "hardware" ? <Cpu className="w-3 h-3" /> : <Monitor className="w-3 h-3" />}
+                                {t === "hardware" ? "HW" : "SW"}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex-1">
+                            <Input
+                              value={item.name}
+                              onChange={(e) => updateItem(idx, "name", e.target.value)}
+                              placeholder="Item name"
+                              className="rounded-xl"
+                            />
+                          </div>
+                          <div className="w-20">
+                            <Input
+                              type="number"
+                              min={1}
+                              value={item.quantity}
+                              onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 1)}
+                              className="rounded-xl text-center"
+                            />
+                          </div>
+                          {formItems.length > 1 && (
+                            <button onClick={() => removeItem(idx)} className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 hover:bg-red-100 flex-shrink-0">
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
-                        <div className="w-20">
-                          <Input
-                            type="number"
-                            min={1}
-                            value={item.quantity}
-                            onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 1)}
-                            className="rounded-xl text-center"
-                          />
-                        </div>
-                        <div className="flex-1">
+                        <div className="pl-0">
                           <Input
                             value={item.details || ""}
                             onChange={(e) => updateItem(idx, "details", e.target.value)}
-                            placeholder="Details (optional)"
-                            className="rounded-xl"
+                            placeholder="Details / specifications (optional)"
+                            className="rounded-xl text-sm"
                           />
                         </div>
-                        {formItems.length > 1 && (
-                          <button onClick={() => removeItem(idx)} className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 hover:bg-red-100 flex-shrink-0 mt-0.5">
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
                       </div>
                     ))}
                     <button onClick={addItem} className="text-sm text-[#1E6F3E] font-medium hover:underline flex items-center gap-1">
@@ -600,10 +603,15 @@ export default function StudentResourceRequestsPage() {
                   <div className="space-y-2">
                     {selectedRequest.items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                        <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E] font-bold text-sm">{i + 1}</div>
+                        <div className="w-8 h-8 rounded-lg bg-[#1E6F3E]/10 flex items-center justify-center text-[#1E6F3E]">
+                          {(item.type || selectedRequest.resourceType) === "hardware" ? <Cpu className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
+                        </div>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 dark:text-[#E4E4E7]">{item.name}</p>
-                          {item.details && <p className="text-xs text-gray-500 dark:text-zinc-400">{item.details}</p>}
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">
+                            {(item.type || selectedRequest.resourceType) === "hardware" ? "Hardware" : "Software"}
+                            {item.details && ` • ${item.details}`}
+                          </p>
                         </div>
                         <span className="text-sm font-semibold text-gray-600 dark:text-zinc-300">x{item.quantity}</span>
                       </div>
