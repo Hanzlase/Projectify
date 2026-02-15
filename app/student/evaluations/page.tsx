@@ -28,6 +28,10 @@ import {
   CircleDot,
   Timer,
   CheckCheck,
+  ChevronDown,
+  ChevronUp,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -136,6 +140,7 @@ export default function StudentEvaluationsPage() {
   const [submitContent, setSubmitContent] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [expandedSubmissions, setExpandedSubmissions] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -170,6 +175,18 @@ export default function StudentEvaluationsPage() {
     fetchEvaluations();
   };
 
+  const toggleSubmissionExpand = (evaluationId: number) => {
+    setExpandedSubmissions((prev) => {
+      const next = new Set(prev);
+      if (next.has(evaluationId)) {
+        next.delete(evaluationId);
+      } else {
+        next.add(evaluationId);
+      }
+      return next;
+    });
+  };
+
   const handleSubmit = async () => {
     if (!selectedEvaluation) return;
 
@@ -180,12 +197,41 @@ export default function StudentEvaluationsPage() {
 
     setSubmitting(true);
     try {
+      // Upload files to R2 first
       const uploadedAttachments: any[] = [];
+      for (const file of attachments) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("type", "file");
+        const uploadRes = await fetch("/api/chat/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedAttachments.push({
+            fileName: file.name,
+            fileUrl: uploadData.url,
+            fileSize: file.size,
+            fileType: file.type,
+          });
+        } else {
+          alert(`Failed to upload file: ${file.name}`);
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      const isEditing = !!selectedEvaluation.submission;
 
       const res = await fetch("/api/student/evaluations", {
-        method: "POST",
+        method: isEditing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: JSON.stringify(isEditing ? {
+          submissionId: selectedEvaluation.submission!.id,
+          content: submitContent,
+          attachments: uploadedAttachments,
+        } : {
           evaluationId: selectedEvaluation.id,
           content: submitContent,
           attachments: uploadedAttachments,
@@ -208,6 +254,35 @@ export default function StudentEvaluationsPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleUnsubmit = async (evaluation: Evaluation) => {
+    if (!evaluation.submission) return;
+    if (!confirm("Are you sure you want to withdraw your submission? This cannot be undone.")) return;
+
+    try {
+      const res = await fetch(`/api/student/evaluations?submissionId=${evaluation.submission.id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        fetchEvaluations();
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to withdraw submission");
+      }
+    } catch (error) {
+      console.error("Error withdrawing submission:", error);
+      alert("Failed to withdraw submission");
+    }
+  };
+
+  const handleEditSubmission = (evaluation: Evaluation) => {
+    if (!evaluation.submission) return;
+    setSelectedEvaluation(evaluation);
+    setSubmitContent(evaluation.submission.content || "");
+    setAttachments([]);
+    setShowSubmitModal(true);
   };
 
   const getDaysRemaining = (dueDate: string) => {
@@ -690,17 +765,17 @@ export default function StudentEvaluationsPage() {
                           {evaluation.submission && (evaluation.submission.supervisorScore !== null || evaluation.submission.panelScore !== null) && (
                             <div className="mt-3 grid grid-cols-2 gap-2">
                               {evaluation.submission.supervisorScore !== null && evaluation.submission.supervisorScore !== undefined && (
-                                <div className="p-2.5 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-                                  <p className="text-[10px] font-semibold text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wider mb-0.5">Supervisor</p>
-                                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                <div className="p-2.5 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-lg border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
+                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-emerald-400/70 uppercase tracking-wider mb-0.5">Supervisor</p>
+                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400">
                                     {evaluation.submission.supervisorScore}/{evaluation.totalMarks}
                                   </p>
                                 </div>
                               )}
                               {evaluation.submission.panelScore !== null && evaluation.submission.panelScore !== undefined && (
-                                <div className="p-2.5 bg-purple-50/50 dark:bg-purple-900/10 rounded-lg border border-purple-200/50 dark:border-purple-800/50">
-                                  <p className="text-[10px] font-semibold text-purple-600/70 dark:text-purple-400/70 uppercase tracking-wider mb-0.5">Panel Head</p>
-                                  <p className="text-sm font-bold text-purple-600 dark:text-purple-400">
+                                <div className="p-2.5 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-lg border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
+                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-emerald-400/70 uppercase tracking-wider mb-0.5">Panel Head</p>
+                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400">
                                     {evaluation.submission.panelScore}/{evaluation.totalMarks}
                                   </p>
                                 </div>
@@ -751,6 +826,125 @@ export default function StudentEvaluationsPage() {
                           )}
                         </div>
                       </div>
+
+                      {/* Expandable Submission Details */}
+                      {evaluation.submission && (
+                        <div className="mt-4 border-t border-gray-100 dark:border-zinc-700 pt-3">
+                          <button
+                            onClick={() => toggleSubmissionExpand(evaluation.id)}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-[#1E6F3E]" />
+                              <span>Your Submission</span>
+                              <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                — {new Date(evaluation.submission.submittedAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
+                            {expandedSubmissions.has(evaluation.id) ? (
+                              <ChevronUp className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-zinc-300 transition-colors" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-zinc-300 transition-colors" />
+                            )}
+                          </button>
+
+                          <AnimatePresence>
+                            {expandedSubmissions.has(evaluation.id) && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-2 p-4 bg-gray-50 dark:bg-zinc-700/30 rounded-xl space-y-3">
+                                  {/* Submission Content */}
+                                  {evaluation.submission!.content && (
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">Content</p>
+                                      <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap bg-white dark:bg-zinc-800 p-3 rounded-lg border border-gray-200 dark:border-zinc-600">
+                                        {evaluation.submission!.content}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {/* Submission Attachments */}
+                                  {evaluation.submission!.attachments && evaluation.submission!.attachments.length > 0 && (
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
+                                        Submitted Files ({evaluation.submission!.attachments.length})
+                                      </p>
+                                      <div className="space-y-1.5">
+                                        {evaluation.submission!.attachments.map((att) => (
+                                          <a
+                                            key={att.id}
+                                            href={att.fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 p-2.5 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-600 hover:border-[#1E6F3E] hover:bg-[#1E6F3E]/5 dark:hover:bg-[#1E6F3E]/10 transition-colors group"
+                                          >
+                                            <File className="w-4 h-4 text-[#1E6F3E]" />
+                                            <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1 truncate font-medium">
+                                              {att.fileName}
+                                            </span>
+                                            <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#1E6F3E] transition-colors" />
+                                          </a>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* No content or attachments */}
+                                  {!evaluation.submission!.content && (!evaluation.submission!.attachments || evaluation.submission!.attachments.length === 0) && (
+                                    <p className="text-sm text-gray-400 dark:text-zinc-500 italic text-center py-2">
+                                      No content or files were included in this submission.
+                                    </p>
+                                  )}
+
+                                  {/* Submission Timestamp */}
+                                  <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-zinc-600">
+                                    <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-zinc-500">
+                                      <Clock className="w-3 h-3" />
+                                      Submitted on {new Date(evaluation.submission!.submittedAt).toLocaleString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </div>
+
+                                    {/* Edit / Unsubmit buttons — only if not graded */}
+                                    {evaluation.submission!.status !== "graded" && !evaluation.submission!.supervisorScore && !evaluation.submission!.panelScore && (
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => handleEditSubmission(evaluation)}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleUnsubmit(evaluation)}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                          Unsubmit
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -779,7 +973,9 @@ export default function StudentEvaluationsPage() {
             >
               <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-700 flex items-center justify-between bg-white dark:bg-[#27272A]">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Submit Evaluation</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                    {selectedEvaluation.submission ? "Edit Submission" : "Submit Evaluation"}
+                  </h2>
                   <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">{selectedEvaluation.title}</p>
                 </div>
                 <button onClick={() => setShowSubmitModal(false)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
@@ -907,7 +1103,7 @@ export default function StudentEvaluationsPage() {
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-2" />
-                      Submit Evaluation
+                      {selectedEvaluation.submission ? "Update Submission" : "Submit Evaluation"}
                     </>
                   )}
                 </Button>
@@ -995,6 +1191,70 @@ export default function StudentEvaluationsPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Submission Details in View Modal */}
+                {selectedEvaluation.submission && (
+                  <div className="border-t border-gray-200 dark:border-zinc-700 pt-5">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-3 flex items-center gap-2">
+                      <Send className="w-4 h-4 text-[#1E6F3E]" />
+                      Your Submission
+                    </h3>
+                    <div className="space-y-3 p-4 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl border border-[#1E6F3E]/10">
+                      {/* Submission Content */}
+                      {selectedEvaluation.submission.content && (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">Content</p>
+                          <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap bg-white dark:bg-zinc-800 p-3 rounded-lg border border-gray-200 dark:border-zinc-600">
+                            {selectedEvaluation.submission.content}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Submission Attachments */}
+                      {selectedEvaluation.submission.attachments && selectedEvaluation.submission.attachments.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
+                            Submitted Files ({selectedEvaluation.submission.attachments.length})
+                          </p>
+                          <div className="space-y-1.5">
+                            {selectedEvaluation.submission.attachments.map((att) => (
+                              <a
+                                key={att.id}
+                                href={att.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-2.5 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-600 hover:border-[#1E6F3E] hover:bg-[#1E6F3E]/5 dark:hover:bg-[#1E6F3E]/10 transition-colors group"
+                              >
+                                <File className="w-4 h-4 text-[#1E6F3E]" />
+                                <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1 truncate font-medium">{att.fileName}</span>
+                                <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#1E6F3E] transition-colors" />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* No content */}
+                      {!selectedEvaluation.submission.content && (!selectedEvaluation.submission.attachments || selectedEvaluation.submission.attachments.length === 0) && (
+                        <p className="text-sm text-gray-400 dark:text-zinc-500 italic text-center py-2">
+                          No content or files were included in this submission.
+                        </p>
+                      )}
+
+                      {/* Timestamp */}
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400 pt-2 border-t border-[#1E6F3E]/10">
+                        <Clock className="w-3 h-3" />
+                        Submitted on {new Date(selectedEvaluation.submission.submittedAt).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button if not submitted */}
@@ -1061,16 +1321,16 @@ export default function StudentEvaluationsPage() {
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-3 uppercase tracking-wider">Score Breakdown</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Supervisor Score */}
-                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
+                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                             <Award className="w-4 h-4 text-white" />
                           </div>
                           <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Supervisor Score</span>
                         </div>
                         {selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined ? (
                           <>
-                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            <p className="text-2xl font-bold text-[#1E6F3E]">
                               {selectedEvaluation.submission!.supervisorScore}<span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                             </p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
@@ -1086,16 +1346,16 @@ export default function StudentEvaluationsPage() {
                       </div>
 
                       {/* Panel Head Score */}
-                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
+                      <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                             <Award className="w-4 h-4 text-white" />
                           </div>
                           <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel Head Score</span>
                         </div>
                         {selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? (
                           <>
-                            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                            <p className="text-2xl font-bold text-[#1E6F3E]">
                               {selectedEvaluation.submission!.panelScore}<span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                             </p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">

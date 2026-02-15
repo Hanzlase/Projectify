@@ -23,7 +23,9 @@ import {
   Plus,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  ExternalLink,
+  Copy
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -619,13 +621,49 @@ export default function StudentDashboard() {
                             </div>
                           </div>
                           {upcomingMeetings[0].meetingLink ? (
-                            <Button 
-                              onClick={() => window.open(upcomingMeetings[0].meetingLink, '_blank')}
-                              className="mt-3 w-full bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-9 text-sm"
-                            >
-                              <Play className="w-3 h-3 mr-2" />
-                              Join Meeting
-                            </Button>
+                            <div className="mt-3 space-y-2">
+                              {upcomingMeetings[0].description && (
+                                <p className="text-xs text-gray-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 rounded-lg px-3 py-2">
+                                  <span className="font-semibold text-gray-700 dark:text-zinc-300">Instructions: </span>
+                                  {upcomingMeetings[0].description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-2 bg-white/60 dark:bg-zinc-800/60 rounded-lg px-3 py-2 border border-[#1a5d1a]/10 dark:border-[#1a5d1a]/20">
+                                <ExternalLink className="w-3.5 h-3.5 text-[#1a5d1a] flex-shrink-0" />
+                                <a
+                                  href={upcomingMeetings[0].meetingLink.match(/^https?:\/\//) ? upcomingMeetings[0].meetingLink : `https://${upcomingMeetings[0].meetingLink}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-[#1a5d1a] dark:text-[#4ade80] font-medium truncate hover:underline"
+                                >
+                                  {upcomingMeetings[0].meetingLink}
+                                </a>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(
+                                      upcomingMeetings[0].meetingLink!.match(/^https?:\/\//) ? upcomingMeetings[0].meetingLink! : `https://${upcomingMeetings[0].meetingLink}`
+                                    );
+                                    const btn = document.activeElement as HTMLButtonElement;
+                                    if (btn) { btn.title = 'Copied!'; setTimeout(() => { btn.title = 'Copy link'; }, 2000); }
+                                  }}
+                                  className="ml-auto flex-shrink-0 text-gray-400 hover:text-[#1a5d1a] transition-colors"
+                                  title="Copy link"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <Button 
+                                onClick={() => {
+                                  const link = upcomingMeetings[0].meetingLink!;
+                                  const url = link.match(/^https?:\/\//) ? link : `https://${link}`;
+                                  window.open(url, '_blank');
+                                }}
+                                className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-9 text-sm"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-2" />
+                                Open Meeting Link
+                              </Button>
+                            </div>
                           ) : (
                             <p className="mt-3 text-xs text-gray-500 dark:text-zinc-400 text-center py-2">No meeting link provided</p>
                           )}

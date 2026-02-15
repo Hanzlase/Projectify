@@ -113,7 +113,6 @@ export default function CoordinatorEvaluationsPage() {
 
   // Modal States
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showGradeModal, setShowGradeModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
 
   // Form States
@@ -126,16 +125,11 @@ export default function CoordinatorEvaluationsPage() {
   });
   const [attachments, setAttachments] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
-  const [grading, setGrading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Selection States
   const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
-  const [gradeData, setGradeData] = useState({
-    obtainedMarks: 0,
-    feedback: "",
-  });
+  const [expandedSubmissions, setExpandedSubmissions] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -177,7 +171,30 @@ export default function CoordinatorEvaluationsPage() {
 
     setSaving(true);
     try {
+      // Upload files to R2 first
       const uploadedAttachments: any[] = [];
+      for (const file of attachments) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("type", "file");
+        const uploadRes = await fetch("/api/chat/upload", {
+          method: "POST",
+          body: fd,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedAttachments.push({
+            fileName: file.name,
+            fileUrl: uploadData.url,
+            fileSize: file.size,
+            fileType: file.type,
+          });
+        } else {
+          alert(`Failed to upload file: ${file.name}`);
+          setSaving(false);
+          return;
+        }
+      }
 
       const res = await fetch("/api/coordinator/evaluations", {
         method: "POST",
@@ -205,40 +222,11 @@ export default function CoordinatorEvaluationsPage() {
     }
   };
 
-  const handleGradeSubmission = async () => {
-    if (!selectedSubmission || gradeData.obtainedMarks === undefined) return;
-
-    setGrading(true);
-    try {
-      const res = await fetch("/api/coordinator/evaluations", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          submissionId: selectedSubmission.id,
-          action: "grade",
-          obtainedMarks: gradeData.obtainedMarks,
-          feedback: gradeData.feedback,
-        }),
-      });
-
-      if (res.ok) {
-        setShowGradeModal(false);
-        setGradeData({ obtainedMarks: 0, feedback: "" });
-        setSelectedSubmission(null);
-        fetchEvaluations();
-      }
-    } catch (error) {
-      console.error("Error grading submission:", error);
-    } finally {
-      setGrading(false);
-    }
-  };
-
   const handleDeleteEvaluation = async (evalId: number) => {
     if (!confirm("Are you sure you want to delete this evaluation? All submissions will be lost.")) return;
 
     try {
-      const res = await fetch(`/api/coordinator/evaluations?id=${evalId}`, {
+      const res = await fetch(`/api/coordinator/evaluations?evaluationId=${evalId}`, {
         method: "DELETE",
       });
 
@@ -257,6 +245,18 @@ export default function CoordinatorEvaluationsPage() {
         newSet.delete(evalId);
       } else {
         newSet.add(evalId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSubmissionExpand = (submissionId: number) => {
+    setExpandedSubmissions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(submissionId)) {
+        newSet.delete(submissionId);
+      } else {
+        newSet.add(submissionId);
       }
       return newSet;
     });
@@ -598,16 +598,6 @@ export default function CoordinatorEvaluationsPage() {
                                     <Eye className="w-4 h-4" />
                                     View Details
                                   </button>
-                                  <button
-                                    onClick={() => {
-                                      handleDeleteEvaluation(evaluation.id);
-                                      setShowActionsMenu(null);
-                                    }}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                    Delete
-                                  </button>
                                 </motion.div>
                               )}
                             </AnimatePresence>
@@ -625,9 +615,18 @@ export default function CoordinatorEvaluationsPage() {
                             className="overflow-hidden"
                           >
                             <div className="px-5 pb-5 pt-2 bg-gray-50 dark:bg-zinc-700/50 border-t border-gray-100 dark:border-zinc-700">
-                              <h4 className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
-                                Submissions ({evaluation.submissionsCount})
-                              </h4>
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-semibold text-gray-700 dark:text-zinc-300">
+                                  Submissions ({evaluation.submissionsCount})
+                                </h4>
+                                <button
+                                  onClick={() => handleDeleteEvaluation(evaluation.id)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  Delete Evaluation
+                                </button>
+                              </div>
                               
                               {evaluation.submissions.length === 0 ? (
                                 <div className="text-center py-8">
@@ -641,53 +640,118 @@ export default function CoordinatorEvaluationsPage() {
                                   {evaluation.submissions.map((submission) => (
                                     <div
                                       key={submission.id}
-                                      className="flex items-center justify-between p-4 bg-white dark:bg-[#27272A] rounded-xl border border-gray-100 dark:border-zinc-700"
+                                      className="bg-white dark:bg-[#27272A] rounded-xl border border-gray-100 dark:border-zinc-700 overflow-hidden"
                                     >
-                                      <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-[#1E6F3E]/10 flex items-center justify-center">
-                                          <Users className="w-5 h-5 text-[#1E6F3E]" />
-                                        </div>
-                                        <div>
-                                          <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
-                                            Group #{submission.groupId}
-                                          </p>
-                                          <p className="text-xs text-gray-500 dark:text-zinc-400">
-                                            Submitted: {new Date(submission.submittedAt).toLocaleString()}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getSubmissionStatusColor(submission.status)}`}>
-                                          {submission.status}
-                                        </span>
-                                        {submission.status === "graded" ? (
-                                          <div className="text-right">
-                                            <p className="text-sm font-bold text-[#1E6F3E]">
-                                              {submission.obtainedMarks}/{evaluation.totalMarks}
+                                      {/* Submission Header Row */}
+                                      <div className="flex items-center justify-between p-4">
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-xl bg-[#1E6F3E]/10 flex items-center justify-center">
+                                            <Users className="w-5 h-5 text-[#1E6F3E]" />
+                                          </div>
+                                          <div>
+                                            <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">
+                                              Group #{submission.groupId}
                                             </p>
-                                            <p className="text-xs text-gray-500">
-                                              {Math.round((submission.obtainedMarks! / evaluation.totalMarks) * 100)}%
+                                            <p className="text-xs text-gray-500 dark:text-zinc-400">
+                                              Submitted: {new Date(submission.submittedAt).toLocaleString()}
                                             </p>
                                           </div>
-                                        ) : (
-                                          <Button
-                                            size="sm"
-                                            onClick={() => {
-                                              setSelectedSubmission(submission);
-                                              setSelectedEvaluation(evaluation);
-                                              setGradeData({
-                                                obtainedMarks: 0,
-                                                feedback: "",
-                                              });
-                                              setShowGradeModal(true);
-                                            }}
-                                            className="bg-[#1E6F3E] hover:bg-[#185a32] rounded-xl text-xs h-9 px-4 font-semibold"
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getSubmissionStatusColor(submission.status)}`}>
+                                            {submission.status}
+                                          </span>
+                                          {submission.status === "graded" && (
+                                            <div className="text-right">
+                                              <p className="text-sm font-bold text-[#1E6F3E]">
+                                                {submission.obtainedMarks}/{evaluation.totalMarks}
+                                              </p>
+                                              <p className="text-xs text-gray-500">
+                                                {Math.round((submission.obtainedMarks! / evaluation.totalMarks) * 100)}%
+                                              </p>
+                                            </div>
+                                          )}
+                                          <button
+                                            onClick={() => toggleSubmissionExpand(submission.id)}
+                                            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
                                           >
-                                            <Award className="w-4 h-4 mr-1.5" />
-                                            Grade
-                                          </Button>
-                                        )}
+                                            {expandedSubmissions.has(submission.id) ? (
+                                              <ChevronDown className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
+                                            ) : (
+                                              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
+                                            )}
+                                          </button>
+                                        </div>
                                       </div>
+
+                                      {/* Expandable Submission Content */}
+                                      <AnimatePresence>
+                                        {expandedSubmissions.has(submission.id) && (
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                                            className="overflow-hidden"
+                                          >
+                                            <div className="px-4 pb-4 pt-1 border-t border-gray-100 dark:border-zinc-700 space-y-3">
+                                              {/* Submission Content */}
+                                              {submission.content && (
+                                                <div>
+                                                  <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">Submitted Content</p>
+                                                  <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap bg-gray-50 dark:bg-zinc-800 p-3 rounded-lg border border-gray-200 dark:border-zinc-600">
+                                                    {submission.content}
+                                                  </p>
+                                                </div>
+                                              )}
+
+                                              {/* Submission Attachments */}
+                                              {submission.attachments && submission.attachments.length > 0 && (
+                                                <div>
+                                                  <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
+                                                    Attached Files ({submission.attachments.length})
+                                                  </p>
+                                                  <div className="space-y-1.5">
+                                                    {submission.attachments.map((att) => (
+                                                      <a
+                                                        key={att.id}
+                                                        href={att.fileUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-3 p-2.5 bg-gray-50 dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-600 hover:border-[#1E6F3E] hover:bg-[#1E6F3E]/5 dark:hover:bg-[#1E6F3E]/10 transition-colors group"
+                                                      >
+                                                        <File className="w-4 h-4 text-[#1E6F3E]" />
+                                                        <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1 truncate font-medium">
+                                                          {att.fileName}
+                                                        </span>
+                                                        <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#1E6F3E] transition-colors" />
+                                                      </a>
+                                                    ))}
+                                                  </div>
+                                                </div>
+                                              )}
+
+                                              {/* No content fallback */}
+                                              {!submission.content && (!submission.attachments || submission.attachments.length === 0) && (
+                                                <p className="text-sm text-gray-400 dark:text-zinc-500 italic text-center py-2">
+                                                  No content or files were included in this submission.
+                                                </p>
+                                              )}
+
+                                              {/* Feedback if graded */}
+                                              {submission.status === "graded" && submission.feedback && (
+                                                <div className="p-3 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-lg border border-[#1E6F3E]/10">
+                                                  <p className="text-xs font-semibold text-[#1E6F3E] mb-1 flex items-center gap-1.5">
+                                                    <MessageSquare className="w-3.5 h-3.5" />
+                                                    Feedback
+                                                  </p>
+                                                  <p className="text-sm text-gray-600 dark:text-zinc-400">{submission.feedback}</p>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                   ))}
                                 </div>
@@ -857,116 +921,6 @@ export default function CoordinatorEvaluationsPage() {
                   className="flex-1 bg-[#1E6F3E] hover:bg-[#185a32] rounded-xl h-12 font-semibold"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create & Announce"}
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Grade Submission Modal */}
-      <AnimatePresence>
-        {showGradeModal && selectedSubmission && selectedEvaluation && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowGradeModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
-            >
-              <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-700 bg-gradient-to-r from-[#1E6F3E]/5 to-transparent">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Grade Submission</h2>
-                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
-                  Group #{selectedSubmission.groupId} • {selectedEvaluation.title}
-                </p>
-              </div>
-
-              <div className="p-6 space-y-5">
-                {/* Submission Info */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                  <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">Submitted Content:</p>
-                  <p className="text-sm text-gray-600 dark:text-zinc-400 whitespace-pre-wrap">
-                    {selectedSubmission.content || "No text content provided"}
-                  </p>
-                  {selectedSubmission.attachments.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-zinc-600">
-                      <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-2">Attachments:</p>
-                      <div className="space-y-1">
-                        {selectedSubmission.attachments.map((att) => (
-                          <a
-                            key={att.id}
-                            href={att.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-[#1E6F3E] hover:underline"
-                          >
-                            <File className="w-4 h-4" />
-                            {att.fileName}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Grade Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
-                    Marks (out of {selectedEvaluation.totalMarks})
-                  </label>
-                  <Input
-                    type="number"
-                    value={gradeData.obtainedMarks}
-                    onChange={(e) => setGradeData({ ...gradeData, obtainedMarks: Math.min(parseInt(e.target.value) || 0, selectedEvaluation.totalMarks) })}
-                    max={selectedEvaluation.totalMarks}
-                    min={0}
-                    className="rounded-xl h-11 dark:bg-gray-700"
-                  />
-                  <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-zinc-400">Percentage:</span>
-                    <span className="font-semibold text-[#1E6F3E]">
-                      {Math.round((gradeData.obtainedMarks / selectedEvaluation.totalMarks) * 100)}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Feedback */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
-                    Feedback (Optional)
-                  </label>
-                  <textarea
-                    value={gradeData.feedback}
-                    onChange={(e) => setGradeData({ ...gradeData, feedback: e.target.value })}
-                    placeholder="Provide feedback for the group..."
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 dark:bg-gray-700 dark:text-[#E4E4E7] resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="px-6 py-4 border-t border-gray-100 dark:border-zinc-700 flex gap-3 bg-gray-50 dark:bg-zinc-700/50">
-                <Button variant="outline" onClick={() => setShowGradeModal(false)} className="flex-1 rounded-xl h-12 font-semibold">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleGradeSubmission}
-                  disabled={grading}
-                  className="flex-1 bg-[#1E6F3E] hover:bg-[#185a32] rounded-xl h-12 font-semibold"
-                >
-                  {grading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                    <>
-                      <Award className="w-5 h-5 mr-2" />
-                      Submit Grade
-                    </>
-                  )}
                 </Button>
               </div>
             </motion.div>

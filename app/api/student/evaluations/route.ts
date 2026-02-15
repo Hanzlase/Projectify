@@ -320,3 +320,63 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Failed to update submission" }, { status: 500 });
   }
 }
+
+// DELETE - Unsubmit / withdraw a submission (before grading)
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session || session.user.role !== "student") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = parseInt(session.user.id);
+    const { searchParams } = new URL(req.url);
+    const submissionId = searchParams.get("submissionId");
+
+    if (!submissionId) {
+      return NextResponse.json({ error: "Submission ID is required" }, { status: 400 });
+    }
+
+    // Get student's group
+    const student = await prisma.student.findUnique({
+      where: { userId },
+    });
+
+    if (!student || !student.groupId) {
+      return NextResponse.json({ error: "You must be in a group" }, { status: 400 });
+    }
+
+    // Check if submission exists and belongs to student's group
+    const existingSubmission = await (prisma as any).evaluationSubmission.findUnique({
+      where: { submissionId: parseInt(submissionId) },
+      include: { evaluation: true },
+    });
+
+    if (!existingSubmission || existingSubmission.groupId !== student.groupId) {
+      return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+    }
+
+    if (existingSubmission.status === "graded") {
+      return NextResponse.json({ error: "Cannot withdraw a graded submission" }, { status: 400 });
+    }
+
+    if (existingSubmission.supervisorScore !== null || existingSubmission.panelScore !== null) {
+      return NextResponse.json({ error: "Cannot withdraw a scored submission" }, { status: 400 });
+    }
+
+    // Delete attachments first
+    await (prisma as any).submissionAttachment.deleteMany({
+      where: { submissionId: parseInt(submissionId) },
+    });
+
+    // Delete the submission
+    await (prisma as any).evaluationSubmission.delete({
+      where: { submissionId: parseInt(submissionId) },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    return NextResponse.json({ error: "Failed to withdraw submission" }, { status: 500 });
+  }
+}

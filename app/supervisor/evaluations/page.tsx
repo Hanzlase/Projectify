@@ -131,6 +131,9 @@ export default function SupervisorEvaluationsPage() {
   // Active tab in group modal
   const [groupModalTab, setGroupModalTab] = useState<"overview" | "submissions" | "score-submissions" | "comments">("overview");
 
+  // Expanded submissions in modal
+  const [expandedSubmissions, setExpandedSubmissions] = useState<Set<number>>(new Set());
+
   // Submission scoring state
   const [scoringSubmissionId, setScoringSubmissionId] = useState<number | null>(null);
   const [submissionScoreInput, setSubmissionScoreInput] = useState("");
@@ -176,6 +179,7 @@ export default function SupervisorEvaluationsPage() {
     setGroupModalTab("overview");
     setNewComment("");
     setScoreInput("");
+    setExpandedSubmissions(new Set());
 
     try {
       const res = await fetch(`/api/supervisor/evaluations/${panelId}/${groupId}`);
@@ -1064,7 +1068,7 @@ export default function SupervisorEvaluationsPage() {
                                     href={groupDetails.project.documentUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#1E6F3E] text-white rounded-lg text-sm font-medium hover:bg-[#166534] transition-colors"
                                   >
                                     <Download className="w-4 h-4" />
                                     {groupDetails.project.documentName || "Document"}
@@ -1203,21 +1207,35 @@ export default function SupervisorEvaluationsPage() {
                             </p>
                           </div>
                         ) : (
-                          groupDetails.submissions.map((sub: any, idx: number) => (
+                          groupDetails.submissions.map((sub: any, idx: number) => {
+                            const subId = sub.submissionId || idx;
+                            const isExpanded = expandedSubmissions.has(subId);
+                            return (
                             <motion.div
-                              key={sub.submissionId || idx}
+                              key={subId}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: idx * 0.05 }}
                               className="rounded-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden hover:border-[#1E6F3E]/30 transition-colors"
                             >
-                              {/* Submission Header */}
-                              <div className="px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700 flex items-start justify-between">
+                              {/* Submission Header - Clickable to expand */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpandedSubmissions(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(subId)) next.delete(subId);
+                                    else next.add(subId);
+                                    return next;
+                                  });
+                                }}
+                                className="w-full px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700 flex items-center justify-between text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700/60 transition-colors"
+                              >
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
                                     <FileText className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
                                     <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7] truncate">
-                                      {sub.title || `Submission ${idx + 1}`}
+                                      {sub.title || `Evaluation ${idx + 1}`}
                                     </h4>
                                   </div>
                                   {sub.evaluationDescription && (
@@ -1226,23 +1244,40 @@ export default function SupervisorEvaluationsPage() {
                                     </p>
                                   )}
                                 </div>
-                                {sub.status && (
-                                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0 ml-3 ${
-                                    sub.status === "submitted"
-                                      ? "bg-[#1E6F3E]/10 text-[#1E6F3E]"
-                                      : sub.status === "graded"
-                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                      : sub.status === "late"
-                                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                                      : sub.status === "returned"
-                                      ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400"
-                                  }`}>
-                                    {sub.status}
-                                  </span>
-                                )}
-                              </div>
+                                <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                                  {sub.status && (
+                                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                                      sub.status === "submitted"
+                                        ? "bg-[#1E6F3E]/10 text-[#1E6F3E]"
+                                        : sub.status === "graded"
+                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        : sub.status === "late"
+                                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                        : sub.status === "returned"
+                                        ? "bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400"
+                                        : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-zinc-400"
+                                    }`}>
+                                      {sub.status}
+                                    </span>
+                                  )}
+                                  {isExpanded ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                                  ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                                  )}
+                                </div>
+                              </button>
 
+                              {/* Expandable Body */}
+                              <AnimatePresence>
+                                {isExpanded && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.25 }}
+                                    className="overflow-hidden"
+                                  >
                               <div className="p-5 bg-white dark:bg-[#27272A] space-y-4">
                                 {/* Meta info row */}
                                 <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-500 dark:text-zinc-400">
@@ -1351,8 +1386,12 @@ export default function SupervisorEvaluationsPage() {
                                   </div>
                                 )}
                               </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </motion.div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
                     )}
@@ -1432,16 +1471,16 @@ export default function SupervisorEvaluationsPage() {
                                   {/* Score Display Grid */}
                                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     {/* Supervisor Score */}
-                                    <div className={`p-4 rounded-xl border-2 ${hasSupervisorScore ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
+                                    <div className={`p-4 rounded-xl border-2 ${hasSupervisorScore ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasSupervisorScore ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasSupervisorScore ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                           <User className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Supervisor</span>
                                       </div>
                                       {hasSupervisorScore ? (
                                         <>
-                                          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                          <p className="text-2xl font-bold text-[#1E6F3E]">
                                             {sub.supervisorScore}<span className="text-sm font-normal text-gray-400">/{totalMarks}</span>
                                           </p>
                                           {sub.supervisorFeedback && (
@@ -1454,16 +1493,16 @@ export default function SupervisorEvaluationsPage() {
                                     </div>
 
                                     {/* Panel Score */}
-                                    <div className={`p-4 rounded-xl border-2 ${hasPanelScore ? 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
+                                    <div className={`p-4 rounded-xl border-2 ${hasPanelScore ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasPanelScore ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasPanelScore ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                           <Award className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel</span>
                                       </div>
                                       {hasPanelScore ? (
                                         <>
-                                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                          <p className="text-2xl font-bold text-[#1E6F3E]">
                                             {sub.panelScore}<span className="text-sm font-normal text-gray-400">/{totalMarks}</span>
                                           </p>
                                           {sub.panelFeedback && (
@@ -1499,14 +1538,14 @@ export default function SupervisorEvaluationsPage() {
                                     <div className="space-y-3">
                                       {/* Supervisor Scoring */}
                                       {groupDetails.isGroupSupervisor && (
-                                        <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800">
+                                        <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
-                                            <h5 className="text-sm font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                                            <h5 className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400 flex items-center gap-2">
                                               <User className="w-4 h-4" />
                                               Score as Supervisor
                                             </h5>
                                             {hasSupervisorScore && (
-                                              <span className="text-xs text-blue-500 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full font-medium">
+                                              <span className="text-xs text-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 px-2 py-0.5 rounded-full font-medium">
                                                 Current: {sub.supervisorScore}/{totalMarks}
                                               </span>
                                             )}
@@ -1521,7 +1560,7 @@ export default function SupervisorEvaluationsPage() {
                                                   value={submissionScoreInput}
                                                   onChange={(e) => setSubmissionScoreInput(e.target.value)}
                                                   placeholder={`0 - ${totalMarks}`}
-                                                  className="w-32 rounded-lg border-blue-300 focus:border-blue-500 h-9 text-center font-bold"
+                                                  className="w-32 rounded-lg border-[#1E6F3E]/30 focus:border-[#1E6F3E] h-9 text-center font-bold"
                                                 />
                                                 <span className="text-sm text-gray-500">/ {totalMarks}</span>
                                               </div>
@@ -1530,13 +1569,13 @@ export default function SupervisorEvaluationsPage() {
                                                 onChange={(e) => setSubmissionFeedbackInput(e.target.value)}
                                                 placeholder="Add feedback (optional)..."
                                                 rows={2}
-                                                className="w-full rounded-lg border border-blue-300 dark:border-blue-700 bg-white dark:bg-[#27272A] px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 resize-none"
+                                                className="w-full rounded-lg border border-[#1E6F3E]/30 dark:border-[#1E6F3E]/30 bg-white dark:bg-[#27272A] px-3 py-2 text-sm focus:border-[#1E6F3E] focus:ring-1 focus:ring-[#1E6F3E]/20 resize-none"
                                               />
                                               <div className="flex gap-2">
                                                 <Button
                                                   onClick={() => handleScoreSubmission(sub.submissionId, totalMarks, 'supervisor')}
                                                   disabled={savingSubmissionScore || !submissionScoreInput}
-                                                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-9 px-4 text-sm"
+                                                  className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-lg h-9 px-4 text-sm"
                                                 >
                                                   {savingSubmissionScore ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CheckCircle className="w-4 h-4 mr-1" />}
                                                   {savingSubmissionScore ? 'Saving...' : 'Save Score'}
@@ -1558,7 +1597,7 @@ export default function SupervisorEvaluationsPage() {
                                                 setSubmissionFeedbackInput(sub.supervisorFeedback || '');
                                               }}
                                               variant="outline"
-                                              className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg h-9"
+                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-emerald-400 dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
                                             >
                                               <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                                               {hasSupervisorScore ? 'Update Score' : 'Give Score'}
@@ -1569,14 +1608,14 @@ export default function SupervisorEvaluationsPage() {
 
                                       {/* Panel Head Scoring */}
                                       {groupDetails.currentUserRole === 'chair' && (
-                                        <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800">
+                                        <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
-                                            <h5 className="text-sm font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2">
+                                            <h5 className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400 flex items-center gap-2">
                                               <Award className="w-4 h-4" />
                                               Score as Panel Head
                                             </h5>
                                             {hasPanelScore && (
-                                              <span className="text-xs text-purple-500 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full font-medium">
+                                              <span className="text-xs text-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 px-2 py-0.5 rounded-full font-medium">
                                                 Current: {sub.panelScore}/{totalMarks}
                                               </span>
                                             )}
@@ -1591,7 +1630,7 @@ export default function SupervisorEvaluationsPage() {
                                                   value={submissionScoreInput}
                                                   onChange={(e) => setSubmissionScoreInput(e.target.value)}
                                                   placeholder={`0 - ${totalMarks}`}
-                                                  className="w-32 rounded-lg border-purple-300 focus:border-purple-500 h-9 text-center font-bold"
+                                                  className="w-32 rounded-lg border-[#1E6F3E]/30 focus:border-[#1E6F3E] h-9 text-center font-bold"
                                                 />
                                                 <span className="text-sm text-gray-500">/ {totalMarks}</span>
                                               </div>
@@ -1600,13 +1639,13 @@ export default function SupervisorEvaluationsPage() {
                                                 onChange={(e) => setSubmissionFeedbackInput(e.target.value)}
                                                 placeholder="Add feedback (optional)..."
                                                 rows={2}
-                                                className="w-full rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-[#27272A] px-3 py-2 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 resize-none"
+                                                className="w-full rounded-lg border border-[#1E6F3E]/30 dark:border-[#1E6F3E]/30 bg-white dark:bg-[#27272A] px-3 py-2 text-sm focus:border-[#1E6F3E] focus:ring-1 focus:ring-[#1E6F3E]/20 resize-none"
                                               />
                                               <div className="flex gap-2">
                                                 <Button
                                                   onClick={() => handleScoreSubmission(sub.submissionId, totalMarks, 'panel')}
                                                   disabled={savingSubmissionScore || !submissionScoreInput}
-                                                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg h-9 px-4 text-sm"
+                                                  className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-lg h-9 px-4 text-sm"
                                                 >
                                                   {savingSubmissionScore ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CheckCircle className="w-4 h-4 mr-1" />}
                                                   {savingSubmissionScore ? 'Saving...' : 'Save Score'}
@@ -1628,7 +1667,7 @@ export default function SupervisorEvaluationsPage() {
                                                 setSubmissionFeedbackInput(sub.panelFeedback || '');
                                               }}
                                               variant="outline"
-                                              className="border-purple-300 text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30 rounded-lg h-9"
+                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-emerald-400 dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
                                             >
                                               <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                                               {hasPanelScore ? 'Update Score' : 'Give Score'}
