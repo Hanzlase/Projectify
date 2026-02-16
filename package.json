@@ -16,8 +16,8 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@pinecone-database/pinecone": "^7.0.0",
     "@prisma/client": "^5.14.0",
-    "@qdrant/js-client-rest": "^1.16.2",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@react-three/drei": "^9.88.17",

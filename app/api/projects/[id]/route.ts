@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { deleteProjectEmbedding } from '@/lib/qdrant';
+import { deleteProjectEmbedding } from '@/lib/pinecone';
 import { emitProjectStatus, emitProjectStatusToUsers } from '@/lib/socket-emitters';
 
 // GET - Fetch single project
@@ -223,7 +223,7 @@ export async function DELETE(
       }, { status: 403 });
     }
 
-    // Delete embedding from Qdrant if it exists
+    // Delete embedding from Pinecone if it exists
     if (existingProject.embeddingId) {
       try {
         await deleteProjectEmbedding(existingProject.embeddingId);

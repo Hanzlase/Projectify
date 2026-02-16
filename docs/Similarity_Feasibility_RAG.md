@@ -6,7 +6,7 @@
 3. [RAG Pipeline Flow](#rag-pipeline-flow)
 4. [Core Components](#core-components)
 5. [Embedding Generation](#embedding-generation)
-6. [Vector Database (Qdrant)](#vector-database-qdrant)
+6. [Vector Database (Pinecone)](#vector-database-pinecone)
 7. [Similarity Detection Algorithm](#similarity-detection-algorithm)
 8. [Feasibility Report Generation](#feasibility-report-generation)
 9. [API Routes & Endpoints](#api-routes--endpoints)
@@ -65,8 +65,9 @@ The Similarity Checking and Feasibility Analysis system is a sophisticated **Ret
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                     VECTOR DATABASE (Qdrant Cloud)                           │
-│   • Collection: project_embeddings                                          │
+│                     VECTOR DATABASE (Pinecone)                               │
+│   • Index: project-embeddings                                               │
+│   • Namespace: projects                                                     │
 │   • Distance Metric: Cosine Similarity                                      │
 │   • Stores: embedding + project metadata (title, abstract, projectId)       │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -113,7 +114,7 @@ Frontend                    API                          External Services
    │                         │ <────────────────────────────────│
    │                         │                                  │
    │                         │  5. Search Similar Projects      │
-   │                         │ ────────────────────────────────>│ Qdrant Cloud
+   │                         │ ────────────────────────────────>│ Pinecone
    │                         │ <────────────────────────────────│
    │                         │                                  │
    │                         │  6. Generate Reports             │
@@ -168,21 +169,23 @@ All AI operations are powered by Cohere's Command and Embed models:
 | `generateSimilarityReason()` | command-a-03-2025 | Brief reason for each similar project |
 | `generateDifferentiationSuggestions()` | command-a-03-2025 | Suggestions to make project unique |
 
-### 3. Vector Database (`lib/qdrant.ts`)
+### 3. Vector Database (`lib/pinecone.ts`)
 
-Qdrant Cloud manages project embeddings for similarity search:
+Pinecone manages project embeddings for similarity search:
 
 ```typescript
 // Configuration
-COLLECTION_NAME: 'project_embeddings'
-VECTOR_SIZE: 1024 (Cohere embed-english-v3.0 dimension)
+INDEX_NAME: 'project-embeddings'
+NAMESPACE: 'projects'
+VECTOR_DIMENSION: 1024 (Cohere embed-english-v3.0 dimension)
 DISTANCE_METRIC: 'Cosine'
 
 // Key Functions
-initializeCollection(): Create collection if not exists
-addProjectEmbedding(embedding, payload): Store new project
+initializeIndex(): Verify index exists and is ready
+addProjectEmbedding(embedding, payload): Store new project vector
 searchSimilarProjects(embedding, limit): Find similar projects
-deleteProjectEmbedding(pointId): Remove project from index
+deleteProjectEmbedding(vectorId): Remove project from index
+deleteProjectEmbeddingByProjectId(projectId): Remove by project ID
 checkUniqueness(similarProjects, threshold): Boolean uniqueness check
 ```
 
@@ -242,9 +245,9 @@ The AI extracts the following from uploaded documents:
 
 ---
 
-## Vector Database (Qdrant)
+## Vector Database (Pinecone)
 
-### Collection Structure
+### Index Structure
 
 ```typescript
 interface ProjectPayload {
@@ -258,17 +261,17 @@ interface ProjectPayload {
   createdAt: string;       // ISO timestamp
 }
 
-// Each point in Qdrant:
+// Each vector in Pinecone:
 {
-  id: UUID,
-  vector: number[1024],    // Cohere embedding
-  payload: ProjectPayload
+  id: 'project-{projectId}',  // Deterministic ID
+  values: number[1024],        // Cohere embedding
+  metadata: ProjectPayload     // Flat key-value metadata
 }
 ```
 
 ### Retry Logic
 
-All Qdrant operations include retry logic for resilience:
+All Pinecone operations include retry logic for resilience:
 
 ```typescript
 async function withRetry<T>(
@@ -327,28 +330,25 @@ export function checkUniqueness(
 ```typescript
 export async function searchSimilarProjects(
   embedding: number[],
-  limit: number = 3,
-  excludeProjectId?: number,
-  campusId?: number
+  limit: number = 3
 ): Promise<SimilarProject[]> {
-  const results = await client.search(COLLECTION_NAME, {
+  const index = getIndex();
+  const ns = index.namespace(NAMESPACE);
+
+  const results = await ns.query({
     vector: embedding,
-    limit,
-    filter: excludeProjectId ? {
-      must_not: [{
-        key: 'projectId',
-        match: { value: excludeProjectId }
-      }]
-    } : undefined,
-    with_payload: true,
-    score_threshold: 0.1, // Only return results with at least 10% similarity
+    topK: limit,
+    includeMetadata: true,
+    filter: undefined, // Optional: add metadata filters as needed
   });
-  
-  return results.map(result => ({
-    id: String(result.id),
-    score: result.score,
-    payload: result.payload as ProjectPayload,
-  }));
+
+  return (results.matches || [])
+    .filter(m => (m.score ?? 0) >= 0.1) // Only return results with at least 10% similarity
+    .map(match => ({
+      id: match.id,
+      score: match.score ?? 0,
+      payload: match.metadata as unknown as ProjectPayload,
+    }));
 }
 ```
 
@@ -409,7 +409,7 @@ This prevents regeneration and allows quick access on project detail pages.
 |----------|--------|---------|
 | `/api/projects/check-similarity` | POST | Check project uniqueness before creation |
 | `/api/projects` | POST | Create project (saves embedding if unique) |
-| `/api/projects/[id]` | DELETE | Delete project (removes embedding from Qdrant) |
+| `/api/projects/[id]` | DELETE | Delete project (removes embedding from Pinecone) |
 | `/api/projects/[id]/feasibility` | GET | Generate/retrieve feasibility report |
 
 ### Check Similarity Flow (`/api/projects/check-similarity`)
@@ -487,9 +487,9 @@ export async function POST(request: Request) {
 ### API Resilience
 
 ```typescript
-// Qdrant connection failures
-- 3 retry attempts with exponential backoff
-- Graceful degradation: project still created without embedding
+// Pinecone connection failures
+- 2 retry attempts with exponential backoff
+- Throws on connectivity failure (no silent degradation)
 
 // Cohere API failures
 - Fallback to default feasibility report
@@ -517,9 +517,9 @@ if (project.feasibilityReport) {
 
 ### 2. Embedding Storage
 
-- Embeddings stored in Qdrant Cloud (managed service)
+- Embeddings stored in Pinecone (managed serverless service)
 - Local project metadata in PostgreSQL
-- UUID reference (`embeddingId`) links project to vector
+- Deterministic ID reference (`project-{id}`) links project to vector
 
 ### 3. Text Processing Limits
 
@@ -560,7 +560,7 @@ model Project {
   documentName      String?           @db.VarChar(255)
   
   // RAG-specific fields
-  embeddingId       String?           @db.VarChar(100) // Qdrant point ID
+  embeddingId       String?           @db.VarChar(100) // Pinecone vector ID
   isUnique          Boolean           @default(false)
   similarityScore   Float?
   feasibilityReport Json?             // Cached report
@@ -572,7 +572,7 @@ model Project {
 }
 ```
 
-### Qdrant Payload Structure
+### Pinecone Metadata Structure
 
 ```typescript
 interface ProjectPayload {
@@ -624,9 +624,9 @@ Shows progressive stages during analysis:
 # Cohere AI API
 cohere_api_key=your_cohere_api_key
 
-# Qdrant Vector Database
-clusterurl=https://your-cluster.qdrant.io
-QDRANT_API_KEY=your_qdrant_api_key
+# Pinecone Vector Database
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX_NAME=project-embeddings
 ```
 
 ---

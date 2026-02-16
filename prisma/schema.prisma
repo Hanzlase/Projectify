@@ -386,7 +386,7 @@ model Project {
   documentName  String?        @db.VarChar(255) @map("document_name")
   repositoryUrl String?        @db.VarChar(500) @map("repository_url")
   demoUrl       String?        @db.VarChar(500) @map("demo_url")
-  embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Qdrant point ID
+  embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Pinecone vector ID
   isUnique      Boolean        @default(false) @map("is_unique") // True if passed similarity check
   similarityScore Float?       @map("similarity_score") // Score when checked
   feasibilityReport Json?       @map("feasibility_report") // JSON stored feasibility report

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { generateEmbedding } from '@/lib/cohere';
-import { addProjectEmbedding, searchSimilarProjects, checkUniqueness } from '@/lib/qdrant';
+import { addProjectEmbedding, searchSimilarProjects, checkUniqueness } from '@/lib/pinecone';
 
 // GET - Fetch projects
 export async function GET(request: Request) {
@@ -192,7 +192,7 @@ export async function POST(request: Request) {
         const combinedText = `${title} ${abstractText} ${description}`;
         const embedding = await generateEmbedding(combinedText);
         
-        console.log(`Saving embedding to Qdrant for project ${project.projectId}...`);
+        console.log(`Saving embedding to Pinecone for project ${project.projectId}...`);
         const embeddingId = await addProjectEmbedding(embedding, {
           projectId: project.projectId,
           title,

@@ -10,7 +10,7 @@ import {
   generateFeatureBasedEmbeddingText,
   generateDifferentiationSuggestions
 } from '@/lib/cohere';
-import { searchSimilarProjects, checkUniqueness } from '@/lib/qdrant';
+import { searchSimilarProjects, checkUniqueness } from '@/lib/pinecone';
 
 export async function POST(request: Request) {
   try {
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     ]);
     console.log('Embedding and feasibility report ready');
 
-    // Step 3: Search for similar projects in Qdrant
+    // Step 3: Search for similar projects in Pinecone
     console.log('Searching for similar projects...');
     const similarProjects = await searchSimilarProjects(embedding, 3);
     console.log(`Found ${similarProjects.length} similar projects`);
