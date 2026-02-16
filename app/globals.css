@@ -58,6 +58,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+  html {
+    overflow-x: hidden;
   }
   
   /* Theme transition for smooth dark/light mode switching */
@@ -69,6 +74,73 @@
   html.dark *,
   html:not(.dark) * {
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.15s ease-in-out;
+  }
+}
+
+/* ============================================
+   GLOBAL RESPONSIVE STANDARDIZATION
+   ============================================ */
+
+/* Prevent horizontal overflow globally */
+#__next,
+main,
+[role="main"] {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Mobile-first touch targets: ensure min 44px tap area */
+@media (max-width: 640px) {
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Exception for inline text links and icon-only buttons that manage their own sizing */
+  a:not([class*="p-"]):not([class*="px-"]):not([class*="rounded"]):not([class*="flex"]),
+  button[class*="absolute"] {
+    min-height: unset;
+    min-width: unset;
+  }
+  
+  /* Scale down large headings on mobile to prevent word breaks */
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+    line-height: 1.2 !important;
+    word-break: break-word;
+  }
+  h2 {
+    font-size: clamp(1.25rem, 4vw, 2rem) !important;
+    line-height: 1.25 !important;
+    word-break: break-word;
+  }
+}
+
+/* Ensure modals/dialogs are properly constrained on mobile */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [class*="modal"],
+  .fixed[class*="flex"][class*="items-center"][class*="justify-center"] > div:not([class*="inset"]):not([class*="fixed"]) {
+    max-width: 95vw !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Notification toast positioning for mobile */
+@media (max-width: 640px) {
+  [class*="Toaster"],
+  [data-sonner-toaster],
+  .toast-container {
+    bottom: env(safe-area-inset-bottom, 16px) !important;
+    top: auto !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
   }
 }
 

@@ -224,7 +224,7 @@ export default function SearchCommand({ role }: SearchCommandProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-0 left-0 right-0 z-50 bg-white dark:bg-[#27272A] rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden"
+              className="fixed inset-x-3 top-3 sm:absolute sm:inset-x-0 sm:top-0 z-50 bg-white dark:bg-[#27272A] rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden max-h-[80vh] sm:max-h-none"
             >
               {/* Search Input */}
               <div className="relative border-b border-gray-100 dark:border-zinc-700">

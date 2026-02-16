@@ -407,11 +407,11 @@ export default function StudentDashboard() {
                 onClick={() => router.push('/student/projects')}
                 className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-white/80 text-sm mb-1">Total Projects</p>
-                      <p className="text-4xl font-bold">{dashboardData?.stats?.totalProjects ?? 0}</p>
+                      <p className="text-white/80 text-xs sm:text-sm mb-1">Total Projects</p>
+                      <p className="text-2xl sm:text-4xl font-bold">{dashboardData?.stats?.totalProjects ?? 0}</p>
                     </div>
                     <div className="p-1.5 bg-white/20 rounded-lg">
                       <ChevronRight className="w-4 h-4" />
@@ -430,11 +430,11 @@ export default function StudentDashboard() {
                 onClick={() => router.push('/student/browse-supervisors')}
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalSupervisors || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Supervisors</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalSupervisors || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -453,11 +453,11 @@ export default function StudentDashboard() {
                 onClick={() => router.push('/student/browse-students')}
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Fellow Students</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalStudents || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Fellow Students</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalStudents || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -476,11 +476,11 @@ export default function StudentDashboard() {
                 onClick={() => router.push('/student/invitations')}
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Invitations</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.pendingInvitations || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Invitations</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.pendingInvitations || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />

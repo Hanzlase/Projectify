@@ -279,15 +279,15 @@ export default function StudentNotificationsPage() {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Notifications</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Notifications</h1>
                 <p className="text-sm text-gray-500 dark:text-zinc-400">
                   {unreadCount > 0 
                     ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
@@ -530,7 +530,7 @@ export default function StudentNotificationsPage() {
               className="bg-white dark:bg-[#27272A] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-4">

@@ -381,7 +381,7 @@ export default function StudentEvaluationsPage() {
         <header className="bg-white dark:bg-[#27272A] sticky top-0 z-10 px-4 md:px-6 py-5 border-b border-gray-200 dark:border-zinc-700 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 max-w-6xl mx-auto">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Evaluation Portal</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Evaluation Portal</h1>
               <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                 Track deadlines, submit work, and view your grades
               </p>
@@ -434,7 +434,7 @@ export default function StudentEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Pending</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.pending}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.pending}</p>
                     {stats.overdue > 0 && (
                       <p className="text-xs text-red-500 mt-1 font-medium">{stats.overdue} overdue</p>
                     )}
@@ -452,7 +452,7 @@ export default function StudentEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Submitted</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.submitted}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.submitted}</p>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 font-medium">Awaiting review</p>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center">
@@ -468,7 +468,7 @@ export default function StudentEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Graded</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.graded}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.graded}</p>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 font-medium">Completed</p>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center">
@@ -484,7 +484,7 @@ export default function StudentEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-white/80 mb-1">Avg Grade</p>
-                    <p className="text-3xl font-bold text-white">{avgGrade}%</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-white">{avgGrade}%</p>
                     <p className="text-xs text-white/80 mt-1 font-medium flex items-center gap-1">
                       <TrendingUp className="w-3 h-3" />
                       Performance
@@ -983,7 +983,7 @@ export default function StudentEvaluationsPage() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto flex-1 space-y-5">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
                 {/* Due Date Warning */}
                 {selectedEvaluation.isOverdue && (
                   <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center gap-3 border border-red-200 dark:border-red-800">
@@ -1145,7 +1145,7 @@ export default function StudentEvaluationsPage() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto flex-1 space-y-5">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
                 <div>
                   <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-2">Description</h3>
                   <p className="text-gray-900 dark:text-[#E4E4E7] whitespace-pre-wrap">{selectedEvaluation.description}</p>
@@ -1301,15 +1301,15 @@ export default function StudentEvaluationsPage() {
                 <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">{selectedEvaluation.title}</p>
               </div>
 
-              <div className="p-6 space-y-5">
+              <div className="p-4 sm:p-6 space-y-5">
                 {/* Score Display */}
-                <div className="text-center p-8 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl border border-[#1E6F3E]/10">
+                <div className="text-center p-4 sm:p-8 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl border border-[#1E6F3E]/10">
                   <div className="w-24 h-24 rounded-full bg-[#1E6F3E] text-white flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <span className="text-3xl font-bold">
+                    <span className="text-2xl sm:text-3xl font-bold">
                       {Math.round((selectedEvaluation.submission!.obtainedMarks! / selectedEvaluation.totalMarks) * 100)}%
                     </span>
                   </div>
-                  <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                  <p className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                     {selectedEvaluation.submission!.obtainedMarks} / {selectedEvaluation.totalMarks}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-zinc-400 mt-2">marks obtained</p>
@@ -1375,7 +1375,7 @@ export default function StudentEvaluationsPage() {
                     {selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined && selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined && (
                       <div className="mt-3 p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 text-center">
                         <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Combined Score (50/50)</p>
-                        <p className="text-3xl font-bold text-[#1E6F3E]">
+                        <p className="text-2xl sm:text-3xl font-bold text-[#1E6F3E]">
                           {((selectedEvaluation.submission!.supervisorScore + selectedEvaluation.submission!.panelScore) / 2).toFixed(1)}
                           <span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                         </p>

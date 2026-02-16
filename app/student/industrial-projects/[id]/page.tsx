@@ -430,7 +430,7 @@ export default function StudentIndustrialProjectDetailPage() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
                   Message (Optional)
                 </label>

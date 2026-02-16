@@ -244,9 +244,9 @@ export default function SupervisorProfile() {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Profile</h1>
             <p className="text-sm text-gray-500 dark:text-zinc-500">View and manage your profile details here.</p>
           </div>
 
@@ -272,7 +272,7 @@ export default function SupervisorProfile() {
             <CardContent className="p-0">
               <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Profile Image & Name */}
-                <div className="lg:w-1/3 p-8 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col items-center">
+                <div className="lg:w-1/3 p-4 sm:p-8 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col items-center">
                   <div className="mb-4">
                     <ProfileImageUpload
                       currentImage={profile.profileImage}
@@ -303,7 +303,7 @@ export default function SupervisorProfile() {
                 </div>
 
                 {/* Right Side - Bio & Other Details */}
-                <div className="lg:w-2/3 p-8">
+                <div className="lg:w-2/3 p-4 sm:p-8">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Profile Details</h3>
                     {!isEditing && (

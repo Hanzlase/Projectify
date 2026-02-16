@@ -127,7 +127,7 @@ export default function AdminDashboard() {
       <AdminSidebar />
       
       {/* Main Content */}
-      <div className="flex-1 md:ml-64 mt-14 md:mt-0">
+      <div className="flex-1 md:ml-56 mt-14 md:mt-0">
         {/* Header */}
         <header className="hidden md:block bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-3 border-b border-gray-200/50 dark:border-zinc-700/50">
           <div className="flex items-center justify-between">
@@ -185,18 +185,18 @@ export default function AdminDashboard() {
           </motion.div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
             {/* Primary Stat - Total Campuses */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card 
                 onClick={() => router.push('/admin/campuses')}
                 className="border-0 shadow-sm bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-[#1a5d1a]/20 hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-white/80 text-sm mb-1">Total Campuses</p>
-                      <p className="text-4xl font-bold">{stats?.totalCampuses || 0}</p>
+                      <p className="text-white/80 text-xs sm:text-sm mb-1">Total Campuses</p>
+                      <p className="text-2xl sm:text-4xl font-bold">{stats?.totalCampuses || 0}</p>
                     </div>
                     <div className="p-2 bg-white/20 rounded-xl">
                       <Building className="w-5 h-5" />
@@ -219,11 +219,11 @@ export default function AdminDashboard() {
                 onClick={() => router.push('/admin/coordinators')}
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Coordinators</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalCoordinators || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Coordinators</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalCoordinators || 0}</p>
                     </div>
                     <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
                       <UserCheck className="w-5 h-5 text-[#1a5d1a]" />
@@ -245,11 +245,11 @@ export default function AdminDashboard() {
               <Card 
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalSupervisors || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Supervisors</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalSupervisors || 0}</p>
                     </div>
                     <div className="p-2 bg-[#1a5d1a]/10 rounded-xl">
                       <Users className="w-5 h-5 text-[#1a5d1a]" />
@@ -270,11 +270,11 @@ export default function AdminDashboard() {
               <Card 
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Students</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalStudents || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Students</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalStudents || 0}</p>
                     </div>
                     <div className="p-2 bg-[#1a5d1a]/10 rounded-xl">
                       <GraduationCap className="w-5 h-5 text-[#1a5d1a]" />
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.4 + index * 0.1 }}
-                          className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all cursor-pointer group"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all cursor-pointer group gap-3"
                           onClick={() => router.push('/admin/campuses')}
                         >
                           <div className="flex items-center gap-4">

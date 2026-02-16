@@ -170,6 +170,12 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#27272A] border-b border-gray-200 dark:border-zinc-700 px-4 py-3">
           <div className="flex items-center justify-between">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
+            >
+              <Menu className="w-6 h-6 text-gray-700 dark:text-zinc-300" />
+            </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-[#1a5d1a] rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
@@ -178,12 +184,6 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
-              >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
             </div>
           </div>
         </div>
@@ -205,8 +205,15 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#27272A] z-50 shadow-xl"
+              className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#27272A] z-50 shadow-xl flex flex-col"
             >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all z-10"
+              >
+                <X className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
+              </button>
               <SidebarContent />
             </motion.div>
           </>
@@ -215,7 +222,7 @@ function AdminSidebar({ profileImage }: AdminSidebarProps) {
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <div className="fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-[#27272A] border-r border-gray-200 dark:border-zinc-700 z-40">
+        <div className="fixed top-0 left-0 bottom-0 w-56 bg-white dark:bg-[#27272A] border-r border-gray-200 dark:border-zinc-700 z-40">
           <SidebarContent />
         </div>
       )}

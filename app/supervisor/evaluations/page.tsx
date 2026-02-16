@@ -452,14 +452,14 @@ export default function SupervisorEvaluationsPage() {
           </motion.div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">Total Panels</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-zinc-400">Total Panels</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">
                         {panels.length}
                       </p>
                     </div>
@@ -473,11 +473,11 @@ export default function SupervisorEvaluationsPage() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">Active Panels</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-zinc-400">Active Panels</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">
                         {panels.filter(p => p.status === 'active').length}
                       </p>
                     </div>
@@ -491,11 +491,11 @@ export default function SupervisorEvaluationsPage() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <Card className="border-0 shadow-sm rounded-xl bg-[#1E6F3E] dark:bg-[#1E6F3E] hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-white/80">Groups to Evaluate</p>
-                      <p className="text-3xl font-bold text-white mt-1">
+                      <p className="text-xs sm:text-sm font-medium text-white/80">Groups to Evaluate</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white mt-1">
                         {panels.reduce((sum, p) => sum + p.groups.length, 0)}
                       </p>
                     </div>
@@ -533,11 +533,11 @@ export default function SupervisorEvaluationsPage() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                               {panel.panelName}
                             </h3>
                             {getStatusBadge(panel.status)}

@@ -274,7 +274,7 @@ export default function CoordinatorEvaluationScoresPage() {
                 <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
                   <BarChart3 className="w-6 h-6 text-[#1E6F3E]" />
                   Evaluation Scores
                 </h1>
@@ -338,7 +338,7 @@ export default function CoordinatorEvaluationScoresPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{summary.totalSubmissions}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{summary.totalSubmissions}</p>
                     <p className="text-xs text-gray-500 mt-1">Submissions</p>
                   </div>
                   <div className="w-12 h-12 rounded-2xl bg-[#1E6F3E]/10 flex items-center justify-center">
@@ -353,7 +353,7 @@ export default function CoordinatorEvaluationScoresPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Supervisor</p>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{summary.supervisorScored}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{summary.supervisorScored}</p>
                     <p className="text-xs text-gray-500 mt-1">Scored</p>
                   </div>
                   <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -368,7 +368,7 @@ export default function CoordinatorEvaluationScoresPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Panel</p>
-                    <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{summary.panelScored}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{summary.panelScored}</p>
                     <p className="text-xs text-gray-500 mt-1">Scored</p>
                   </div>
                   <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
@@ -383,7 +383,7 @@ export default function CoordinatorEvaluationScoresPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-white/80 mb-1">Fully Scored</p>
-                    <p className="text-3xl font-bold text-white">{summary.fullyScored}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-white">{summary.fullyScored}</p>
                     <p className="text-xs text-white/60 mt-1">
                       Avg: {avgCombined > 0 ? avgCombined.toFixed(1) : "N/A"}
                     </p>

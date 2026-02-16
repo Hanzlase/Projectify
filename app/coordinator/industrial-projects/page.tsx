@@ -398,7 +398,7 @@ export default function IndustrialProjectsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-white/80 text-sm mb-1">Total Projects</p>
-                      <p className="text-4xl font-bold">{projects.length}</p>
+                      <p className="text-2xl sm:text-4xl font-bold">{projects.length}</p>
                     </div>
                     <div className="p-1.5 bg-white/20 rounded-lg">
                       <Building2 className="w-4 h-4" />
@@ -418,7 +418,7 @@ export default function IndustrialProjectsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Available</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'available').length}</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'available').length}</p>
                     </div>
                     <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
@@ -438,7 +438,7 @@ export default function IndustrialProjectsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Booked</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'booked').length}</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'booked').length}</p>
                     </div>
                     <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                       <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -458,7 +458,7 @@ export default function IndustrialProjectsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Pending</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.reduce((sum, p) => sum + p.requests.filter(r => r.status === 'pending').length, 0)}</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.reduce((sum, p) => sum + p.requests.filter(r => r.status === 'pending').length, 0)}</p>
                     </div>
                     <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
                       <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />

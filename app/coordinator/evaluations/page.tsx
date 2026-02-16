@@ -345,7 +345,7 @@ export default function CoordinatorEvaluationsPage() {
         <header className="bg-white dark:bg-[#27272A] sticky top-0 z-10 px-4 md:px-6 py-5 border-b border-gray-200 dark:border-zinc-700 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 max-w-7xl mx-auto">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Evaluation Management</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Evaluation Management</h1>
               <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                 {campusName} • {totalGroups} Groups
               </p>
@@ -385,7 +385,7 @@ export default function CoordinatorEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.total}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.total}</p>
                     <p className="text-xs text-gray-500 mt-1">Evaluations</p>
                   </div>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1E6F3E]/20 to-[#1E6F3E]/10 flex items-center justify-center">
@@ -400,7 +400,7 @@ export default function CoordinatorEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Active</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.active}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.active}</p>
                     <p className="text-xs text-green-500 mt-1">Open for submissions</p>
                   </div>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
@@ -415,7 +415,7 @@ export default function CoordinatorEvaluationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Submissions</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalSubmissions}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalSubmissions}</p>
                     <p className="text-xs text-blue-500 mt-1">Total received</p>
                   </div>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center">

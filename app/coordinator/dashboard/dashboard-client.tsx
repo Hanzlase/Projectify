@@ -211,17 +211,17 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card 
                 onClick={() => router.push('/coordinator/manage-users')}
                 className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-white/80 text-sm mb-1">Total Students</p>
-                      <p className="text-4xl font-bold">{dashboardData?.stats?.totalStudents ?? 0}</p>
+                      <p className="text-white/80 text-xs sm:text-sm mb-1">Total Students</p>
+                      <p className="text-2xl sm:text-4xl font-bold">{dashboardData?.stats?.totalStudents ?? 0}</p>
                     </div>
                     <div className="p-1.5 bg-white/20 rounded-lg">
                       <ChevronRight className="w-4 h-4" />
@@ -240,11 +240,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                 onClick={() => router.push('/coordinator/manage-users')}
                 className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalSupervisors || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Supervisors</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.totalSupervisors || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -260,11 +260,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Active Projects</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.activeProjects || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Active Projects</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.activeProjects || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -280,11 +280,11 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Pending</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.pendingApprovals || 0}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Pending</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{dashboardData?.stats?.pendingApprovals || 0}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -301,9 +301,9 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-5 text-lg">Quick Actions</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {/* Add Student Card */}
                     <motion.div
                       whileHover={{ scale: 1.02 }}
@@ -383,7 +383,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             {/* Recent Activity */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="lg:col-span-1">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Recent Activity</h3>
                     <Clock className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
@@ -425,7 +425,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             {/* User Growth Chart - Always show */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">User Registration Trend</h3>
@@ -518,7 +518,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
             {/* User Distribution Chart - Always show */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">User Distribution</h3>

@@ -197,7 +197,7 @@ export default function SupervisorGroupsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total Groups</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7] tracking-tight">{groups.length}</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7] tracking-tight">{groups.length}</p>
                       <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Active supervision</p>
                     </div>
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-[#2d8a4e] flex items-center justify-center shadow-lg shadow-[#1a5d1a]/30">
@@ -219,7 +219,7 @@ export default function SupervisorGroupsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Total Students</p>
-                      <p className="text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
+                      <p className="text-2xl sm:text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
                         {groups.reduce((acc, g) => acc + g.studentCount, 0)}
                       </p>
                       <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Across all groups</p>
@@ -243,7 +243,7 @@ export default function SupervisorGroupsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">With Projects</p>
-                      <p className="text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
+                      <p className="text-2xl sm:text-4xl font-bold text-[#1a5d1a] dark:text-[#4ade80] tracking-tight">
                         {groups.filter(g => g.projectTitle || g.projectId).length}
                       </p>
                       <div className="flex items-center gap-1 mt-1">

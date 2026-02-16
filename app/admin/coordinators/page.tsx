@@ -335,14 +335,14 @@ export default function CoordinatorsPage() {
           </AnimatePresence>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="border-0 shadow-sm bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] text-white rounded-2xl overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/80 text-xs mb-1">Total</p>
-                      <p className="text-3xl font-bold">{coordinators.length}</p>
+                      <p className="text-2xl sm:text-3xl font-bold">{coordinators.length}</p>
                     </div>
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                       <Users className="w-5 h-5" />
@@ -358,7 +358,7 @@ export default function CoordinatorsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Active</p>
-                      <p className="text-3xl font-bold text-green-600">{activeCount}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-green-600">{activeCount}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                       <ShieldCheck className="w-5 h-5 text-green-500" />
@@ -374,7 +374,7 @@ export default function CoordinatorsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Suspended</p>
-                      <p className="text-3xl font-bold text-red-600">{suspendedCount}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-red-600">{suspendedCount}</p>
                     </div>
                     <div className="w-10 h-10 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center">
                       <UserX className="w-5 h-5 text-red-500" />

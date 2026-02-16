@@ -782,7 +782,7 @@ export default function EvaluationPanelsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Active Groups</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalGroups}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalGroups}</p>
                       <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">FYP groups</p>
                     </div>
                     <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-lg flex items-center justify-center">
@@ -799,7 +799,7 @@ export default function EvaluationPanelsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Supervisors</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalSupervisors}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalSupervisors}</p>
                       <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Available</p>
                     </div>
                     <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-lg flex items-center justify-center">
@@ -816,7 +816,7 @@ export default function EvaluationPanelsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Total Panels</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalPanels}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{statistics.totalPanels}</p>
                       <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Created</p>
                     </div>
                     <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-lg flex items-center justify-center">
@@ -833,7 +833,7 @@ export default function EvaluationPanelsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-white/80 text-sm mb-1">Active Now</p>
-                      <p className="text-3xl font-bold">{statistics.activePanels}</p>
+                      <p className="text-2xl sm:text-3xl font-bold">{statistics.activePanels}</p>
                       <p className="text-xs text-white/70 mt-1">In progress</p>
                     </div>
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
@@ -918,11 +918,11 @@ export default function EvaluationPanelsPage() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                               {panel.name}
                             </h3>
                             {getStatusBadge(panel.status)}

@@ -274,14 +274,14 @@ export default function SupervisorDashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/projects')}>
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-white/80 text-sm mb-1">Projects</p>
-                      <p className="text-4xl font-bold">{stats.totalProjects}</p>
+                      <p className="text-white/80 text-xs sm:text-sm mb-1">Projects</p>
+                      <p className="text-2xl sm:text-4xl font-bold">{stats.totalProjects}</p>
                     </div>
                     <div className="p-1.5 bg-white/20 rounded-lg">
                       <FolderKanban className="w-4 h-4" />
@@ -297,11 +297,11 @@ export default function SupervisorDashboard() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/students')}>
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Students</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalStudents}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Students</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.totalStudents}</p>
                     </div>
                     <div className="p-1.5 bg-gray-100 dark:bg-zinc-700 rounded-lg">
                       <GraduationCap className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
@@ -317,11 +317,11 @@ export default function SupervisorDashboard() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/invitations?filter=pending')}>
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Pending</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.pendingProposals}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Pending</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.pendingProposals}</p>
                     </div>
                     <div className="p-1.5 bg-[#1a5d1a]/10 rounded-lg">
                       <ClipboardList className="w-4 h-4 text-[#1a5d1a]" />
@@ -336,11 +336,11 @@ export default function SupervisorDashboard() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/groups')}>
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Approved</p>
-                      <p className="text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.approvedProposals}</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Approved</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.approvedProposals}</p>
                     </div>
                     <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
@@ -357,7 +357,7 @@ export default function SupervisorDashboard() {
             {/* Activity Trend Chart */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Activity Trend</h3>
@@ -413,7 +413,7 @@ export default function SupervisorDashboard() {
             {/* Project Distribution Chart */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Status</h3>
@@ -469,9 +469,9 @@ export default function SupervisorDashboard() {
             {/* Quick Actions */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-5 text-lg">Quick Actions</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
@@ -547,7 +547,7 @@ export default function SupervisorDashboard() {
             {/* Pending Invitations Card */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Invitations</h3>
                     <div className="flex items-center gap-2">
@@ -608,7 +608,7 @@ export default function SupervisorDashboard() {
             {/* My Groups */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="lg:col-span-5">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl h-full">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-[#1a5d1a]/10 flex items-center justify-center">
@@ -711,7 +711,7 @@ export default function SupervisorDashboard() {
             {/* Recent Activity */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="lg:col-span-4">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Recent Activity</h3>
                     <Clock className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
@@ -750,7 +750,7 @@ export default function SupervisorDashboard() {
             {/* Supervisor Info */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="lg:col-span-3">
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Your Info</h3>
                     <BookOpen className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
@@ -800,7 +800,7 @@ export default function SupervisorDashboard() {
           {groups.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-lg">Students Under Supervision</h3>
                     <GraduationCap className="w-5 h-5 text-[#1a5d1a]" />

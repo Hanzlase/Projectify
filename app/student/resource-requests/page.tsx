@@ -249,7 +249,7 @@ export default function StudentResourceRequestsPage() {
         <header className="bg-white dark:bg-[#27272A] sticky top-0 z-10 px-4 md:px-6 py-5 border-b border-gray-200 dark:border-zinc-700 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 max-w-6xl mx-auto">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
                 <Package className="w-6 h-6 text-[#1E6F3E]" />
                 Resource Requests
               </h1>
@@ -290,7 +290,7 @@ export default function StudentResourceRequestsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">{stat.label}</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">{stat.count}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mt-1">{stat.count}</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                       <stat.icon className={`w-6 h-6 ${stat.color}`} />

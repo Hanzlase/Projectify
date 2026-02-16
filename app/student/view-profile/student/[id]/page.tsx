@@ -214,7 +214,7 @@ export default function ViewStudentProfilePage() {
 
                   {/* Name & Role */}
                   <div className="text-center mb-5">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">{profile.name}</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">{profile.name}</h1>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 text-[#1a5d1a] dark:text-[#4ade80] rounded-full text-sm font-semibold border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40">
                       <GraduationCap className="w-4 h-4" />
                       Student
@@ -304,7 +304,7 @@ export default function ViewStudentProfilePage() {
               {/* Group/Project Status Section - Only show if in a group */}
               {profile.hasGroup && (
                 <Card className="border-0 shadow-xl bg-white dark:bg-[#27272A] overflow-hidden">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-5">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d]">
                         <Users className="w-5 h-5 text-white" />
@@ -367,7 +367,7 @@ export default function ViewStudentProfilePage() {
               {/* About Section */}
               {profile.bio && (
                 <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A]">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center">
                         <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
@@ -382,7 +382,7 @@ export default function ViewStudentProfilePage() {
               {/* Skills Section - Highlighted for Group Formation */}
               {profile.skills && (
                 <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A] overflow-hidden">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-lg flex items-center justify-center">
@@ -412,7 +412,7 @@ export default function ViewStudentProfilePage() {
               {/* Interests Section */}
               {profile.interests && (
                 <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A]">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 bg-[#e8f5e8] dark:bg-[#2d7a2d]/30 rounded-lg flex items-center justify-center">
                         <Lightbulb className="w-4 h-4 text-[#2d7a2d] dark:text-[#4ade80]" />
@@ -436,7 +436,7 @@ export default function ViewStudentProfilePage() {
               {/* Social Links Card */}
               {(profile.linkedin || profile.github) && (
                 <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A]">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-8 h-8 bg-slate-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center">
                         <ExternalLink className="w-4 h-4 text-slate-600 dark:text-zinc-400" />

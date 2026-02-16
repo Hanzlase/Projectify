@@ -206,7 +206,7 @@ export default function ViewSupervisorProfilePage() {
 
                   {/* Name & Role */}
                   <div className="text-center mb-5">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">{profile.name}</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">{profile.name}</h1>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#e8f5e8] to-[#d1e7d1] dark:from-[#1a5d1a]/30 dark:to-[#2d7a2d]/30 text-[#1a5d1a] dark:text-[#4ade80] rounded-full text-sm font-semibold border border-[#1a5d1a]/20 dark:border-[#1a5d1a]/40">
                       <GraduationCap className="w-4 h-4" />
                       Supervisor

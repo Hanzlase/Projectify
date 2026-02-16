@@ -93,7 +93,7 @@ function LoginPageContent() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-[#18181B]">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center p-4 sm:p-8 lg:p-12 bg-white dark:bg-[#18181B]">
         {/* Form Container */}
         <div className="w-full max-w-md mx-auto">
           {/* Logo & Welcome */}
@@ -108,7 +108,7 @@ function LoginPageContent() {
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Welcome Back</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-2">Welcome Back</h1>
             <p className="text-gray-500 dark:text-zinc-400">Enter your credentials to access your account</p>
           </motion.div>
 

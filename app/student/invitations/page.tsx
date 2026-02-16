@@ -316,7 +316,7 @@ export default function InvitationsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">Invitations</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">Invitations</h1>
             <p className="text-gray-500 dark:text-zinc-400 text-sm">Manage your team and collaboration invitations</p>
           </motion.div>
 

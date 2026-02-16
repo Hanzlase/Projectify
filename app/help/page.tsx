@@ -96,7 +96,7 @@ export default function HelpPage() {
       {/* Back Button - Fixed */}
       <Link
         href="/login"
-        className="fixed top-6 left-6 z-20 w-10 h-10 bg-white dark:bg-[#27272A] rounded-full shadow-md flex items-center justify-center text-gray-600 dark:text-zinc-300 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:shadow-lg transition-all"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-20 w-10 h-10 bg-white dark:bg-[#27272A] rounded-full shadow-md flex items-center justify-center text-gray-600 dark:text-zinc-300 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:shadow-lg transition-all"
       >
         <ArrowLeft className="w-5 h-5" />
       </Link>
@@ -108,7 +108,7 @@ export default function HelpPage() {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white dark:bg-[#27272A] border-b border-gray-100 dark:border-zinc-700 px-8 py-5 sticky top-0 z-10"
+          className="bg-white dark:bg-[#27272A] border-b border-gray-100 dark:border-zinc-700 px-4 sm:px-8 py-4 sm:py-5 sticky top-0 z-10"
         >
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
@@ -122,8 +122,8 @@ export default function HelpPage() {
         </motion.header>
 
         {/* Content */}
-        <div className="p-6 lg:p-10">
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="p-4 sm:p-6 lg:p-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Login Guides */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

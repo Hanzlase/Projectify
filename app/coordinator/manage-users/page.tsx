@@ -1051,7 +1051,7 @@ export default function ManageUsersPage() {
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {actionError && (
                   <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" />

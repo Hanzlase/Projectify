@@ -948,7 +948,7 @@ const Navbar = () => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, []);
+  }, [mobileMenuOpen]);
 
   const navLinks = [
     { name: 'Features', href: '#features', icon: Zap },
@@ -1019,8 +1019,8 @@ const Navbar = () => {
                 <span className="text-lg font-bold tracking-tight">Projectify</span>
               </div>
               
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block">
-                <Button size="sm" onClick={() => router.push('/login')} className="rounded-full shadow-lg shadow-green-900/20 hover:shadow-green-900/30">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button size="sm" onClick={() => router.push('/login')} className="rounded-full shadow-lg shadow-green-900/20 hover:shadow-green-900/30 text-xs sm:text-sm px-3 sm:px-4">
                     Sign In <ChevronRight className="w-3 h-3 ml-1" />
                 </Button>
               </motion.div>
@@ -1178,7 +1178,7 @@ const Footer = () => (
 
 export default function EnhancedLandingPage() {
   return (
-    <main className="min-h-screen font-sans selection:bg-green-100 selection:text-green-900 dark:selection:bg-green-900 dark:selection:text-green-100 bg-white dark:bg-[#18181B]">
+    <main className="min-h-screen font-sans selection:bg-green-100 selection:text-green-900 dark:selection:bg-green-900 dark:selection:text-green-100 bg-white dark:bg-[#18181B] overflow-x-hidden">
       <Navbar />
       <HeroSection />
       <LogoMarquee />

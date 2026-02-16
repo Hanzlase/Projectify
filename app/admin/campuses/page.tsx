@@ -298,7 +298,7 @@ export default function CampusesPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/80 text-xs mb-1">Total Campuses</p>
-                      <p className="text-3xl font-bold">{campuses.length}</p>
+                      <p className="text-2xl sm:text-3xl font-bold">{campuses.length}</p>
                     </div>
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                       <Building className="w-5 h-5" />
@@ -314,7 +314,7 @@ export default function CampusesPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Total Users</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{totalUsers}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{totalUsers}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                       <Users className="w-5 h-5 text-[#1a5d1a]" />
@@ -330,7 +330,7 @@ export default function CampusesPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Coordinator Slots</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{usedCoordinatorSlots}/{totalCoordinatorSlots}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{usedCoordinatorSlots}/{totalCoordinatorSlots}</p>
                     </div>
                     <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                       <UserCheck className="w-5 h-5 text-[#2d7a2d]" />
@@ -346,7 +346,7 @@ export default function CampusesPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Avg Users/Campus</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">
                         {campuses.length > 0 ? Math.round(totalUsers / campuses.length) : 0}
                       </p>
                     </div>

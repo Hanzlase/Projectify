@@ -3,8 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Use QDRANT_URL environment variable
 let QDRANT_URL = process.env.QDRANT_URL || '';
-// Remove port :6333 if present (Qdrant Cloud doesn't use it)
-if (QDRANT_URL.includes(':6333')) {
+// Remove trailing slash if present
+QDRANT_URL = QDRANT_URL.replace(/\/+$/, '');
+// For Qdrant Cloud (*.cloud.qdrant.io), strip :6333 — Cloud uses HTTPS on port 443
+// For self-hosted, keep :6333 if present or add it
+if (QDRANT_URL.includes('.cloud.qdrant.io')) {
   QDRANT_URL = QDRANT_URL.replace(':6333', '');
 }
 // Clean up API key in case it has line breaks
@@ -15,6 +18,7 @@ const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 500;
 
 let qdrantClient: QdrantClient | null = null;
+let qdrantClientUrl: string | null = null; // Track URL to detect changes
 
 // Request semaphore for limiting concurrent Qdrant operations
 let activeQdrantRequests = 0;
@@ -89,6 +93,10 @@ async function withRetry<T>(
 }
 
 function getQdrantClient(): QdrantClient {
+  // Recreate client if URL changed (e.g. env reload in dev)
+  if (qdrantClient && qdrantClientUrl !== QDRANT_URL) {
+    qdrantClient = null;
+  }
   if (!qdrantClient) {
     console.log('Initializing Qdrant client with URL:', QDRANT_URL);
     if (!QDRANT_URL) {
@@ -100,6 +108,7 @@ function getQdrantClient(): QdrantClient {
       checkCompatibility: false, // Skip version check to avoid errors
       timeout: 10000, // 10 second timeout
     });
+    qdrantClientUrl = QDRANT_URL;
   }
   return qdrantClient;
 }
@@ -128,6 +137,7 @@ export async function initializeCollection(): Promise<boolean> {
   return withRetry(async () => {
     const client = getQdrantClient();
     console.log('Checking Qdrant collections...');
+    console.log('Using Qdrant URL:', QDRANT_URL);
     const collections = await client.getCollections();
     console.log('Available collections:', collections.collections.map(c => c.name));
     const exists = collections.collections.some((c: { name: string }) => c.name === COLLECTION_NAME);
@@ -189,9 +199,15 @@ export async function searchSimilarProjects(
 ): Promise<SimilarProject[]> {
   try {
     await initializeCollection();
-    
-    return await withRetry(async () => {
-      const client = getQdrantClient();
+  } catch (error: any) {
+    console.error('Qdrant unavailable for similarity search:', error?.message || error);
+    // Throw so the caller knows Qdrant is down — don't silently return []
+    // which would make every project appear "100% unique"
+    throw new Error('Vector database is currently unavailable. Cannot perform similarity check. Please try again later.');
+  }
+  
+  return await withRetry(async () => {
+    const client = getQdrantClient();
 
       // Build filter conditions
       const mustNot: any[] = [];
@@ -234,10 +250,6 @@ export async function searchSimilarProjects(
         payload: result.payload as unknown as ProjectPayload,
       }));
     }, 'Search similar projects');
-  } catch (error: any) {
-    console.error('Error searching similar projects:', error?.message || error);
-    return [];
-  }
 }
 
 /**
