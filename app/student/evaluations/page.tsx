@@ -524,7 +524,7 @@ export default function StudentEvaluationsPage() {
           </div>
 
           {/* Pill Toggle Navigation */}
-          <div className="bg-gray-100 dark:bg-[#27272A] p-1.5 rounded-xl inline-flex gap-1 mb-6">
+          <div className="bg-gray-100 dark:bg-[#27272A] p-1.5 rounded-xl flex flex-wrap gap-1 mb-6">
             {[
               { id: "pending", label: "Pending", icon: Clock, count: stats.pending },
               { id: "submitted", label: "Submitted", icon: Send, count: stats.submitted },
@@ -533,14 +533,14 @@ export default function StudentEvaluationsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`flex flex-1 items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   activeTab === tab.id
                     ? "bg-[#1E6F3E] text-white shadow-md"
                     : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <tab.icon className="w-4 h-4 shrink-0" />
+                <span>{tab.label}</span>
                 {tab.count > 0 && (
                   <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                     activeTab === tab.id

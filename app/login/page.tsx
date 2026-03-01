@@ -207,14 +207,14 @@ function LoginPageContent() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 dark:border-zinc-600 text-[#1a5d1a] dark:text-[#22C55E] focus:ring-[#1a5d1a] dark:focus:ring-green-500 bg-white dark:bg-[#27272A]" />
-                  <span className="text-sm text-gray-600 dark:text-zinc-400">Remember me</span>
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-2 cursor-pointer min-w-0">
+                  <input type="checkbox" className="w-4 h-4 shrink-0 rounded border-gray-300 dark:border-zinc-600 text-[#1a5d1a] dark:text-[#22C55E] focus:ring-[#1a5d1a] dark:focus:ring-green-500 bg-white dark:bg-[#27272A]" />
+                  <span className="text-sm text-gray-600 dark:text-zinc-400 whitespace-nowrap">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-[#1a5d1a] dark:text-[#22C55E] hover:text-[#145214] dark:hover:text-green-300 font-medium"
+                  className="text-sm text-[#1a5d1a] dark:text-[#22C55E] hover:text-[#145214] dark:hover:text-green-300 font-medium whitespace-nowrap shrink-0"
                 >
                   Forgot Password?
                 </Link>

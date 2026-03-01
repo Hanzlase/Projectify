@@ -15,6 +15,7 @@ import {
   Calendar, Plus, Video, Edit2, CheckCircle, CheckCircle2, Circle, ChevronDown, ChevronRight, ListTodo, CalendarPlus, RefreshCw
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
   ssr: false,
@@ -750,39 +751,7 @@ export default function GroupDetailsPage() {
   };
 
   if (status === 'loading' || loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#18181B] flex items-center justify-center overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#1a5d1a]/5 rounded-full blur-3xl" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex flex-col items-center gap-6"
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 w-20 h-20 rounded-full border-4 border-[#1a5d1a]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-20 h-20 rounded-full border-4 border-transparent border-t-[#1a5d1a]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="w-20 h-20 bg-white dark:bg-[#27272A] rounded-full shadow-lg flex items-center justify-center">
-              <Users className="w-8 h-8 text-[#1a5d1a]" />
-            </div>
-          </div>
-          <p className="text-gray-500 text-sm">Loading group details...</p>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message="Loading group details..." />;
   }
 
   if (!group) {
