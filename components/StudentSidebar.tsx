@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import {
@@ -30,7 +30,7 @@ interface StudentSidebarProps {
   profileImage?: string | null;
 }
 
-// Memoized navigation item with Link for prefetching
+// Memoized navigation item — pure Link, no router.push double-fire
 const NavItem = memo(function NavItem({ 
   icon: Icon, 
   label, 
@@ -42,7 +42,7 @@ const NavItem = memo(function NavItem({
   label: string; 
   active: boolean; 
   path: string;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   return (
     <Link
@@ -62,10 +62,8 @@ const NavItem = memo(function NavItem({
 });
 
 function StudentSidebar({ profileImage }: StudentSidebarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [isPending, startTransition] = useTransition();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -77,34 +75,22 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
     setMounted(true);
   }, []);
 
-  // Fetch user's group ID
+  // Fetch user's group ID — lightweight dedicated endpoint
   useEffect(() => {
     const fetchGroupId = async () => {
       try {
-        const res = await fetch('/api/student/dashboard');
+        const res = await fetch('/api/student/group-id');
         if (res.ok) {
           const data = await res.json();
-          if (data.group?.id) {
-            setGroupId(data.group.id);
-          }
+          if (data.groupId) setGroupId(data.groupId);
         }
-      } catch (error) {
-        console.error('Failed to fetch group ID:', error);
-      }
+      } catch {}
     };
-    
-    if (session?.user?.id) {
-      fetchGroupId();
-    }
+    if (session?.user?.id) fetchGroupId();
   }, [session?.user?.id]);
 
-  // Smooth navigation with useTransition
-  const navigate = useCallback((path: string) => {
-    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-    startTransition(() => {
-      router.push(path);
-    });
-  }, [router, isMobileMenuOpen]);
+  // Close mobile menu on navigation
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
   // Check if mobile on mount and resize - optimized
   useEffect(() => {
@@ -193,7 +179,7 @@ function StudentSidebar({ profileImage }: StudentSidebarProps) {
               label={item.label}
               path={item.path}
               active={isActive(item.path)}
-              onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)}
+              onClick={isMobile ? closeMobileMenu : undefined}
             />
           ))}
         </div>

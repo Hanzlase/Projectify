@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import dynamic from 'next/dynamic';
@@ -126,14 +127,14 @@ export default function SupervisorDashboard() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated' && !fetchedRef.current) {
       fetchedRef.current = true;
       fetchData();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -225,17 +226,17 @@ export default function SupervisorDashboard() {
             <SearchCommand role="supervisor" />
 
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => router.push('/supervisor/chat')}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
+              <Link
+                href="/supervisor/chat"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all inline-flex"
               >
                 <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
-              </button>
+              </Link>
               <NotificationBell />
               
-              <div 
+              <Link
+                href="/supervisor/profile"
                 className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
-                onClick={() => router.push('/supervisor/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
@@ -248,7 +249,7 @@ export default function SupervisorDashboard() {
                   <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-400">{session?.user?.email}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
@@ -263,20 +264,20 @@ export default function SupervisorDashboard() {
               <p className="text-sm text-gray-500 dark:text-zinc-400">{formatDate()}</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
-                onClick={() => router.push('/supervisor/projects/new')}
-                className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Idea
-              </Button>
+              <Link href="/supervisor/projects/new">
+                <Button className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Idea
+                </Button>
+              </Link>
             </div>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/projects')}>
+              <Link href="/supervisor/projects">
+              <Card className="border-0 shadow-sm bg-[#1a5d1a] text-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
@@ -293,10 +294,12 @@ export default function SupervisorDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/students')}>
+              <Link href="/supervisor/students">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
@@ -313,10 +316,12 @@ export default function SupervisorDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/invitations?filter=pending')}>
+              <Link href="/supervisor/invitations?filter=pending">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
@@ -332,10 +337,12 @@ export default function SupervisorDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all" onClick={() => router.push('/supervisor/groups')}>
+              <Link href="/supervisor/groups">
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all">
                 <CardContent className="p-3 sm:p-5">
                   <div className="flex items-start justify-between">
                     <div>
@@ -349,6 +356,7 @@ export default function SupervisorDashboard() {
                   <p className="text-xs text-gray-500 dark:text-zinc-400 mt-3">This semester</p>
                 </CardContent>
               </Card>
+              </Link>
             </motion.div>
           </div>
 
@@ -472,10 +480,10 @@ export default function SupervisorDashboard() {
                 <CardContent className="p-4 sm:p-6">
                   <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] mb-5 text-lg">Quick Actions</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <Link href="/supervisor/invitations">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
-                      onClick={() => router.push('/supervisor/invitations')}
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -488,11 +496,12 @@ export default function SupervisorDashboard() {
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
                     </motion.div>
+                    </Link>
 
+                    <Link href="/supervisor/chat">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
-                      onClick={() => router.push('/supervisor/chat')}
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -505,11 +514,12 @@ export default function SupervisorDashboard() {
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
                     </motion.div>
+                    </Link>
 
+                    <Link href="/supervisor/projects">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
-                      onClick={() => router.push('/supervisor/projects')}
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -522,11 +532,12 @@ export default function SupervisorDashboard() {
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
                     </motion.div>
+                    </Link>
 
+                    <Link href="/supervisor/profile">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-5 bg-gradient-to-br from-[#1a5d1a]/5 to-[#1a5d1a]/10 dark:from-[#1a5d1a]/10 dark:to-[#1a5d1a]/20 rounded-xl border border-[#1a5d1a]/20 cursor-pointer group"
-                      onClick={() => router.push('/supervisor/profile')}
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[#1a5d1a] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -539,6 +550,7 @@ export default function SupervisorDashboard() {
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1a5d1a] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </div>
                     </motion.div>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -568,8 +580,8 @@ export default function SupervisorDashboard() {
                           animate={{ opacity: 1, x: 0 }} 
                           transition={{ delay: 0.4 + index * 0.05 }} 
                           className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-all cursor-pointer"
-                          onClick={() => router.push('/supervisor/invitations')}
                         >
+                          <Link href="/supervisor/invitations">
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7]">{invitation.groupName}</p>
                             <span className="text-xs px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-300">
@@ -581,6 +593,7 @@ export default function SupervisorDashboard() {
                             <Users className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
                             <span className="text-xs text-gray-500 dark:text-zinc-400">{invitation.studentCount} students</span>
                           </div>
+                          </Link>
                         </motion.div>
                       ))}
                     </div>
@@ -591,12 +604,12 @@ export default function SupervisorDashboard() {
                     </div>
                   )}
                   {pendingInvitations.length > 0 && (
-                    <button 
-                      onClick={() => router.push('/supervisor/invitations')}
-                      className="w-full mt-4 py-2 text-sm text-[#1a5d1a] hover:bg-[#1a5d1a]/5 rounded-lg transition-colors font-medium"
+                    <Link 
+                      href="/supervisor/invitations"
+                      className="w-full mt-4 py-2 text-sm text-[#1a5d1a] hover:bg-[#1a5d1a]/5 rounded-lg transition-colors font-medium block text-center"
                     >
                       View All Invitations
-                    </button>
+                    </Link>
                   )}
                 </CardContent>
               </Card>

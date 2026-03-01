@@ -145,13 +145,13 @@ export default function StudentEvaluationsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "student") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       fetchEvaluations();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchEvaluations = async () => {
     try {

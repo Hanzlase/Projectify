@@ -130,7 +130,7 @@ function ChatPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated') {
       // Fetch both in parallel for faster loading
       fetchInitialData();
@@ -141,7 +141,7 @@ function ChatPageContent() {
         startOrOpenConversation(parseInt(recipientId));
       }
     }
-  }, [status, router, searchParams]);
+  }, [status, searchParams]);
 
   const fetchInitialData = async () => {
     try {

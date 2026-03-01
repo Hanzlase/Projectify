@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, Loader2, Globe, Lock, 
@@ -46,7 +46,6 @@ interface Project {
 }
 
 export default function SupervisorProjectDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
@@ -59,9 +58,9 @@ export default function SupervisorProjectDetailPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated' && projectId) {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
@@ -76,7 +75,7 @@ export default function SupervisorProjectDetailPage() {
         }
       });
     }
-  }, [status, router, projectId, session]);
+  }, [status, projectId, session]);
 
   const fetchProject = async () => {
     setLoading(true);
@@ -128,11 +127,12 @@ export default function SupervisorProjectDetailPage() {
           <h3 className="text-xl font-bold text-slate-800 dark:text-[#E4E4E7] mb-2">Project Not Found</h3>
           <p className="text-slate-500 dark:text-zinc-400 mb-6">{error || 'Unable to load this project'}</p>
           <Button 
-            onClick={() => router.push('/supervisor/projects')}
             className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23]"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Projects
+            <Link href="/supervisor/projects" className="flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Projects
+            </Link>
           </Button>
         </div>
       </div>
@@ -149,12 +149,12 @@ export default function SupervisorProjectDetailPage() {
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
-                <button
-                  onClick={() => router.push('/supervisor/projects')}
-                  className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-colors"
+                <Link
+                  href="/supervisor/projects"
+                  className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-colors inline-flex"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-                </button>
+                </Link>
                 <div>
                   <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
                   <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-500">View project information</p>
@@ -169,11 +169,7 @@ export default function SupervisorProjectDetailPage() {
 
         {/* Content */}
         <div className="p-4 md:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
+          <div className="space-y-8">
             {/* Hero Section with Thumbnail */}
             {project.thumbnailUrl && (
               <div className="relative h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden shadow-xl">
@@ -334,13 +330,12 @@ export default function SupervisorProjectDetailPage() {
                   </div>
                   
                   {/* Contact Student Button */}
-                  <Button
-                    onClick={() => router.push(`/supervisor/chat?recipientId=${project.createdById}`)}
-                    className="w-full mt-4 bg-[#1a5d1a] hover:bg-[#145214] text-white"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Contact Student
-                  </Button>
+                  <Link href={`/supervisor/chat?recipientId=${project.createdById}`} className="block w-full mt-4">
+                    <Button className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contact Student
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Date Info Card */}
@@ -404,7 +399,7 @@ export default function SupervisorProjectDetailPage() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

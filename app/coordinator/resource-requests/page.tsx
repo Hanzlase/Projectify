@@ -70,7 +70,7 @@ interface ResourceRequest {
 
 export default function CoordinatorResourceRequestsPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -90,10 +90,10 @@ export default function CoordinatorResourceRequestsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
-    else if (status === "authenticated" && session?.user?.role !== "coordinator") router.push("/unauthorized");
+    if (status === "unauthenticated") window.location.href = "/login";
+    else if (status === "authenticated" && session?.user?.role !== "coordinator") window.location.href = "/unauthorized";
     else if (status === "authenticated") fetchRequests();
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchRequests = async () => {
     try {

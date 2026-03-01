@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
@@ -96,7 +97,7 @@ const ProgressBar = ({ current, total, className = "" }: { current: number; tota
 
 export default function CoordinatorEvaluationsPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -133,13 +134,13 @@ export default function CoordinatorEvaluationsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "coordinator") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       fetchEvaluations();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchEvaluations = async () => {
     try {
@@ -358,14 +359,13 @@ export default function CoordinatorEvaluationsPage() {
               >
                 <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
-              <Button
-                onClick={() => router.push("/coordinator/evaluation-scores")}
-                variant="outline"
-                className="rounded-xl px-5 h-11 font-semibold border-[#1E6F3E] text-[#1E6F3E] hover:bg-[#1E6F3E]/5"
+              <Link
+                href="/coordinator/evaluation-scores"
+                className="inline-flex items-center rounded-xl px-5 h-11 font-semibold border border-[#1E6F3E] text-[#1E6F3E] hover:bg-[#1E6F3E]/5 transition-colors"
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 View Scores
-              </Button>
+              </Link>
               <Button
                 onClick={() => setShowCreateModal(true)}
                 className="bg-[#1E6F3E] hover:bg-[#185a32] text-white rounded-xl px-5 h-11 font-semibold shadow-md"

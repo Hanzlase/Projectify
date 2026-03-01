@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ interface IndustrialProject {
 }
 
 export default function StudentIndustrialProjectsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { data: session, status } = useSession();
   const [projects, setProjects] = useState<IndustrialProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,14 +59,14 @@ export default function StudentIndustrialProjectsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (session.user.role !== 'student') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   // Combined initial data fetch - runs only once
   const fetchInitialData = useCallback(async () => {
@@ -351,15 +352,12 @@ export default function StudentIndustrialProjectsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map((project, index) => (
-                <motion.div
+                <div
                   key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
                 >
+                  <Link href={`/student/industrial-projects/${project.id}`}>
                   <Card 
                     className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer overflow-hidden group"
-                    onClick={() => router.push(`/student/industrial-projects/${project.id}`)}
                   >
                     {/* Thumbnail */}
                     <div className="h-36 bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-500/10 dark:from-[#1a5d1a]/20 dark:to-emerald-500/20 relative overflow-hidden">
@@ -404,32 +402,26 @@ export default function StudentIndustrialProjectsPage() {
                         
                         {userRequests[project.id] ? (
                           userRequests[project.id] === 'approved' && !isInGroup ? (
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/student/chat?createGroupForIndustrial=${project.id}`);
-                              }}
-                              className="bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3"
+                            <Link
+                              href={`/student/chat?createGroupForIndustrial=${project.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3 rounded-md"
                             >
                               <CheckCircle2 className="w-3 h-3 mr-1" />
                               Create Group
-                            </Button>
+                            </Link>
                           ) : (
                             getRequestStatusBadge(project.id)
                           )
                         ) : project.status === 'available' && !isInGroup ? (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/student/industrial-projects/${project.id}`);
-                            }}
-                            className="bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3"
+                          <Link
+                            href={`/student/industrial-projects/${project.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3 rounded-md"
                           >
                             <Send className="w-3 h-3 mr-1" />
                             Request
-                          </Button>
+                          </Link>
                         ) : project.status === 'available' && isInGroup ? (
                           <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                             In Group
@@ -440,7 +432,8 @@ export default function StudentIndustrialProjectsPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}

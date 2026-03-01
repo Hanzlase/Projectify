@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,7 +41,6 @@ type FilterType = 'all' | 'no-group' | 'has-group';
 type ViewMode = 'grid' | 'list';
 
 export default function SupervisorStudentsPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [students, setStudents] = useState<Student[]>([]);
@@ -57,9 +56,9 @@ export default function SupervisorStudentsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
@@ -81,7 +80,7 @@ export default function SupervisorStudentsPage() {
         setLoading(false);
       });
     }
-  }, [status, router, session]);
+  }, [status, session]);
 
   // Get unique batches and skills for filtering
   const uniqueBatches = useMemo(() => {
@@ -167,12 +166,14 @@ export default function SupervisorStudentsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
-                <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
+              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all">
+                <Link href="/supervisor/chat">
+                  <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
+                </Link>
               </button>
               <NotificationBell />
               
-              <div className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer" onClick={() => router.push('/supervisor/profile')}>
+              <Link href="/supervisor/profile" className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -184,7 +185,7 @@ export default function SupervisorStudentsPage() {
                   <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-500">{session?.user?.email}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
@@ -192,11 +193,7 @@ export default function SupervisorStudentsPage() {
         {/* Page Content */}
         <main className="p-4 md:p-6">
           {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
@@ -226,15 +223,10 @@ export default function SupervisorStudentsPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Stats Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-3 gap-4 mb-6"
-          >
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <Card className={`border-0 shadow-sm rounded-2xl cursor-pointer transition-all ${activeFilter === 'all' ? 'ring-2 ring-[#1a5d1a]' : ''}`} onClick={() => setActiveFilter('all')}>
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#d1e7d1] rounded-xl flex items-center justify-center">
@@ -268,14 +260,10 @@ export default function SupervisorStudentsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
+          <div>
             <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
@@ -368,25 +356,19 @@ export default function SupervisorStudentsPage() {
                 </AnimatePresence>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Students Grid/List */}
           {filteredStudents.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+            <div
               className={viewMode === 'grid' 
                 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
                 : 'flex flex-col gap-3'
               }
             >
               {filteredStudents.map((student, index) => (
-                <motion.div
+                <div
                   key={student.userId}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
                   onMouseEnter={() => setHoveredStudent(student.userId)}
                   onMouseLeave={() => setHoveredStudent(null)}
                 >
@@ -435,23 +417,25 @@ export default function SupervisorStudentsPage() {
                         )}
 
                         <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 border-gray-200 dark:border-zinc-700"
-                            onClick={() => router.push(`/supervisor/chat?recipientId=${student.userId}`)}
-                          >
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            Chat
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] text-white"
-                            onClick={() => router.push(`/student/view-profile/student/${student.userId}`)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            Profile
-                          </Button>
+                          <Link href={`/supervisor/chat?recipientId=${student.userId}`} className="flex-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full border-gray-200 dark:border-zinc-700"
+                            >
+                              <MessageCircle className="w-4 h-4 mr-1" />
+                              Chat
+                            </Button>
+                          </Link>
+                          <Link href={`/student/view-profile/student/${student.userId}`} className="flex-1">
+                            <Button
+                              size="sm"
+                              className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              Profile
+                            </Button>
+                          </Link>
                         </div>
                       </CardContent>
                     </Card>
@@ -488,34 +472,33 @@ export default function SupervisorStudentsPage() {
                           )}
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-gray-200 dark:border-zinc-700"
-                            onClick={() => router.push(`/supervisor/chat?recipientId=${student.userId}`)}
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
-                            onClick={() => router.push(`/student/view-profile/student/${student.userId}`)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
+                          <Link href={`/supervisor/chat?recipientId=${student.userId}`}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-200 dark:border-zinc-700"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <Link href={`/student/view-profile/student/${student.userId}`}>
+                            <Button
+                              size="sm"
+                              className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                          </Link>
                         </div>
                       </CardContent>
                     </Card>
                   )}
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 bg-[#d1e7d1] rounded-full flex items-center justify-center mx-auto mb-4">
@@ -539,7 +522,7 @@ export default function SupervisorStudentsPage() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
         </main>
       </div>

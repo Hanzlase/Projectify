@@ -103,7 +103,7 @@ interface GroupDetails {
 
 export default function SupervisorEvaluationsPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter(); // removed - using window.location.href for auth guards
 
   const [loading, setLoading] = useState(true);
   const [panels, setPanels] = useState<PanelAssignment[]>([]);
@@ -142,13 +142,13 @@ export default function SupervisorEvaluationsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       fetchPanels();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchPanels = async () => {
     try {

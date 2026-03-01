@@ -173,13 +173,13 @@ export default function SupervisorGroupDetailsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated" && groupId) {
       fetchGroupData();
     }
-  }, [status, session, groupId, router]);
+  }, [status, session, groupId]);
 
   const fetchGroupData = async () => {
     try {

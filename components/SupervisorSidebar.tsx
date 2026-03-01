@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import Link from 'next/link';
 import { 
-  LayoutDashboard, FolderKanban, Calendar, Users, 
+  LayoutDashboard, FolderKanban, Users, 
   Settings, HelpCircle, LogOut, GraduationCap, MessageCircle, Bell, AlertTriangle, Mail, Award, Package,
   Menu, X
 } from 'lucide-react';
@@ -16,21 +17,25 @@ interface SupervisorSidebarProps {
   profileImage?: string | null;
 }
 
-// Memoized navigation item
+// Memoized navigation item — pure Link for instant navigation
 const NavItem = memo(function NavItem({ 
   icon: Icon, 
   label, 
   active, 
-  onClick 
+  path,
+  onClick,
 }: { 
   icon: any; 
   label: string; 
-  active: boolean; 
-  onClick: () => void;
+  active: boolean;
+  path: string;
+  onClick?: () => void;
 }) {
   return (
-    <button
+    <Link
+      href={path}
       onClick={onClick}
+      prefetch={true}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
         active
           ? 'bg-[#1a5d1a] text-white font-medium'
@@ -39,26 +44,18 @@ const NavItem = memo(function NavItem({
     >
       <Icon className="w-[18px] h-[18px]" />
       <span>{label}</span>
-    </button>
+    </Link>
   );
 });
 
 function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [isPending, startTransition] = useTransition();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Smooth navigation with useTransition
-  const navigate = useCallback((path: string) => {
-    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-    startTransition(() => {
-      router.push(path);
-    });
-  }, [router, isMobileMenuOpen]);
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -118,17 +115,15 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo - Fixed at top */}
+      {/* Logo */}
       <div className="p-5 pb-4 flex-shrink-0">
-        <div 
-          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate('/supervisor/dashboard')}
-        >
+        <Link href="/supervisor/dashboard" prefetch={true} onClick={closeMobileMenu}
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
-        </div>
+        </Link>
       </div>
 
       {/* Scrollable Main Navigation */}
@@ -140,14 +135,15 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               key={item.label}
               icon={item.icon}
               label={item.label}
+              path={item.path}
               active={isActive(item.path)}
-              onClick={() => navigate(item.path)}
+              onClick={isMobile ? closeMobileMenu : undefined}
             />
           ))}
         </div>
       </nav>
 
-      {/* Bottom Navigation - Fixed at bottom */}
+      {/* Bottom Navigation */}
       <div className="px-3 pb-4 flex-shrink-0 border-t border-gray-100 dark:border-zinc-700 pt-3 bg-white dark:bg-[#27272A]">
         <p className="text-[10px] font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-3">General</p>
         <div className="space-y-1">
@@ -156,8 +152,9 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               key={item.label}
               icon={item.icon}
               label={item.label}
+              path={item.path}
               active={isActive(item.path)}
-              onClick={() => navigate(item.path)}
+              onClick={isMobile ? closeMobileMenu : undefined}
             />
           ))}
           <ThemeToggle />
@@ -174,10 +171,8 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
       {/* User Profile Card (Mobile) */}
       {isMobile && (
         <div className="px-3 pb-4 border-t border-gray-100 dark:border-zinc-700 pt-4 flex-shrink-0">
-          <div 
-            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl transition-all"
-            onClick={() => navigate('/supervisor/profile')}
-          >
+          <Link href="/supervisor/profile" prefetch={true} onClick={closeMobileMenu}
+            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl transition-all">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold overflow-hidden">
               {profileImage ? (
                 <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />
@@ -189,7 +184,7 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
               <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">{session?.user?.name}</p>
               <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
             </div>
-          </div>
+          </Link>
         </div>
       )}
     </div>
@@ -207,28 +202,24 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
             <Menu className="w-6 h-6 text-gray-700 dark:text-zinc-300" />
           </button>
           
-          <div 
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => navigate('/supervisor/dashboard')}
-          >
+          <Link href="/supervisor/dashboard" prefetch={true}
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
             <span className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Projectify</span>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <div 
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer"
-              onClick={() => navigate('/supervisor/profile')}
-            >
+            <Link href="/supervisor/profile" prefetch={true}
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden cursor-pointer">
               {profileImage ? (
                 <img src={profileImage} alt={session?.user?.name || 'Profile'} className="w-full h-full object-cover" />
               ) : (
                 session?.user?.name?.charAt(0).toUpperCase() || 'S'
               )}
-            </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -269,15 +260,10 @@ function SupervisorSidebar({ profileImage }: SupervisorSidebarProps) {
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="hidden md:flex w-56 bg-white dark:bg-[#27272A] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950"
-      >
+      {/* Desktop Sidebar — no entrance animation, renders instantly */}
+      <aside className="hidden md:flex w-56 bg-white dark:bg-[#27272A] flex-col fixed h-full z-20 shadow-sm dark:shadow-zinc-950">
         <SidebarContent />
-      </motion.aside>
+      </aside>
 
       {/* Logout Confirmation Modal */}
       <AnimatePresence>

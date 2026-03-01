@@ -13,18 +13,18 @@ export default function UnauthorizedPage() {
     if (session) {
       const role = (session.user as any)?.role
       if (role === 'student') {
-        router.push('/student/dashboard')
+        window.location.href = '/student/dashboard'
       } else if (role === 'supervisor') {
-        router.push('/supervisor/dashboard')
+        window.location.href = '/supervisor/dashboard'
       } else if (role === 'coordinator') {
-        router.push('/coordinator/dashboard')
+        window.location.href = '/coordinator/dashboard'
       } else if (role === 'admin') {
-        router.push('/admin/dashboard')
+        window.location.href = '/admin/dashboard'
       } else {
-        router.push('/login')
+        window.location.href = '/login'
       }
     } else {
-      router.push('/login')
+      window.location.href = '/login'
     }
   }
 

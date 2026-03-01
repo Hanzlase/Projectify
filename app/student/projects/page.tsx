@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -124,7 +125,7 @@ function ProjectsPageContent() {
   // Initial data fetch - only once
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (status === 'authenticated' && !fetchedRef.current) {
@@ -486,11 +487,7 @@ function ProjectsPageContent() {
         {/* Page Content */}
         <main className="p-4 md:p-6">
           {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
@@ -510,14 +507,10 @@ function ProjectsPageContent() {
                 Add Idea
               </Button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Filters Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <div>
             <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
@@ -572,28 +565,18 @@ function ProjectsPageContent() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Projects Grid */}
           {filteredProjects.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project, index) => {
                 const isOwner = project.createdById === parseInt(session?.user?.id || '0');
 
                 return (
-                  <motion.div
-                    key={project.projectId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
+                  <div key={project.projectId}>
+                    <Link href={`/student/projects/${project.projectId}`}>
                     <Card 
-                      onClick={() => router.push(`/student/projects/${project.projectId}`)}
                       className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
                     >
                       {/* Thumbnail */}
@@ -685,15 +668,13 @@ function ProjectsPageContent() {
                         </div>
                       </CardContent>
                     </Card>
-                  </motion.div>
+                    </Link>
+                  </div>
                 );
               })}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 bg-[#d1e7d1] dark:bg-[#1a5d1a]/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -719,7 +700,7 @@ function ProjectsPageContent() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
         </main>
       </div>

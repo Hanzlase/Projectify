@@ -37,7 +37,7 @@ interface Notification {
 }
 
 export default function StudentNotificationsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -63,14 +63,14 @@ export default function StudentNotificationsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       // Fetch both in parallel for faster loading
       fetchInitialData();
     }
-  }, [status, router]);
+  }, [status]);
 
   const fetchInitialData = async () => {
     try {

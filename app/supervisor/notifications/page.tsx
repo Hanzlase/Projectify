@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,7 +56,6 @@ interface PermissionRequest {
 }
 
 export default function SupervisorNotificationsPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -71,16 +70,16 @@ export default function SupervisorNotificationsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       // Fetch both in parallel for faster loading
       fetchInitialData();
     }
-  }, [status, router, session]);
+  }, [status, session]);
 
   const fetchInitialData = async () => {
     try {
@@ -343,12 +342,12 @@ export default function SupervisorNotificationsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
+              <Link href="/supervisor/chat" className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all inline-flex">
                 <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
-              </button>
+              </Link>
               <NotificationBell />
               
-              <div className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer" onClick={() => router.push('/supervisor/profile')}>
+              <Link href="/supervisor/profile" className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -360,18 +359,14 @@ export default function SupervisorNotificationsPage() {
                   <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-500">{session?.user?.email}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
         <main className="p-4 md:p-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Notifications</h1>
@@ -405,14 +400,10 @@ export default function SupervisorNotificationsPage() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Search and Filter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-4 mb-6"
+          <div className="flex flex-col sm:flex-row gap-4 mb-6"
           >
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-500" />
@@ -468,24 +459,17 @@ export default function SupervisorNotificationsPage() {
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </div>
 
           {/* Notifications List */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div>
             <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden">
               <CardContent className="p-0">
                 {filteredNotifications.length > 0 ? (
                   <div className="divide-y divide-gray-100">
                     {filteredNotifications.map((notification, index) => (
-                      <motion.div
+                      <div
                         key={notification.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
                         className={`p-5 hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors cursor-pointer ${
                           !notification.isRead ? 'bg-[#d1e7d1]/20' : ''
                         }`}
@@ -579,7 +563,7 @@ export default function SupervisorNotificationsPage() {
                             </button>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -596,7 +580,7 @@ export default function SupervisorNotificationsPage() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </main>
       </div>
 

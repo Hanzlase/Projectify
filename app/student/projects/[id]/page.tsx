@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && projectId) {
       // Fetch all data in parallel
       Promise.all([
@@ -107,7 +108,7 @@ export default function ProjectDetailPage() {
         }
       });
     }
-  }, [status, router, projectId]);
+  }, [status, projectId]);
 
   const checkPermissionStatus = async () => {
     try {
@@ -149,7 +150,7 @@ export default function ProjectDetailPage() {
         method: 'DELETE',
       });
       if (response.ok) {
-        router.push('/student/projects');
+        window.location.href = '/student/projects';
       } else {
         alert('Failed to delete project');
       }
@@ -254,13 +255,13 @@ export default function ProjectDetailPage() {
           </div>
           <h3 className="text-xl font-bold text-slate-800 mb-2">Project Not Found</h3>
           <p className="text-slate-500 mb-6">{error || 'Unable to load this project'}</p>
-          <Button 
-            onClick={() => router.push('/student/projects')}
-            className="bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23]"
+          <Link 
+            href="/student/projects"
+            className="inline-flex items-center bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white px-4 py-2 rounded-md font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
-          </Button>
+          </Link>
         </div>
       </div>
     );
@@ -278,12 +279,12 @@ export default function ProjectDetailPage() {
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
-                <button
-                  onClick={() => router.push('/student/projects')}
+                <Link
+                  href="/student/projects"
                   className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-                </button>
+                </Link>
                 <div>
                   <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
                   <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-500">View project information</p>
@@ -293,17 +294,15 @@ export default function ProjectDetailPage() {
                 <NotificationBell />
                 {isOwner && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push(`/student/projects?edit=${project.projectId}`)}
-                      disabled={project.isAssignedToGroup}
-                      className="hidden md:flex disabled:opacity-50 disabled:cursor-not-allowed"
+                    <Link
+                      href={`/student/projects?edit=${project.projectId}`}
+                      className={`hidden md:inline-flex items-center px-3 py-1.5 text-sm border rounded-md transition-colors ${project.isAssignedToGroup ? 'opacity-50 pointer-events-none' : 'hover:bg-gray-50 dark:hover:bg-zinc-700'}`}
+                      aria-disabled={project.isAssignedToGroup}
                       title={project.isAssignedToGroup ? 'Cannot edit - project is assigned to a group' : 'Edit project'}
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
-                    </Button>
+                    </Link>
                     <Button
                       variant="outline"
                       size="sm"
@@ -716,14 +715,13 @@ export default function ProjectDetailPage() {
                   <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Actions</h3>
                     <div className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                        onClick={() => router.push(`/student/projects?edit=${project.projectId}`)}
+                      <Link
+                        href={`/student/projects?edit=${project.projectId}`}
+                        className="w-full inline-flex items-center justify-start px-4 py-2 text-sm border rounded-md dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700 hover:bg-gray-50 transition-colors"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Project
-                      </Button>
+                      </Link>
                       <Button
                         variant="outline"
                         className="w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800"

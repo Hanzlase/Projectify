@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -106,9 +107,9 @@ function SupervisorProjectsPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated') {
       if (!fetchedRef.current) {
         fetchedRef.current = true;
@@ -124,7 +125,7 @@ function SupervisorProjectsPageContent() {
       }
       fetchProjects();
     }
-  }, [status, router, session, filter, categoryFilter]);
+  }, [status, session, filter, categoryFilter]);
 
   useEffect(() => {
     if (searchParams?.get('addProject') === 'true') {
@@ -414,12 +415,12 @@ function SupervisorProjectsPageContent() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all" onClick={() => router.push('/supervisor/chat')}>
+              <Link href="/supervisor/chat" className="p-2 hover:bg-gray-100 dark:bg-zinc-700 rounded-xl transition-all inline-flex">
                 <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-500" />
-              </button>
+              </Link>
               <NotificationBell />
               
-              <div className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer" onClick={() => router.push('/supervisor/profile')}>
+              <Link href="/supervisor/profile" className="flex items-center gap-2 p-1.5 pr-3 cursor-pointer">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -431,13 +432,13 @@ function SupervisorProjectsPageContent() {
                   <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-500">{session?.user?.email}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
 
         <main className="p-4 md:p-6">
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-[#1a5d1a] rounded-xl flex items-center justify-center">
@@ -454,10 +455,10 @@ function SupervisorProjectsPageContent() {
                 Add Idea
               </Button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Filters Card */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <div>
             <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl mb-6">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
@@ -508,17 +509,18 @@ function SupervisorProjectsPageContent() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Projects Grid */}
           {filteredProjects.length > 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project, index) => {
                 const isOwner = project.createdById === parseInt(session?.user?.id || '0');
 
                 return (
-                  <motion.div key={project.projectId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-                    <Card onClick={() => router.push(`/supervisor/projects/${project.projectId}`)} className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
+                  <div key={project.projectId}>
+                    <Link href={`/supervisor/projects/${project.projectId}`}>
+                    <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
                       <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-700 dark:to-zinc-800 relative overflow-hidden">
                         {project.thumbnailUrl ? (
                           <img src={project.thumbnailUrl} alt={project.title} className="w-full h-full object-cover" />
@@ -557,9 +559,9 @@ function SupervisorProjectsPageContent() {
                         
                         {!isOwner && (
                           <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={(e) => { e.stopPropagation(); router.push(`/supervisor/projects/${project.projectId}`); }} className="w-10 h-10 bg-white/90 dark:bg-[#27272A]/90 backdrop-blur-sm rounded-full flex items-center justify-center text-[#1a5d1a] hover:bg-white dark:hover:bg-[#27272A] transition-colors shadow-md">
+                            <div className="w-10 h-10 bg-white/90 dark:bg-[#27272A]/90 backdrop-blur-sm rounded-full flex items-center justify-center text-[#1a5d1a] hover:bg-white dark:hover:bg-[#27272A] transition-colors shadow-md">
                               <Eye className="w-5 h-5" />
-                            </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -595,26 +597,29 @@ function SupervisorProjectsPageContent() {
                         </div>
 
                         {!isOwner && project.creator?.role === 'student' && (
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/supervisor/chat?recipientId=${project.createdById}`);
-                            }}
-                            className="w-full mt-3 bg-[#1a5d1a] hover:bg-[#145214] text-white"
-                            size="sm"
+                          <Link
+                            href={`/supervisor/chat?recipientId=${project.createdById}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="block w-full mt-3"
                           >
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            Contact Student
-                          </Button>
+                            <Button
+                              className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                              size="sm"
+                            >
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Contact Student
+                            </Button>
+                          </Link>
                         )}
                       </CardContent>
                     </Card>
-                  </motion.div>
+                    </Link>
+                  </div>
                 );
               })}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div>
               <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 bg-[#d1e7d1] rounded-full flex items-center justify-center mx-auto mb-4">
@@ -637,7 +642,7 @@ function SupervisorProjectsPageContent() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
         </main>
       </div>

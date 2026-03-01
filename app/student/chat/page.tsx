@@ -191,7 +191,7 @@ function ChatPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated') {
       fetchConversations();
       

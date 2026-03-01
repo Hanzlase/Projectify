@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -127,7 +128,7 @@ function SimilarityCheckPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
@@ -156,9 +157,9 @@ function SimilarityCheckPageContent() {
     }
 
     if (!storedResult) {
-      router.push('/student/projects');
+      window.location.href = '/student/projects';
     }
-  }, [status, router]);
+  }, [status]);
 
   const handleLogout = async () => {
     const { signOut } = await import('next-auth/react');
@@ -184,7 +185,7 @@ function SimilarityCheckPageContent() {
         // Clear session storage
         sessionStorage.removeItem('similarityResult');
         sessionStorage.removeItem('pendingProject');
-        router.push('/student/projects');
+        window.location.href = '/student/projects';
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to create project');
@@ -200,7 +201,7 @@ function SimilarityCheckPageContent() {
   const handleGoBack = () => {
     sessionStorage.removeItem('similarityResult');
     sessionStorage.removeItem('pendingProject');
-    router.push('/student/projects');
+    window.location.href = '/student/projects';
   };
 
   if (!result) {
@@ -281,8 +282,8 @@ function SimilarityCheckPageContent() {
               </div>
               <div className="hidden md:flex items-center gap-4">
                 <NotificationBell />
-                <button
-                  onClick={() => router.push('/student/profile')}
+                <Link
+                  href="/student/profile"
                   className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#2e7d2e] rounded-full flex items-center justify-center overflow-hidden"
                 >
                   {profileImage ? (
@@ -292,7 +293,7 @@ function SimilarityCheckPageContent() {
                       {session?.user?.name?.charAt(0) || 'S'}
                     </span>
                   )}
-                </button>
+                </Link>
               </div>
             </div>
           </div>

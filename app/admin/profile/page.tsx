@@ -54,12 +54,12 @@ export default function AdminProfilePage() {
     if (status === 'loading') return;
     
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
     if (session.user.role !== 'admin') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
 
@@ -67,7 +67,7 @@ export default function AdminProfilePage() {
     fetchedRef.current = true;
 
     fetchProfile();
-  }, [session, status, router]);
+  }, [session, status]);
 
   const fetchProfile = async () => {
     try {

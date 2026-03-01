@@ -60,12 +60,12 @@ export default function CampusesPage() {
     if (status === 'loading') return;
     
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
     if (session.user.role !== 'admin') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
 
@@ -73,7 +73,7 @@ export default function CampusesPage() {
     fetchedRef.current = true;
 
     fetchData();
-  }, [session, status, router]);
+  }, [session, status]);
 
   const fetchData = async () => {
     try {

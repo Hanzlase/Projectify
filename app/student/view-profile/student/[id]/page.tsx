@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,6 @@ interface StudentProfile {
 }
 
 export default function ViewStudentProfilePage() {
-  const router = useRouter();
   const params = useParams();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
@@ -55,13 +55,13 @@ export default function ViewStudentProfilePage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && params?.id) {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       fetchProfile();
     }
-  }, [status, params?.id, router]);
+  }, [status, params?.id]);
 
   const fetchProfile = async () => {
     try {
@@ -101,7 +101,7 @@ export default function ViewStudentProfilePage() {
             <h3 className="text-xl font-bold text-slate-800 dark:text-[#E4E4E7] mb-2">Profile Not Found</h3>
             <p className="text-slate-500 dark:text-zinc-400 mb-6">{error || 'Unable to load this student profile'}</p>
             <button 
-              onClick={() => router.back()}
+              onClick={() => history.back()}
               className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
@@ -127,7 +127,7 @@ export default function ViewStudentProfilePage() {
             className="flex items-center justify-between mb-6"
           >
             <button
-              onClick={() => router.back()}
+              onClick={() => history.back()}
               className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-xl transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
@@ -223,13 +223,13 @@ export default function ViewStudentProfilePage() {
 
                   {/* Action Buttons */}
                   <div className="space-y-3 mb-5">
-                    <Button 
-                      onClick={() => router.push(`/student/chat?recipientId=${profile.userId}`)}
-                      className="w-full bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white font-semibold py-5 rounded-xl shadow-lg shadow-[#1a5d1a]/25 transition-all hover:shadow-xl hover:shadow-[#1a5d1a]/30"
+                    <Link 
+                      href={`/student/chat?recipientId=${profile.userId}`}
+                      className="w-full inline-flex items-center justify-center bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white font-semibold py-3 rounded-xl shadow-lg shadow-[#1a5d1a]/25 transition-all hover:shadow-xl hover:shadow-[#1a5d1a]/30"
                     >
                       <MessageCircle className="w-5 h-5 mr-2" />
                       Send Message
-                    </Button>
+                    </Link>
                   </div>
 
                   {/* Quick Stats */}

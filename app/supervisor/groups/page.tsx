@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import { 
@@ -60,7 +60,6 @@ interface Group {
 
 export default function SupervisorGroupsPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const fetchedRef = useRef(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,15 +72,15 @@ export default function SupervisorGroupsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       fetchGroups();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchGroups = async () => {
     try {
@@ -153,26 +152,25 @@ export default function SupervisorGroupsPage() {
         <header className="bg-white dark:bg-[#27272A] sticky top-0 z-20 px-4 md:px-6 py-4 border-b border-gray-100 dark:border-zinc-700 shadow-sm">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push("/supervisor/dashboard")}
+              <Link
+                href="/supervisor/dashboard"
                 className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
-              </button>
+              </Link>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">My Groups</h1>
                 <p className="text-sm text-gray-500 dark:text-zinc-400">Manage and monitor your supervised groups</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                onClick={() => router.push("/supervisor/projects?addIdea=true")}
-                size="sm"
-                className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl h-10 px-4 shadow-sm shadow-[#1a5d1a]/20"
+              <Link
+                href="/supervisor/projects?addIdea=true"
+                className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium shadow-sm shadow-[#1a5d1a]/20"
               >
                 <Lightbulb className="w-4 h-4 mr-2" />
                 Add Project Idea
-              </Button>
+              </Link>
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
@@ -187,10 +185,7 @@ export default function SupervisorGroupsPage() {
         <main className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
           {/* Top Metrics Bar - Enhanced Design */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div>
               <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
@@ -206,13 +201,9 @@ export default function SupervisorGroupsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
-            >
+            <div>
               <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
@@ -230,13 +221,9 @@ export default function SupervisorGroupsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
+            <div>
               <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a5d1a]/5 to-transparent dark:from-[#1a5d1a]/10" />
                 <CardContent className="p-5 relative">
@@ -259,16 +246,11 @@ export default function SupervisorGroupsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
 
           {/* Search & Filter Area - Floating Design */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <div className="bg-white dark:bg-[#27272A] rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-none p-4">
               <div className="flex flex-col md:flex-row gap-3">
                 {/* Search Input - Floating Style */}
@@ -372,7 +354,7 @@ export default function SupervisorGroupsPage() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Groups Grid - 3 Column Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -386,10 +368,7 @@ export default function SupervisorGroupsPage() {
                     <motion.div
                       key={group.id}
                       layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: index * 0.03 }}
                     >
                       <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card bg-white dark:bg-[#27272A] h-full flex flex-col">
                         <CardContent className="p-0 flex flex-col h-full">
@@ -438,11 +417,8 @@ export default function SupervisorGroupsPage() {
                             <div className="flex items-center">
                               <div className="flex -space-x-3">
                                 {group.students.slice(0, 3).map((student, idx) => (
-                                  <motion.div
+                                  <div
                                     key={idx}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.1 + idx * 0.05 }}
                                     className="relative"
                                     style={{ zIndex: 3 - idx }}
                                   >
@@ -456,7 +432,7 @@ export default function SupervisorGroupsPage() {
                                         student.name.charAt(0).toUpperCase()
                                       )}
                                     </div>
-                                  </motion.div>
+                                  </div>
                                 ))}
                               </div>
                               
@@ -476,25 +452,19 @@ export default function SupervisorGroupsPage() {
                           {/* Action Footer - Two Buttons Side by Side */}
                           <div className="p-4 pt-0 mt-auto">
                             <div className="flex items-center gap-2">
-                              <Button
-                                onClick={() => router.push(`/supervisor/groups/${group.id}`)}
-                                className="flex-1 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl h-10 text-sm font-medium shadow-sm shadow-[#1a5d1a]/20"
+                              <Link
+                                href={`/supervisor/groups/${group.id}`}
+                                className="flex-1 inline-flex items-center justify-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 text-sm font-medium shadow-sm shadow-[#1a5d1a]/20"
                               >
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Dashboard
-                              </Button>
-                              <button
-                                onClick={() => {
-                                  if (group.conversationId) {
-                                    router.push(`/supervisor/chat?conversationId=${group.conversationId}`);
-                                  } else {
-                                    router.push("/supervisor/chat");
-                                  }
-                                }}
+                              </Link>
+                              <Link
+                                href={group.conversationId ? `/supervisor/chat?conversationId=${group.conversationId}` : "/supervisor/chat"}
                                 className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-600 hover:border-[#1a5d1a] flex items-center justify-center transition-all group/btn"
                               >
                                 <MessageCircle className="w-5 h-5 text-gray-500 group-hover/btn:text-[#1a5d1a] transition-colors" />
-                              </button>
+                              </Link>
                             </div>
                           </div>
                         </CardContent>
@@ -503,11 +473,7 @@ export default function SupervisorGroupsPage() {
                   );
                 })
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="md:col-span-2 lg:col-span-3"
-                >
+                <div className="md:col-span-2 lg:col-span-3">
                   <Card className="border-0 shadow-lg shadow-gray-200/50 dark:shadow-none rounded-2xl dark:bg-[#27272A]">
                     <CardContent className="py-20 text-center">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mx-auto mb-6">
@@ -520,16 +486,16 @@ export default function SupervisorGroupsPage() {
                           : "You haven't been assigned to any groups yet. Accept invitations from students to start supervising."
                         }
                       </p>
-                      <Button
-                        onClick={() => router.push("/supervisor/invitations")}
-                        className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl px-6 h-11 shadow-sm shadow-[#1a5d1a]/20"
+                      <Link
+                        href="/supervisor/invitations"
+                        className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl px-6 h-11 text-sm font-medium shadow-sm shadow-[#1a5d1a]/20"
                       >
                         <Mail className="w-4 h-4 mr-2" />
                         View Invitations
-                      </Button>
+                      </Link>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )}
             </AnimatePresence>
           </div>

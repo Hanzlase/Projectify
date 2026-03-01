@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
   Package,
@@ -71,7 +70,7 @@ interface ResourceRequest {
 
 export default function StudentResourceRequestsPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -90,10 +89,10 @@ export default function StudentResourceRequestsPage() {
   const [deleting, setDeleting] = useState<number | null>(null);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
-    else if (status === "authenticated" && session?.user?.role !== "student") router.push("/unauthorized");
+    if (status === "unauthenticated") window.location.href = "/login";
+    else if (status === "authenticated" && session?.user?.role !== "student") window.location.href = "/unauthorized";
     else if (status === "authenticated") fetchRequests();
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchRequests = async () => {
     try {

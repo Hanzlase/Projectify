@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,7 +64,7 @@ interface SentNotification {
 }
 
 export default function NotificationsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'inbox' | 'create' | 'sent'>('inbox');
@@ -102,12 +103,12 @@ export default function NotificationsPage() {
     if (status === 'loading') return;
     
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
     if (session.user.role !== 'coordinator') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
 
@@ -125,7 +126,7 @@ export default function NotificationsPage() {
         setProfileImage(profileData.profile.profileImage || null);
       }
     });
-  }, [session, status, router]);
+  }, [session, status]);
 
   const fetchUsers = async () => {
     try {
@@ -414,17 +415,17 @@ export default function NotificationsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => router.push('/coordinator/chat')}
+              <Link 
+                href="/coordinator/chat"
                 className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl transition-all"
               >
                 <MessageCircle className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
-              </button>
+              </Link>
               <NotificationBell />
               
-              <div 
+              <Link 
+                href="/coordinator/profile"
                 className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl p-1.5 pr-3 transition-all"
-                onClick={() => router.push('/coordinator/profile')}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                   {profileImage ? (
@@ -437,7 +438,7 @@ export default function NotificationsPage() {
                   <p className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] leading-tight">{session?.user?.name}</p>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-400">{session?.user?.email}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </header>

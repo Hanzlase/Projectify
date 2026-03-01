@@ -54,12 +54,12 @@ export default function BrowseStudentsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && !fetchedRef.current) {
       fetchedRef.current = true;
       fetchStudents();
     }
-  }, [status, router]);
+  }, [status]);
 
   const fetchStudents = useCallback(async () => {
     try {

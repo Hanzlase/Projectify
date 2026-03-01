@@ -150,9 +150,9 @@ function SupervisorChatPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
     } else if (status === 'authenticated') {
       // Fetch both in parallel for faster loading
       fetchInitialData();
@@ -169,7 +169,7 @@ function SupervisorChatPageContent() {
         }
       }
     }
-  }, [status, router, searchParams, session]);
+  }, [status, searchParams, session]);
 
   useEffect(() => {
     scrollToBottom();

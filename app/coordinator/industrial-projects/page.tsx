@@ -59,7 +59,7 @@ interface IndustrialProject {
 }
 
 export default function IndustrialProjectsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [projects, setProjects] = useState<IndustrialProject[]>([]);
@@ -89,11 +89,11 @@ export default function IndustrialProjectsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (session.user.role !== 'coordinator') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
     
@@ -109,7 +109,7 @@ export default function IndustrialProjectsPage() {
         setProfileImage(profileData.profile.profileImage || null);
       }
     });
-  }, [session, status, router]);
+  }, [session, status]);
 
   const fetchProjects = async (isInitial = false) => {
     if (isInitial) {

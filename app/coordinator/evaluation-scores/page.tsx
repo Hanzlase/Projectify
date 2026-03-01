@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
@@ -70,7 +71,7 @@ interface EvaluationOption {
 
 export default function CoordinatorEvaluationScoresPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -94,13 +95,13 @@ export default function CoordinatorEvaluationScoresPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "coordinator") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       fetchScores();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchScores = async () => {
     try {
@@ -267,12 +268,12 @@ export default function CoordinatorEvaluationScoresPage() {
         <header className="bg-white dark:bg-[#27272A] sticky top-0 z-10 px-4 md:px-6 py-5 border-b border-gray-200 dark:border-zinc-700 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/coordinator/evaluations")}
+              <Link
+                href="/coordinator/evaluations"
                 className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
               >
                 <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
-              </button>
+              </Link>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
                   <BarChart3 className="w-6 h-6 text-[#1E6F3E]" />

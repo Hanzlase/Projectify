@@ -56,12 +56,12 @@ export default function BrowseSupervisorsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated' && !fetchedRef.current) {
       fetchedRef.current = true;
       fetchSupervisors();
     }
-  }, [status, router]);
+  }, [status]);
 
   const fetchSupervisors = useCallback(async () => {
     try {

@@ -137,7 +137,7 @@ function ResetPasswordContent() {
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        router.push('/login');
+        window.location.href = '/login';
       }, 3000);
     } catch (err) {
       setError('An unexpected error occurred');

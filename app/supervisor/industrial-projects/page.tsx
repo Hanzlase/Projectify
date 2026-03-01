@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +37,6 @@ interface IndustrialProject {
 }
 
 export default function SupervisorIndustrialProjectsPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const [projects, setProjects] = useState<IndustrialProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,14 +56,14 @@ export default function SupervisorIndustrialProjectsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (session.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   // Combined initial data fetch - runs only once
   const fetchInitialData = useCallback(async () => {
@@ -329,15 +328,10 @@ export default function SupervisorIndustrialProjectsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
+                <div key={project.id}>
+                  <Link href={`/supervisor/industrial-projects/${project.id}`}>
                   <Card 
                     className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer overflow-hidden group"
-                    onClick={() => router.push(`/supervisor/industrial-projects/${project.id}`)}
                   >
                     {/* Thumbnail */}
                     <div className="h-36 bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-500/10 dark:from-[#1a5d1a]/20 dark:to-emerald-500/20 relative overflow-hidden">
@@ -383,24 +377,22 @@ export default function SupervisorIndustrialProjectsPage() {
                         {userRequests[project.id] ? (
                           getRequestStatusBadge(project.id)
                         ) : project.status === 'available' ? (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/supervisor/industrial-projects/${project.id}`);
-                            }}
-                            className="bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3"
+                          <Link
+                            href={`/supervisor/industrial-projects/${project.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#144a14] text-white text-xs h-7 px-3 rounded"
                           >
                             <Send className="w-3 h-3 mr-1" />
                             Request
-                          </Button>
+                          </Link>
                         ) : (
                           <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#1a5d1a] transition-colors" />
                         )}
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}

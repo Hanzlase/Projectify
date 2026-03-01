@@ -119,12 +119,12 @@ function SimilarityCheckPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
     if (status === 'authenticated' && session?.user?.role !== 'supervisor') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
 
@@ -153,9 +153,9 @@ function SimilarityCheckPageContent() {
     }
 
     if (!storedResult) {
-      router.push('/supervisor/projects');
+      window.location.href = '/supervisor/projects';
     }
-  }, [status, router, session]);
+  }, [status, session]);
 
   const handleSubmitAnyway = async () => {
     if (!pendingProject) return;

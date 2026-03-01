@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,7 @@ interface IndustrialProject {
 }
 
 export default function StudentIndustrialProjectDetailPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const params = useParams();
   const projectId = params?.id as string;
   const { data: session, status } = useSession();
@@ -54,14 +55,14 @@ export default function StudentIndustrialProjectDetailPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (session.user.role !== 'student') {
-      router.push('/unauthorized');
+      window.location.href = '/unauthorized';
       return;
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   // Combined fetch for all page data - runs only once
   const fetchAllData = useCallback(async () => {
@@ -87,7 +88,7 @@ export default function StudentIndustrialProjectDetailPage() {
           setUserRequestStatus(userRequest.status);
         }
       } else {
-        router.push('/student/industrial-projects');
+        window.location.href = '/student/industrial-projects';
         return;
       }
 
@@ -102,11 +103,11 @@ export default function StudentIndustrialProjectDetailPage() {
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
-      router.push('/student/industrial-projects');
+      window.location.href = '/student/industrial-projects';
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, projectId, router]);
+  }, [session?.user?.id, projectId]);
 
   // Fetch data only once when session is ready
   useEffect(() => {
@@ -177,12 +178,12 @@ export default function StudentIndustrialProjectDetailPage() {
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
-                <button
-                  onClick={() => router.push('/student/industrial-projects')}
+                <Link
+                  href="/student/industrial-projects"
                   className="p-2 hover:bg-gray-100 dark:hover:bg-[#27272A] rounded-xl transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-                </button>
+                </Link>
                 <div>
                   <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Project Details</h1>
                   <p className="text-xs md:text-sm text-gray-500 dark:text-zinc-400">Industrial project information</p>
@@ -198,14 +199,13 @@ export default function StudentIndustrialProjectDetailPage() {
                   </div>
                 )}
                 {userRequestStatus === 'approved' && !projectAssignedToGroup && !isInGroup && (
-                  <Button
-                    size="sm"
-                    onClick={() => router.push(`/student/chat?createGroupForIndustrial=${project?.id}`)}
-                    className="hidden md:flex bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white"
+                  <Link
+                    href={`/student/chat?createGroupForIndustrial=${project?.id}`}
+                    className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white rounded-md"
                   >
-                    <Users className="w-4 h-4 mr-2" />
+                    <Users className="w-4 h-4" />
                     Create Group
-                  </Button>
+                  </Link>
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
                   <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
@@ -244,11 +244,7 @@ export default function StudentIndustrialProjectDetailPage() {
 
         {/* Content */}
         <div className="p-4 md:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6 max-w-4xl"
-          >
+          <div className="space-y-6 max-w-4xl">
             {/* Hero Section with Thumbnail */}
             {project.thumbnailUrl && (
               <div className="relative h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden shadow-xl">
@@ -367,14 +363,13 @@ export default function StudentIndustrialProjectDetailPage() {
                   </div>
                 )}
                 {userRequestStatus === 'approved' && !projectAssignedToGroup && !isInGroup && (
-                  <Button
-                    size="lg"
-                    onClick={() => router.push(`/student/chat?createGroupForIndustrial=${project.id}`)}
-                    className="w-full bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white h-12"
+                  <Link
+                    href={`/student/chat?createGroupForIndustrial=${project.id}`}
+                    className="w-full inline-flex items-center justify-center bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:from-[#164d16] hover:to-[#236b23] text-white h-12 rounded-md font-medium"
                   >
                     <Users className="w-5 h-5 mr-2" />
                     Create Group for This Project
-                  </Button>
+                  </Link>
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
                   <div className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
@@ -392,7 +387,7 @@ export default function StudentIndustrialProjectDetailPage() {
                 )}
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
 

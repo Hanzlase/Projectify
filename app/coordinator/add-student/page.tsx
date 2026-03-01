@@ -50,12 +50,12 @@ export default function AddStudentPage() {
     if (status === 'loading') return;
     
     if (!session) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
     if (session.user.role !== 'coordinator') {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 
@@ -72,7 +72,7 @@ export default function AddStudentPage() {
         }
       })
       .catch(error => console.error('Failed to fetch profile:', error));
-  }, [session, status, router]);
+  }, [session, status]);
 
   const handleSingleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

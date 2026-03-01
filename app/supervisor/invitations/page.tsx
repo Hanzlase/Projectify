@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import { 
@@ -64,7 +65,6 @@ interface Invitation {
 
 function SupervisorInvitationsPageContent() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const fetchedRef = useRef(false);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -84,15 +84,15 @@ function SupervisorInvitationsPageContent() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      window.location.href = "/login";
     } else if (status === "authenticated" && session?.user?.role !== "supervisor") {
-      router.push("/unauthorized");
+      window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       fetchInvitations();
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchInvitations = async () => {
     try {
@@ -188,26 +188,25 @@ function SupervisorInvitationsPageContent() {
         <header className="bg-white/80 dark:bg-[#27272A]/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6 py-3 border-b border-gray-100 dark:border-zinc-700">
           <div className="flex items-center justify-between max-w-6xl mx-auto">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/supervisor/dashboard")}
+              <Link
+                href="/supervisor/dashboard"
                 className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600 flex items-center justify-center transition-all"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-              </button>
+              </Link>
               <div>
                 <h1 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">Group Invitations</h1>
                 <p className="text-xs text-gray-500 dark:text-zinc-400">Manage supervision requests</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => router.push("/supervisor/projects?addIdea=true")}
-                size="sm"
-                className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl h-9"
+              <Link
+                href="/supervisor/projects?addIdea=true"
+                className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-9 px-3 text-sm font-medium"
               >
                 <Lightbulb className="w-4 h-4 mr-2" />
                 Add Idea
-              </Button>
+              </Link>
               <Button
                 onClick={handleRefresh}
                 variant="outline"
@@ -230,12 +229,7 @@ function SupervisorInvitationsPageContent() {
               { label: "Accepted", value: acceptedCount, icon: CheckCircle, color: "green" },
               { label: "Declined", value: rejectedCount, icon: XCircle, color: "red" },
             ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+              <div key={stat.label}>
                 <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -261,16 +255,12 @@ function SupervisorInvitationsPageContent() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {/* Search & Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div>
             <Card className="border-0 shadow-sm rounded-2xl mb-6 dark:bg-[#27272A]">
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -304,7 +294,7 @@ function SupervisorInvitationsPageContent() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Invitations List */}
           <div className="space-y-4">
@@ -318,10 +308,7 @@ function SupervisorInvitationsPageContent() {
                     <motion.div
                       key={invitation.id}
                       layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: index * 0.05 }}
                     >
                       <Card className="border-0 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow dark:bg-[#27272A]">
                         <CardContent className="p-0">
@@ -356,13 +343,13 @@ function SupervisorInvitationsPageContent() {
                                     <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">Project Idea</span>
                                   </div>
                                   {invitation.group.projectId && (
-                                    <button
-                                      onClick={() => router.push(`/supervisor/projects/${invitation.group.projectId}`)}
+                                    <Link
+                                      href={`/supervisor/projects/${invitation.group.projectId}`}
                                       className="flex items-center gap-1.5 text-sm text-[#1a5d1a] bg-[#1a5d1a]/10 hover:bg-[#1a5d1a]/20 px-3 py-1.5 rounded-lg font-medium transition-colors"
                                     >
                                       <Eye className="w-4 h-4" />
                                       View Details
-                                    </button>
+                                    </Link>
                                   )}
                                 </div>
                                 <p className="text-gray-900 dark:text-[#E4E4E7] font-medium">{invitation.group.name}</p>
@@ -446,13 +433,13 @@ function SupervisorInvitationsPageContent() {
                                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-[#22C55E]" />
                                       </div>
                                       <p className="text-sm font-medium text-green-700 dark:text-[#22C55E]">Accepted</p>
-                                      <button
-                                        onClick={() => router.push("/supervisor/chat")}
+                      <Link
+                                        href="/supervisor/chat"
                                         className="mt-2 text-xs text-[#1a5d1a] hover:underline flex items-center gap-1 justify-center"
                                       >
                                         <MessageCircle className="w-3 h-3" />
                                         Open Chat
-                                      </button>
+                                      </Link>
                                     </>
                                   ) : (
                                     <>
@@ -472,10 +459,7 @@ function SupervisorInvitationsPageContent() {
                   );
                 })
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
+                <div>
                   <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
                     <CardContent className="py-16 text-center">
                       <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4">
@@ -492,7 +476,7 @@ function SupervisorInvitationsPageContent() {
                       </p>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )}
             </AnimatePresence>
           </div>

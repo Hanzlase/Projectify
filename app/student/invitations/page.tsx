@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,6 @@ interface SentInvitation {
 }
 
 export default function InvitationsPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
@@ -65,13 +64,13 @@ export default function InvitationsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
       fetchInvitations();
     }
-  }, [status, router]);
+  }, [status]);
 
   const fetchInvitations = async () => {
     try {
@@ -378,49 +377,44 @@ export default function InvitationsPage() {
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Invitations Yet</h3>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">You haven't received any invitations from other students</p>
-                      <Button
-                        onClick={() => router.push('/student/browse-students')}
-                        className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                      <Link
+                        href="/student/browse-students"
+                        className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded px-4 py-2 text-sm font-medium"
                       >
                         <Users className="w-4 h-4 mr-2" />
                         Browse Students
-                      </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 ) : (
                   receivedInvitations.map((invitation, index) => (
-                    <motion.div
-                      key={`${invitation.isGroupInvitation ? 'group' : 'regular'}-${invitation.id}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
+                    <div key={`${invitation.isGroupInvitation ? 'group' : 'regular'}-${invitation.id}`}>
                       <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-start gap-4">
                             {/* Avatar */}
-                            <div 
-                              onClick={() => router.push(`/student/view-profile/student/${invitation.senderId}`)}
-                              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg flex-shrink-0 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#1a5d1a]/30 transition-all"
+                            <Link
+                              href={`/student/view-profile/student/${invitation.senderId}`}
+                              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-[#1a5d1a]/30 transition-all"
                             >
                               {invitation.senderProfileImage ? (
                                 <img src={invitation.senderProfileImage} alt={invitation.senderName} className="w-full h-full object-cover" />
                               ) : (
                                 invitation.senderName?.charAt(0).toUpperCase() || 'S'
                               )}
-                            </div>
+                            </Link>
 
                             {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <h3 
-                                      onClick={() => router.push(`/student/view-profile/student/${invitation.senderId}`)}
-                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                    <Link 
+                                      href={`/student/view-profile/student/${invitation.senderId}`}
+                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] transition-colors"
                                     >
                                       {invitation.senderName}
-                                    </h3>
+                                    </Link>
                                     {invitation.isGroupInvitation && (
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
                                         <UsersRound className="w-3 h-3" />
@@ -478,7 +472,7 @@ export default function InvitationsPage() {
                           </div>
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </div>
                   ))
                 )}
               </motion.div>
@@ -498,49 +492,46 @@ export default function InvitationsPage() {
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Invitations Sent</h3>
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">You haven't sent any invitations yet</p>
-                      <Button
-                        onClick={() => router.push('/student/browse-students')}
-                        className="bg-[#1a5d1a] hover:bg-[#145214] text-white"
+                      <Link
+                        href="/student/browse-students"
+                        className="inline-flex items-center bg-[#1a5d1a] hover:bg-[#145214] text-white rounded px-4 py-2 text-sm font-medium"
                       >
                         <UserPlus className="w-4 h-4 mr-2" />
                         Find Teammates
-                      </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 ) : (
                   sentInvitations.map((invitation, index) => (
-                    <motion.div
+                    <div
                       key={`${invitation.isGroupInvitation ? 'group' : 'regular'}-${invitation.id}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
                     >
                       <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex items-start gap-4">
                             {/* Avatar */}
-                            <div 
-                              onClick={() => router.push(`/student/view-profile/student/${invitation.receiverId}`)}
-                              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg flex-shrink-0 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#1a5d1a]/30 transition-all"
+                            <Link
+                              href={`/student/view-profile/student/${invitation.receiverId}`}
+                              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] flex items-center justify-center text-white font-bold text-lg flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-[#1a5d1a]/30 transition-all"
                             >
                               {invitation.receiverProfileImage ? (
                                 <img src={invitation.receiverProfileImage} alt={invitation.receiverName} className="w-full h-full object-cover" />
                               ) : (
                                 invitation.receiverName?.charAt(0).toUpperCase() || 'S'
                               )}
-                            </div>
+                            </Link>
 
                             {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <h3 
-                                      onClick={() => router.push(`/student/view-profile/student/${invitation.receiverId}`)}
-                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] cursor-pointer transition-colors"
+                                    <Link 
+                                      href={`/student/view-profile/student/${invitation.receiverId}`}
+                                      className="font-semibold text-gray-900 dark:text-[#E4E4E7] hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] transition-colors"
                                     >
                                       {invitation.receiverName}
-                                    </h3>
+                                    </Link>
                                     {invitation.isGroupInvitation && (
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
                                         <UsersRound className="w-3 h-3" />
@@ -587,7 +578,7 @@ export default function InvitationsPage() {
                           </div>
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </div>
                   ))
                 )}
               </motion.div>

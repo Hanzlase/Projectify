@@ -81,10 +81,10 @@ export default function SupervisorResourceRequestsPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
-    else if (status === "authenticated" && session?.user?.role !== "supervisor") router.push("/unauthorized");
+    if (status === "unauthenticated") window.location.href = "/login";
+    else if (status === "authenticated" && session?.user?.role !== "supervisor") window.location.href = "/unauthorized";
     else if (status === "authenticated") fetchRequests();
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchRequests = async () => {
     try {

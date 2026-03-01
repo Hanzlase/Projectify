@@ -152,7 +152,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     if (fetchedRef.current) return;
@@ -160,7 +160,7 @@ export default function StudentDashboard() {
     // Fetch both in parallel for faster loading
     fetchedRef.current = true;
     fetchAllData();
-  }, [status, router]);
+  }, [status]);
 
   const fetchAllData = useCallback(async () => {
     try {
