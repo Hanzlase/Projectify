@@ -324,7 +324,7 @@ function ProjectsPageContent() {
           title: result.extractedInfo.title,
           description: result.extractedInfo.description,
           abstractText: result.extractedInfo.abstract,
-          category: result.extractedInfo.categories.join(', '), // Store categories as comma-separated
+          category: result.extractedInfo.categories[0] || '', // Use primary category only (VarChar 100 limit)
         }));
         
         setShowAnalysisModal(false);

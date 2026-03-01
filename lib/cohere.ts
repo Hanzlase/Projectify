@@ -3,10 +3,11 @@ import { CohereClient } from 'cohere-ai';
 // Singleton Cohere client with optimized settings
 const cohere = new CohereClient({
   token: process.env.cohere_api_key || '',
+  timeoutInSeconds: 60, // 60s timeout — fail fast instead of hanging for minutes
 });
 
-// Centralized Cohere model configuration
-const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-08-2024';
+// Centralized Cohere model configuration — command-r7b-12-2024 is fastest for structured JSON output
+const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r7b-12-2024';
 
 // Request queue for rate limiting concurrent Cohere requests
 const requestQueue: Array<{
@@ -17,7 +18,7 @@ const requestQueue: Array<{
 
 let activeRequests = 0;
 const MAX_CONCURRENT_REQUESTS = 5; // Cohere rate limit handling
-const REQUEST_DELAY_MS = 100; // Small delay between requests
+const REQUEST_DELAY_MS = 10; // Minimal delay between requests
 
 // Process the request queue
 async function processQueue() {

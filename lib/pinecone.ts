@@ -76,16 +76,22 @@ async function withRetry<T>(
 }
 
 // ─── Index Initialization ────────────────────────────────────────────────────
+let indexVerifiedAt = 0;
+const INDEX_VERIFY_TTL_MS = 5 * 60 * 1000; // Re-verify every 5 minutes
+
 /**
  * Verify the Pinecone index exists and is ready.
- * Pinecone indexes are created via the dashboard or API ahead of time.
- * This function validates connectivity and logs index stats.
+ * Caches the result for 5 minutes to avoid repeated health-check calls.
  */
 export async function initializeIndex(): Promise<boolean> {
+  if (Date.now() - indexVerifiedAt < INDEX_VERIFY_TTL_MS) {
+    return true; // Recently verified, skip network call
+  }
   return withRetry(async () => {
     const index = getIndex();
     const stats = await index.describeIndexStats();
     console.log(`Pinecone index "${PINECONE_INDEX_NAME}" ready — ${stats.totalRecordCount ?? 0} vectors stored`);
+    indexVerifiedAt = Date.now();
     return true;
   }, 'Initialize Pinecone index');
 }
