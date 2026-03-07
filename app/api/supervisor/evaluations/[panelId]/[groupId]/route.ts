@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { emitEvaluationComment } from '@/lib/socket-emitters';
 
 // GET - Fetch group details for a panel assignment (submissions, comments, score)
 export async function GET(
@@ -270,18 +271,39 @@ export async function POST(
       select: { name: true, profileImage: true }
     });
 
-    return NextResponse.json({
-      comment: {
-        commentId: comment.commentId,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-        userId: comment.userId,
-        userName: user?.name || 'Unknown',
-        userImage: user?.profileImage || null,
-        isOwn: true,
+    const commentPayload = {
+      commentId: comment.commentId,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      userId: comment.userId,
+      userName: user?.name || 'Unknown',
+      userImage: user?.profileImage || null,
+      isOwn: true,
+    };
+
+    // Emit real-time event to all students in the group
+    try {
+      const groupStudents = await prisma.student.findMany({
+        where: { groupId },
+        select: { userId: true },
+      });
+      const studentUserIds = groupStudents.map((s) => s.userId);
+      if (studentUserIds.length > 0) {
+        emitEvaluationComment(studentUserIds, {
+          commentId: comment.commentId,
+          panelId,
+          groupId,
+          content: comment.content,
+          createdAt: comment.createdAt.toISOString(),
+          userId: comment.userId,
+          userName: user?.name || 'Unknown',
+          userImage: user?.profileImage || null,
+        });
       }
-    });
+    } catch (_) {}
+
+    return NextResponse.json({ comment: commentPayload });
 
   } catch (error) {
     console.error('Error adding comment:', error);

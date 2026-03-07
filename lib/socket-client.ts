@@ -21,6 +21,7 @@ interface ServerToClientEvents {
   'invitation:new': (data: InvitationEvent) => void;
   'invitation:updated': (data: InvitationEvent) => void;
   'group:updated': (data: GroupEvent) => void;
+  'evaluation:comment': (data: EvaluationCommentEvent) => void;
   'user:online': (data: { userId: number }) => void;
   'user:offline': (data: { userId: number }) => void;
   'error': (data: { message: string }) => void;
@@ -120,6 +121,17 @@ export interface GroupEvent {
   event: 'member_joined' | 'member_left' | 'supervisor_joined' | 'updated' | 'deleted';
   userId?: number;
   userName?: string;
+}
+
+export interface EvaluationCommentEvent {
+  commentId: number;
+  panelId: number;
+  groupId: number;
+  content: string;
+  createdAt: string;
+  userId: number;
+  userName: string;
+  userImage: string | null;
 }
 
 type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -712,6 +724,30 @@ export function useGroupSocket({
       socket.off('group:updated', handleGroupUpdated);
     };
   }, [socket, onGroupUpdated]);
+
+  return { isConnected };
+}
+
+export function useEvaluationSocket({
+  onNewComment,
+}: {
+  onNewComment?: (comment: EvaluationCommentEvent) => void;
+} = {}) {
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleComment = (comment: EvaluationCommentEvent) => {
+      onNewComment?.(comment);
+    };
+
+    socket.on('evaluation:comment', handleComment);
+
+    return () => {
+      socket.off('evaluation:comment', handleComment);
+    };
+  }, [socket, onNewComment]);
 
   return { isConnected };
 }

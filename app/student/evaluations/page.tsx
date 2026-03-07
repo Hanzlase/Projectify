@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useEvaluationSocket, EvaluationCommentEvent } from "@/lib/socket-client";
 import {
   FileText,
   Calendar,
@@ -143,6 +144,10 @@ export default function StudentEvaluationsPage() {
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Panel comments state: { [panelId]: EvaluationCommentEvent[] }
+  const [panelComments, setPanelComments] = useState<Record<number, EvaluationCommentEvent[]>>({});
+  const [expandedPanelComments, setExpandedPanelComments] = useState<Set<number>>(new Set());
+
   useEffect(() => {
     if (status === "unauthenticated") {
       window.location.href = "/login";
@@ -174,6 +179,38 @@ export default function StudentEvaluationsPage() {
     setRefreshing(true);
     fetchEvaluations();
   };
+
+  const fetchPanelComments = useCallback(async (panelId: number) => {
+    try {
+      const res = await fetch(`/api/student/evaluations/panel-comments?panelId=${panelId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPanelComments((prev) => ({ ...prev, [panelId]: data.comments || [] }));
+      }
+    } catch (error) {
+      console.error("Error fetching panel comments:", error);
+    }
+  }, []);
+
+  // Fetch comments for all panels once panels are loaded
+  useEffect(() => {
+    panels.forEach((panel) => {
+      fetchPanelComments(panel.panelId);
+    });
+  }, [panels, fetchPanelComments]);
+
+  // Real-time: receive new comments from panel members
+  useEvaluationSocket({
+    onNewComment: useCallback((comment: EvaluationCommentEvent) => {
+      setPanelComments((prev) => {
+        const existing = prev[comment.panelId] || [];
+        if (existing.some((c) => c.commentId === comment.commentId)) return prev;
+        return { ...prev, [comment.panelId]: [...existing, comment] };
+      });
+      // Auto-expand the comments section for this panel
+      setExpandedPanelComments((prev) => { const s = new Set(prev); s.add(comment.panelId); return s; });
+    }, []),
+  });
 
   const toggleSubmissionExpand = (evaluationId: number) => {
     setExpandedSubmissions((prev) => {
@@ -642,6 +679,95 @@ export default function StudentEvaluationsPage() {
                           ))}
                         </div>
                       </div>
+
+                      {/* Panel Comments */}
+                      {(() => {
+                        const comments = panelComments[panel.panelId] || [];
+                        const isExpanded = expandedPanelComments.has(panel.panelId);
+                        return (
+                          <div className="border-t border-gray-200 dark:border-zinc-700 pt-4 mt-2">
+                            <button
+                              onClick={() =>
+                                setExpandedPanelComments((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(panel.panelId)) next.delete(panel.panelId);
+                                  else next.add(panel.panelId);
+                                  return next;
+                                })
+                              }
+                              className="w-full flex items-center justify-between text-sm font-semibold text-gray-600 dark:text-zinc-400 hover:text-[#1E6F3E] dark:hover:text-[#1E6F3E] transition-colors"
+                            >
+                              <span className="flex items-center gap-2">
+                                <MessageSquare className="w-4 h-4 text-[#1E6F3E]" />
+                                Panel Comments
+                                {comments.length > 0 && (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E]">
+                                    {comments.length}
+                                  </span>
+                                )}
+                              </span>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4" />
+                              )}
+                            </button>
+
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="mt-3 space-y-2 max-h-64 overflow-y-auto pr-1">
+                                    {comments.length === 0 ? (
+                                      <p className="text-sm text-gray-400 dark:text-zinc-500 italic text-center py-4">
+                                        No comments yet from panel members.
+                                      </p>
+                                    ) : (
+                                      comments.map((comment) => (
+                                        <div
+                                          key={comment.commentId}
+                                          className="flex gap-3 p-3 bg-gray-50 dark:bg-zinc-700/40 rounded-xl"
+                                        >
+                                          <div className="w-8 h-8 rounded-full bg-[#1E6F3E] flex items-center justify-center text-white font-bold text-xs shrink-0 overflow-hidden">
+                                            {comment.userImage ? (
+                                              <img src={comment.userImage} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                              comment.userName.charAt(0)
+                                            )}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-xs font-semibold text-gray-700 dark:text-zinc-300">
+                                                {comment.userName}
+                                              </span>
+                                              <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                                {new Date(comment.createdAt).toLocaleString("en-US", {
+                                                  month: "short",
+                                                  day: "numeric",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })}
+                                              </span>
+                                            </div>
+                                            <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
+                                              {comment.content}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })()}
                     </CardContent>
                   </Card>
                 ))}

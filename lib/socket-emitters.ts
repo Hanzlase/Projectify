@@ -21,6 +21,7 @@ import {
   ProjectStatus,
   InvitationEvent,
   GroupEvent,
+  EvaluationCommentEvent,
 } from './socket';
 
 // ============================================
@@ -208,4 +209,15 @@ export function emitInvitationUpdated(userId: number, invitation: InvitationEven
  */
 export function emitGroupUpdated(memberUserIds: number[], event: GroupEvent): void {
   emitToUsers(memberUserIds, 'group:updated', event);
+}
+
+// ============================================
+// EVALUATION EMITTERS
+// ============================================
+
+/**
+ * Emit a new panel comment to all students in the evaluated group
+ */
+export function emitEvaluationComment(studentUserIds: number[], comment: EvaluationCommentEvent): void {
+  emitToUsers(studentUserIds, 'evaluation:comment', comment);
 }

@@ -35,6 +35,9 @@ export interface ServerToClientEvents {
 
   // Group events
   'group:updated': (data: GroupEvent) => void;
+
+  // Evaluation events
+  'evaluation:comment': (data: EvaluationCommentEvent) => void;
   
   // Connection events
   'user:online': (data: { userId: number }) => void;
@@ -157,6 +160,17 @@ export interface GroupEvent {
   event: 'member_joined' | 'member_left' | 'supervisor_joined' | 'updated' | 'deleted';
   userId?: number;
   userName?: string;
+}
+
+export interface EvaluationCommentEvent {
+  commentId: number;
+  panelId: number;
+  groupId: number;
+  content: string;
+  createdAt: string;
+  userId: number;
+  userName: string;
+  userImage: string | null;
 }
 
 // Singleton socket server instance
