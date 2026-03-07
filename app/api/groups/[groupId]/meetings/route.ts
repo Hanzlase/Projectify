@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { scheduleMeetingReminders, rescheduleMeetingReminders } from '@/lib/meeting-scheduler';
 
 // GET - Get all meetings for a group
 export async function GET(
@@ -116,6 +117,11 @@ export async function POST(
       }
     });
 
+    // Schedule email reminders (immediate + 24h before + 1h before)
+    scheduleMeetingReminders(meeting.meetingId, meeting.scheduledAt).catch((err) =>
+      console.error('Failed to schedule meeting reminders:', err)
+    );
+
     return NextResponse.json({ meeting }, { status: 201 });
   } catch (error) {
     console.error('Error creating meeting:', error);
@@ -175,6 +181,13 @@ export async function PATCH(
       where: { meetingId },
       data: updateData
     });
+
+    // If scheduledAt changed, reschedule the timed reminders
+    if (scheduledAt) {
+      rescheduleMeetingReminders(meetingId, new Date(scheduledAt)).catch((err) =>
+        console.error('Failed to reschedule meeting reminders:', err)
+      );
+    }
 
     return NextResponse.json({ meeting: updated });
   } catch (error) {

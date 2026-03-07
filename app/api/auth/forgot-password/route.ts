@@ -54,8 +54,8 @@ export async function POST(request: Request) {
     // Generate a secure random token
     const token = crypto.randomBytes(32).toString('hex');
     
-    // Token expires in 1 hour
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    // Token expires in 20 minutes
+    const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
 
     // Save token to database
     await (prisma as any).passwordResetToken.create({

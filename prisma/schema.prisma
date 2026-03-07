@@ -455,9 +455,27 @@ model Meeting {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
+  reminders    MeetingEmailReminder[]
+
   @@index([groupId])
   @@index([scheduledAt])
   @@map("meetings")
+}
+
+model MeetingEmailReminder {
+  id           Int       @id @default(autoincrement())
+  meetingId    Int       @map("meeting_id")
+  reminderType String    @db.VarChar(20) @map("reminder_type") // 'immediate', '24h', '1h'
+  sendAt       DateTime  @map("send_at")
+  sent         Boolean   @default(false)
+  sentAt       DateTime? @map("sent_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  meeting      Meeting   @relation(fields: [meetingId], references: [meetingId], onDelete: Cascade)
+
+  @@index([sent, sendAt])
+  @@index([meetingId])
+  @@map("meeting_email_reminders")
 }
 
 enum MeetingStatus {

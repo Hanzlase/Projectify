@@ -2,6 +2,7 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
+const { startMeetingReminderScheduler } = require('./lib/meeting-scheduler-runner');
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -221,6 +222,10 @@ app.prepare().then(() => {
   httpServer.listen(port, '0.0.0.0', () => {
     console.log(`> Ready on http://0.0.0.0:${port}`);
     console.log(`> Socket.IO server running on path /api/socketio`);
+
+    // Start meeting email reminder scheduler
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `http://localhost:${port}`;
+    startMeetingReminderScheduler(appUrl);
   });
 
   // Handle server errors

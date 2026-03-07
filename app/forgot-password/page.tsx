@@ -134,9 +134,9 @@ export default function ForgotPasswordPage() {
                       <Mail className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left text-sm">
-                      <p className="font-semibold mb-1 text-slate-900 dark:text-[#E4E4E7]">Link expires in 1 hour</p>
+                      <p className="font-semibold mb-1 text-slate-900 dark:text-[#E4E4E7]">Link expires in 20 minutes</p>
                       <p className="text-slate-600 dark:text-zinc-400">
-                        For security, the reset link will expire after 1 hour. Request a new one if needed.
+                        For security, the reset link will expire after 20 minutes. Request a new one if needed.
                       </p>
                     </div>
                   </div>
