@@ -73,6 +73,46 @@ export default function InvitationsPage() {
     }
   }, [status]);
 
+  // Real-time: when a new invitation arrives, prepend it to received list
+  const handleNewInvitation = useCallback((inv: any) => {
+    const newInv: ReceivedInvitation = {
+      id: inv.invitationId,
+      senderId: inv.senderId,
+      senderStudentId: 0,
+      senderName: inv.senderName,
+      senderEmail: '',
+      senderProfileImage: null,
+      senderRollNumber: '',
+      message: inv.message || null,
+      status: 'pending',
+      type: inv.type,
+      createdAt: inv.createdAt,
+      isGroupInvitation: inv.type !== 'student_invite',
+      groupName: inv.groupName,
+      groupId: inv.groupId,
+    };
+    setReceivedInvitations(prev => {
+      // Avoid duplicates
+      if (prev.some(r => r.id === newInv.id)) return prev;
+      return [newInv, ...prev];
+    });
+  }, []);
+
+  // Real-time: when an invitation status changes, update both lists
+  const handleInvitationUpdated = useCallback((inv: any) => {
+    setReceivedInvitations(prev =>
+      prev.map(r => r.id === inv.invitationId ? { ...r, status: inv.status } : r)
+    );
+    setSentInvitations(prev =>
+      prev.map(s => s.id === inv.invitationId ? { ...s, status: inv.status } : s)
+    );
+  }, []);
+
+  useInvitationSocket({
+    onNewInvitation: handleNewInvitation,
+    onInvitationUpdated: handleInvitationUpdated,
+  });
+
   const fetchInvitations = async () => {
     try {
       setLoading(true);

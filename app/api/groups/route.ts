@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { emitGroupUpdated, emitNotificationToUser } from '@/lib/socket-emitters';
 
 export async function GET(req: NextRequest) {
   try {
@@ -208,6 +209,11 @@ export async function PATCH(req: NextRequest) {
           await (prisma as any).conversationParticipant.deleteMany({ where: { conversationId: groupChat.conversationId, userId: parseInt(targetUserId) } });
           await (prisma as any).message.create({ data: { conversationId: groupChat.conversationId, senderId: userId, content: 'A member has been removed.' } });
         }
+        // Notify all current members + the removed member
+        try {
+          const allMemberUserIds = group.students.map((s: any) => s.userId);
+          emitGroupUpdated(allMemberUserIds, { groupId: parseInt(groupId), event: 'member_left', userId: parseInt(targetUserId) });
+        } catch (_) {}
         return NextResponse.json({ success: true, message: 'Member removed' });
       }
       case 'addMember': {
@@ -225,6 +231,13 @@ export async function PATCH(req: NextRequest) {
         }
         const updatedStudentCount = group.students.length + 1;
         if (updatedStudentCount >= 3 && group.supervisorId) await (prisma as any).group.update({ where: { groupId: parseInt(groupId) }, data: { isFull: true } });
+        // Notify all current members (including new member) of the change
+        try {
+          const allMemberUserIds = group.students.map((s: any) => s.userId);
+          allMemberUserIds.push(parseInt(targetUserId));
+          if (group.supervisorId) allMemberUserIds.push(group.supervisorId);
+          emitGroupUpdated(allMemberUserIds, { groupId: parseInt(groupId), event: 'member_joined', userId: parseInt(targetUserId) });
+        } catch (_) {}
         return NextResponse.json({ success: true, message: 'Member added' });
       }
       case 'leaveGroup': {
@@ -237,6 +250,14 @@ export async function PATCH(req: NextRequest) {
           await (prisma as any).message.create({ data: { conversationId: groupChat.conversationId, senderId: userId, content: `${session.user.name || 'A member'} has left.` } });
         }
         await (prisma as any).group.update({ where: { groupId: parseInt(groupId) }, data: { isFull: false } });
+        // Notify remaining members that someone left
+        try {
+          const remainingMemberUserIds = group.students
+            .filter((s: any) => s.userId !== userId)
+            .map((s: any) => s.userId);
+          if (group.supervisorId) remainingMemberUserIds.push(group.supervisorId);
+          emitGroupUpdated(remainingMemberUserIds, { groupId: parseInt(groupId), event: 'member_left', userId });
+        } catch (_) {}
         return NextResponse.json({ success: true, message: 'You have left the group' });
       }
       default: return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

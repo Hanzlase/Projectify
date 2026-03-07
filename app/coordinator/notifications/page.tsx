@@ -39,6 +39,7 @@ import {
 import dynamic from 'next/dynamic';
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useSocket } from '@/lib/socket-client';
 
 const CoordinatorSidebar = dynamic(() => import('@/components/CoordinatorSidebar'), {
   loading: () => null
@@ -98,6 +99,7 @@ export default function NotificationsPage() {
   const [replyMessage, setReplyMessage] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [replyNotification, setReplyNotification] = useState<any | null>(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -127,6 +129,21 @@ export default function NotificationsPage() {
       }
     });
   }, [session, status]);
+
+  // Real-time: prepend new received notifications via socket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNew = (notification: any) => {
+      setReceivedNotifications(prev => {
+        if (prev.some((n: any) => n.id === notification.id)) return prev;
+        return [{ ...notification, isRead: false }, ...prev];
+      });
+    };
+
+    socket.on('notification:new', handleNew);
+    return () => { socket.off('notification:new', handleNew); };
+  }, [socket]);
 
   const fetchUsers = async () => {
     try {

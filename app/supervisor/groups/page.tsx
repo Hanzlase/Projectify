@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useGroupSocket } from "@/lib/socket-client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -101,6 +102,12 @@ export default function SupervisorGroupsPage() {
     setRefreshing(true);
     fetchGroups();
   };
+
+  useGroupSocket({
+    onGroupUpdated: useCallback(() => {
+      fetchGroups();
+    }, []),
+  });
 
   const filteredGroups = groups.filter(group => {
     const matchesSearch = searchQuery === "" || 

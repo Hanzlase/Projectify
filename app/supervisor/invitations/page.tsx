@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useRef } from "react";
+import { useState, useEffect, Suspense, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -31,6 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingScreen from "@/components/LoadingScreen";
+import { useInvitationSocket } from "@/lib/socket-client";
 
 const SupervisorSidebar = dynamic(() => import("@/components/SupervisorSidebar"), { 
   ssr: false,
@@ -93,6 +94,24 @@ function SupervisorInvitationsPageContent() {
       fetchInvitations();
     }
   }, [status, session]);
+
+  // Real-time: new invitation received
+  const handleNewInvitation = useCallback((inv: any) => {
+    // A new supervisor invitation has arrived — fetch full details to display
+    fetchInvitations();
+  }, []);
+
+  // Real-time: invitation status changed (e.g. cancelled by sender)
+  const handleInvitationUpdated = useCallback((inv: any) => {
+    setInvitations(prev =>
+      prev.map(i => i.id === String(inv.invitationId) ? { ...i, status: inv.status } : i)
+    );
+  }, []);
+
+  useInvitationSocket({
+    onNewInvitation: handleNewInvitation,
+    onInvitationUpdated: handleInvitationUpdated,
+  });
 
   const fetchInvitations = async () => {
     try {

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useGroupSocket } from '@/lib/socket-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -203,6 +204,15 @@ export default function GroupDetailsPage() {
       fetchMeetingsAndTasks();
     }
   }, [groupId]);
+
+  // Real-time: re-fetch when a member joins/leaves this group
+  useGroupSocket({
+    onGroupUpdated: useCallback((event: { groupId: number; event: string }) => {
+      if (event.groupId === parseInt(groupId)) {
+        fetchGroupDetails();
+      }
+    }, [groupId]),
+  });
 
   const fetchMeetingsAndTasks = async () => {
     try {

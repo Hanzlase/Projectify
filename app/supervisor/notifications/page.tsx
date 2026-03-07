@@ -16,6 +16,7 @@ import {
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
+import { useSocket } from '@/lib/socket-client';
 
 const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { 
   ssr: false,
@@ -67,6 +68,7 @@ export default function SupervisorNotificationsPage() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [pendingRequests, setPendingRequests] = useState<PermissionRequest[]>([]);
   const [processingRequest, setProcessingRequest] = useState(false);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -76,10 +78,33 @@ export default function SupervisorNotificationsPage() {
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
-      // Fetch both in parallel for faster loading
       fetchInitialData();
     }
   }, [status, session]);
+
+  // Real-time: prepend new notifications as they arrive via socket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNew = (notification: any) => {
+      const newNotif: Notification = {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type || 'info',
+        isRead: false,
+        createdAt: notification.createdAt,
+        createdById: notification.createdById,
+      };
+      setNotifications(prev => {
+        if (prev.some(n => n.id === newNotif.id)) return prev;
+        return [newNotif, ...prev];
+      });
+    };
+
+    socket.on('notification:new', handleNew);
+    return () => { socket.off('notification:new', handleNew); };
+  }, [socket]);
 
   const fetchInitialData = async () => {
     try {
@@ -101,18 +126,6 @@ export default function SupervisorNotificationsPage() {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
     }
   };
 

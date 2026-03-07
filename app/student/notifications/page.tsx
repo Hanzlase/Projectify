@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +16,7 @@ import {
 import NotificationBell from '@/components/NotificationBell';
 import LoadingScreen from '@/components/LoadingScreen';
 import dynamic from 'next/dynamic';
+import { useSocket } from '@/lib/socket-client';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
   ssr: false,
@@ -37,7 +37,6 @@ interface Notification {
 }
 
 export default function StudentNotificationsPage() {
-  // const router = useRouter();
   const { data: session, status } = useSession();
   const fetchedRef = useRef(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -47,19 +46,7 @@ export default function StudentNotificationsPage() {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-
-  const sidebarItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard', active: false },
-    { icon: FolderKanban, label: 'Projects', path: '/student/projects', active: false },
-    { icon: Calendar, label: 'Calendar', path: '#', active: false },
-    { icon: Users, label: 'Supervisors', path: '/student/browse-supervisors', active: false },
-    { icon: User, label: 'Students', path: '/student/browse-students', active: false },
-  ];
-
-  const bottomSidebarItems = [
-    { icon: Settings, label: 'Settings', path: '/student/profile', active: false },
-    { icon: HelpCircle, label: 'Help', path: '/help' },
-  ];
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -67,10 +54,32 @@ export default function StudentNotificationsPage() {
     } else if (status === 'authenticated') {
       if (fetchedRef.current) return;
       fetchedRef.current = true;
-      // Fetch both in parallel for faster loading
       fetchInitialData();
     }
   }, [status]);
+
+  // Real-time: prepend new notifications as they arrive via socket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNew = (notification: any) => {
+      const newNotif: Notification = {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type || 'info',
+        isRead: false,
+        createdAt: notification.createdAt,
+      };
+      setNotifications(prev => {
+        if (prev.some(n => n.id === newNotif.id)) return prev;
+        return [newNotif, ...prev];
+      });
+    };
+
+    socket.on('notification:new', handleNew);
+    return () => { socket.off('notification:new', handleNew); };
+  }, [socket]);
 
   const fetchInitialData = async () => {
     try {
@@ -97,18 +106,6 @@ export default function StudentNotificationsPage() {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });
-  };
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    }
   };
 
   const markAsRead = async (id: number) => {
