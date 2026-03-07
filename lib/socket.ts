@@ -28,6 +28,13 @@ export interface ServerToClientEvents {
   
   // Project status events
   'project:status': (data: ProjectStatus) => void;
+
+  // Invitation events
+  'invitation:new': (data: InvitationEvent) => void;
+  'invitation:updated': (data: InvitationEvent) => void;
+
+  // Group events
+  'group:updated': (data: GroupEvent) => void;
   
   // Connection events
   'user:online': (data: { userId: number }) => void;
@@ -130,6 +137,26 @@ export interface ProjectStatus {
   title?: string;
   groupId?: number;
   updatedAt?: string;
+}
+
+export interface InvitationEvent {
+  invitationId: number;
+  type: 'group_invite' | 'student_invite' | 'supervisor_invite';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  senderId: number;
+  receiverId: number;
+  senderName: string;
+  groupId?: number;
+  groupName?: string;
+  message?: string;
+  createdAt: string;
+}
+
+export interface GroupEvent {
+  groupId: number;
+  event: 'member_joined' | 'member_left' | 'supervisor_joined' | 'updated' | 'deleted';
+  userId?: number;
+  userName?: string;
 }
 
 // Singleton socket server instance

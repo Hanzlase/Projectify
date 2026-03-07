@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { emitInvitationToUser } from '@/lib/socket-emitters';
 
 // GET - Fetch invitations for the current user
 export async function GET(request: Request) {
@@ -181,6 +182,26 @@ export async function POST(request: Request) {
         }
       }
     });
+
+    // Emit real-time invitation event to the receiver
+    try {
+      const senderUser = await prisma.user.findUnique({
+        where: { userId },
+        select: { name: true }
+      });
+      emitInvitationToUser(receiver.userId, {
+        invitationId: invitation.invitationId,
+        type: 'student_invite',
+        status: 'pending',
+        senderId: userId,
+        receiverId: receiver.userId,
+        senderName: senderUser?.name || 'Someone',
+        message: message || undefined,
+        createdAt: invitation.createdAt.toISOString(),
+      });
+    } catch (socketError) {
+      // Non-fatal
+    }
 
     return NextResponse.json({
       success: true,

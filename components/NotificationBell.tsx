@@ -3,24 +3,23 @@
 import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
-import { useNotifications } from '@/lib/socket-client';
+import { useSocket } from '@/lib/socket-client';
+import type { Notification } from '@/lib/socket-client';
 
 function NotificationBell() {
   const router = useRouter();
   const pathname = usePathname();
-  const [localUnreadCount, setLocalUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   const fetchedRef = useRef(false);
-  
-  // Use socket hook for real-time notifications
-  const { unreadCount: socketUnreadCount, isConnected } = useNotifications();
+  const { socket, isConnected } = useSocket();
 
-  // Fetch initial count on mount - only once
+  // Fetch accurate count from the server
   const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications');
       if (response.ok) {
         const data = await response.json();
-        setLocalUnreadCount(data.unreadCount);
+        setUnreadCount(data.unreadCount ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -34,40 +33,48 @@ function NotificationBell() {
     fetchUnreadCount();
   }, [fetchUnreadCount]);
 
-  // Update local count when socket provides updates
+  // Listen for real-time notification events
   useEffect(() => {
-    if (socketUnreadCount > 0) {
-      setLocalUnreadCount(prev => prev + socketUnreadCount);
-    }
-  }, [socketUnreadCount]);
+    if (!socket) return;
 
-  // Socket.IO handles real-time updates, no polling needed
-  // Only re-fetch if socket reconnects after being disconnected
+    const handleNew = (_notification: Notification) => {
+      setUnreadCount(prev => prev + 1);
+    };
+
+    const handleCount = ({ unreadCount: count }: { unreadCount: number }) => {
+      setUnreadCount(count);
+    };
+
+    socket.on('notification:new', handleNew);
+    socket.on('notification:count', handleCount);
+
+    return () => {
+      socket.off('notification:new', handleNew);
+      socket.off('notification:count', handleCount);
+    };
+  }, [socket]);
+
+  // Re-fetch when socket reconnects after being disconnected
   const wasDisconnected = useRef(false);
   useEffect(() => {
     if (!isConnected) {
       wasDisconnected.current = true;
     } else if (wasDisconnected.current) {
-      // Socket reconnected, refresh the count once
       wasDisconnected.current = false;
       fetchUnreadCount();
     }
   }, [isConnected, fetchUnreadCount]);
 
   const handleClick = useCallback(() => {
-    // Determine the user role from the current path
     const pathParts = pathname?.split('/') || [];
-    const role = pathParts[1]; // student, coordinator, or supervisor
-    
+    const role = pathParts[1];
+
     if (role === 'student' || role === 'coordinator' || role === 'supervisor') {
       router.push(`/${role}/notifications`);
     } else {
-      // Default to student notifications
       router.push('/student/notifications');
     }
   }, [pathname, router]);
-
-  const displayCount = localUnreadCount;
 
   return (
     <button
@@ -75,9 +82,9 @@ function NotificationBell() {
       className="relative p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-gray-600"
     >
       <Bell className="w-6 h-6 text-slate-600 dark:text-zinc-400" />
-      {displayCount > 0 && (
+      {unreadCount > 0 && (
         <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-          {displayCount > 9 ? '9+' : displayCount}
+          {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}
     </button>
@@ -85,3 +92,4 @@ function NotificationBell() {
 }
 
 export default memo(NotificationBell);
+

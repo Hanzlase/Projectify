@@ -19,6 +19,8 @@ import {
   DashboardStats,
   SupervisorAvailability,
   ProjectStatus,
+  InvitationEvent,
+  GroupEvent,
 } from './socket';
 
 // ============================================
@@ -177,4 +179,33 @@ export function emitUserOnline(campusId: number, userId: number): void {
  */
 export function emitUserOffline(campusId: number, userId: number): void {
   broadcastToCampus(campusId, 'user:offline', { userId });
+}
+
+// ============================================
+// INVITATION EMITTERS
+// ============================================
+
+/**
+ * Emit a new invitation event to the receiver
+ */
+export function emitInvitationToUser(receiverId: number, invitation: InvitationEvent): void {
+  emitToUser(receiverId, 'invitation:new', invitation);
+}
+
+/**
+ * Emit invitation status update to sender and receiver
+ */
+export function emitInvitationUpdated(userId: number, invitation: InvitationEvent): void {
+  emitToUser(userId, 'invitation:updated', invitation);
+}
+
+// ============================================
+// GROUP EMITTERS
+// ============================================
+
+/**
+ * Emit a group change event to all group members' user rooms
+ */
+export function emitGroupUpdated(memberUserIds: number[], event: GroupEvent): void {
+  emitToUsers(memberUserIds, 'group:updated', event);
 }

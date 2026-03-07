@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useInvitationSocket } from '@/lib/socket-client';
 
 const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), { 
   ssr: false,

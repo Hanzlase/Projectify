@@ -18,6 +18,9 @@ interface ServerToClientEvents {
   'dashboard:stats': (data: DashboardStats) => void;
   'supervisor:availability': (data: SupervisorAvailability) => void;
   'project:status': (data: ProjectStatus) => void;
+  'invitation:new': (data: InvitationEvent) => void;
+  'invitation:updated': (data: InvitationEvent) => void;
+  'group:updated': (data: GroupEvent) => void;
   'user:online': (data: { userId: number }) => void;
   'user:offline': (data: { userId: number }) => void;
   'error': (data: { message: string }) => void;
@@ -97,6 +100,26 @@ export interface ProjectStatus {
   projectId: number;
   status: 'available' | 'taken' | 'pending';
   groupId?: number;
+}
+
+export interface InvitationEvent {
+  invitationId: number;
+  type: 'group_invite' | 'student_invite' | 'supervisor_invite';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  senderId: number;
+  receiverId: number;
+  senderName: string;
+  groupId?: number;
+  groupName?: string;
+  message?: string;
+  createdAt: string;
+}
+
+export interface GroupEvent {
+  groupId: number;
+  event: 'member_joined' | 'member_left' | 'supervisor_joined' | 'updated' | 'deleted';
+  userId?: number;
+  userName?: string;
 }
 
 type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -627,4 +650,68 @@ export function useOnlineUsers() {
   }, [socket]);
 
   return { onlineUsers, isOnline: (userId: number) => onlineUsers.has(userId), isConnected };
+}
+
+/**
+ * Hook for real-time invitation updates
+ * Fires onNewInvitation when a new invitation arrives,
+ * and onInvitationUpdated when an invitation status changes.
+ */
+export function useInvitationSocket({
+  onNewInvitation,
+  onInvitationUpdated,
+}: {
+  onNewInvitation?: (inv: InvitationEvent) => void;
+  onInvitationUpdated?: (inv: InvitationEvent) => void;
+} = {}) {
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNew = (inv: InvitationEvent) => {
+      onNewInvitation?.(inv);
+    };
+    const handleUpdated = (inv: InvitationEvent) => {
+      onInvitationUpdated?.(inv);
+    };
+
+    socket.on('invitation:new', handleNew);
+    socket.on('invitation:updated', handleUpdated);
+
+    return () => {
+      socket.off('invitation:new', handleNew);
+      socket.off('invitation:updated', handleUpdated);
+    };
+  }, [socket, onNewInvitation, onInvitationUpdated]);
+
+  return { isConnected };
+}
+
+/**
+ * Hook for real-time group change events
+ * Fires onGroupUpdated whenever the group membership or details change.
+ */
+export function useGroupSocket({
+  onGroupUpdated,
+}: {
+  onGroupUpdated?: (event: GroupEvent) => void;
+} = {}) {
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGroupUpdated = (event: GroupEvent) => {
+      onGroupUpdated?.(event);
+    };
+
+    socket.on('group:updated', handleGroupUpdated);
+
+    return () => {
+      socket.off('group:updated', handleGroupUpdated);
+    };
+  }, [socket, onGroupUpdated]);
+
+  return { isConnected };
 }

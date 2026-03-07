@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { emitInvitationUpdated } from '@/lib/socket-emitters';
 
 // PATCH - Update invitation status (accept/reject)
 export async function PATCH(
@@ -60,8 +61,30 @@ export async function PATCH(
     // Update invitation status
     const updatedInvitation = await prisma.invitation.update({
       where: { invitationId },
-      data: { status }
+      data: { status },
+      include: {
+        sender: { include: { user: { select: { userId: true, name: true } } } },
+        receiver: { include: { user: { select: { userId: true } } } }
+      }
     });
+
+    // Emit real-time event to both sender and receiver
+    try {
+      const eventPayload = {
+        invitationId: updatedInvitation.invitationId,
+        type: 'student_invite' as const,
+        status: status as 'pending' | 'accepted' | 'rejected' | 'cancelled',
+        senderId: updatedInvitation.sender.userId,
+        receiverId: updatedInvitation.receiver.userId,
+        senderName: updatedInvitation.sender.user.name,
+        createdAt: updatedInvitation.createdAt.toISOString(),
+      };
+      // Notify both parties so each side updates without a refresh
+      emitInvitationUpdated(updatedInvitation.sender.userId, eventPayload);
+      emitInvitationUpdated(updatedInvitation.receiver.userId, eventPayload);
+    } catch (socketError) {
+      // Non-fatal
+    }
 
     return NextResponse.json({
       success: true,
