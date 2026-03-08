@@ -670,13 +670,13 @@ function SimilarityCheckPageContent() {
                   {/* Unique Features */}
                   {result.differentiationInfo.uniqueFeatures.length > 0 && (
                     <div>
-                      <h3 className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                      <h3 className="text-xs font-semibold text-[#1E6F3E] uppercase tracking-wide mb-2 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Unique Features
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {result.differentiationInfo.uniqueFeatures.map((feature, i) => (
-                          <span key={i} className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs border border-green-100">
+                          <span key={i} className="px-2 py-1 bg-[#1E6F3E]/10 text-[#1E6F3E] rounded-md text-xs border border-[#1E6F3E]/20">
                             {feature}
                           </span>
                         ))}
@@ -790,7 +790,7 @@ function SimilarityCheckPageContent() {
                   </div>
                   <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm ${
                     result.feasibilityReport.overallFeasibility === 'high' 
-                      ? 'bg-emerald-500/20 text-emerald-100' 
+                      ? 'bg-[#1E6F3E]/20 text-white/90' 
                       : result.feasibilityReport.overallFeasibility === 'medium'
                       ? 'bg-amber-500/20 text-amber-100'
                       : 'bg-red-500/20 text-red-100'
@@ -826,13 +826,13 @@ function SimilarityCheckPageContent() {
                 {result.feasibilityReport.timelineFeasibility && (
                   <div className={`rounded-xl p-4 border ${
                     result.feasibilityReport.timelineFeasibility.isPossible 
-                      ? 'bg-emerald-50 border-emerald-200' 
+                      ? 'bg-[#1E6F3E]/10 border-[#1E6F3E]/20' 
                       : 'bg-amber-50 border-amber-200'
                   }`}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         result.feasibilityReport.timelineFeasibility.isPossible 
-                          ? 'bg-emerald-100 text-emerald-600' 
+                          ? 'bg-[#1E6F3E]/20 text-[#1E6F3E]' 
                           : 'bg-amber-100 text-amber-600'
                       }`}>
                         {result.feasibilityReport.timelineFeasibility.isPossible 
@@ -847,7 +847,7 @@ function SimilarityCheckPageContent() {
                     </div>
                     <p className={`text-sm font-medium mb-3 ${
                       result.feasibilityReport.timelineFeasibility.isPossible 
-                        ? 'text-emerald-700' 
+                        ? 'text-[#1E6F3E]' 
                         : 'text-amber-700'
                     }`}>
                       {result.feasibilityReport.timelineFeasibility.verdict}

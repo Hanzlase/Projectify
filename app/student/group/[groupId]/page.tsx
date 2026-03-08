@@ -730,7 +730,7 @@ export default function GroupDetailsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+        return <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />;
       case 'in_progress':
         return <Clock className="w-4 h-4 text-amber-500" />;
       default:
@@ -745,7 +745,7 @@ export default function GroupDetailsPage() {
       case 'medium':
         return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
       default:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
+        return 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]';
     }
   };
 
@@ -972,7 +972,7 @@ export default function GroupDetailsPage() {
                             </span>
                           )}
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                            group.project.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            group.project.status === 'approved' ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20' :
                             group.project.status === 'pending' ? 'bg-amber-100 text-amber-700' :
                             'bg-gray-100 dark:bg-zinc-700 text-gray-700'
                           }`}>
@@ -1538,7 +1538,7 @@ export default function GroupDetailsPage() {
                     <Card key={meeting.meetingId} className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] overflow-hidden">
                       <CardContent className="p-0">
                         <div className={`h-1 ${
-                          meeting.status === 'completed' ? 'bg-green-500' :
+                          meeting.status === 'completed' ? 'bg-[#1E6F3E]' :
                           meeting.status === 'cancelled' ? 'bg-red-500' :
                           'bg-[#1a5d1a]'
                         }`} />
@@ -1548,7 +1548,7 @@ export default function GroupDetailsPage() {
                               <div className="flex items-center gap-2 mb-1">
                                 <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{meeting.title}</h4>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  meeting.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]' :
+                                  meeting.status === 'completed' ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]' :
                                   meeting.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
                                   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                                 }`}>
@@ -1667,7 +1667,7 @@ export default function GroupDetailsPage() {
                       <div className="text-xs text-gray-500 dark:text-zinc-400">In Progress</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-green-500">{tasks.filter(t => t.status === 'completed').length}</div>
+                      <div className="text-2xl font-bold text-[#1E6F3E]">{tasks.filter(t => t.status === 'completed').length}</div>
                       <div className="text-xs text-gray-500 dark:text-zinc-400">Completed</div>
                     </div>
                   </div>
@@ -1680,7 +1680,7 @@ export default function GroupDetailsPage() {
                     <Card key={task.taskId} className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] overflow-hidden">
                       <CardContent className="p-0">
                         <div className={`h-1 ${
-                          task.status === 'completed' ? 'bg-green-500' :
+                          task.status === 'completed' ? 'bg-[#1E6F3E]' :
                           task.status === 'in_progress' ? 'bg-amber-500' :
                           'bg-gray-300 dark:bg-zinc-600'
                         }`} />

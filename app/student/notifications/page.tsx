@@ -172,7 +172,7 @@ export default function StudentNotificationsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'warning': return <AlertTriangle className="w-5 h-5 text-amber-500" />;
-      case 'success': return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+      case 'success': return <CheckCircle className="w-5 h-5 text-[#1E6F3E]" />;
       case 'announcement': return <Bell className="w-5 h-5 text-blue-500" />;
       default: return <Info className="w-5 h-5 text-cyan-500" />;
     }
@@ -181,7 +181,7 @@ export default function StudentNotificationsPage() {
   const getTypeBadgeStyle = (type: string) => {
     switch (type) {
       case 'warning': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'success': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'success': return 'bg-[#1E6F3E]/10 text-[#1E6F3E] border-[#1E6F3E]/20';
       case 'announcement': return 'bg-blue-100 text-blue-700 border-blue-200';
       default: return 'bg-cyan-100 text-cyan-700 border-cyan-200';
     }
@@ -407,7 +407,7 @@ export default function StudentNotificationsPage() {
                           {/* Icon */}
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                             notification.type === 'warning' ? 'bg-amber-100 dark:bg-amber-500/20' :
-                            notification.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20' :
+                            notification.type === 'success' ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20' :
                             notification.type === 'announcement' ? 'bg-blue-100 dark:bg-blue-500/20' : 'bg-cyan-100 dark:bg-cyan-500/20'
                           }`}>
                             {getTypeIcon(notification.type)}
@@ -533,7 +533,7 @@ export default function StudentNotificationsPage() {
                   <div className="flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                       selectedNotification.type === 'warning' ? 'bg-amber-100' :
-                      selectedNotification.type === 'success' ? 'bg-emerald-100' :
+                      selectedNotification.type === 'success' ? 'bg-[#1E6F3E]/10' :
                       selectedNotification.type === 'announcement' ? 'bg-blue-100' : 'bg-cyan-100'
                     }`}>
                       {getTypeIcon(selectedNotification.type)}

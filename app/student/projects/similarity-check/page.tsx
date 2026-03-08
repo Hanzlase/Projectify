@@ -687,13 +687,13 @@ function SimilarityCheckPageContent() {
                   {/* Unique Features */}
                   {result.differentiationInfo.uniqueFeatures.length > 0 && (
                     <div>
-                      <h3 className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                      <h3 className="text-xs font-semibold text-[#1E6F3E] uppercase tracking-wide mb-2 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Your Unique Features
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {result.differentiationInfo.uniqueFeatures.map((feature, i) => (
-                          <span key={i} className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs border border-green-100">
+                          <span key={i} className="px-2 py-1 bg-[#1E6F3E]/10 text-[#1E6F3E] rounded-md text-xs border border-[#1E6F3E]/20">
                             {feature}
                           </span>
                         ))}
@@ -843,18 +843,18 @@ function SimilarityCheckPageContent() {
                   {result.feasibilityReport.timelineFeasibility && (
                     <div className={`rounded-xl p-4 border ${
                       result.feasibilityReport.timelineFeasibility.isPossible 
-                        ? 'bg-emerald-50/50 border-emerald-100' 
+                        ? 'bg-[#1E6F3E]/10 border-[#1E6F3E]/20' 
                         : 'bg-amber-50/50 border-amber-100'
                     }`}>
                       <div className="flex items-center gap-2 mb-2">
                         {result.feasibilityReport.timelineFeasibility.isPossible 
-                          ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 
+                          ? <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" /> 
                           : <Clock className="w-4 h-4 text-amber-600" />
                         }
                         <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">Timeline (3 members • 2 sem)</h3>
                       </div>
                       <p className={`text-xs font-medium ${
-                        result.feasibilityReport.timelineFeasibility.isPossible ? 'text-emerald-700' : 'text-amber-700'
+                        result.feasibilityReport.timelineFeasibility.isPossible ? 'text-[#1E6F3E]' : 'text-amber-700'
                       }`}>
                         {result.feasibilityReport.timelineFeasibility.verdict}
                       </p>

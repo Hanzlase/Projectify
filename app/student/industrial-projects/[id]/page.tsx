@@ -147,7 +147,7 @@ export default function StudentIndustrialProjectDetailPage() {
   const getStatusConfig = (projectStatus: string) => {
     switch (projectStatus) {
       case 'available':
-        return { bg: 'bg-emerald-100 text-emerald-700', text: 'Available', icon: CheckCircle2 };
+        return { bg: 'bg-[#1E6F3E]/10 text-[#1E6F3E]', text: 'Available', icon: CheckCircle2 };
       case 'booked':
         return { bg: 'bg-blue-100 text-blue-700', text: 'Booked', icon: Clock };
       case 'completed':
@@ -208,9 +208,9 @@ export default function StudentIndustrialProjectDetailPage() {
                   </Link>
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
-                  <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
-                    <span className="text-sm font-medium text-green-700 dark:text-[#22C55E]">
+                  <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/30 rounded-lg">
+                    <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />
+                    <span className="text-sm font-medium text-[#1E6F3E]">
                       {projectAssignedToGroup ? 'Group Created' : 'Already in Group'}
                     </span>
                   </div>
@@ -287,7 +287,7 @@ export default function StudentIndustrialProjectDetailPage() {
                   {project.techStack.split(',').map((tech, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1.5 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 text-[#1a5d1a] dark:text-emerald-400 text-sm rounded-full font-medium"
+                      className="px-3 py-1.5 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 text-[#1a5d1a] dark:text-[#1E6F3E] text-sm rounded-full font-medium"
                     >
                       {tech.trim()}
                     </span>
@@ -300,7 +300,7 @@ export default function StudentIndustrialProjectDetailPage() {
             <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-[#1a5d1a] dark:text-emerald-400" />
+                  <FileText className="w-4 h-4 text-[#1a5d1a] dark:text-[#1E6F3E]" />
                 </div>
                 Description
               </h3>
@@ -314,14 +314,14 @@ export default function StudentIndustrialProjectDetailPage() {
               <div className="bg-white dark:bg-[#27272A] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-zinc-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                   <div className="w-8 h-8 bg-[#d1e7d1] dark:bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-emerald-400" />
+                    <Sparkles className="w-4 h-4 text-[#1a5d1a] dark:text-[#1E6F3E]" />
                   </div>
                   Features
                 </h3>
                 <ul className="space-y-2">
                   {project.features.split('\n').filter(f => f.trim()).map((feature, index) => (
                     <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-zinc-300">
-                      <CheckCircle2 className="w-5 h-5 text-[#1a5d1a] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-[#1a5d1a] dark:text-[#1E6F3E] flex-shrink-0 mt-0.5" />
                       <span>{feature.trim()}</span>
                     </li>
                   ))}
@@ -372,9 +372,9 @@ export default function StudentIndustrialProjectDetailPage() {
                   </Link>
                 )}
                 {userRequestStatus === 'approved' && (projectAssignedToGroup || isInGroup) && (
-                  <div className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-[#22C55E]" />
-                    <span className="font-medium text-green-700 dark:text-[#22C55E]">
+                  <div className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/30 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5 text-[#1E6F3E]" />
+                    <span className="font-medium text-[#1E6F3E]">
                       {projectAssignedToGroup ? 'Group Created' : 'Already in Group'}
                     </span>
                   </div>

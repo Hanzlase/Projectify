@@ -1833,7 +1833,7 @@ function ChatPageContent() {
                               {selectedProject.title}
                             </p>
                             {selectedProject.creatorRole === 'supervisor' && selectedProject.permissionStatus === 'approved' && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E6F3E]/10 text-[#1E6F3E] font-medium">
                                 ✓ Approved
                               </span>
                             )}
@@ -1897,7 +1897,7 @@ function ChatPageContent() {
                               {project.creatorRole === 'supervisor' && (
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                                   project.permissionStatus === 'approved' 
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'bg-[#1E6F3E]/10 text-[#1E6F3E]'
                                     : project.permissionStatus === 'pending'
                                     ? 'bg-amber-100 text-amber-700'
                                     : project.permissionStatus === 'rejected'
@@ -2069,7 +2069,7 @@ function ChatPageContent() {
                           disabled={selectedMembers.length >= 2 || selectedMembers.find(m => m.userId === student.userId) !== undefined}
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:bg-zinc-700/50 transition-colors border-b border-gray-100 last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E6F3E] to-[#166534] flex items-center justify-center text-white font-bold text-sm">
                             {student.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 text-left">

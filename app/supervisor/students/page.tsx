@@ -251,8 +251,8 @@ export default function SupervisorStudentsPage() {
             </Card>
             <Card className={`border-0 shadow-sm rounded-2xl cursor-pointer transition-all ${activeFilter === 'has-group' ? 'ring-2 ring-[#1a5d1a]' : ''}`} onClick={() => setActiveFilter('has-group')}>
               <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-[#1E6F3E]/10 rounded-xl flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-[#1E6F3E]" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.hasGroup}</p>
@@ -390,7 +390,7 @@ export default function SupervisorStudentsPage() {
                         {/* Group Status Badge */}
                         <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${
                           student.hasGroup 
-                            ? 'bg-emerald-100 text-emerald-700' 
+                            ? 'bg-[#1E6F3E]/10 text-[#1E6F3E]' 
                             : 'bg-amber-100 text-amber-700'
                         }`}>
                           {student.hasGroup ? 'Has Group' : 'No Group'}
@@ -454,7 +454,7 @@ export default function SupervisorStudentsPage() {
                             <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7] truncate">{student.name}</h3>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                               student.hasGroup 
-                                ? 'bg-emerald-100 text-emerald-700' 
+                                ? 'bg-[#1E6F3E]/10 text-[#1E6F3E]' 
                                 : 'bg-amber-100 text-amber-700'
                             }`}>
                               {student.hasGroup ? 'Has Group' : 'No Group'}

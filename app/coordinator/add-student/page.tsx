@@ -583,15 +583,15 @@ export default function AddStudentPage() {
                       isDragging
                         ? 'border-[#1a5d1a] bg-[#1a5d1a]/5'
                         : csvFile
-                        ? 'border-green-400 bg-green-50'
+                        ? 'border-[#1E6F3E] bg-[#1E6F3E]/10'
                         : 'border-gray-300 bg-gray-50 dark:bg-zinc-700/50 hover:border-gray-400'
                     }`}
                   >
                     <div className="text-center">
                       {csvFile ? (
                         <div className="space-y-3">
-                          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                            <CheckCircle2 className="w-8 h-8 text-green-600" />
+                          <div className="w-16 h-16 bg-[#1E6F3E]/10 rounded-full flex items-center justify-center mx-auto">
+                            <CheckCircle2 className="w-8 h-8 text-[#1E6F3E]" />
                           </div>
                           <div>
                             <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{csvFile.name}</p>
@@ -747,16 +747,16 @@ export default function AddStudentPage() {
                 <div className="space-y-4">
                   {/* Success Results */}
                   {results.success.length > 0 && (
-                    <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-lg p-4">
+                    <div className="bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border-2 border-[#1E6F3E]/30 dark:border-[#1E6F3E]/40 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        <h3 className="font-semibold text-green-900 dark:text-green-400">
+                        <CheckCircle2 className="w-5 h-5 text-[#1E6F3E]" />
+                        <h3 className="font-semibold text-[#1E6F3E] dark:text-[#1E6F3E]">
                           Successfully Added ({results.success.length})
                         </h3>
                       </div>
                       <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar">
                         {results.success.map((student, index) => (
-                          <div key={index} className="bg-white dark:bg-[#27272A] p-3 rounded-lg border border-green-200 dark:border-green-700 shadow-sm">
+                          <div key={index} className="bg-white dark:bg-[#27272A] p-3 rounded-lg border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/40 shadow-sm">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <p className="font-semibold text-gray-900 dark:text-[#E4E4E7] text-sm">
@@ -768,12 +768,12 @@ export default function AddStudentPage() {
                                 <p className="text-xs text-gray-600 dark:text-zinc-400">
                                   Email: {student.email}
                                 </p>
-                                <p className="text-xs text-green-700 font-medium mt-1">
+                                <p className="text-xs text-[#1E6F3E] font-medium mt-1">
                                   Password: {student.password}
                                 </p>
                               </div>
-                              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                              <div className="w-8 h-8 bg-[#1E6F3E]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />
                               </div>
                             </div>
                           </div>

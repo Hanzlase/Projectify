@@ -697,7 +697,7 @@ export default function EvaluationPanelsPage() {
     switch (status) {
       case "active":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]">
             Active
           </span>
         );
@@ -1211,11 +1211,11 @@ export default function EvaluationPanelsPage() {
                   <div id="panel-creation-info" className="mt-2 p-4 bg-white dark:bg-[#27272A] border border-blue-200 dark:border-blue-800 rounded-lg">
                     <ul className="text-sm text-gray-700 dark:text-zinc-300 space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-[#1E6F3E] flex-shrink-0 mt-0.5" />
                         <span><strong>{statistics.totalGroups}</strong> groups need evaluation panels</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-[#1E6F3E] flex-shrink-0 mt-0.5" />
                         <span><strong>{statistics.totalSupervisors}</strong> supervisors available in {campusName}</span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -1311,7 +1311,7 @@ export default function EvaluationPanelsPage() {
                             ? 'text-red-600 dark:text-red-400'
                             : selectedSupervisors.length > formData.maxSupervisors
                             ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-green-600 dark:text-green-400'
+                            : 'text-[#1E6F3E] dark:text-[#1E6F3E]'
                         }`}>
                           {selectedSupervisors.length} / {formData.minSupervisors}-{formData.maxSupervisors}
                         </span>
@@ -1359,7 +1359,7 @@ export default function EvaluationPanelsPage() {
                               onClick={() => toggleSupervisor(supervisor.userId)}
                               className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
                                 isSelected
-                                  ? 'border-[#1E6F3E] bg-green-50 dark:bg-green-950/30'
+                                  ? 'border-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20'
                                   : 'border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600'
                               }`}
                             >
@@ -1404,7 +1404,7 @@ export default function EvaluationPanelsPage() {
                               className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
                                 isSelected
                                   ? supervisorInPanel
-                                    ? 'border-[#1E6F3E] bg-green-50 dark:bg-green-950/30'
+                                    ? 'border-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20'
                                     : 'border-amber-500 bg-amber-50 dark:bg-amber-950/30'
                                   : 'border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600'
                               }`}
@@ -1420,11 +1420,11 @@ export default function EvaluationPanelsPage() {
                               {group.supervisorId && (
                                 <div className="flex items-center gap-2 text-xs">
                                   {supervisorInPanel ? (
-                                    <CheckCircle className="w-3 h-3 text-green-600" />
+                                    <CheckCircle className="w-3 h-3 text-[#1E6F3E]" />
                                   ) : (
                                     <AlertCircle className="w-3 h-3 text-amber-600" />
                                   )}
-                                  <span className={supervisorInPanel ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}>
+                                  <span className={supervisorInPanel ? 'text-[#1E6F3E] dark:text-[#1E6F3E]' : 'text-amber-600 dark:text-amber-400'}>
                                     Supervisor: {supervisor?.name || 'Unknown'}
                                   </span>
                                 </div>

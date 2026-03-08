@@ -418,7 +418,7 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
-                    <span className="text-green-300">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>In your campus</span>
                   </div>
                 </CardContent>
@@ -441,7 +441,7 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>Available to supervise</span>
                   </div>
                 </CardContent>
@@ -464,7 +464,7 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>In your campus</span>
                   </div>
                 </CardContent>
@@ -986,7 +986,7 @@ export default function StudentDashboard() {
                               ))}
                             </div>
                             <div className="flex items-center justify-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                              <div className="w-2 h-2 rounded-full bg-white/70 animate-pulse" />
                               <span className="text-xs text-white/70 font-medium">Time remaining</span>
                             </div>
                           </>

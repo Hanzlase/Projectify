@@ -170,7 +170,7 @@ export default function CoordinatorResourceRequestsPage() {
       supervisor_approved: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: ArrowRight, label: "Needs Review" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Under Review" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20", text: "text-[#1E6F3E] dark:text-[#1E6F3E]", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[st] || { bg: "bg-gray-100", text: "text-gray-600", icon: Clock, label: st };
@@ -223,7 +223,7 @@ export default function CoordinatorResourceRequestsPage() {
               { label: "Total", count: requests.length, icon: Package, color: "text-gray-600" },
               { label: "Needs Review", count: requests.filter(r => r.status === "supervisor_approved").length, icon: ArrowRight, color: "text-blue-600" },
               { label: "Meeting Scheduled", count: requests.filter(r => r.status === "meeting_scheduled").length, icon: Calendar, color: "text-indigo-600" },
-              { label: "Completed", count: requests.filter(r => ["approved", "rejected"].includes(r.status)).length, icon: CheckCircle, color: "text-green-600" },
+              { label: "Completed", count: requests.filter(r => ["approved", "rejected"].includes(r.status)).length, icon: CheckCircle, color: "text-[#1E6F3E]" },
             ].map(stat => (
               <Card key={stat.label} className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
                 <CardContent className="p-5">
@@ -407,10 +407,10 @@ export default function CoordinatorResourceRequestsPage() {
                     </button>
                     <button
                       onClick={() => setActionType("approve")}
-                      className={`p-4 rounded-xl border-2 transition-all text-center ${actionType === "approve" ? "border-green-500 bg-green-50 dark:bg-green-900/20" : "border-gray-200 dark:border-zinc-700 hover:border-green-300"}`}
+                      className={`p-4 rounded-xl border-2 transition-all text-center ${actionType === "approve" ? "border-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20" : "border-gray-200 dark:border-zinc-700 hover:border-[#1E6F3E]/50"}`}
                     >
-                      <CheckCircle className={`w-6 h-6 mx-auto mb-2 ${actionType === "approve" ? "text-green-600" : "text-gray-400"}`} />
-                      <p className={`text-sm font-semibold ${actionType === "approve" ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-zinc-400"}`}>Approve</p>
+                      <CheckCircle className={`w-6 h-6 mx-auto mb-2 ${actionType === "approve" ? "text-[#1E6F3E]" : "text-gray-400"}`} />
+                      <p className={`text-sm font-semibold ${actionType === "approve" ? "text-[#1E6F3E] dark:text-[#1E6F3E]" : "text-gray-600 dark:text-zinc-400"}`}>Approve</p>
                     </button>
                     <button
                       onClick={() => setActionType("reject")}
@@ -492,7 +492,7 @@ export default function CoordinatorResourceRequestsPage() {
                 <Button
                   onClick={handleAction}
                   disabled={submitting || !actionType}
-                  className={`flex-1 rounded-xl h-12 font-semibold text-white ${actionType === "schedule_meeting" ? "bg-indigo-600 hover:bg-indigo-700" : actionType === "approve" ? "bg-green-600 hover:bg-green-700" : actionType === "reject" ? "bg-red-600 hover:bg-red-700" : "bg-gray-400"}`}
+                  className={`flex-1 rounded-xl h-12 font-semibold text-white ${actionType === "schedule_meeting" ? "bg-indigo-600 hover:bg-indigo-700" : actionType === "approve" ? "bg-[#1E6F3E] hover:bg-[#166534]" : actionType === "reject" ? "bg-red-600 hover:bg-red-700" : "bg-gray-400"}`}
                 >
                   {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                     <>

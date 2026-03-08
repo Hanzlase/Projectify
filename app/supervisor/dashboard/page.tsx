@@ -289,7 +289,7 @@ export default function SupervisorDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
-                    <span className="text-green-300">↑</span>
+                    <span className="text-white/90">↑</span>
                     <span>Total projects</span>
                   </div>
                 </CardContent>
@@ -311,7 +311,7 @@ export default function SupervisorDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>Total students</span>
                   </div>
                 </CardContent>
@@ -349,8 +349,8 @@ export default function SupervisorDashboard() {
                       <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Approved</p>
                       <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.approvedProposals}</p>
                     </div>
-                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
+                    <div className="p-1.5 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-lg">
+                      <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-zinc-400 mt-3">This semester</p>
@@ -653,7 +653,7 @@ export default function SupervisorDashboard() {
                             </div>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               group.projectStatus === 'approved' || group.projectStatus === 'completed'
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]' 
+                                ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]' 
                                 : group.projectStatus === 'pending' || group.projectStatus === 'in_progress'
                                 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                                 : 'bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300'
@@ -739,9 +739,7 @@ export default function SupervisorDashboard() {
                           transition={{ delay: 0.45 + index * 0.05 }} 
                           className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-all"
                         >
-                          <div className={`w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 ${
-                            activity.type === 'success' ? 'bg-green-500' : 'bg-[#1a5d1a]'
-                          }`} />
+                          <div className={`w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 bg-[#1E6F3E]`} />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-[#E4E4E7]">{activity.action}</p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">{activity.user}</p>
@@ -781,7 +779,7 @@ export default function SupervisorDashboard() {
                       <div className="p-3 bg-gray-50 dark:bg-zinc-700/50 rounded-xl">
                         <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Status</p>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <div className="w-2 h-2 rounded-full bg-[#1E6F3E]"></div>
                           <p className="text-sm font-medium text-gray-900 dark:text-[#E4E4E7]">Active</p>
                         </div>
                       </div>

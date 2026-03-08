@@ -313,7 +313,7 @@ export default function InvitationsPage() {
         );
       case 'accepted':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E6F3E]/10 text-[#1E6F3E] rounded-full text-xs font-medium">
             <CheckCircle2 className="w-3 h-3" />
             Accepted
           </span>

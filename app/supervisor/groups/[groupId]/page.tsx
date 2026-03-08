@@ -483,7 +483,7 @@ export default function SupervisorGroupDetailsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+        return <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />;
       case 'in_progress':
         return <Clock className="w-4 h-4 text-amber-500" />;
       default:
@@ -498,7 +498,7 @@ export default function SupervisorGroupDetailsPage() {
       case 'medium':
         return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
       default:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
+        return 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]';
     }
   };
 
@@ -708,7 +708,7 @@ export default function SupervisorGroupDetailsPage() {
                             <div className="flex flex-wrap items-center gap-2 pt-2">
                               <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
                                 group.project.status === 'completed' 
-                                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                  ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]'
                                   : group.project.status === 'in_progress'
                                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                                     : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
@@ -1071,14 +1071,14 @@ export default function SupervisorGroupDetailsPage() {
                             {/* Date Block */}
                             <div className={`flex-shrink-0 w-14 text-center py-2 rounded-xl ${
                               meeting.status === 'completed' 
-                                ? 'bg-emerald-50 dark:bg-emerald-900/20' 
+                                ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20' 
                                 : isToday 
                                   ? 'bg-[#1a5d1a]/10' 
                                   : 'bg-gray-100 dark:bg-zinc-700'
                             }`}>
                               <p className={`text-xs font-semibold uppercase ${
                                 meeting.status === 'completed' 
-                                  ? 'text-emerald-600 dark:text-emerald-400' 
+                                  ? 'text-[#1E6F3E] dark:text-[#1E6F3E]' 
                                   : isToday 
                                     ? 'text-[#1a5d1a] dark:text-[#4ade80]' 
                                     : 'text-gray-500 dark:text-zinc-400'
@@ -1087,7 +1087,7 @@ export default function SupervisorGroupDetailsPage() {
                               </p>
                               <p className={`text-xl font-bold ${
                                 meeting.status === 'completed' 
-                                  ? 'text-emerald-600 dark:text-emerald-400' 
+                                  ? 'text-[#1E6F3E] dark:text-[#1E6F3E]' 
                                   : isToday 
                                     ? 'text-[#1a5d1a] dark:text-[#4ade80]' 
                                     : 'text-gray-900 dark:text-[#E4E4E7]'
@@ -1102,7 +1102,7 @@ export default function SupervisorGroupDetailsPage() {
                                 <h4 className="font-medium text-gray-900 dark:text-[#E4E4E7]">{meeting.title}</h4>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                   meeting.status === 'completed' 
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                                    ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]' 
                                     : meeting.status === 'cancelled' 
                                       ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
                                       : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
@@ -1248,7 +1248,7 @@ export default function SupervisorGroupDetailsPage() {
                                       ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
                                       : task.priority === 'medium'
                                         ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                                        : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                        : 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]'
                                   }`}>
                                     {task.priority}
                                   </span>
@@ -1381,7 +1381,7 @@ export default function SupervisorGroupDetailsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#1E6F3E]/10 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-[#1E6F3E] dark:text-emerald-400" />
+                      <Calendar className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">
@@ -1582,7 +1582,7 @@ export default function SupervisorGroupDetailsPage() {
                       {parentTaskId ? (
                         <GitBranch className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       ) : (
-                        <ListTodo className="w-5 h-5 text-[#1E6F3E] dark:text-emerald-400" />
+                        <ListTodo className="w-5 h-5 text-[#1E6F3E]" />
                       )}
                     </div>
                     <div>
@@ -1676,7 +1676,7 @@ export default function SupervisorGroupDetailsPage() {
                                   ? 'bg-red-100 text-red-700 ring-2 ring-red-300 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-800'
                                   : p === 'medium'
                                     ? 'bg-amber-100 text-amber-700 ring-2 ring-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800'
-                                    : 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-800'
+                                    : 'bg-[#1E6F3E]/10 text-[#1E6F3E] ring-2 ring-[#1E6F3E]/30 dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E] dark:ring-[#1E6F3E]/40'
                                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600'
                             }`}
                           >

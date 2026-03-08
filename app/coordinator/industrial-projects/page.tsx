@@ -315,7 +315,7 @@ export default function IndustrialProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
+        return 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]';
       case 'booked':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'completed':
@@ -405,7 +405,7 @@ export default function IndustrialProjectsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
-                    <span className="text-green-300">↑</span>
+                    <span className="text-white/90">↑</span>
                     <span>All industry projects</span>
                   </div>
                 </CardContent>
@@ -420,12 +420,12 @@ export default function IndustrialProjectsPage() {
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mb-1">Available</p>
                       <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{projects.filter(p => p.status === 'available').length}</p>
                     </div>
-                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-[#22C55E]" />
+                    <div className="p-1.5 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-lg">
+                      <CheckCircle2 className="w-4 h-4 text-[#1E6F3E]" />
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">●</span>
+                    <span className="text-[#1E6F3E]">●</span>
                     <span>Open for requests</span>
                   </div>
                 </CardContent>
@@ -556,7 +556,7 @@ export default function IndustrialProjectsPage() {
                         />
                         <div className="absolute top-3 right-3">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
-                            project.status === 'available' ? 'bg-green-500/90 text-white' :
+                            project.status === 'available' ? 'bg-[#1E6F3E]/90 text-white' :
                             project.status === 'booked' ? 'bg-blue-500/90 text-white' :
                             'bg-gray-500/90 text-white'
                           }`}>
@@ -565,8 +565,8 @@ export default function IndustrialProjectsPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="h-32 bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-500/10 dark:from-[#1a5d1a]/20 dark:to-emerald-500/20 relative flex items-center justify-center">
-                        <Building2 className="w-12 h-12 text-[#1a5d1a]/30 dark:text-emerald-500/30" />
+                      <div className="h-32 bg-gradient-to-br from-[#1a5d1a]/10 to-[#1E6F3E]/10 dark:from-[#1a5d1a]/20 dark:to-[#1E6F3E]/20 relative flex items-center justify-center">
+                        <Building2 className="w-12 h-12 text-[#1E6F3E]/30 dark:text-[#1E6F3E]/30" />
                         <div className="absolute top-3 right-3">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                             {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
@@ -580,7 +580,7 @@ export default function IndustrialProjectsPage() {
                       </h3>
                       
                       {project.techStack && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#1a5d1a] dark:text-emerald-400 mb-2">
+                        <div className="flex items-center gap-1.5 text-xs text-[#1E6F3E] dark:text-[#1E6F3E] mb-2">
                           <Code className="w-3 h-3" />
                           <span className="truncate">{project.techStack}</span>
                         </div>
@@ -945,7 +945,7 @@ export default function IndustrialProjectsPage() {
                               request.status === 'pending'
                                 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                                 : request.status === 'approved'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]'
+                                ? 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]'
                                 : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                             }`}
                           >
@@ -964,7 +964,7 @@ export default function IndustrialProjectsPage() {
                             <Button
                               size="sm"
                               onClick={() => handleRespondToRequest(request.id, 'approved')}
-                              className="bg-green-600 hover:bg-green-700 text-white"
+                              className="bg-[#1E6F3E] hover:bg-[#166534] text-white"
                             >
                               <CheckCircle2 className="w-4 h-4 mr-1" />
                               Approve

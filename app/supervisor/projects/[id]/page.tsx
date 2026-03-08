@@ -107,7 +107,7 @@ export default function SupervisorProjectDetailPage() {
     switch (projectStatus) {
       case 'idea': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400';
       case 'in_progress': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400';
-      case 'completed': return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400';
+      case 'completed': return 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]';
       case 'archived': return 'bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300';
       default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300';
     }
@@ -194,7 +194,7 @@ export default function SupervisorProjectDetailPage() {
                     {project.status.replace('_', ' ')}
                   </span>
                   {project.isUnique && (
-                    <span className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 backdrop-blur-md bg-emerald-500 text-white">
+                    <span className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 backdrop-blur-md bg-[#1E6F3E] text-white">
                       <Sparkles className="w-4 h-4" />
                       Unique
                     </span>
@@ -218,7 +218,7 @@ export default function SupervisorProjectDetailPage() {
                   {project.status.replace('_', ' ')}
                 </span>
                 {project.isUnique && (
-                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]">
                     <Sparkles className="w-4 h-4" />
                     Unique
                   </span>

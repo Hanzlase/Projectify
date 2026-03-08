@@ -323,7 +323,7 @@ export default function CoordinatorsPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E]"
+                className="mb-4 p-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30 rounded-xl flex items-center gap-2 text-[#1E6F3E] dark:text-[#1E6F3E]"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm">{success}</span>
@@ -358,10 +358,10 @@ export default function CoordinatorsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Active</p>
-                      <p className="text-2xl sm:text-3xl font-bold text-green-600">{activeCount}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-[#1E6F3E]">{activeCount}</p>
                     </div>
-                    <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                      <ShieldCheck className="w-5 h-5 text-green-500" />
+                    <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-xl flex items-center justify-center">
+                      <ShieldCheck className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                   </div>
                 </CardContent>
@@ -481,7 +481,7 @@ export default function CoordinatorsPage() {
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                 coordinator.status === 'ACTIVE'
-                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]'
+                                  ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]'
                                   : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                               }`}
                             >
@@ -498,7 +498,7 @@ export default function CoordinatorsPage() {
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEditModal(coordinator)}
-                            className="p-2 text-gray-500 hover:text-[#1a5d1a] hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-all"
+                            className="p-2 text-gray-500 hover:text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-xl transition-all"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
@@ -514,7 +514,7 @@ export default function CoordinatorsPage() {
                           ) : (
                             <button
                               onClick={() => openActionModal(coordinator, 'activate')}
-                              className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-all"
+                              className="p-2 text-gray-500 hover:text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-xl transition-all"
                               title="Activate"
                             >
                               <ShieldCheck className="w-4 h-4" />
@@ -798,7 +798,7 @@ export default function CoordinatorsPage() {
                       ? 'bg-gradient-to-br from-red-500 to-red-600'
                       : actionType === 'suspend'
                       ? 'bg-gradient-to-br from-orange-500 to-orange-600'
-                      : 'bg-gradient-to-br from-green-500 to-green-600'
+                      : 'bg-gradient-to-br from-[#1E6F3E] to-[#166534]'
                   }`}>
                     {actionType === 'delete' ? (
                       <Trash2 className="w-7 h-7 text-white" />
@@ -849,7 +849,7 @@ export default function CoordinatorsPage() {
                         ? 'bg-red-600 hover:bg-red-700 shadow-red-600/20'
                         : actionType === 'suspend'
                         ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-600/20'
-                        : 'bg-green-600 hover:bg-green-700 shadow-green-600/20'
+                        : 'bg-[#1E6F3E] hover:bg-[#166534] shadow-[#1E6F3E]/20'
                     }`}
                   >
                     {actionLoading ? (

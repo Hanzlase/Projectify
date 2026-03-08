@@ -540,7 +540,7 @@ function SupervisorProjectsPageContent() {
                         </div>
 
                         {project.isUnique && (
-                          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-emerald-100 text-emerald-700">
+                          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-[#1E6F3E]/10 text-[#1E6F3E]">
                             <Sparkles className="w-3 h-3" />
                             Unique
                           </div>

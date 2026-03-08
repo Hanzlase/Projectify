@@ -373,9 +373,9 @@ export default function AddSupervisorPage() {
                       </div>
                     </div>
 
-                    <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                      <h4 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-2">Auto-Generated Credentials:</h4>
-                      <ul className="text-sm text-emerald-700 dark:text-emerald-300 space-y-1">
+                    <div className="bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 p-4 rounded-xl border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/40">
+                      <h4 className="font-semibold text-sm text-gray-900 dark:text-[#E4E4E7] mb-2">Auto-Generated Credentials:</h4>
+                      <ul className="text-sm text-[#1E6F3E] dark:text-[#1E6F3E] space-y-1">
                         <li>• Username: Generated from email (part before @)</li>
                         <li>• Password: username + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>
@@ -401,7 +401,7 @@ export default function AddSupervisorPage() {
                             type="file"
                             accept=".csv"
                             onChange={handleFileChange}
-                            className="cursor-pointer h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900 dark:file:text-emerald-200"
+                            className="cursor-pointer h-11 pl-10 border-gray-300 dark:border-zinc-600 dark:bg-gray-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#1E6F3E]/10 file:text-[#1E6F3E] hover:file:bg-[#1E6F3E]/20 dark:file:bg-[#1E6F3E]/20 dark:file:text-[#1E6F3E]"
                           />
                         </div>
                         {csvFile && (
@@ -445,9 +445,9 @@ export default function AddSupervisorPage() {
                       />
                     </div>
 
-                    <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                      <h4 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-2">Auto-Generated Credentials:</h4>
-                      <ul className="text-sm text-emerald-700 dark:text-emerald-300 space-y-1">
+                    <div className="bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 p-4 rounded-xl border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/40">
+                      <h4 className="font-semibold text-sm text-gray-900 dark:text-[#E4E4E7] mb-2">Auto-Generated Credentials:</h4>
+                      <ul className="text-sm text-[#1E6F3E] dark:text-[#1E6F3E] space-y-1">
                         <li>• Username: Generated from email (part before @)</li>
                         <li>• Password: username + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>

@@ -137,7 +137,7 @@ export default function SupervisorGroupsPage() {
     switch (status) {
       case "approved":
       case "completed":
-        return { icon: CheckCircle, label: status, bg: "bg-green-100", text: "text-green-700", show: true };
+        return { icon: CheckCircle, label: status, bg: "bg-[#1E6F3E]/10", text: "text-[#1E6F3E]", show: true };
       case "pending":
       case "in_progress":
         return { icon: Clock, label: status?.replace('_', ' ') || "In Progress", bg: "bg-amber-100", text: "text-amber-700", show: true };
@@ -406,7 +406,7 @@ export default function SupervisorGroupsPage() {
                               {/* Status Dot */}
                               {statusConfig.show && (
                                 <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.text === 'text-green-700' ? 'bg-green-500' : 'bg-amber-500'}`} />
+                                  <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.text === 'text-[#1E6F3E]' ? 'bg-[#1E6F3E]' : 'bg-amber-500'}`} />
                                   {statusConfig.label}
                                 </span>
                               )}

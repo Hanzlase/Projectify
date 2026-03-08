@@ -1250,7 +1250,7 @@ export default function SupervisorEvaluationsPage() {
                                       sub.status === "submitted"
                                         ? "bg-[#1E6F3E]/10 text-[#1E6F3E]"
                                         : sub.status === "graded"
-                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        ? "bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]"
                                         : sub.status === "late"
                                         ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                                         : sub.status === "returned"
@@ -1540,7 +1540,7 @@ export default function SupervisorEvaluationsPage() {
                                       {groupDetails.isGroupSupervisor && (
                                         <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
-                                            <h5 className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400 flex items-center gap-2">
+                                            <h5 className="text-sm font-bold text-[#1E6F3E] flex items-center gap-2">
                                               <User className="w-4 h-4" />
                                               Score as Supervisor
                                             </h5>
@@ -1597,7 +1597,7 @@ export default function SupervisorEvaluationsPage() {
                                                 setSubmissionFeedbackInput(sub.supervisorFeedback || '');
                                               }}
                                               variant="outline"
-                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-emerald-400 dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
+                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-[#1E6F3E] dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
                                             >
                                               <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                                               {hasSupervisorScore ? 'Update Score' : 'Give Score'}
@@ -1610,7 +1610,7 @@ export default function SupervisorEvaluationsPage() {
                                       {groupDetails.currentUserRole === 'chair' && (
                                         <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
-                                            <h5 className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400 flex items-center gap-2">
+                                            <h5 className="text-sm font-bold text-[#1E6F3E] flex items-center gap-2">
                                               <Award className="w-4 h-4" />
                                               Score as Panel Head
                                             </h5>
@@ -1667,7 +1667,7 @@ export default function SupervisorEvaluationsPage() {
                                                 setSubmissionFeedbackInput(sub.panelFeedback || '');
                                               }}
                                               variant="outline"
-                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-emerald-400 dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
+                                              className="border-[#1E6F3E]/30 text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:border-[#1E6F3E]/30 dark:text-[#1E6F3E] dark:hover:bg-[#1E6F3E]/20 rounded-lg h-9"
                                             >
                                               <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                                               {hasPanelScore ? 'Update Score' : 'Give Score'}

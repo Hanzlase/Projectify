@@ -288,7 +288,7 @@ export default function ManageUsersPage() {
       );
     }
     return (
-      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg bg-green-100 text-green-800">
+      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg bg-[#1E6F3E]/10 text-[#1E6F3E]">
         Active
       </span>
     );
@@ -697,7 +697,7 @@ export default function ManageUsersPage() {
                               <span
                                 className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg ${
                                   u.role === 'student'
-                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                                    ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]'
                                     : 'bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-300'
                                 }`}
                               >
@@ -738,7 +738,7 @@ export default function ManageUsersPage() {
                                 {(u.status || 'ACTIVE') === 'ACTIVE' ? (
                                   <button
                                     onClick={() => handleActionClick(u, 'suspend')}
-                                    className="text-gray-600 dark:text-zinc-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                                    className="text-gray-600 dark:text-zinc-400 hover:text-[#1E6F3E] dark:hover:text-[#1E6F3E] p-2 hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-lg transition-colors"
                                     title="Suspend User"
                                   >
                                     <UserX className="w-4 h-4" />
@@ -746,7 +746,7 @@ export default function ManageUsersPage() {
                                 ) : (
                                   <button
                                     onClick={() => handleActionClick(u, 'activate')}
-                                    className="text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                                    className="text-gray-600 dark:text-zinc-400 hover:text-[#1E6F3E] dark:hover:text-[#1E6F3E] p-2 hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-lg transition-colors"
                                     title="Activate User"
                                   >
                                     <CheckCircle2 className="w-4 h-4" />
@@ -794,7 +794,7 @@ export default function ManageUsersPage() {
                                 <span
                                   className={`px-2 py-0.5 inline-flex text-xs font-semibold rounded-lg ${
                                     u.role === 'student'
-                                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                                      ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]'
                                       : 'bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-300'
                                   }`}
                                 >
@@ -814,14 +814,14 @@ export default function ManageUsersPage() {
                             {(u.status || 'ACTIVE') === 'ACTIVE' ? (
                               <button
                                 onClick={() => handleActionClick(u, 'suspend')}
-                                className="text-gray-500 dark:text-zinc-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] p-1.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
+                                className="text-gray-500 dark:text-zinc-400 hover:text-[#1E6F3E] dark:hover:text-[#1E6F3E] p-1.5 hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-lg"
                               >
                                 <UserX className="w-4 h-4" />
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleActionClick(u, 'activate')}
-                                className="text-gray-500 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 p-1.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
+                                className="text-gray-500 dark:text-zinc-400 hover:text-[#1E6F3E] dark:hover:text-[#1E6F3E] p-1.5 hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-lg"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
                               </button>
@@ -944,7 +944,7 @@ export default function ManageUsersPage() {
                   </div>
                 )}
                 {actionSuccess && (
-                  <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-[#22C55E] text-sm flex items-center gap-2">
+                  <div className="p-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30 rounded-xl text-[#1E6F3E] text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                   </div>
@@ -1060,7 +1060,7 @@ export default function ManageUsersPage() {
                   </div>
                 )}
                 {actionSuccess && (
-                  <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-[#22C55E] text-sm flex items-center gap-2">
+                  <div className="mb-4 p-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30 rounded-xl text-[#1E6F3E] text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                   </div>

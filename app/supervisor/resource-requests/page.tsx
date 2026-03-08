@@ -138,7 +138,7 @@ export default function SupervisorResourceRequestsPage() {
       supervisor_rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Coordinator Reviewing" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20", text: "text-[#1E6F3E] dark:text-[#1E6F3E]", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[st] || configs.pending;
@@ -354,10 +354,10 @@ export default function SupervisorResourceRequestsPage() {
                   <div className="flex gap-3 mb-4">
                     <button
                       onClick={() => setReviewAction("approved")}
-                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${reviewAction === "approved" ? "border-green-500 bg-green-50 dark:bg-green-900/20" : "border-gray-200 dark:border-zinc-700 hover:border-green-300"}`}
+                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${reviewAction === "approved" ? "border-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20" : "border-gray-200 dark:border-zinc-700 hover:border-[#1E6F3E]/50"}`}
                     >
-                      <ThumbsUp className={`w-6 h-6 mx-auto mb-2 ${reviewAction === "approved" ? "text-green-600" : "text-gray-400"}`} />
-                      <p className={`text-sm font-semibold ${reviewAction === "approved" ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-zinc-400"}`}>Approve & Forward</p>
+                      <ThumbsUp className={`w-6 h-6 mx-auto mb-2 ${reviewAction === "approved" ? "text-[#1E6F3E]" : "text-gray-400"}`} />
+                      <p className={`text-sm font-semibold ${reviewAction === "approved" ? "text-[#1E6F3E] dark:text-[#1E6F3E]" : "text-gray-600 dark:text-zinc-400"}`}>Approve & Forward</p>
                       <p className="text-xs text-gray-500 mt-1">Forward to coordinator for arrangement</p>
                     </button>
                     <button
@@ -388,7 +388,7 @@ export default function SupervisorResourceRequestsPage() {
                 <Button
                   onClick={handleReview}
                   disabled={submitting || !reviewAction}
-                  className={`flex-1 rounded-xl h-12 font-semibold ${reviewAction === "approved" ? "bg-green-600 hover:bg-green-700" : reviewAction === "rejected" ? "bg-red-600 hover:bg-red-700" : "bg-gray-400"} text-white`}
+                  className={`flex-1 rounded-xl h-12 font-semibold ${reviewAction === "approved" ? "bg-[#1E6F3E] hover:bg-[#166534]" : reviewAction === "rejected" ? "bg-red-600 hover:bg-red-700" : "bg-gray-400"} text-white`}
                 >
                   {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5 mr-2" />{reviewAction === "approved" ? "Approve & Forward" : reviewAction === "rejected" ? "Reject Request" : "Select Decision"}</>}
                 </Button>

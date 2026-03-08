@@ -186,7 +186,7 @@ function SupervisorInvitationsPageContent() {
       case "pending":
         return { icon: Clock, label: "Pending", bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" };
       case "accepted":
-        return { icon: CheckCircle, label: "Accepted", bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-[#22C55E]" };
+        return { icon: CheckCircle, label: "Accepted", bg: "bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20", text: "text-[#1E6F3E] dark:text-[#1E6F3E]" };
       case "rejected":
         return { icon: XCircle, label: "Declined", bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-600 dark:text-red-400" };
       default:
@@ -256,18 +256,18 @@ function SupervisorInvitationsPageContent() {
                         <p className="text-xs text-gray-500 dark:text-zinc-400">{stat.label}</p>
                         <p className={`text-2xl font-bold ${
                           stat.color === "amber" ? "text-amber-600 dark:text-amber-400" :
-                          stat.color === "green" ? "text-green-600 dark:text-[#22C55E]" :
+                          stat.color === "green" ? "text-[#1E6F3E] dark:text-[#1E6F3E]" :
                           stat.color === "red" ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-[#E4E4E7]"
                         }`}>{stat.value}</p>
                       </div>
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                         stat.color === "amber" ? "bg-amber-100 dark:bg-amber-900/30" :
-                        stat.color === "green" ? "bg-green-100 dark:bg-green-900/30" :
+                        stat.color === "green" ? "bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20" :
                         stat.color === "red" ? "bg-red-100 dark:bg-red-900/30" : "bg-gray-100 dark:bg-zinc-700"
                       }`}>
                         <stat.icon className={`w-5 h-5 ${
                           stat.color === "amber" ? "text-amber-600 dark:text-amber-400" :
-                          stat.color === "green" ? "text-green-600 dark:text-[#22C55E]" :
+                          stat.color === "green" ? "text-[#1E6F3E] dark:text-[#1E6F3E]" :
                           stat.color === "red" ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-zinc-400"
                         }`} />
                       </div>
@@ -300,7 +300,7 @@ function SupervisorInvitationsPageContent() {
                         className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                           filter === f
                             ? f === "pending" ? "bg-amber-500 text-white" :
-                              f === "accepted" ? "bg-green-500 text-white" :
+                              f === "accepted" ? "bg-[#1E6F3E] text-white" :
                               f === "rejected" ? "bg-red-500 text-white" :
                               "bg-[#1a5d1a] text-white"
                             : "bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600"
@@ -448,10 +448,10 @@ function SupervisorInvitationsPageContent() {
                                 <div className="text-center">
                                   {invitation.status === "accepted" ? (
                                     <>
-                                      <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-2">
-                                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-[#22C55E]" />
+                                      <div className="w-12 h-12 rounded-full bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center mx-auto mb-2">
+                                        <CheckCircle className="w-6 h-6 text-[#1E6F3E]" />
                                       </div>
-                                      <p className="text-sm font-medium text-green-700 dark:text-[#22C55E]">Accepted</p>
+                                      <p className="text-sm font-medium text-[#1E6F3E]">Accepted</p>
                       <Link
                                         href="/supervisor/chat"
                                         className="mt-2 text-xs text-[#1a5d1a] hover:underline flex items-center gap-1 justify-center"

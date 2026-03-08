@@ -715,7 +715,7 @@ export default function NotificationsPage() {
                           </div>
                         )}
                         {success && (
-                          <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E] text-sm">
+                          <div className="p-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30 rounded-xl flex items-center gap-2 text-[#1E6F3E] text-sm">
                             <Check className="w-4 h-4 flex-shrink-0" />
                             {success}
                           </div>
@@ -916,8 +916,8 @@ export default function NotificationsPage() {
                             >
                               <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-medium ${
                                 user.role === 'student' 
-                                  ? 'bg-emerald-500' 
-                                  : 'bg-[#1a5d1a]'
+                                  ? 'bg-[#1E6F3E]' 
+                                  : 'bg-[#166534]'
                               }`}>
                                 {user.name.charAt(0).toUpperCase()}
                               </div>

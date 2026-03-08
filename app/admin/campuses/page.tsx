@@ -279,7 +279,7 @@ export default function CampusesPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-700 dark:text-[#22C55E]"
+                className="mb-4 p-3 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30 rounded-xl flex items-center gap-2 text-[#1E6F3E] dark:text-[#1E6F3E]"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm">{success}</span>
@@ -316,8 +316,8 @@ export default function CampusesPage() {
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Total Users</p>
                       <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{totalUsers}</p>
                     </div>
-                    <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                      <Users className="w-5 h-5 text-[#1a5d1a]" />
+                    <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-xl flex items-center justify-center">
+                      <Users className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                   </div>
                 </CardContent>
@@ -332,8 +332,8 @@ export default function CampusesPage() {
                       <p className="text-gray-500 dark:text-zinc-400 text-xs mb-1">Coordinator Slots</p>
                       <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{usedCoordinatorSlots}/{totalCoordinatorSlots}</p>
                     </div>
-                    <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                      <UserCheck className="w-5 h-5 text-[#2d7a2d]" />
+                    <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-xl flex items-center justify-center">
+                      <UserCheck className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                   </div>
                 </CardContent>
@@ -350,8 +350,8 @@ export default function CampusesPage() {
                         {campuses.length > 0 ? Math.round(totalUsers / campuses.length) : 0}
                       </p>
                     </div>
-                    <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-[#145214]" />
+                    <div className="w-10 h-10 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                   </div>
                 </CardContent>
@@ -434,7 +434,7 @@ export default function CampusesPage() {
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEditModal(campus)}
-                            className="p-2 text-gray-500 hover:text-[#1a5d1a] hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-all"
+                            className="p-2 text-gray-500 hover:text-[#1E6F3E] hover:bg-[#1E6F3E]/10 dark:hover:bg-[#1E6F3E]/20 rounded-xl transition-all"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -454,7 +454,7 @@ export default function CampusesPage() {
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                             campus.activeCoordinators >= campus.maxCoordinators
                               ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                              : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]'
+                              : 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]'
                           }`}>
                             {campus.activeCoordinators}/{campus.maxCoordinators}
                           </span>

@@ -1218,7 +1218,7 @@ function ChatPageContent() {
                         onClick={() => startNewConversation(user.userId)}
                         className="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border border-gray-100 dark:border-zinc-700"
                       >
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold overflow-hidden">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1E6F3E] to-[#166534] flex items-center justify-center text-white font-bold overflow-hidden">
                           {user.profileImage ? (
                             <img src={user.profileImage} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -1228,7 +1228,7 @@ function ChatPageContent() {
                         <div className="flex-1 text-left">
                           <h3 className="font-medium text-gray-900 dark:text-[#E4E4E7]">{user.name}</h3>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-gradient-to-r from-teal-500 to-emerald-500 text-white">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#1E6F3E] text-white">
                               Supervisor
                             </span>
                             <span className="text-xs text-gray-500 dark:text-zinc-400 truncate">{user.email}</span>

@@ -225,7 +225,7 @@ export default function StudentResourceRequestsPage() {
       supervisor_rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected by Supervisor" },
       coordinator_review: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: FileText, label: "Under Review" },
       meeting_scheduled: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400", icon: Calendar, label: "Meeting Scheduled" },
-      approved: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: CheckCircle, label: "Approved" },
+      approved: { bg: "bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20", text: "text-[#1E6F3E] dark:text-[#1E6F3E]", icon: CheckCircle, label: "Approved" },
       rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: XCircle, label: "Rejected" },
     };
     const c = configs[status] || configs.pending;
@@ -282,7 +282,7 @@ export default function StudentResourceRequestsPage() {
               { label: "Total", count: requests.length, icon: Package, color: "text-gray-600" },
               { label: "Pending", count: requests.filter(r => r.status === "pending").length, icon: Clock, color: "text-yellow-600" },
               { label: "In Progress", count: requests.filter(r => ["supervisor_approved", "coordinator_review", "meeting_scheduled"].includes(r.status)).length, icon: ArrowRight, color: "text-blue-600" },
-              { label: "Completed", count: requests.filter(r => ["approved", "rejected", "supervisor_rejected"].includes(r.status)).length, icon: CheckCircle, color: "text-green-600" },
+              { label: "Completed", count: requests.filter(r => ["approved", "rejected", "supervisor_rejected"].includes(r.status)).length, icon: CheckCircle, color: "text-[#1E6F3E]" },
             ].map((stat) => (
               <Card key={stat.label} className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
                 <CardContent className="p-5">

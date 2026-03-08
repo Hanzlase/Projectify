@@ -314,7 +314,7 @@ export default function CoordinatorEvaluationScoresPage() {
                     disabled={exporting}
                     className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
                   >
-                    <Table className="w-4 h-4 text-green-500" />
+                    <Table className="w-4 h-4 text-[#1E6F3E]" />
                     Export as CSV
                   </button>
                   <button

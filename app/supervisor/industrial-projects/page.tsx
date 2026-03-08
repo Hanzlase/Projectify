@@ -186,7 +186,7 @@ export default function SupervisorIndustrialProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E]';
+        return 'bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]';
       case 'booked':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'completed':
@@ -209,7 +209,7 @@ export default function SupervisorIndustrialProjectsPage() {
         );
       case 'approved':
         return (
-          <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-[#22C55E] rounded-full text-xs font-medium flex items-center gap-1">
+          <span className="px-2 py-1 bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E] rounded-full text-xs font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" /> Approved
           </span>
         );
@@ -246,7 +246,7 @@ export default function SupervisorIndustrialProjectsPage() {
         <header className="sticky top-0 z-10 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-800">
           <div className="flex items-center justify-between px-4 sm:px-6 h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-emerald-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#1a5d1a] to-[#166534] rounded-xl flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -334,7 +334,7 @@ export default function SupervisorIndustrialProjectsPage() {
                     className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer overflow-hidden group"
                   >
                     {/* Thumbnail */}
-                    <div className="h-36 bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-500/10 dark:from-[#1a5d1a]/20 dark:to-emerald-500/20 relative overflow-hidden">
+                    <div className="h-36 bg-gradient-to-br from-[#1a5d1a]/10 to-[#1E6F3E]/10 dark:from-[#1a5d1a]/20 dark:to-[#1E6F3E]/20 relative overflow-hidden">
                       {project.thumbnailUrl ? (
                         <img
                           src={project.thumbnailUrl}
@@ -343,7 +343,7 @@ export default function SupervisorIndustrialProjectsPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Building2 className="w-12 h-12 text-[#1a5d1a]/30 dark:text-emerald-500/30" />
+                          <Building2 className="w-12 h-12 text-[#1E6F3E]/30 dark:text-[#1E6F3E]/30" />
                         </div>
                       )}
                       <div className="absolute top-3 right-3">
@@ -361,7 +361,7 @@ export default function SupervisorIndustrialProjectsPage() {
 
                       {/* Tech Stack */}
                       {project.techStack && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#1a5d1a] dark:text-emerald-400 mb-3">
+                        <div className="flex items-center gap-1.5 text-xs text-[#1E6F3E] dark:text-[#1E6F3E] mb-3">
                           <Code className="w-3 h-3" />
                           <span className="line-clamp-1">{project.techStack}</span>
                         </div>

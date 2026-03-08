@@ -892,16 +892,16 @@ export default function StudentEvaluationsPage() {
                             <div className="mt-3 grid grid-cols-2 gap-2">
                               {evaluation.submission.supervisorScore !== null && evaluation.submission.supervisorScore !== undefined && (
                                 <div className="p-2.5 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-lg border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
-                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-emerald-400/70 uppercase tracking-wider mb-0.5">Supervisor</p>
-                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400">
+                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-[#1E6F3E]/70 uppercase tracking-wider mb-0.5">Supervisor</p>
+                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-[#1E6F3E]">
                                     {evaluation.submission.supervisorScore}/{evaluation.totalMarks}
                                   </p>
                                 </div>
                               )}
                               {evaluation.submission.panelScore !== null && evaluation.submission.panelScore !== undefined && (
                                 <div className="p-2.5 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-lg border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
-                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-emerald-400/70 uppercase tracking-wider mb-0.5">Panel Head</p>
-                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-emerald-400">
+                                  <p className="text-[10px] font-semibold text-[#1E6F3E]/70 dark:text-[#1E6F3E]/70 uppercase tracking-wider mb-0.5">Panel Head</p>
+                                  <p className="text-sm font-bold text-[#1E6F3E] dark:text-[#1E6F3E]">
                                     {evaluation.submission.panelScore}/{evaluation.totalMarks}
                                   </p>
                                 </div>
@@ -1317,6 +1317,62 @@ export default function StudentEvaluationsPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Panel Comments in View Modal */}
+                {panels.length > 0 && (() => {
+                  const allComments = panels.flatMap((p) =>
+                    (panelComments[p.panelId] || []).map((c) => ({ ...c, panelName: p.panelName }))
+                  );
+                  if (allComments.length === 0) return null;
+                  return (
+                    <div className="border-t border-gray-200 dark:border-zinc-700 pt-5">
+                      <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-3 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-[#1E6F3E]" />
+                        Panel Comments
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E]">
+                          {allComments.length}
+                        </span>
+                      </h3>
+                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        {allComments.map((comment) => (
+                          <div
+                            key={comment.commentId}
+                            className="flex gap-3 p-3 bg-gray-50 dark:bg-zinc-700/40 rounded-xl"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-[#1E6F3E] flex items-center justify-center text-white font-bold text-xs shrink-0 overflow-hidden">
+                              {comment.userImage ? (
+                                <img src={comment.userImage} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                comment.userName.charAt(0)
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-zinc-300">
+                                  {comment.userName}
+                                </span>
+                                <span className="text-xs text-[#1E6F3E]/70 dark:text-[#1E6F3E] font-medium">
+                                  {comment.panelName}
+                                </span>
+                                <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                  {new Date(comment.createdAt).toLocaleString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
+                                {comment.content}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Submission Details in View Modal */}
                 {selectedEvaluation.submission && (

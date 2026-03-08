@@ -173,7 +173,7 @@ export default function ViewSupervisorProfilePage() {
                   <div className="absolute top-3 right-3">
                     <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold backdrop-blur-sm ${
                       availabilityInfo.status === 'Available' 
-                        ? 'bg-emerald-500/90 text-white' 
+                        ? 'bg-[#1E6F3E]/90 text-white' 
                         : availabilityInfo.status === 'Limited'
                         ? 'bg-amber-500/90 text-white'
                         : 'bg-red-500/90 text-white'
@@ -315,16 +315,16 @@ export default function ViewSupervisorProfilePage() {
                   {/* Slots Available */}
                   <div className={`rounded-xl p-4 border ${
                     slotsAvailable > 0
-                      ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-emerald-100 dark:border-emerald-700/50'
+                      ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border-[#1E6F3E]/20 dark:border-[#1E6F3E]/40'
                       : 'bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 border-red-100 dark:border-red-700/50'
                   }`}>
                     <div className="flex items-center justify-between mb-2">
-                      <Zap className={`w-6 h-6 ${slotsAvailable > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`} />
-                      <span className={`text-2xl font-bold ${slotsAvailable > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <Zap className={`w-6 h-6 ${slotsAvailable > 0 ? 'text-[#1E6F3E]' : 'text-red-600 dark:text-red-400'}`} />
+                      <span className={`text-2xl font-bold ${slotsAvailable > 0 ? 'text-[#1E6F3E]' : 'text-red-700 dark:text-red-400'}`}>
                         {slotsAvailable}
                       </span>
                     </div>
-                    <p className={`text-sm font-medium ${slotsAvailable > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <p className={`text-sm font-medium ${slotsAvailable > 0 ? 'text-[#1E6F3E]' : 'text-red-600 dark:text-red-400'}`}>
                       Slots Available
                     </p>
                   </div>
@@ -336,7 +336,7 @@ export default function ViewSupervisorProfilePage() {
                     <span className="text-sm font-semibold text-slate-700 dark:text-zinc-300">Capacity Utilization</span>
                     <span className={`text-sm font-bold ${
                       capacityPercentage >= 100 ? 'text-red-600 dark:text-red-400' :
-                      capacityPercentage >= 75 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'
+                      capacityPercentage >= 75 ? 'text-amber-600 dark:text-amber-400' : 'text-[#1E6F3E]'
                     }`}>
                       {Math.round(capacityPercentage)}%
                     </span>

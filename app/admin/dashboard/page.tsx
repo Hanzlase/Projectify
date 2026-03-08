@@ -225,12 +225,12 @@ export default function AdminDashboard() {
                       <p className="text-gray-500 dark:text-zinc-400 text-xs sm:text-sm mb-1">Coordinators</p>
                       <p className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats?.totalCoordinators || 0}</p>
                     </div>
-                    <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                      <UserCheck className="w-5 h-5 text-[#1a5d1a]" />
+                    <div className="p-2 bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 rounded-xl">
+                      <UserCheck className="w-5 h-5 text-[#1E6F3E]" />
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500 flex items-center">
+                    <span className="text-[#1E6F3E] flex items-center">
                       <Shield className="w-3 h-3 mr-1" />
                       Active
                     </span>
@@ -368,7 +368,7 @@ export default function AdminDashboard() {
                           <div className="flex items-center gap-6">
                             <div className="text-center">
                               <p className="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Coordinators</p>
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-[#22C55E]">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 text-[#1E6F3E] dark:text-[#1E6F3E]">
                                 {campus.activeCoordinators}/{campus.maxCoordinators}
                               </span>
                             </div>
@@ -462,7 +462,7 @@ export default function AdminDashboard() {
                 <div className="absolute bottom-4 left-4 w-10 h-10 rounded-full bg-white/5"></div>
                 <CardContent className="p-5 relative z-10">
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-green-300" />
+                    <Activity className="w-4 h-4 text-white/70" />
                     Platform Overview
                   </h3>
                   <div className="space-y-4">
@@ -478,8 +478,8 @@ export default function AdminDashboard() {
                     <div className="h-px bg-white/10" />
                     <div className="flex items-center justify-between">
                       <span className="text-white/70 text-sm">System Status</span>
-                      <span className="flex items-center gap-2 text-green-300 text-sm font-medium">
-                        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                      <span className="flex items-center gap-2 text-white/90 text-sm font-medium">
+                        <span className="w-2 h-2 bg-white/70 rounded-full animate-pulse" />
                         Operational
                       </span>
                     </div>

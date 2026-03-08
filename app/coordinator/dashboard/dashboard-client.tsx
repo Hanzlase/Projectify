@@ -229,7 +229,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-white/80">
-                    <span className="text-green-300">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>In your campus</span>
                   </div>
                 </CardContent>
@@ -253,7 +253,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>Active supervisors</span>
                   </div>
                 </CardContent>
@@ -274,7 +274,7 @@ export default function CoordinatorDashboardClient({ user }: DashboardClientProp
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-3 text-xs text-gray-500 dark:text-zinc-400">
-                    <span className="text-green-500">↑</span>
+                    <span className="text-[#1E6F3E]">↑</span>
                     <span>This semester</span>
                   </div>
                 </CardContent>

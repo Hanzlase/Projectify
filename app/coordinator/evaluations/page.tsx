@@ -267,8 +267,8 @@ export default function CoordinatorEvaluationsPage() {
     switch (status) {
       case "active":
         return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E] flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1E6F3E] animate-pulse" />
             Active
           </span>
         );
@@ -296,7 +296,7 @@ export default function CoordinatorEvaluationsPage() {
   const getSubmissionStatusColor = (status: string) => {
     switch (status) {
       case "graded":
-        return "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
+        return "bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20 dark:text-[#1E6F3E]";
       case "late":
         return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400";
       case "submitted":
@@ -401,10 +401,10 @@ export default function CoordinatorEvaluationsPage() {
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Active</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#E4E4E7]">{stats.active}</p>
-                    <p className="text-xs text-green-500 mt-1">Open for submissions</p>
+                    <p className="text-xs text-[#1E6F3E] mt-1">Open for submissions</p>
                   </div>
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
-                    <CheckCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
+                  <div className="w-14 h-14 rounded-2xl bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center">
+                    <CheckCircle className="w-7 h-7 text-[#1E6F3E]" />
                   </div>
                 </div>
               </CardContent>

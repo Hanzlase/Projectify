@@ -179,7 +179,7 @@ export default function BrowseStudentsPage() {
                     <span className="font-semibold">{stats.total}</span>
                     <span className="text-white/80 text-sm">Total</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/30 backdrop-blur-sm rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl">
                     <Target className="w-4 h-4" />
                     <span className="font-semibold">{stats.noGroup}</span>
                     <span className="text-white/80 text-sm">Available</span>
@@ -250,8 +250,8 @@ export default function BrowseStudentsPage() {
                 onClick={() => setActiveFilter('no-group')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                   activeFilter === 'no-group'
-                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                    : 'bg-white dark:bg-[#27272A] border-2 border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-zinc-300 hover:border-emerald-400 hover:text-emerald-600'
+                    ? 'bg-[#1E6F3E] text-white shadow-lg shadow-[#1E6F3E]/25'
+                    : 'bg-white dark:bg-[#27272A] border-2 border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-zinc-300 hover:border-[#1E6F3E]/50 hover:text-[#1E6F3E]'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />

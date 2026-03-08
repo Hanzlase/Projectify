@@ -174,7 +174,7 @@ export default function ProjectDetailPage() {
     switch (projectStatus) {
       case 'idea': return 'bg-blue-100 text-blue-700';
       case 'in_progress': return 'bg-yellow-100 text-yellow-700';
-      case 'completed': return 'bg-green-100 text-green-700';
+      case 'completed': return 'bg-[#1E6F3E]/10 text-[#1E6F3E]';
       case 'archived': return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
       default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
@@ -352,7 +352,7 @@ export default function ProjectDetailPage() {
                     {project.status.replace('_', ' ')}
                   </span>
                   {project.isUnique && (
-                    <span className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 backdrop-blur-md bg-emerald-500 text-white">
+                    <span className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 backdrop-blur-md bg-[#1E6F3E] text-white">
                       <Sparkles className="w-4 h-4" />
                       Unique
                     </span>
@@ -376,7 +376,7 @@ export default function ProjectDetailPage() {
                   {project.status.replace('_', ' ')}
                 </span>
                 {project.isUnique && (
-                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-emerald-100 text-emerald-700">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 bg-[#1E6F3E]/10 text-[#1E6F3E]">
                     <Sparkles className="w-4 h-4" />
                     Unique
                   </span>
@@ -470,7 +470,7 @@ export default function ProjectDetailPage() {
                               <p className="text-sm text-white/80">Overall Feasibility</p>
                               <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-sm mt-1 ${
                                 feasibilityReport.overallFeasibility === 'high' 
-                                  ? 'bg-emerald-500/30 text-emerald-100' 
+                                  ? 'bg-[#1E6F3E]/20 text-white/90' 
                                   : feasibilityReport.overallFeasibility === 'medium'
                                   ? 'bg-amber-500/30 text-amber-100'
                                   : 'bg-red-500/30 text-red-100'
@@ -514,7 +514,7 @@ export default function ProjectDetailPage() {
                           {feasibilityReport.timelineFeasibility && (
                             <div className={`rounded-xl p-4 border ${
                               feasibilityReport.timelineFeasibility.isPossible 
-                                ? 'bg-green-50 border-green-100' 
+                                ? 'bg-[#1E6F3E]/10 border-[#1E6F3E]/20' 
                                 : 'bg-amber-50 border-amber-100'
                             }`}>
                               <div className="flex items-center gap-2 mb-2">
@@ -522,7 +522,7 @@ export default function ProjectDetailPage() {
                                 <h4 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Timeline Feasibility</h4>
                               </div>
                               <p className={`text-sm font-medium mb-2 ${
-                                feasibilityReport.timelineFeasibility.isPossible ? 'text-green-700' : 'text-amber-700'
+                                feasibilityReport.timelineFeasibility.isPossible ? 'text-[#1E6F3E]' : 'text-amber-700'
                               }`}>
                                 {feasibilityReport.timelineFeasibility.verdict}
                               </p>
@@ -765,7 +765,7 @@ export default function ProjectDetailPage() {
                         permissionStatus === 'pending' 
                           ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800' 
                           : permissionStatus === 'approved'
-                          ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
+                          ? 'bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 border-[#1E6F3E]/30 dark:border-[#1E6F3E]/40'
                           : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
                       }`}>
                         <div className="flex items-center gap-2 mb-1">
@@ -777,8 +777,8 @@ export default function ProjectDetailPage() {
                           )}
                           {permissionStatus === 'approved' && (
                             <>
-                              <CheckCircle className="w-5 h-5 text-green-600 dark:text-[#22C55E]" />
-                              <span className="font-medium text-green-700 dark:text-green-300">Permission Granted</span>
+                              <CheckCircle className="w-5 h-5 text-[#1E6F3E]" />
+                              <span className="font-medium text-[#1E6F3E]">Permission Granted</span>
                             </>
                           )}
                           {permissionStatus === 'rejected' && (
