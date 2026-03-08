@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { uploadToR2 } from '@/lib/r2';
+import { randomBytes } from 'crypto';
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     // Generate unique filename
     const userId = session.user.id;
     const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 8);
+    const randomStr = randomBytes(6).toString('hex');
     const extension = file.name.split('.').pop();
     const fileName = `industrial-projects/${userId}/${timestamp}-${randomStr}.${extension}`;
 

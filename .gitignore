@@ -64,6 +64,7 @@ tsconfig.tsbuildinfo
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+prisma/create-admin.js
 
 # Certificates
 *.pem

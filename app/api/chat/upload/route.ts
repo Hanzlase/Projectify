@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { uploadToR2, isR2Configured } from '@/lib/r2';
+import { randomBytes } from 'crypto';
 
 // Allowed file types
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     // Generate unique filename
     const userId = session.user.id;
     const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 8);
+    const randomString = randomBytes(6).toString('hex');
     const extension = file.name.split('.').pop() || 'bin';
     const key = `chat-attachments/${userId}/${timestamp}-${randomString}.${extension}`;
 

@@ -1,5 +1,31 @@
 import { CohereClient } from 'cohere-ai';
 
+/**
+ * Safely extract the first JSON object from a string without using a regex
+ * that could be vulnerable to ReDoS via catastrophic backtracking.
+ * Finds the first '{' and the matching closing '}' using a character scan.
+ */
+function extractFirstJsonObject(text: string): string | null {
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\' && inString) { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
 // Singleton Cohere client with optimized settings
 const cohere = new CohereClient({
   token: process.env.cohere_api_key || '',
@@ -255,9 +281,9 @@ Respond in JSON format only:
     const responseText = response.text || '';
     
     // Try to parse JSON from response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
+    const jsonString = extractFirstJsonObject(responseText);
+    if (jsonString) {
+      const parsed = JSON.parse(jsonString);
       // Validate categories against available list
       const validCategories = (parsed.categories || []).filter((cat: string) => 
         availableCategories.includes(cat)
@@ -343,9 +369,9 @@ Respond in JSON format:
 
     const responseText = response.text || '';
     
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
+    const jsonString = extractFirstJsonObject(responseText);
+    if (jsonString) {
+      const parsed = JSON.parse(jsonString);
       return {
         explanation: parsed.explanation || 'Projects share similar concepts and objectives.',
         keyOverlaps: parsed.keyOverlaps || [],
@@ -430,9 +456,9 @@ Respond ONLY with valid JSON:
     const responseText = response.text || '';
     
     // Try to parse JSON from response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
+    const jsonString = extractFirstJsonObject(responseText);
+    if (jsonString) {
+      const parsed = JSON.parse(jsonString);
       return {
         overallFeasibility: parsed.overallFeasibility || 'medium',
         summary: parsed.summary || 'Project appears feasible with proper planning and resources.',
@@ -615,10 +641,10 @@ Respond in JSON:
     });
 
     const responseText = response.text || '';
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    const jsonString = extractFirstJsonObject(responseText);
     
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
+    if (jsonString) {
+      const parsed = JSON.parse(jsonString);
       return {
         isDuplicate,
         duplicateWarning: isDuplicate 

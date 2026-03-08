@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-type IssueType = "login" | "password" | "account" | "other";
+type IssueType = "login" | "credentials" | "account" | "other";
 
 export default function HelpPage() {
   const [name, setName] = useState("");
@@ -86,7 +86,7 @@ export default function HelpPage() {
 
   const issueTypes = [
     { value: "login", label: "Login Issue", icon: Shield },
-    { value: "password", label: "Password", icon: Key },
+    { value: "credentials", label: "Password / Credentials", icon: Key },
     { value: "account", label: "Account", icon: User },
     { value: "other", label: "Other", icon: HelpCircle },
   ];

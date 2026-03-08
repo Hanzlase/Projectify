@@ -2,103 +2,123 @@ import crypto from 'crypto';
 
 // Use a secure key from environment variables
 const ENCRYPTION_KEY = process.env.MESSAGE_ENCRYPTION_KEY || 'projectify-secure-key-32chars!!'; // Must be 32 characters
-const IV_LENGTH = 16; // For AES, this is always 16
-const ALGORITHM = 'aes-256-cbc';
+const GCM_IV_LENGTH = 12;  // 96-bit IV recommended for AES-GCM
+const GCM_AUTH_TAG_LENGTH = 16; // 128-bit authentication tag
+const ALGORITHM = 'aes-256-gcm';
+
+// Derive a fixed 32-byte key buffer once
+function getKeyBuffer(): Buffer {
+  return Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32));
+}
 
 /**
- * Encrypts a message using AES-256-CBC
- * @param text - The plaintext message to encrypt
- * @returns The encrypted message as base64 string with IV prepended
+ * Encrypts a message using AES-256-GCM (authenticated encryption).
+ * Format: base64(iv):base64(authTag):base64(ciphertext)
  */
 export function encryptMessage(text: string): string {
   if (!text) return text;
-  
+
   try {
-    // Generate a random IV for each encryption
-    const iv = crypto.randomBytes(IV_LENGTH);
-    
-    // Create cipher with key and IV
-    const cipher = crypto.createCipheriv(
-      ALGORITHM, 
-      Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32)), 
-      iv
-    );
-    
-    // Encrypt the text
+    const iv = crypto.randomBytes(GCM_IV_LENGTH);
+    const cipher = crypto.createCipheriv(ALGORITHM, getKeyBuffer(), iv) as crypto.CipherGCM;
+
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
-    
-    // Prepend IV to encrypted text (IV:encrypted)
-    return iv.toString('base64') + ':' + encrypted;
+
+    const authTag = cipher.getAuthTag();
+
+    // Format: iv:authTag:ciphertext  (all base64)
+    return `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted}`;
   } catch (error) {
     console.error('Encryption error:', error);
-    return text; // Return original text if encryption fails
+    return text;
   }
 }
 
 /**
- * Decrypts a message encrypted with encryptMessage
- * @param encryptedText - The encrypted message (IV:ciphertext format)
- * @returns The decrypted plaintext message
+ * Decrypts a message encrypted with encryptMessage.
+ * Handles both the new GCM format (iv:authTag:ciphertext) and legacy
+ * CBC format (iv:ciphertext) so existing messages continue to work.
  */
 export function decryptMessage(encryptedText: string): string {
   if (!encryptedText) return encryptedText;
-  
+
   try {
-    // Check if the text is in encrypted format (contains :)
     if (!encryptedText.includes(':')) {
-      // Not encrypted (legacy message), return as-is
+      // Plain legacy message — return as-is
       return encryptedText;
     }
-    
-    // Split IV and encrypted text
+
     const parts = encryptedText.split(':');
-    if (parts.length !== 2) {
-      return encryptedText; // Invalid format, return as-is
+
+    // --- New GCM format: 3 parts ---
+    if (parts.length === 3) {
+      const iv = Buffer.from(parts[0], 'base64');
+      const authTag = Buffer.from(parts[1], 'base64');
+      const encrypted = parts[2];
+
+      if (iv.length !== GCM_IV_LENGTH || authTag.length !== GCM_AUTH_TAG_LENGTH) {
+        return encryptedText; // Unrecognised format, return as-is
+      }
+
+      const decipher = crypto.createDecipheriv(ALGORITHM, getKeyBuffer(), iv) as crypto.DecipherGCM;
+      decipher.setAuthTag(authTag);
+
+      let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
     }
-    
-    const iv = Buffer.from(parts[0], 'base64');
-    const encrypted = parts[1];
-    
-    // Validate IV length
-    if (iv.length !== IV_LENGTH) {
-      return encryptedText; // Invalid IV, return as-is (might be legacy)
+
+    // --- Legacy CBC format: 2 parts (iv:ciphertext) ---
+    if (parts.length === 2) {
+      const iv = Buffer.from(parts[0], 'base64');
+      const encrypted = parts[1];
+
+      if (iv.length !== 16) {
+        return encryptedText;
+      }
+
+      const decipher = crypto.createDecipheriv('aes-256-cbc', getKeyBuffer(), iv);
+      let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
     }
-    
-    // Create decipher with key and IV
-    const decipher = crypto.createDecipheriv(
-      ALGORITHM, 
-      Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32)), 
-      iv
-    );
-    
-    // Decrypt the text
-    let decrypted = decipher.update(encrypted, 'base64', 'utf8');
-    decrypted += decipher.final('utf8');
-    
-    return decrypted;
+
+    return encryptedText;
   } catch (error) {
     console.error('Decryption error:', error);
-    // Return original text if decryption fails (might be legacy unencrypted message)
     return encryptedText;
   }
 }
 
 /**
- * Check if a message appears to be encrypted
- * @param text - The text to check
- * @returns True if the message appears to be encrypted
+ * Check if a message appears to be encrypted (GCM or legacy CBC format).
  */
 export function isEncrypted(text: string): boolean {
   if (!text || !text.includes(':')) return false;
-  
+
   const parts = text.split(':');
-  if (parts.length !== 2) return false;
-  
-  try {
-    const iv = Buffer.from(parts[0], 'base64');
-    return iv.length === IV_LENGTH;
-  } catch {
-    return false;
+
+  // New GCM format: 3 parts
+  if (parts.length === 3) {
+    try {
+      const iv = Buffer.from(parts[0], 'base64');
+      const authTag = Buffer.from(parts[1], 'base64');
+      return iv.length === GCM_IV_LENGTH && authTag.length === GCM_AUTH_TAG_LENGTH;
+    } catch {
+      return false;
+    }
   }
+
+  // Legacy CBC format: 2 parts
+  if (parts.length === 2) {
+    try {
+      const iv = Buffer.from(parts[0], 'base64');
+      return iv.length === 16;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 }

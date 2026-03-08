@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     // Format the issue type for display
     const issueTypeLabels: Record<string, string> = {
       login: 'Cannot Login',
-      password: 'Password Issue',
+      credentials: 'Credentials Issue',
       account: 'Account Problem',
       other: 'Other Issue',
     };

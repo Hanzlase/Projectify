@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { uploadToR2 } from '@/lib/r2';
 import sharp from 'sharp';
+import { randomBytes } from 'crypto';
 
 // Compress and resize image for thumbnails
 async function compressImage(buffer: Buffer, mimeType: string): Promise<{ buffer: Buffer; mimeType: string }> {
@@ -91,7 +92,7 @@ export async function POST(request: Request) {
     // Generate unique filename
     const userId = session.user.id;
     const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 8);
+    const randomStr = randomBytes(6).toString('hex');
     
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();

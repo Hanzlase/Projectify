@@ -312,7 +312,7 @@ export default function EvaluationPanelsPage() {
       panelMembers: selectedSupervisors.map(s => {
         const supervisor = supervisors.find(sup => sup.userId === s.supervisorId);
         return {
-          id: Math.random(),
+          id: parseInt(crypto.randomUUID().replace(/-/g, '').slice(0, 8), 16),
           supervisorId: s.supervisorId,
           role: s.role,
           user: supervisor ? {
@@ -582,7 +582,7 @@ export default function EvaluationPanelsPage() {
       panelMembers: selectedSupervisors.map(s => {
         const supervisor = supervisors.find(sup => sup.userId === s.supervisorId);
         return {
-          id: Math.random(), // Temporary ID
+          id: parseInt(crypto.randomUUID().replace(/-/g, '').slice(0, 8), 16), // Temporary ID
           supervisorId: s.supervisorId,
           role: s.role,
           user: supervisor ? {
