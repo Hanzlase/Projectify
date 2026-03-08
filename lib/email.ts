@@ -1,17 +1,35 @@
-import nodemailer from 'nodemailer';
+// ─── Brevo HTTP API (no SMTP — works on Railway, all requests over HTTPS port 443) ──
 
-// ─── Gmail SMTP Transporter ───────────────────────────────────────────────────
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password (16 chars, no spaces)
-  },
-});
-
-const FROM_ADDRESS = `Projectify <${process.env.EMAIL_USER}>`;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const FROM_ADDRESS = { name: 'Projectify', email: process.env.BREVO_SENDER_EMAIL || 'FypSync@gmail.com' };
 const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://projectify.up.railway.app';
+
+async function sendEmail({ to, subject, html, text }: { to: string; subject: string; html: string; text: string }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error('BREVO_API_KEY is not set');
+
+  const res = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': apiKey,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: FROM_ADDRESS,
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Brevo API error ${res.status}: ${body}`);
+  }
+  return res.json();
+}
 
 interface SendPasswordResetEmailParams {
   to: string;
@@ -24,8 +42,7 @@ export async function sendPasswordResetEmail({ to, userName, resetUrl }: SendPas
   const appUrl = APP_URL;
 
   try {
-    const info = await transporter.sendMail({
-      from: FROM_ADDRESS,
+    const info = await sendEmail({
       to,
       subject: 'Reset Your Password - Projectify',
       html: `
@@ -387,8 +404,7 @@ function buildMeetingEmailHtml({
 export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
   const { to, userName, meetingTitle, scheduledAt, duration, meetingLink, description, groupName } = params;
   try {
-    const info = await transporter.sendMail({
-      from: FROM_ADDRESS,
+    const info = await sendEmail({
       to,
       subject: `📅 New Meeting Scheduled: ${meetingTitle}`,
       html: buildMeetingEmailHtml({
@@ -442,8 +458,7 @@ export async function sendMeetingReminderEmail(params: MeetingReminderEmailParam
   const label = reminderLabels[reminderType] ?? reminderLabels['immediate'];
 
   try {
-    const info = await transporter.sendMail({
-      from: FROM_ADDRESS,
+    const info = await sendEmail({
       to,
       subject: label.subject,
       html: buildMeetingEmailHtml({
