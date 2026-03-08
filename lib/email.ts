@@ -1,9 +1,17 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ─── Gmail SMTP Transporter ───────────────────────────────────────────────────
 
-const FROM_ADDRESS = 'Projectify <onboarding@resend.dev>';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://projectify.up.railway.app';
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Gmail App Password (16 chars, no spaces)
+  },
+});
+
+const FROM_ADDRESS = `Projectify <${process.env.EMAIL_USER}>`;
+const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://projectify.up.railway.app';
 
 interface SendPasswordResetEmailParams {
   to: string;
@@ -16,9 +24,9 @@ export async function sendPasswordResetEmail({ to, userName, resetUrl }: SendPas
   const appUrl = APP_URL;
 
   try {
-    const { data, error } = await resend.emails.send({
+    const info = await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: [to],
+      to,
       subject: 'Reset Your Password - Projectify',
       html: `
 <!DOCTYPE html>
@@ -42,7 +50,7 @@ export async function sendPasswordResetEmail({ to, userName, resetUrl }: SendPas
                   <td align="center">
                     <!-- Logo/Icon -->
                     <div style="width: 70px; height: 70px; background-color: rgba(255, 255, 255, 0.2); border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                      <img src="https://projectify.up.railway.app/logo.png" alt="Projectify" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
+                      <img src="${APP_URL}/logo.png" alt="Projectify" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
                     </div>
                     <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">
                       Password Reset
@@ -183,15 +191,10 @@ ${appUrl}
       `,
     });
 
-    if (error) {
-      console.error('Resend error:', error);
-      return { success: false, error: error.message };
-    }
-
-    console.log('Email sent successfully:', data);
-    return { success: true, data };
+    console.log('Password reset email sent:', info.messageId);
+    return { success: true, data: info };
   } catch (error) {
-    console.error('Failed to send email:', error);
+    console.error('Failed to send password reset email:', error);
     return { success: false, error: 'Failed to send email' };
   }
 }
@@ -384,9 +387,9 @@ function buildMeetingEmailHtml({
 export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
   const { to, userName, meetingTitle, scheduledAt, duration, meetingLink, description, groupName } = params;
   try {
-    const { data, error } = await resend.emails.send({
+    const info = await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: [to],
+      to,
       subject: `📅 New Meeting Scheduled: ${meetingTitle}`,
       html: buildMeetingEmailHtml({
         userName,
@@ -402,8 +405,8 @@ export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
       }),
       text: `Hi ${userName},\n\nA new meeting has been scheduled.\n\nTitle: ${meetingTitle}\nDate: ${formatMeetingDate(scheduledAt)}\nTime: ${formatMeetingTime(scheduledAt)}\nDuration: ${duration} minutes${meetingLink ? `\nJoin: ${meetingLink}` : ''}\n\n— Projectify`,
     });
-    if (error) return { success: false, error: error.message };
-    return { success: true, data };
+    console.log('Meeting created email sent:', info.messageId);
+    return { success: true, data: info };
   } catch (err) {
     console.error('sendMeetingCreatedEmail error:', err);
     return { success: false, error: 'Failed to send email' };
@@ -439,9 +442,9 @@ export async function sendMeetingReminderEmail(params: MeetingReminderEmailParam
   const label = reminderLabels[reminderType] ?? reminderLabels['immediate'];
 
   try {
-    const { data, error } = await resend.emails.send({
+    const info = await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: [to],
+      to,
       subject: label.subject,
       html: buildMeetingEmailHtml({
         userName,
@@ -457,8 +460,8 @@ export async function sendMeetingReminderEmail(params: MeetingReminderEmailParam
       }),
       text: `Hi ${userName},\n\n${label.subtitle}\n\nTitle: ${meetingTitle}\nDate: ${formatMeetingDate(scheduledAt)}\nTime: ${formatMeetingTime(scheduledAt)}\nDuration: ${duration} minutes${meetingLink ? `\nJoin: ${meetingLink}` : ''}\n\n— Projectify`,
     });
-    if (error) return { success: false, error: error.message };
-    return { success: true, data };
+    console.log('Meeting reminder email sent:', info.messageId);
+    return { success: true, data: info };
   } catch (err) {
     console.error('sendMeetingReminderEmail error:', err);
     return { success: false, error: 'Failed to send email' };

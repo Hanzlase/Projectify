@@ -1,48 +1,54 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
-const prisma = new PrismaClient({
-  log: ['error'],
-});
+const prisma = new PrismaClient({ log: ['error'] });
+
+const ADMIN_EMAIL    = 'hanzlasabir658@gmail.com';
+const ADMIN_PASSWORD = 'admin123';
+const ADMIN_NAME     = 'Hanzlaadmin';
 
 async function createAdmin() {
   console.log('Creating admin user...');
 
   try {
-    // Check if admin already exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: 'admin@gmail.com' },
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: ADMIN_EMAIL },
+      include: { admin: true },
     });
 
-    if (existingAdmin) {
-      console.log('Admin already exists, updating password...');
-      const hashedAdminPassword = await bcrypt.hash('Admin123', 10);
+    if (existingUser) {
+      console.log('Admin user already exists — updating password...');
       await prisma.user.update({
-        where: { email: 'admin@gmail.com' },
-        data: { 
-          passwordHash: hashedAdminPassword,
-          updatedAt: new Date(),
-        },
+        where: { email: ADMIN_EMAIL },
+        data: { passwordHash: hashedPassword, name: ADMIN_NAME },
       });
+
+      // Ensure Admin profile record exists
+      if (!existingUser.admin) {
+        await prisma.admin.create({ data: { userId: existingUser.userId } });
+        console.log('Admin profile record created.');
+      }
+
       console.log('Admin password updated!');
     } else {
-      console.log('Creating new admin user...');
-      const hashedAdminPassword = await bcrypt.hash('Admin123', 10);
-      const adminUser = await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
-          name: 'Admin',
-          email: 'admin@gmail.com',
-          passwordHash: hashedAdminPassword,
+          name: ADMIN_NAME,
+          email: ADMIN_EMAIL,
+          passwordHash: hashedPassword,
           role: 'admin',
-          updatedAt: new Date(),
+          admin: { create: {} }, // Create the Admin profile record too
         },
       });
-      console.log('Admin created:', adminUser);
+      console.log('Admin user created:', newUser);
     }
 
     console.log('\n✅ Admin user ready!');
-    console.log('Email: admin@gmail.com');
-    console.log('Password: Admin123');
+    console.log('Name    :', ADMIN_NAME);
+    console.log('Email   :', ADMIN_EMAIL);
+    console.log('Password:', ADMIN_PASSWORD);
   } catch (error) {
     console.error('Error:', error);
   } finally {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -53,7 +53,6 @@ export default function StudentIndustrialProjectsPage() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [userRequests, setUserRequests] = useState<{ [key: number]: string }>({});
   const [isInGroup, setIsInGroup] = useState(false);
-  const fetchedRef = useRef(false);
 
   // Handle auth redirects
   useEffect(() => {
@@ -114,13 +113,12 @@ export default function StudentIndustrialProjectsPage() {
     }
   }, [session?.user?.id, statusFilter]);
 
-  // Initial data fetch - only once
+  // Initial data fetch - only once per mount
   useEffect(() => {
-    if (status !== 'authenticated' || !session?.user?.id || fetchedRef.current) return;
-    
-    fetchedRef.current = true;
+    if (status !== 'authenticated' || !session?.user?.id) return;
     fetchInitialData();
-  }, [status, session?.user?.id, fetchInitialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session?.user?.id]);
 
   const fetchProjects = async (isInitial = false) => {
     if (isInitial) {

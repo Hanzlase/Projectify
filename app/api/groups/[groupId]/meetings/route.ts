@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { scheduleMeetingReminders, rescheduleMeetingReminders } from '@/lib/meeting-scheduler';
+import { sendMeetingCreatedEmail } from '@/lib/email';
 
 // GET - Get all meetings for a group
 export async function GET(
@@ -117,7 +118,44 @@ export async function POST(
       }
     });
 
-    // Schedule email reminders (immediate + 24h before + 1h before)
+    // Build recipient list: all group students + supervisor
+    const emailTargets: { email: string; name: string }[] = group.students.map((s) => ({
+      email: s.user.email,
+      name: s.user.name,
+    }));
+
+    if (group.supervisorId && group.supervisorId !== userId) {
+      try {
+        const supervisor = await prisma.user.findUnique({
+          where: { userId: group.supervisorId },
+          select: { email: true, name: true },
+        });
+        if (supervisor) emailTargets.push({ email: supervisor.email, name: supervisor.name });
+      } catch {
+        // non-fatal
+      }
+    }
+
+    // Send "new meeting" email immediately to all members (fire-and-forget)
+    Promise.allSettled(
+      emailTargets.map(({ email, name }) =>
+        sendMeetingCreatedEmail({
+          to: email,
+          userName: name,
+          meetingTitle: meeting.title,
+          scheduledAt: meeting.scheduledAt,
+          duration: meeting.duration,
+          meetingLink: meeting.meetingLink ?? undefined,
+          description: meeting.description ?? undefined,
+          groupName: group.groupName ?? undefined,
+        })
+      )
+    ).then((results) => {
+      const failed = results.filter((r) => r.status === 'rejected').length;
+      if (failed > 0) console.error(`Meeting created email: ${failed}/${results.length} failed`);
+    }).catch((err) => console.error('Meeting created email batch error:', err));
+
+    // Schedule 24h and 1h reminder records (immediate notification already sent above)
     scheduleMeetingReminders(meeting.meetingId, meeting.scheduledAt).catch((err) =>
       console.error('Failed to schedule meeting reminders:', err)
     );

@@ -18,12 +18,25 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  admin              Admin?
   coordinator        FYPCoordinator?
   supervisor         FYPSupervisor?
   student            Student?
   passwordResetTokens PasswordResetToken[]
 
   @@map("users")
+}
+
+// Admin profile — one-to-one with User (role = admin)
+model Admin {
+  adminId   Int      @id @default(autoincrement()) @map("admin_id")
+  userId    Int      @unique @map("user_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("admins")
 }
 
 model Campus {
@@ -87,9 +100,10 @@ model Group {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  students Student[]
-  groupChats GroupChat[]
+  students         Student[]
+  groupChats       GroupChat[]
   groupInvitations GroupInvitation[]
+  meetings         Meeting[]
 
   @@index([supervisorId])
   @@index([createdById])
@@ -455,6 +469,7 @@ model Meeting {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
+  group        Group                @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
   reminders    MeetingEmailReminder[]
 
   @@index([groupId])

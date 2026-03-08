@@ -223,9 +223,8 @@ app.prepare().then(() => {
     console.log(`> Ready on http://0.0.0.0:${port}`);
     console.log(`> Socket.IO server running on path /api/socketio`);
 
-    // Start meeting email reminder scheduler
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `http://localhost:${port}`;
-    startMeetingReminderScheduler(appUrl);
+    // Start meeting email reminder scheduler (runs in-process, no HTTP polling)
+    startMeetingReminderScheduler();
   });
 
   // Handle server errors

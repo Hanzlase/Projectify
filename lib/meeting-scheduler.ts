@@ -9,15 +9,7 @@ export async function processMeetingReminders(): Promise<void> {
         sendAt: { lte: new Date() },
       },
       include: {
-        meeting: {
-          include: {
-            group: {
-              include: {
-                students: { include: { user: true } },
-              },
-            },
-          },
-        },
+        meeting: true,
       },
     });
 
@@ -35,16 +27,21 @@ export async function processMeetingReminders(): Promise<void> {
         continue;
       }
 
-      const students = meeting.group?.students ?? [];
-      const emailTargets: { email: string; name: string }[] = students.map((s: any) => ({
+      // Fetch the group with its students separately
+      const group = await prisma.group.findUnique({
+        where: { groupId: meeting.groupId },
+        include: { students: { include: { user: true } } },
+      });
+
+      const emailTargets: { email: string; name: string }[] = (group?.students ?? []).map((s: any) => ({
         email: s.user.email,
         name: s.user.name,
       }));
 
-      if (meeting.group?.supervisorId) {
+      if (group?.supervisorId) {
         try {
           const supervisor = await prisma.user.findUnique({
-            where: { userId: meeting.group.supervisorId },
+            where: { userId: group.supervisorId },
             select: { email: true, name: true },
           });
           if (supervisor) emailTargets.push({ email: supervisor.email, name: supervisor.name });
@@ -63,7 +60,7 @@ export async function processMeetingReminders(): Promise<void> {
             duration: meeting.duration,
             meetingLink: meeting.meetingLink,
             description: meeting.description,
-            groupName: meeting.group?.name,
+            groupName: group?.groupName ?? undefined,
             reminderType: reminder.reminderType as 'immediate' | '24h' | '1h',
           })
         )
@@ -80,12 +77,11 @@ export async function processMeetingReminders(): Promise<void> {
   }
 }
 
-// Creates reminder records for a new meeting (immediate, 24h before, 1h before).
+// Creates reminder records for a new meeting (24h before, 1h before).
+// The "immediate" notification is now sent directly in the POST handler.
 export async function scheduleMeetingReminders(meetingId: number, scheduledAt: Date): Promise<void> {
   const now = new Date();
-  const reminders: { reminderType: string; sendAt: Date }[] = [
-    { reminderType: 'immediate', sendAt: now },
-  ];
+  const reminders: { reminderType: string; sendAt: Date }[] = [];
 
   const send24h = new Date(scheduledAt.getTime() - 24 * 60 * 60 * 1000);
   if (send24h > now) reminders.push({ reminderType: '24h', sendAt: send24h });
