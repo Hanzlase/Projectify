@@ -79,8 +79,10 @@ export async function POST(request: Request) {
 
     if (!emailResult.success) {
       console.error('Failed to send password reset email:', emailResult.error);
-      // Still return success to user (don't expose email sending failures)
-      // In development, we'll show the link anyway
+      return NextResponse.json(
+        { error: 'Failed to send password reset email. Please try again later.' },
+        { status: 500 }
+      );
     }
 
     console.log('Password reset requested for:', email);

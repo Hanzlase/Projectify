@@ -1,12 +1,46 @@
 // ─── Brevo HTTP API (no SMTP — works on Railway, all requests over HTTPS port 443) ──
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
-const FROM_ADDRESS = { name: 'Projectify', email: process.env.BREVO_SENDER_EMAIL || 'FypSync@gmail.com' };
-const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://projectify.up.railway.app';
+
+function getBrevoConfig() {
+  const apiKey = (process.env.BREVO_API_KEY || '').trim();
+  const senderEmail = (process.env.BREVO_SENDER_EMAIL || 'FypSync@gmail.com').trim();
+  const appUrl = (process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://projectify.up.railway.app').trim();
+  
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Brevo Config] Checking environment variables...');
+    console.log('[Brevo Config] BREVO_API_KEY present:', !!apiKey, 'length:', apiKey.length);
+    console.log('[Brevo Config] BREVO_SENDER_EMAIL:', senderEmail);
+    console.log('[Brevo Config] APP_URL:', appUrl);
+  }
+  
+  if (!apiKey || apiKey.length === 0) {
+    console.error('[Brevo Config] ERROR: BREVO_API_KEY is empty or missing!');
+    console.error('[Brevo Config] Available env vars with BREVO:', Object.keys(process.env).filter(k => k.includes('BREVO')));
+    throw new Error('BREVO_API_KEY is not configured. Please add it to your .env file.');
+  }
+  
+  return { apiKey, senderEmail, appUrl };
+}
 
 async function sendEmail({ to, subject, html, text }: { to: string; subject: string; html: string; text: string }) {
-  const apiKey = process.env.BREVO_API_KEY;
-  if (!apiKey) throw new Error('BREVO_API_KEY is not set');
+  const { apiKey, senderEmail } = getBrevoConfig();
+
+  const requestBody = {
+    sender: { name: 'Projectify', email: senderEmail },
+    to: [{ email: to }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+  };
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Email] Sending to:', to);
+    console.log('[Email] From:', senderEmail);
+    console.log('[Email] Subject:', subject);
+    console.log('[Email] API Key starts with:', apiKey.substring(0, 20) + '...');
+  }
 
   const res = await fetch(BREVO_API_URL, {
     method: 'POST',
@@ -15,17 +49,12 @@ async function sendEmail({ to, subject, html, text }: { to: string; subject: str
       'api-key': apiKey,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({
-      sender: FROM_ADDRESS,
-      to: [{ email: to }],
-      subject,
-      htmlContent: html,
-      textContent: text,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!res.ok) {
     const body = await res.text();
+    console.error('[Email] Brevo API Error Response:', { status: res.status, body, requestedUrl: BREVO_API_URL });
     throw new Error(`Brevo API error ${res.status}: ${body}`);
   }
   return res.json();
@@ -39,7 +68,7 @@ interface SendPasswordResetEmailParams {
 
 export async function sendPasswordResetEmail({ to, userName, resetUrl }: SendPasswordResetEmailParams) {
   const appName = 'Projectify';
-  const appUrl = APP_URL;
+  const { appUrl } = getBrevoConfig();
 
   try {
     const info = await sendEmail({
@@ -67,7 +96,7 @@ export async function sendPasswordResetEmail({ to, userName, resetUrl }: SendPas
                   <td align="center">
                     <!-- Logo/Icon -->
                     <div style="width: 70px; height: 70px; background-color: rgba(255, 255, 255, 0.2); border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                      <img src="${APP_URL}/logo.png" alt="Projectify" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
+                      <img src="${appUrl}/logo.png" alt="Projectify" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
                     </div>
                     <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">
                       Password Reset
@@ -208,11 +237,11 @@ ${appUrl}
       `,
     });
 
-    console.log('Password reset email sent:', info.messageId);
+    console.log('[PasswordReset] Email sent successfully:', info.messageId);
     return { success: true, data: info };
   } catch (error) {
-    console.error('Failed to send password reset email:', error);
-    return { success: false, error: 'Failed to send email' };
+    console.error('[PasswordReset] Error sending password reset email:', error instanceof Error ? error.message : error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to send email' };
   }
 }
 
@@ -264,6 +293,7 @@ function buildMeetingEmailHtml({
   badgeLabel,
   badgeColor,
   headerSubtitle,
+  appUrl,
 }: {
   userName: string;
   meetingTitle: string;
@@ -275,6 +305,7 @@ function buildMeetingEmailHtml({
   badgeLabel: string;
   badgeColor: string;
   headerSubtitle: string;
+  appUrl: string;
 }): string {
   const dateStr = formatMeetingDate(scheduledAt);
   const timeStr = formatMeetingTime(scheduledAt);
@@ -295,7 +326,7 @@ function buildMeetingEmailHtml({
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#1E6F3E 0%,#15803d 100%);padding:40px 40px 30px;text-align:center;">
-              <img src="${APP_URL}/logo.png" alt="Projectify" style="width:50px;height:50px;margin-bottom:20px;" onerror="this.style.display='none'">
+              <img src="${appUrl}/logo.png" alt="Projectify" style="width:50px;height:50px;margin-bottom:20px;" onerror="this.style.display='none'">
               <h1 style="color:#ffffff;font-size:26px;font-weight:700;margin:0;">📅 Meeting Scheduled</h1>
               <p style="color:rgba(255,255,255,0.9);font-size:15px;margin:8px 0 0;">${headerSubtitle}</p>
             </td>
@@ -385,7 +416,7 @@ function buildMeetingEmailHtml({
           <tr>
             <td style="background-color:#f8fafc;padding:24px 40px;border-top:1px solid #e2e8f0;text-align:center;">
               <p style="color:#94a3b8;font-size:13px;margin:0 0 6px;">
-                <a href="${APP_URL}" style="color:#1E6F3E;text-decoration:none;font-weight:500;">Projectify</a> — FAST NUCES FYP Management
+                <a href="${appUrl}" style="color:#1E6F3E;text-decoration:none;font-weight:500;">Projectify</a> — FAST NUCES FYP Management
               </p>
               <p style="color:#cbd5e1;font-size:11px;margin:0;">© ${new Date().getFullYear()} Projectify. All rights reserved.</p>
             </td>
@@ -403,6 +434,7 @@ function buildMeetingEmailHtml({
 
 export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
   const { to, userName, meetingTitle, scheduledAt, duration, meetingLink, description, groupName } = params;
+  const { appUrl } = getBrevoConfig();
   try {
     const info = await sendEmail({
       to,
@@ -418,6 +450,7 @@ export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
         badgeLabel: '✅ New Meeting',
         badgeColor: '#1E6F3E',
         headerSubtitle: `A new meeting has been scheduled for your group.`,
+        appUrl,
       }),
       text: `Hi ${userName},\n\nA new meeting has been scheduled.\n\nTitle: ${meetingTitle}\nDate: ${formatMeetingDate(scheduledAt)}\nTime: ${formatMeetingTime(scheduledAt)}\nDuration: ${duration} minutes${meetingLink ? `\nJoin: ${meetingLink}` : ''}\n\n— Projectify`,
     });
@@ -433,6 +466,7 @@ export async function sendMeetingCreatedEmail(params: MeetingEmailParams) {
 
 export async function sendMeetingReminderEmail(params: MeetingReminderEmailParams) {
   const { to, userName, meetingTitle, scheduledAt, duration, meetingLink, description, groupName, reminderType } = params;
+  const { appUrl } = getBrevoConfig();
 
   const reminderLabels: Record<string, { badge: string; color: string; subtitle: string; subject: string }> = {
     '24h': {
@@ -472,6 +506,7 @@ export async function sendMeetingReminderEmail(params: MeetingReminderEmailParam
         badgeLabel: label.badge,
         badgeColor: label.color,
         headerSubtitle: label.subtitle,
+        appUrl,
       }),
       text: `Hi ${userName},\n\n${label.subtitle}\n\nTitle: ${meetingTitle}\nDate: ${formatMeetingDate(scheduledAt)}\nTime: ${formatMeetingTime(scheduledAt)}\nDuration: ${duration} minutes${meetingLink ? `\nJoin: ${meetingLink}` : ''}\n\n— Projectify`,
     });
