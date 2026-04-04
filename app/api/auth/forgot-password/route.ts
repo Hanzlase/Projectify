@@ -88,16 +88,9 @@ export async function POST(request: Request) {
     console.log('Password reset requested for:', email);
 
     // Return success
-    // In development, also return the reset URL for testing
     return NextResponse.json({
       success: true,
       message: 'Password reset link has been sent to your email',
-      // Only include these in development
-      ...(process.env.NODE_ENV === 'development' && {
-        resetUrl,
-        token,
-        expiresAt,
-      }),
     });
 
   } catch (error) {

@@ -90,43 +90,11 @@ export default function ForgotPasswordPage() {
                 >
                   <CheckCircle2 className="w-10 h-10 text-white" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">Reset Link Generated!</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">Check your email</h2>
                 <p className="text-slate-600 dark:text-zinc-400 mb-6">
-                  A password reset link has been created for <strong className="text-slate-900 dark:text-[#E4E4E7]">{email}</strong>
+                  If an account exists for <strong className="text-slate-900 dark:text-[#E4E4E7]">{email}</strong>,
+                  we sent a password reset link.
                 </p>
-                
-                {/* Development mode - Show reset link */}
-                {resetUrl && (
-                  <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 dark:from-amber-900/20 dark:to-yellow-900/10 border border-amber-200 dark:border-amber-800 rounded-xl mb-6">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <ExternalLink className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="text-left text-sm flex-1">
-                        <p className="font-semibold mb-1 text-amber-800 dark:text-amber-400">Development Mode</p>
-                        <p className="text-amber-700 dark:text-amber-500 text-xs mb-2">
-                          Click below to reset your password:
-                        </p>
-                        <div className="flex gap-2">
-                          <Link 
-                            href={resetUrl}
-                            className="flex-1 px-3 py-2 bg-[#1E6F3E] text-white text-xs font-medium rounded-lg hover:bg-[#185a32] transition-colors flex items-center justify-center gap-1"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            Open Reset Page
-                          </Link>
-                          <button
-                            onClick={copyToClipboard}
-                            className="px-3 py-2 bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 text-slate-600 dark:text-zinc-300 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-600 transition-colors flex items-center gap-1"
-                          >
-                            {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                            {copied ? 'Copied!' : 'Copy'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-100 dark:border-green-800 rounded-xl mb-6">
                   <div className="flex items-start gap-3">
@@ -136,17 +104,24 @@ export default function ForgotPasswordPage() {
                     <div className="text-left text-sm">
                       <p className="font-semibold mb-1 text-slate-900 dark:text-[#E4E4E7]">Link expires in 20 minutes</p>
                       <p className="text-slate-600 dark:text-zinc-400">
-                        For security, the reset link will expire after 20 minutes. Request a new one if needed.
+                        For security, the reset link will expire after 20 minutes. If you don’t see an email, check spam/junk.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <Link href="/login" className="block">
-                  <button className="w-full h-12 bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 text-slate-700 dark:text-zinc-300 font-semibold rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-zinc-500 transition-all duration-300">
-                    Return to Login
-                  </button>
-                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Link href="/forgot-password" className="block">
+                    <button className="w-full h-12 bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 text-slate-700 dark:text-zinc-300 font-semibold rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-zinc-500 transition-all duration-300">
+                      Send again
+                    </button>
+                  </Link>
+                  <Link href="/login" className="block">
+                    <button className="w-full h-12 bg-[#1E6F3E] hover:bg-[#185a32] text-white font-semibold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-900/30 transition-all duration-300">
+                      Return to Login
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
           </motion.div>
