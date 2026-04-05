@@ -9,11 +9,13 @@
 6. [Group Management](#group-management)
 7. [Browsing Features](#browsing-features)
 8. [Invitations System](#invitations-system)
-9. [Profile Management](#profile-management)
-10. [API Routes & Endpoints](#api-routes--endpoints)
-11. [Database Models](#database-models)
-12. [Permissions & Access Control](#permissions--access-control)
-13. [Performance Optimizations](#performance-optimizations)
+9. [Evaluations (Coordinator Tasks + Panel Assignments)](#evaluations-coordinator-tasks--panel-assignments)
+10. [Resource Requests](#resource-requests)
+11. [Profile Management](#profile-management)
+12. [API Routes & Endpoints](#api-routes--endpoints)
+13. [Database Models](#database-models)
+14. [Permissions & Access Control](#permissions--access-control)
+15. [Performance Optimizations](#performance-optimizations)
 
 ---
 
@@ -28,6 +30,8 @@ The Student module is the core user-facing component of Projectify, providing:
 5. **Peer Networking**: Find and connect with fellow students
 6. **Invitations**: Manage received and sent invitations
 7. **Chat**: Communicate with group members, supervisors, and peers
+8. **Evaluations**: View coordinator-created evaluations, submit group work, and view panel assignments/comments
+9. **Resource Requests**: Submit and track hardware/software/resource needs for the group
 
 ---
 
@@ -121,708 +125,253 @@ model Student {
 
 ## Dashboard Features
 
-### Dashboard API (`/api/student/dashboard`)
+### Dashboard API (Implemented)
 
-```typescript
-export async function GET() {
-  const session = await auth();
-  const userId = parseInt(session.user.id);
+The student dashboard is backed by two API endpoints:
 
-  // Get student with campus and group info
-  const student = await prisma.student.findUnique({
-    where: { userId },
-    include: {
-      campus: true,
-      group: {
-        include: {
-          students: {
-            include: { user: { select: { userId, name, email, profileImage } } }
-          }
-        }
-      }
-    }
-  });
+- `GET /api/student/dashboard` (high-level snapshot: campus, group, stats, supervisors, fellow students)
+- `GET /api/student/dashboard/tasks-meetings` (group-scoped tasks + meetings widgets)
 
-  // Get supervisors in same campus
-  const supervisors = await prisma.fYPSupervisor.findMany({
-    where: { campusId: student.campusId },
-    include: { user: { select: { userId, name, email, profileImage } } }
-  });
+#### `GET /api/student/dashboard`
 
-  // Get fellow students (excluding self)
-  const fellowStudents = await prisma.student.findMany({
-    where: {
-      campusId: student.campusId,
-      userId: { not: userId }
-    },
-    include: { user: { select: {...} }, group: true },
-    take: 50
-  });
+**Authentication**
+- Requires a valid session (`auth()`), otherwise `401 Not authenticated`.
 
-  // Calculate statistics
-  const totalSupervisors = await prisma.fYPSupervisor.count({
-    where: { campusId: student.campusId }
-  });
+**Core queries and response composition** (as implemented)
+- Loads the `Student` record by `userId` and includes:
+  - `campus`
+  - `group` → `students` → `user` (selected fields)
+- Runs multiple campus-scope queries concurrently:
+  - Supervisors on campus (`fYPSupervisor.findMany`)
+  - Fellow students on campus excluding caller (`student.findMany`, `take: 50`)
+  - Counts: supervisors, students, pending invitations (student-to-student), total projects
 
-  const totalStudents = await prisma.student.count({
-    where: { campusId: student.campusId }
-  });
+**Edge cases**
+- `404 Student not found` if the authenticated user has no `Student` row.
+- Group details become `null` if the student is not assigned to any group.
 
-  const pendingInvitations = await prisma.invitation.count({
-    where: { receiverId: student.studentId, status: 'pending' }
-  });
+**Derived fields (server-computed)**
+- `supervisors[].available` is computed as `totalGroups < maxGroups`.
+- `fellowStudents[].hasGroup` is computed as `!!groupId`.
 
-  const totalProjects = await prisma.project.count({
-    where: { campusId: student.campusId }
-  });
+#### `GET /api/student/dashboard/tasks-meetings`
 
-  return NextResponse.json({
-    student: { ... },
-    supervisors: [ ... ],
-    fellowStudents: [ ... ],
-    stats: {
-      totalSupervisors,
-      totalStudents,
-      pendingInvitations,
-      totalProjects
-    }
-  });
-}
-```
+Purpose: populate dashboard widgets with the most relevant tasks/meetings for the student’s group.
 
-### Dashboard UI Components
+**Authentication & preconditions**
+- Requires session; otherwise `401 Not authenticated`.
+- Loads the student with `group`.
+- If `groupId` is null: returns `{ tasks: [], meetings: [], upcomingMeetings: [] }` (not an error).
 
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│  Header: "Welcome back, [Student Name]!" + NotificationBell                │
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │                        STATISTICS CARDS                            │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐           │   │
-│  │  │ 👥 50    │  │ 🎓 12    │  │ 📋 5     │  │ 📁 25    │           │   │
-│  │  │ Students │  │ Supervisors│  │ Invites │  │ Projects │           │   │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘           │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│                                                                            │
-│  ┌─────────────────────────────┐  ┌──────────────────────────────────┐   │
-│  │     GROUP STATUS            │  │      YOUR PROJECT                │   │
-│  │                             │  │                                  │   │
-│  │  [Group Name]               │  │  [Project Title]                 │   │
-│  │  Members: 3/3               │  │  Status: In Progress             │   │
-│  │  Supervisor: Dr. Smith      │  │  Similarity: ✅ Unique           │   │
-│  │                             │  │                                  │   │
-│  │  [View Group] [Chat]        │  │  [View Details]                  │   │
-│  └─────────────────────────────┘  └──────────────────────────────────┘   │
-│                                                                            │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │                    AVAILABLE SUPERVISORS                           │   │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐   │   │
-│  │  │ Dr. Smith  │  │ Dr. Jones  │  │ Dr. Wilson │  │ Dr. Brown  │   │   │
-│  │  │ AI/ML      │  │ Web Dev    │  │ Security   │  │ Data Sci   │   │   │
-│  │  │ [View]     │  │ [View]     │  │ [View]     │  │ [View]     │   │   │
-│  │  └────────────┘  └────────────┘  └────────────┘  └────────────┘   │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│                                                                            │
-└────────────────────────────────────────────────────────────────────────────┘
-```
+**Task retrieval rules**
+- Reads from `projectTask` with constraints:
+  - `groupId = student.groupId`
+  - `parentId = null` (main tasks only; subtasks excluded)
+  - Sorting: `dueDate asc`, then `priority desc`, then `createdAt desc`
+  - `take: 10`
+- For each task, the API fetches assignee info (if `assignedTo` is set) and computes `isAssignedToMe`.
+
+**Meeting retrieval rules**
+- Reads all `meeting` rows for the group (ordered by `scheduledAt asc`).
+- Attaches creator (`createdById`) user info.
+- Computes `upcomingMeetings` as:
+  - `status === 'scheduled'`
+  - `scheduledAt >= startOfToday`
+  - returns first 3 entries.
+
+**Sorting behavior**
+- The response sorts tasks to show:
+  1) tasks assigned to the current user first
+  2) then by status order: `pending` → `in_progress` → `completed`
+  3) then by due date
 
 ---
 
-## Project Management
+## Evaluations (Coordinator Tasks + Panel Assignments)
 
-### Project Creation Flow
+Student evaluations cover two related concepts implemented in the backend:
 
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│  Student clicks  │     │  Upload document │     │  System runs     │
-│  "New Project"   │ --> │  (PDF/DOCX)      │ --> │  similarity      │
-│                  │     │                  │     │  check           │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
-                                                          │
-         ┌────────────────────────────────────────────────┼────────┐
-         │                                                │        │
-         ▼                                                ▼        ▼
-┌──────────────────┐                             ┌──────────────────┐
-│  Project UNIQUE  │                             │  Project SIMILAR │
-│  • Show results  │                             │  • Show overlaps │
-│  • Allow save    │                             │  • Show reasons  │
-│  • Generate      │                             │  • Suggest diff  │
-│    feasibility   │                             │  • Allow anyway  │
-└──────────────────┘                             └──────────────────┘
-         │                                                │
-         └────────────────────────┬───────────────────────┘
-                                  │
-                                  ▼
-                    ┌──────────────────────────┐
-                    │  POST /api/projects      │
-                    │  • Save to database      │
-                    │  • Store embedding       │
-                    │  • Save feasibility      │
-                    └──────────────────────────┘
-```
+1. **Coordinator-created Evaluations** (campus-wide evaluation “tasks” with due dates and attachments).
+2. **Evaluation Panels** (a panel is assigned to a group; students see panel metadata and can fetch panel comments).
 
-### Project Listing Page
+### Student evaluation feed
 
-**Features:**
-- View all personal projects
-- Filter by status (idea, in_progress, completed)
-- Search by title
-- Create new project
-- Upload project document
+#### `GET /api/student/evaluations`
 
-### Project Detail Page (`/student/projects/[id]`)
+**Auth**
+- Requires role `student`, else `401 Unauthorized`.
 
-**Features:**
-- View full project details
-- View/generate feasibility report
-- Request permission for supervisor projects
-- Edit project (if owner)
-- Delete project (if owner and not assigned to group)
+**What it returns**
+- `evaluations[]`: all evaluations on the student’s campus with status in `{ active, closed, graded }`.
+- `submission`: included per evaluation only if the student is in a group; server includes the group’s submission (if any) with attachments.
+- `panels[]`: panel assignments for the student’s group (if any), including panel members.
+- `hasGroup`, `groupId` flags.
 
-### Project API Endpoints
+**Important computed fields**
+- `isOverdue` is `true` when `now > dueDate` AND there is no submission.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/projects` | GET | List user's projects |
-| `/api/projects` | POST | Create new project |
-| `/api/projects/[id]` | GET | Get project details |
-| `/api/projects/[id]` | PUT | Update project |
-| `/api/projects/[id]` | DELETE | Delete project |
-| `/api/projects/check-similarity` | POST | Check document similarity |
-| `/api/projects/upload` | POST | Upload project files to R2 |
-| `/api/projects/[id]/feasibility` | GET | Get feasibility report |
-| `/api/projects/[id]/permission` | POST | Request permission |
-| `/api/projects/[id]/permission` | PUT | Grant/deny permission |
+**Edge cases**
+- Student without a group still receives the `evaluations[]` list but with no `submissions` joined.
+- If a group has no panel assignment for any panel, `panels: []`.
 
----
+### Submitting evaluation work
 
-## Group Management
+#### `POST /api/student/evaluations`
 
-### Group States
+**Request body**
+- `evaluationId` (required)
+- `content` (optional)
+- `attachments` (optional array; metadata only)
 
-| State | Description |
-|-------|-------------|
-| No Group | Student hasn't created or joined a group |
-| Creating Group | Student is selecting project and inviting members |
-| In Group | Student is part of a group |
-| Group Full | 3 students + 1 supervisor assigned |
+**Preconditions and validation**
+- Student must be in a group, else `400 You must be in a group to submit`.
+- Evaluation must exist, else `404 Evaluation not found`.
+- Evaluation must not be `closed` or `graded`, else `400 This evaluation is closed for submissions`.
+- Only one submission per evaluation per group:
+  - enforced via `evaluationId_groupId` lookup; if exists → `400 Your group has already submitted`.
 
-### Group Creation From Chat Page
+**Submission status**
+- If `now > dueDate`, server marks submission `status: 'late'`, else `status: 'submitted'`.
 
-The group creation interface is integrated into the chat page:
+**Attachments**
+- This endpoint stores attachment metadata (`fileName`, `fileUrl`, optional `fileSize`, `fileType`).
+- Uploading the actual file is handled separately (commonly via `POST /api/chat/upload`, see file constraints below).
 
-```typescript
-// Group creation flow
-const createGroup = async () => {
-  if (!selectedProject || selectedMembers.length === 0 || !selectedSupervisor) {
-    alert('Please select a project, at least one member, and a supervisor');
-    return;
-  }
+#### `PATCH /api/student/evaluations`
 
-  const response = await fetch('/api/groups', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      projectId: selectedProject.projectId,
-      studentUserIds: selectedMembers.map(m => m.userId),
-      supervisorUserId: selectedSupervisor.userId
-    })
-  });
+**Purpose**: update an existing submission before grading.
 
-  if (response.ok) {
-    const data = await response.json();
-    // Group created with conversation
-    // Invitations sent to selected members and supervisor
-    // Creator becomes group admin
-    if (data.group?.conversationId) {
-      selectConversation(data.group.conversationId);
-    }
-  }
-};
-```
+**Request body**
+- `submissionId` (required)
+- `content` (optional)
+- `attachments` (optional; added as new rows)
 
-### Group Management Features
+**Rules/constraints**
+- Submission must belong to the student’s group, otherwise `404 Submission not found`.
+- If `existingSubmission.status === 'graded'` → `400 Cannot edit graded submission`.
+- New attachments are appended via `submissionAttachment.createMany` (the implementation does not delete/replace old attachments).
 
-**For Group Admin (Creator):**
-- View group members
-- See pending invitations
-- Cancel sent invitations
-- View group project
-- Access group chat
+#### `DELETE /api/student/evaluations?submissionId=...`
 
-**For Group Members:**
-- View group information
-- Access group chat
-- Leave group (TBD)
+**Purpose**: withdraw/unsubmit before grading.
+
+**Rules/constraints**
+- Submission must belong to the student’s group.
+- If graded → `400 Cannot withdraw a graded submission`.
+- If *scored* (either `supervisorScore` or `panelScore` is not null) → `400 Cannot withdraw a scored submission`.
+- Deletes submission attachments first, then the submission.
+
+### Panel comments
+
+#### `GET /api/student/evaluations/panel-comments?panelId=...`
+
+**Purpose**: fetch chronological feedback/comments left by panel members for the student’s group.
+
+**Validation / access rules**
+- Requires role `student`.
+- `panelId` query param is required; else `400 panelId is required`.
+- If student has no group → returns `{ comments: [] }`.
+- If the student’s group is not assigned to the panel (`groupPanelAssignment` not found) → returns `{ comments: [] }`.
+
+**Returned fields**
+- Each comment includes `userName` and `userImage` via a server-side join to `User`.
 
 ---
 
-## Browsing Features
+## Resource Requests
 
-### Browse Supervisors (`/student/browse-supervisors`)
+Resource Requests allow groups to request resources and have them reviewed by supervisor/coordinator.
 
-**Purpose:** Find and learn about supervisors in the campus
+#### `GET /api/student/resource-requests`
 
-**Features:**
-- Search by name, specialization, or domains
-- Filter by availability (slots remaining)
-- View supervisor profiles with:
-  - Specialization
-  - Research domains
-  - Skills
-  - Current groups / Max groups
-  - Contact options
-- Invite supervisor to group (if group admin)
+**Auth & preconditions**
+- Requires role `student`.
+- Student must belong to a group, else `400 You must be in a group`.
 
-### Browse Students (`/student/browse-students`)
+**Behavior**
+- Fetches all `resourceRequest` rows for `groupId` ordered by newest first.
+- Enriches response with:
+  - `createdBy` name (from `User`)
+  - `supervisorName` if `supervisorId` is set
+  - `items` parsed from JSON (`JSON.parse(r.items || "[]")`)
 
-**Purpose:** Find potential group members
+**Edge cases**
+- If `items` stored in DB is invalid JSON, parsing would throw and the API returns `500` (implementation does not guard this).
 
-**Features:**
-- Search by name, roll number, or skills
-- Filter by availability (not in a group)
-- View student profiles with:
-  - Skills and interests
-  - GPA (if shared)
-  - GitHub/LinkedIn links
-- Send group invitation
-- Start direct chat
+#### `POST /api/student/resource-requests`
 
-### Search API (`/api/student/search-users`)
+**Request body**
+- `title` (required)
+- `items` (required; must be a non-empty array)
+- `description` (optional)
+- `resourceType` (optional; default: `hardware`)
+- `justification` (optional)
 
-```typescript
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('query') || '';
-  const type = searchParams.get('type') || 'all'; // 'students', 'supervisors', 'all'
+**Rules/constraints**
+- Student must be in a group.
+- Creates request with `status: 'pending'`.
+- Stores `items` as JSON string.
 
-  const userId = parseInt(session.user.id);
-  
-  // Get student's campus
-  const student = await prisma.student.findUnique({
-    where: { userId },
-    select: { campusId: true }
-  });
+#### `PATCH /api/student/resource-requests`
 
-  let results: any[] = [];
+**Request body**
+- `requestId` (required)
+- updatable fields: `title`, `description`, `resourceType`, `items`, `justification`
 
-  if (type === 'students' || type === 'all') {
-    const students = await prisma.student.findMany({
-      where: {
-        campusId: student.campusId,
-        userId: { not: userId },
-        OR: [
-          { user: { name: { contains: query, mode: 'insensitive' } } },
-          { rollNumber: { contains: query, mode: 'insensitive' } },
-          { skills: { contains: query, mode: 'insensitive' } }
-        ]
-      },
-      include: { user: { select: {...} } }
-    });
-    results.push(...students);
-  }
+**Rules/constraints**
+- Only editable while `status === 'pending'`, else `400 Can only edit pending requests`.
+- Request must belong to the student’s group, else `404 Request not found`.
 
-  if (type === 'supervisors' || type === 'all') {
-    const supervisors = await prisma.fYPSupervisor.findMany({
-      where: {
-        campusId: student.campusId,
-        OR: [
-          { user: { name: { contains: query, mode: 'insensitive' } } },
-          { specialization: { contains: query, mode: 'insensitive' } },
-          { domains: { contains: query, mode: 'insensitive' } }
-        ]
-      },
-      include: { user: { select: {...} } }
-    });
-    results.push(...supervisors);
-  }
+#### `DELETE /api/student/resource-requests?id=...`
 
-  return NextResponse.json({ results });
-}
-```
-
----
-
-## Invitations System
-
-### Types of Invitations
-
-1. **Student-to-Student Invitations** (Legacy `Invitation` model)
-   - Direct invitations between students
-   - Used for collaboration requests
-
-2. **Group Invitations** (`GroupInvitation` model)
-   - Invitations to join a group
-   - Can be sent to students or supervisors
-
-### Invitations Page Features
-
-**Tabs:**
-- **Received**: Invitations waiting for response
-- **Sent**: Invitations the student has sent
-
-**Actions:**
-- Accept invitation (join group)
-- Decline invitation
-- Cancel sent invitation
-
-### Fetching Invitations
-
-```typescript
-// Frontend: Fetch both invitation types
-const fetchInvitations = async () => {
-  // Fetch regular invitations
-  const regularResponse = await fetch('/api/invitations');
-  const regularData = await regularResponse.json();
-  
-  // Fetch group invitations
-  const groupResponse = await fetch(`/api/groups/invitations?type=${activeTab}`);
-  const groupData = await groupResponse.json();
-  
-  // Merge and format
-  const allInvitations = [
-    ...regularData.invitations.map(inv => ({
-      ...inv,
-      isGroupInvitation: false
-    })),
-    ...groupData.invitations.map(inv => ({
-      id: inv.id,
-      sender: inv.inviter,
-      receiver: inv.invitee,
-      message: inv.message,
-      status: inv.status,
-      createdAt: inv.createdAt,
-      isGroupInvitation: true,
-      groupName: inv.group?.groupName,
-      groupId: inv.groupId
-    }))
-  ];
-  
-  setInvitations(allInvitations);
-};
-```
-
-### Handling Invitation Actions
-
-```typescript
-const handleInvitationAction = async (invitationId: number, action: 'accept' | 'reject', isGroupInvitation: boolean) => {
-  const endpoint = isGroupInvitation
-    ? '/api/groups/invitations'
-    : '/api/invitations';
-  
-  const response = await fetch(endpoint, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ invitationId, action })
-  });
-  
-  if (response.ok) {
-    // Refresh invitations list
-    fetchInvitations();
-    // If accepted group invitation, user is now in a group
-  }
-};
-```
-
----
-
-## Profile Management
-
-### Profile Page (`/student/profile`)
-
-**Viewable Information:**
-- Name, email, roll number
-- Campus and batch
-- Profile image
-- Skills and interests
-- Bio
-- GPA (optional)
-- LinkedIn and GitHub links
-
-**Editable Information:**
-- Profile image (upload)
-- Skills
-- Interests
-- Bio
-- GPA
-- Social links
-
-### Profile API Endpoints
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/profile` | GET | Get current user's profile |
-| `/api/profile/update` | PUT | Update profile fields |
-| `/api/profile/image` | POST | Upload profile image |
-
-### Profile Update
-
-```typescript
-// PUT /api/profile/update
-export async function PUT(request: NextRequest) {
-  const session = await auth();
-  const userId = parseInt(session.user.id);
-  const { skills, interests, bio, gpa, linkedin, github } = await request.json();
-
-  await prisma.student.update({
-    where: { userId },
-    data: {
-      skills,
-      interests,
-      bio,
-      gpa: gpa ? parseFloat(gpa) : null,
-      linkedin,
-      github
-    }
-  });
-
-  return NextResponse.json({ success: true });
-}
-```
+**Rules/constraints**
+- Only deletable while `status === 'pending'`.
+- Request must belong to the student’s group.
 
 ---
 
 ## API Routes & Endpoints
 
-### Complete Student API Reference
+This section lists key student-facing endpoints in this module. Cross-cutting endpoints (auth/profile/chat/notifications/groups/projects) are described in `docs/Common.md`.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/student/dashboard` | GET | Dashboard statistics |
-| `/api/student/search-users` | GET | Search students/supervisors |
-| `/api/projects` | GET | List projects |
-| `/api/projects` | POST | Create project |
-| `/api/projects/[id]` | GET/PUT/DELETE | Project CRUD |
-| `/api/projects/check-similarity` | POST | Check similarity |
-| `/api/projects/upload` | POST | Upload files |
-| `/api/projects/[id]/feasibility` | GET | Get feasibility report |
-| `/api/projects/[id]/permission` | POST | Request permission |
-| `/api/groups` | GET | Get student's group |
-| `/api/groups` | POST | Create group |
-| `/api/groups/invitations` | GET | Get invitations |
-| `/api/groups/invitations` | PATCH | Accept/reject invitation |
-| `/api/groups/invitations` | DELETE | Cancel invitation |
-| `/api/invitations` | GET | Get student invitations |
-| `/api/invitations/[id]` | PATCH | Accept/reject |
-| `/api/profile` | GET | Get profile |
-| `/api/profile/update` | PUT | Update profile |
-| `/api/profile/image` | POST | Upload image |
-| `/api/chat` | GET/POST | Conversations |
-| `/api/notifications` | GET | Get notifications |
+### Student-scoped endpoints (`/api/student/*`)
 
----
+| Method | Endpoint | Purpose | Key constraints |
+|---|---|---|---|
+| GET | `/api/student/dashboard` | Dashboard snapshot: campus, group, stats, supervisors, fellow students | 401 if not authenticated; 404 if no Student |
+| GET | `/api/student/dashboard/tasks-meetings` | Dashboard widgets: tasks and meetings | Returns empty arrays if no group |
+| GET | `/api/student/group-id` | Lightweight groupId lookup | Returns `groupId: null` on failures |
+| GET/POST/PATCH/DELETE | `/api/student/evaluations` | List evaluations; submit/update/withdraw group submissions | Must be in group for submit/update/withdraw; cannot edit/withdraw graded/scored |
+| GET | `/api/student/evaluations/panel-comments` | Fetch panel comments (requires `panelId`) | Returns `comments: []` if no group or no assignment |
+| GET/POST/PATCH/DELETE | `/api/student/resource-requests` | CRUD resource requests for the student’s group | Only pending requests can be edited/deleted |
+| GET | `/api/student/search-users` | Search students/supervisors (campus-scoped) | Role/student auth required (see handler) |
 
-## Database Models
+### Upload constraints used by the Student module (chat attachments)
 
-### Student Model
+Student flows (chat messages, evaluation submissions, etc.) commonly upload files via:
 
-```prisma
-model Student {
-  studentId    Int      @id @default(autoincrement())
-  userId       Int      @unique
-  rollNumber   String   @unique @db.VarChar(50)
-  batch        String?  @db.VarChar(20)
-  campusId     Int
-  groupId      Int?
-  isGroupAdmin Boolean  @default(false)
-  gpa          Float?
-  skills       String?  @db.Text
-  interests    String?  @db.Text
-  bio          String?  @db.Text
-  linkedin     String?  @db.VarChar(255)
-  github       String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+- `POST /api/chat/upload` (multipart/form-data)
 
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus @relation(fields: [campusId], references: [campusId])
-  group  Group? @relation(fields: [groupId], references: [groupId])
-  
-  sentInvitations     Invitation[] @relation("SentInvitations")
-  receivedInvitations Invitation[] @relation("ReceivedInvitations")
-
-  @@map("students")
-}
-```
-
-### Invitation Model (Student-to-Student)
-
-```prisma
-model Invitation {
-  invitationId  Int              @id @default(autoincrement())
-  senderId      Int
-  receiverId    Int
-  message       String?          @db.Text
-  status        InvitationStatus @default(pending)
-  type          InvitationType   @default(group_invite)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-
-  sender   Student @relation("SentInvitations", fields: [senderId], references: [studentId])
-  receiver Student @relation("ReceivedInvitations", fields: [receiverId], references: [studentId])
-
-  @@unique([senderId, receiverId, type])
-  @@map("invitations")
-}
-```
+**Key implemented constraints**
+- Requires authentication (`401 Not authenticated`).
+- Requires R2 configured (`500 File storage is not configured`).
+- Expects `formData` fields:
+  - `file` (required)
+  - `type` = `image` or `file`
+- File size limit: **10 MB**.
+- MIME allow-list:
+  - Images: `image/jpeg`, `image/png`, `image/gif`, `image/webp`
+  - Files: images plus `pdf`, MS Office formats, `txt`, `zip`, `rar`.
+- Generates unique key: `chat-attachments/{userId}/{timestamp}-{randomHex}.{ext}`.
 
 ---
 
-## Permissions & Access Control
+## Notifications (student view)
 
-### Student Permissions Matrix
+Student notification retrieval is provided by a common endpoint:
 
-| Resource | View | Create | Edit | Delete |
-|----------|------|--------|------|--------|
-| Own Profile | ✅ | - | ✅ | - |
-| Own Projects | ✅ | ✅ | ✅ | ✅* |
-| Other's Public Projects | ✅ | - | - | - |
-| Own Group | ✅ | ✅** | ✅** | - |
-| Invitations | ✅ | ✅ | - | ✅ |
-| Notifications | ✅ | - | - | ✅ |
-| Chat Messages | ✅ | ✅ | - | ✅*** |
+- `GET /api/notifications?limit=..&offset=..`
+  - Limit is capped by server at `100`.
+  - Includes `unreadCount` in response.
 
-*Cannot delete if project is assigned to a group
-**Only if not already in a group
-***Only own messages
-
-### Access Validation Pattern
-
-```typescript
-// Standard access check pattern
-export async function GET(request: NextRequest, { params }) {
-  const session = await auth();
-  
-  // 1. Authentication check
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
-  // 2. Role check (if needed)
-  if (session.user.role !== 'student') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  
-  // 3. Resource ownership check (if needed)
-  const resource = await prisma.project.findUnique({
-    where: { projectId: parseInt(params.id) }
-  });
-  
-  if (resource.createdById !== parseInt(session.user.id)) {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-  }
-  
-  // 4. Proceed with operation
-}
-```
-
----
-
-## Performance Optimizations
-
-### 1. Dashboard Data Loading
-
-```typescript
-// Parallel data fetching
-const [student, supervisors, students, stats] = await Promise.all([
-  prisma.student.findUnique({ where: { userId }, include: {...} }),
-  prisma.fYPSupervisor.findMany({ where: { campusId }, include: {...} }),
-  prisma.student.findMany({ where: { campusId, userId: { not: userId } }, take: 50 }),
-  prisma.$transaction([
-    prisma.fYPSupervisor.count({ where: { campusId } }),
-    prisma.student.count({ where: { campusId } }),
-    prisma.project.count({ where: { campusId } })
-  ])
-]);
-```
-
-### 2. Optimistic UI Updates
-
-```typescript
-// Optimistic invitation acceptance
-const handleAccept = async (invitationId: number) => {
-  // Immediately update UI
-  setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
-  
-  // Then make API call
-  try {
-    await fetch('/api/groups/invitations', {
-      method: 'PATCH',
-      body: JSON.stringify({ invitationId, action: 'accept' })
-    });
-  } catch (error) {
-    // Revert on error
-    fetchInvitations();
-  }
-};
-```
-
-### 3. Lazy Loading
-
-```typescript
-// Load data only when needed
-const [showFeasibilityReport, setShowFeasibilityReport] = useState(false);
-const [feasibilityReport, setFeasibilityReport] = useState(null);
-
-const fetchFeasibilityReport = async () => {
-  // Check if already loaded or stored in project
-  if (project?.feasibilityReport) {
-    setFeasibilityReport(project.feasibilityReport);
-    setShowFeasibilityReport(true);
-    return;
-  }
-  
-  if (feasibilityReport) {
-    setShowFeasibilityReport(!showFeasibilityReport);
-    return;
-  }
-  
-  // Only fetch if not available
-  setLoadingFeasibility(true);
-  const response = await fetch(`/api/projects/${projectId}/feasibility`);
-  // ...
-};
-```
-
-### 4. Reduced Re-renders
-
-```typescript
-// Memoize expensive computations
-const filteredStudents = useMemo(() => {
-  return students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.rollNumber.includes(searchQuery)
-  );
-}, [students, searchQuery]);
-```
-
----
-
-## UI Components
-
-### StudentSidebar
-
-Consistent navigation across all student pages:
-
-```typescript
-const sidebarItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
-  { icon: FolderKanban, label: 'Projects', path: '/student/projects' },
-  { icon: Users, label: 'My Group', path: '/student/group' },
-  { icon: MessageSquare, label: 'Chat', path: '/student/chat' },
-  { icon: UserSearch, label: 'Browse Students', path: '/student/browse-students' },
-  { icon: GraduationCap, label: 'Browse Supervisors', path: '/student/browse-supervisors' },
-  { icon: Mail, label: 'Invitations', path: '/student/invitations' },
-  { icon: Bell, label: 'Notifications', path: '/student/notifications' },
-  { icon: User, label: 'Profile', path: '/student/profile' },
-];
-```
-
-### Common UI Patterns
-
-- **Loading States**: Skeleton loaders and spinners
-- **Empty States**: Helpful messages with CTAs
-- **Error States**: Error messages with retry options
-- **Success Feedback**: Toast notifications and modals
-- **Responsive Design**: Mobile-first with sidebar drawer
+Student notification creation is **not** permitted (server enforces coordinator-only on `POST /api/notifications`).

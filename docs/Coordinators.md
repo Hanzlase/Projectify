@@ -6,14 +6,18 @@
 3. [Coordinator Registration](#coordinator-registration)
 4. [Dashboard Features](#dashboard-features)
 5. [User Management](#user-management)
-6. [Notification Broadcasting](#notification-broadcasting)
-7. [Chat & Communication](#chat--communication)
-8. [Profile Management](#profile-management)
-9. [API Routes & Endpoints](#api-routes--endpoints)
-10. [Database Models](#database-models)
-11. [Permissions & Access Control](#permissions--access-control)
-12. [System Administration](#system-administration)
-13. [Performance Optimizations](#performance-optimizations)
+6. [Evaluations (Campus Tasks + Grading)](#evaluations-campus-tasks--grading)
+7. [Evaluation Panels (Panel Composition + Assignments + AI Suggest)](#evaluation-panels-panel-composition--assignments--ai-suggest)
+8. [Resource Requests (Supervisor-Approved → Coordinator Workflow)](#resource-requests-supervisor-approved--coordinator-workflow)
+9. [Industrial Projects](#industrial-projects)
+10. [Notification Broadcasting](#notification-broadcasting)
+11. [Chat & Communication](#chat--communication)
+12. [Profile Management](#profile-management)
+13. [API Routes & Endpoints](#api-routes--endpoints)
+14. [Database Models](#database-models)
+15. [Permissions & Access Control](#permissions--access-control)
+16. [System Administration](#system-administration)
+17. [Performance Optimizations](#performance-optimizations)
 
 ---
 
@@ -21,12 +25,13 @@
 
 The Coordinator module provides administrative capabilities for FYP Coordinators to:
 
-1. **Manage Users**: Add, suspend, and manage students and supervisors
+1. **Manage Users**: Add, suspend, activate, remove, and manage students and supervisors (campus-scoped)
 2. **Monitor Campus**: View statistics and activity across the campus
 3. **Broadcast Notifications**: Send announcements to specific roles or all users
-4. **Handle Accounts**: Activate pending accounts, suspend users
-5. **Communicate**: Chat with supervisors and students
-6. **Campus Administration**: Oversee FYP project workflows
+4. **Run Evaluations**: Create evaluation tasks, track submissions and grade them
+5. **Define Panels**: Create evaluation panels, assign groups, and manage panel membership
+6. **Process Resource Requests**: Review supervisor-approved requests; schedule meetings; approve/reject
+7. **Publish Industrial Projects**: Upload and manage industrial project postings for the campus
 
 ---
 
@@ -43,6 +48,9 @@ The Coordinator module provides administrative capabilities for FYP Coordinators
 │  /coordinator/chat          - Messaging interface                            │
 │  /coordinator/notifications - Notification management                        │
 │  /coordinator/profile       - Profile management                             │
+│  /coordinator/evaluations   - Manage evaluations (tasks + grading)          │
+│  /coordinator/panels        - Manage evaluation panels                      │
+│  /coordinator/projects       - Manage industrial projects                    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -57,6 +65,9 @@ The Coordinator module provides administrative capabilities for FYP Coordinators
 │  /api/notifications/*          - Notification CRUD                           │
 │  /api/chat/*                   - Messaging                                   │
 │  /api/profile/*                - Profile management                          │
+│  /api/coordinator/evaluations   - Evaluations CRUD                          │
+│  /api/coordinator/panels        - Evaluation panels CRUD                    │
+│  /api/coordinator/projects       - Industrial projects CRUD                  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -69,6 +80,9 @@ The Coordinator module provides administrative capabilities for FYP Coordinators
 │  FYPSupervisor             - Supervisor profiles                             │
 │  Notification              - Announcements and alerts                        │
 │  Campus                    - Campus information                              │
+│  Evaluation                 - Evaluations (tasks)                           │
+│  Panel                     - Evaluation panels                               │
+│  IndustrialProject         - Industrial project postings                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -614,7 +628,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { targetUserId, action } = body; // action: 'activate', 'suspend', 'reactivate'
+  const { targetUserId, action } = body; // action: 'activate', 'suspend', 'reactivate', 'remove'
 
   // Validate target user exists and is in coordinator's campus
   const targetUser = await prisma.user.findUnique({
@@ -650,6 +664,9 @@ export async function POST(request: NextRequest) {
       }
       newStatus = 'active';
       break;
+    case 'remove':
+      newStatus = 'removed';
+      break;
     default:
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   }
@@ -683,291 +700,167 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## Notification Broadcasting
+## Evaluations (Campus Tasks + Grading)
 
-### Notification Creation Flow
+Coordinator evaluations are campus-scoped “tasks” with optional attachments and group submissions.
 
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│  Coordinator     │     │  Select target   │     │  System creates  │
-│  creates         │ --> │  audience        │ --> │  notification +  │
-│  notification    │     │  (role/all)      │     │  recipients      │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
-```
+#### `GET /api/coordinator/evaluations`
 
-### Target Types
+Returns all evaluations for the coordinator’s campus, including:
+- attachments (evaluation-level)
+- submissions including attachments
+- computed stats:
+  - `submissionsCount`
+  - `gradedCount`
+  - `totalGroups` (groups in campus)
 
-| Target Type | Description |
-|-------------|-------------|
-| `all_campus` | All users in coordinator's campus |
-| `all_students` | All students in campus |
-| `all_supervisors` | All supervisors in campus |
-| `specific_users` | Selected individual users |
+#### `POST /api/coordinator/evaluations`
 
-### Notification API (Coordinator Context)
+Creates a new evaluation.
 
-```typescript
-// POST /api/notifications
-export async function POST(request: NextRequest) {
-  const session = await auth();
-  
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+Validation (implemented):
+- `title`, `description`, `dueDate` are required (400 otherwise).
+- `totalMarks` defaults to `100`.
+- `status` is set to `active`.
 
-  const userId = parseInt(session.user.id);
-  const body = await request.json();
-  const { title, message, type, targetType, recipientIds } = body;
+Side-effect (best-effort, non-blocking):
+- Creates an informational notification for **all students** in the campus.
 
-  // Get coordinator's campus for campus-wide notifications
-  let campusId: number | null = null;
-  if (session.user.role === 'coordinator') {
-    const coordinator = await prisma.fYPCoordinator.findUnique({
-      where: { userId }
-    });
-    campusId = coordinator?.campusId || null;
-  }
+#### `PATCH /api/coordinator/evaluations`
 
-  // Create notification
-  const notification = await prisma.notification.create({
-    data: {
-      title,
-      message,
-      type: type || 'general',
-      targetType,
-      createdById: userId,
-      campusId
-    }
-  });
+Supports multiple actions:
 
-  // Determine recipients based on targetType
-  let recipients: number[] = [];
+1) Grade a submission:
+- body must include `action: 'grade'` and `submissionId`
+- requires `obtainedMarks` (400 if missing)
+- updates submission: `obtainedMarks`, `feedback`, `status: 'graded'`, `gradedById`, `gradedAt`
 
-  switch (targetType) {
-    case 'all_campus':
-      // Get all users in campus
-      const campusStudents = await prisma.student.findMany({
-        where: { campusId },
-        select: { userId: true }
-      });
-      const campusSupervisors = await prisma.fYPSupervisor.findMany({
-        where: { campusId },
-        select: { userId: true }
-      });
-      recipients = [
-        ...campusStudents.map(s => s.userId),
-        ...campusSupervisors.map(s => s.userId)
-      ];
-      break;
+2) Update evaluation status:
+- `action: 'updateStatus'` + `evaluationId` + `status`
 
-    case 'all_students':
-      const students = await prisma.student.findMany({
-        where: { campusId },
-        select: { userId: true }
-      });
-      recipients = students.map(s => s.userId);
-      break;
+3) Update evaluation details:
+- `evaluationId` plus optional fields (`title`, `description`, `instructions`, `totalMarks`, `dueDate`)
 
-    case 'all_supervisors':
-      const supervisors = await prisma.fYPSupervisor.findMany({
-        where: { campusId },
-        select: { userId: true }
-      });
-      recipients = supervisors.map(s => s.userId);
-      break;
+#### `DELETE /api/coordinator/evaluations?evaluationId=...`
 
-    case 'specific_users':
-      recipients = recipientIds || [];
-      break;
-  }
-
-  // Create recipient records
-  if (recipients.length > 0) {
-    await prisma.notificationRecipient.createMany({
-      data: recipients.map(recipientUserId => ({
-        notificationId: notification.notificationId,
-        userId: recipientUserId
-      }))
-    });
-  }
-
-  return NextResponse.json({
-    success: true,
-    notification,
-    recipientCount: recipients.length
-  });
-}
-```
-
-### Notification Management UI
-
-```typescript
-// Coordinator notifications page features:
-// 1. Create new notification
-// 2. View sent notifications
-// 3. Track read status
-
-const NotificationsPage = () => {
-  const [activeTab, setActiveTab] = useState<'create' | 'sent' | 'received'>('create');
-  
-  // Create notification form
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [targetType, setTargetType] = useState<string>('all_campus');
-  const [notificationType, setNotificationType] = useState<string>('general');
-
-  const handleCreate = async () => {
-    await fetch('/api/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        message,
-        type: notificationType,
-        targetType
-      })
-    });
-  };
-
-  // Sent notifications tracking
-  const fetchSentNotifications = async () => {
-    const response = await fetch('/api/notifications/sent');
-    // Shows: notification, recipient count, read count
-  };
-};
-```
+Deletes evaluation by id.
 
 ---
 
-## Chat & Communication
+## Evaluation Panels (Panel Composition + Assignments + AI Suggest)
 
-### Coordinator Chat Capabilities
+Panels are campus-scoped structures with:
+- `panelMembers` (supervisors with roles)
+- `groupAssignments` (groups scheduled for evaluation)
 
-Coordinators can communicate with:
-1. **All Supervisors** in their campus
-2. **All Students** in their campus
-3. **Individual direct messages**
+#### `GET /api/coordinator/evaluation-panels`
 
-### Chat User Fetching
+Returns:
+- `panels[]` with members and assignments plus `_count` stats
+- `statistics`: total groups eligible (supervisor assigned), total supervisors, total panels, active panels
+- `supervisors[]`: supervisors not already inside any panel, with workload fields and calculated `availableSlots`
+- `groups[]`: eligible groups with students
+- `campusName`
 
-```typescript
-const fetchChatUsers = async () => {
-  // Get all campus users
-  const response = await fetch('/api/coordinator/get-users?role=all&status=active');
-  
-  if (response.ok) {
-    const data = await response.json();
-    const users = data.users.map((user: any) => ({
-      userId: user.userId,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profileImage: user.profileImage
-    }));
-    setChatUsers(users);
-  }
-};
-```
+Eligibility rule implemented for `groups` statistics:
+- group must be in campus AND must have `supervisorId != null` (project is not required for this listing in the current handler).
 
-### Chat Filters
+#### `POST /api/coordinator/evaluation-panels`
 
-```typescript
-const [chatFilter, setChatFilter] = useState<'all' | 'students' | 'supervisors'>('all');
+Creates a panel.
 
-const filteredConversations = conversations.filter(conv => {
-  const matchesSearch = conv.otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-  
-  if (chatFilter === 'all') return matchesSearch;
-  if (chatFilter === 'students') return matchesSearch && conv.otherUser?.role === 'student';
-  if (chatFilter === 'supervisors') return matchesSearch && conv.otherUser?.role === 'supervisor';
-  
-  return matchesSearch;
-});
-```
+Validation (implemented):
+- `name`, `minSupervisors`, `maxSupervisors` are required.
+- If `panelMembers` provided:
+  - if count `< minSupervisors` → 400
+  - if count `> maxSupervisors` → 400
+
+Status assignment:
+- If member count `>= minSupervisors` → `status: 'active'`
+- else → `status: 'draft'`
+
+#### `POST /api/coordinator/evaluation-panels/ai-suggest`
+
+Uses Cohere to generate panel composition suggestions.
+
+Validation:
+- Requires `query`.
+- Automatically gathers context (supervisors with workload, eligible groups, existing panels) if `context` is not supplied.
+
+Output:
+- `suggestion` string and a `contextUsed` summary.
 
 ---
 
-## Profile Management
+## Resource Requests (Supervisor-Approved → Coordinator Workflow)
 
-### Coordinator Profile Fields
+Coordinators only see requests that are already supervisor-approved (or later states).
 
-| Field | Description | Editable |
-|-------|-------------|----------|
-| Name | Display name | Via User model |
-| Email | Contact email | Via User model |
-| Profile Image | Avatar | ✅ |
-| Description | About section | ✅ |
-| Department | Academic department | ✅ |
-| Designation | Position title | ✅ |
-| Office Hours | Availability | ✅ |
+#### `GET /api/coordinator/resource-requests`
 
-### Profile Component
+Returns requests for coordinator’s campus whose status is in:
+- `supervisor_approved`, `coordinator_review`, `meeting_scheduled`, `approved`, `rejected`
 
-```typescript
-const CoordinatorProfile = () => {
-  const [coordinator, setCoordinator] = useState({
-    name: '',
-    email: '',
-    profileImage: null,
-    description: '',
-    department: '',
-    designation: '',
-    officeHours: ''
-  });
+Response includes:
+- group name, createdBy, supervisorName
+- meeting fields (`meetingDate`, `meetingTime`, `meetingLink`, `meetingVenue`, `meetingType`)
 
-  const handleSave = async () => {
-    await fetch('/api/profile/update', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        description: coordinator.description,
-        department: coordinator.department,
-        designation: coordinator.designation,
-        officeHours: coordinator.officeHours
-      })
-    });
-  };
+#### `POST /api/coordinator/resource-requests`
 
-  return (
-    <div className="space-y-6">
-      {/* Profile Image Upload */}
-      <ProfileImageUpload 
-        currentImage={coordinator.profileImage}
-        onUpload={handleImageUpload}
-      />
-      
-      {/* Form Fields */}
-      <Input label="Description" value={coordinator.description} multiline />
-      <Input label="Department" value={coordinator.department} />
-      <Input label="Designation" value={coordinator.designation} />
-      <Input label="Office Hours" value={coordinator.officeHours} />
-      
-      <Button onClick={handleSave}>Save Changes</Button>
-    </div>
-  );
-};
-```
+Actions:
+- `schedule_meeting`:
+  - requires `meetingDate` (400 if missing)
+  - updates request `status: 'meeting_scheduled'` and meeting metadata
+  - also creates a row in `meeting` table for the group dashboard (`status: 'scheduled'`, createdByRole: `coordinator`)
+- `approve` → sets `status: 'approved'`
+- `reject` → sets `status: 'rejected'`
+
+---
+
+## Industrial Projects
+
+Industrial projects are campus-scoped postings.
+
+#### `GET /api/coordinator/industrial-projects?status=...&search=...`
+
+Note: this endpoint supports coordinator/supervisor/student reads by deriving campusId from role.
+
+Filters:
+- `status` (default `all`)
+- `search` (case-insensitive, matches title/description/features/techStack)
+
+Includes request details with requester user info.
+
+#### `POST /api/coordinator/industrial-projects`
+
+Coordinator-only creation.
+
+Validation:
+- `title` and `description` required.
+- Sets `status: 'available'`.
 
 ---
 
 ## API Routes & Endpoints
 
-### Complete Coordinator API Reference
+Add/verify these coordinator-scoped endpoints (in addition to common chat/profile/notifications endpoints in `docs/Common.md`).
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/coordinator/dashboard` | GET | Campus statistics |
-| `/api/coordinator/add-students` | POST | Bulk add students |
-| `/api/coordinator/add-supervisors` | POST | Bulk add supervisors |
-| `/api/coordinator/get-users` | GET | List campus users |
-| `/api/coordinator/manage-user` | POST | User status management |
-| `/api/notifications` | GET | Get notifications |
-| `/api/notifications` | POST | Create notification |
-| `/api/notifications/sent` | GET | Get sent notifications |
-| `/api/chat` | GET/POST | Conversations |
-| `/api/profile` | GET | Get profile |
-| `/api/profile/update` | PUT | Update profile |
-| `/api/profile/image` | POST | Upload image |
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/coordinator/dashboard` | Campus dashboard snapshot |
+| POST | `/api/coordinator/add-students` | Bulk add students |
+| POST | `/api/coordinator/add-supervisors` | Bulk add supervisors |
+| GET | `/api/coordinator/get-users` | List campus users |
+| PUT/PATCH/DELETE | `/api/coordinator/manage-user` | Update details; status changes; permanent delete |
+| GET/POST/PATCH/DELETE | `/api/coordinator/evaluations` | Create/list/update/delete evaluations + grade submissions |
+| GET | `/api/coordinator/evaluation-scores` | Aggregate supervisor/panel/coordinator evaluation scoring |
+| GET/POST/PATCH | `/api/coordinator/evaluation-panels` | Panel CRUD + activation/completion (see handler) |
+| POST | `/api/coordinator/evaluation-panels/ai-suggest` | Cohere-powered suggested panel composition |
+| GET/POST | `/api/coordinator/resource-requests` | Review supervisor-approved requests; schedule meeting; approve/reject |
+| GET/POST | `/api/coordinator/industrial-projects` | List/create industrial projects |
+| POST | `/api/coordinator/industrial-projects/upload` | Upload industrial project assets |
+| GET/PATCH/DELETE | `/api/coordinator/industrial-projects/[id]` | Per-project operations |
+| POST | `/api/coordinator/industrial-projects/[id]/request` | Request/assign workflow |
 
 ---
 
@@ -1020,6 +913,7 @@ model Campus {
 // 'active'    - Normal access
 // 'pending'   - Awaiting activation
 // 'suspended' - Access revoked
+// 'removed'   - Soft-deleted (no access)
 
 model User {
   status String @default("active") @db.VarChar(20)
@@ -1041,6 +935,10 @@ model User {
 | Campus Projects | ✅ | - | - | - |
 | Notifications | ✅ | ✅ | - | ✅ |
 | Chat | ✅ | ✅ | - | - |
+| Evaluations | ✅ | ✅ | ✅ (grade, status) | - |
+| Panels | ✅ | ✅ | ✅ (status) | - |
+| Resource Requests | ✅ | - | - | - |
+| Industrial Projects | ✅ | ✅ | - | - |
 
 ### Access Validation Pattern
 
@@ -1251,6 +1149,9 @@ const sidebarItems = [
   { icon: MessageSquare, label: 'Chat', path: '/coordinator/chat' },
   { icon: Bell, label: 'Notifications', path: '/coordinator/notifications' },
   { icon: User, label: 'Profile', path: '/coordinator/profile' },
+  { icon: ClipboardList, label: 'Evaluations', path: '/coordinator/evaluations' },
+  { icon: Users, label: 'Panels', path: '/coordinator/panels' },
+  { icon: Briefcase, label: 'Projects', path: '/coordinator/projects' },
 ];
 ```
 

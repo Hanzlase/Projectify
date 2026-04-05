@@ -8,12 +8,14 @@
 5. [Project Management](#project-management)
 6. [Group Supervision](#group-supervision)
 7. [Invitations & Requests](#invitations--requests)
-8. [Chat & Communication](#chat--communication)
-9. [Profile Management](#profile-management)
-10. [API Routes & Endpoints](#api-routes--endpoints)
-11. [Database Models](#database-models)
-12. [Permissions & Access Control](#permissions--access-control)
-13. [Performance Optimizations](#performance-optimizations)
+8. [Evaluations (Panels + Scoring)](#evaluations-panels--scoring)
+9. [Resource Requests Review](#resource-requests-review)
+10. [Chat & Communication](#chat--communication)
+11. [Profile Management](#profile-management)
+12. [API Routes & Endpoints](#api-routes--endpoints)
+13. [Database Models](#database-models)
+14. [Permissions & Access Control](#permissions--access-control)
+15. [Performance Optimizations](#performance-optimizations)
 
 ---
 
@@ -26,7 +28,9 @@ The Supervisor module provides a comprehensive platform for FYP supervisors to:
 3. **Track Progress**: Monitor assigned groups and their projects
 4. **Communicate**: Chat with students and coordinators
 5. **Handle Requests**: Approve/reject permission requests from students
-6. **Profile Management**: Showcase expertise, domains, and availability
+6. **Evaluations**: Participate in evaluation panels and score group submissions (as supervisor or panel chair)
+7. **Resource Requests**: Review and action group resource requests for supervised groups
+8. **Profile Management**: Showcase expertise, domains, and availability
 
 ---
 
@@ -551,152 +555,131 @@ export async function PATCH(request: NextRequest, { params }) {
 
 ---
 
-## Chat & Communication
+## Evaluations (Panels + Scoring)
 
-### Supervisor Chat Features
+This module implements two supervisor evaluation responsibilities:
 
-Supervisors can communicate with:
-1. **Students in their groups** (group chat)
-2. **Individual students** (direct messages)
-3. **Coordinators** (direct messages)
+1. **Panel participation**: supervisors can be members/chairs of evaluation panels and see assigned groups.
+2. **Scoring**: supervisors can score evaluation submissions either as:
+   - the group’s **assigned supervisor** (`scoringType` omitted or not `panel`), or
+   - the **panel chair** (`scoringType: 'panel'`).
 
-### Chat Filters
+### Fetching panels and group assignments
 
-```typescript
-const [chatFilter, setChatFilter] = useState<'all' | 'students' | 'coordinator' | 'groups'>('all');
+#### `GET /api/supervisor/evaluations`
 
-const filteredConversations = conversations.filter(conv => {
-  const matchesSearch = conv.otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-  
-  if (chatFilter === 'all') return matchesSearch;
-  if (chatFilter === 'students') return matchesSearch && conv.otherUser?.role === 'student';
-  if (chatFilter === 'coordinator') return matchesSearch && conv.otherUser?.role === 'coordinator';
-  if (chatFilter === 'groups') return false; // Groups shown separately
-  
-  return matchesSearch;
-});
-```
+**Auth**
+- Requires role `supervisor`, else `401 Unauthorized`.
 
-### Starting Conversations
+**What it returns**
+- `panels[]` where the current supervisor is in `panelMembers`.
+- Each panel includes:
+  - `panelId`, `panelName`, `status`, `scheduledDate`, `evaluationType`
+  - `role` for current supervisor (derived from membership; defaults to `member`)
+  - `members[]` (name/email/role/specialization)
+  - `groups[]` (flattened from `groupAssignments`) including:
+    - `assignmentId`, `groupId`, `groupName`, `students[]`
+    - scheduling metadata: `evaluationDate`, `timeSlot`, `venue`
+    - scoring fields: `score`, `scoredAt`
+    - activity stats computed server-side:
+      - `submissionCount` (grouped by `evaluationSubmission`)
+      - `commentCount` (grouped by `panelComment`)
 
-```typescript
-// Fetch available chat users
-const fetchChatUsers = async () => {
-  setLoadingUsers(true);
-  try {
-    // Get students from supervised groups
-    const groupsResponse = await fetch('/api/groups');
-    if (groupsResponse.ok) {
-      const data = await groupsResponse.json();
-      const users: ChatUser[] = [];
-      
-      data.groups.forEach((group: any) => {
-        group.students.forEach((student: any) => {
-          if (!users.some(u => u.userId === student.userId)) {
-            users.push({
-              userId: student.userId,
-              name: student.user.name,
-              email: student.user.email,
-              role: 'student',
-              profileImage: student.user.profileImage
-            });
-          }
-        });
-      });
-      
-      setChatUsers(users);
-    }
-    
-    // Also get coordinator
-    const coordResponse = await fetch('/api/supervisor/get-coordinator');
-    if (coordResponse.ok) {
-      const coordData = await coordResponse.json();
-      if (coordData.coordinator) {
-        setChatUsers(prev => [...prev, {
-          userId: coordData.coordinator.userId,
-          name: coordData.coordinator.name,
-          email: coordData.coordinator.email,
-          role: 'coordinator',
-          profileImage: coordData.coordinator.profileImage
-        }]);
-      }
-    }
-  } finally {
-    setLoadingUsers(false);
-  }
-};
-```
+**Key implementation notes / constraints**
+- The API uses DB aggregation (`groupBy`) for submission and comment counts.
+- The returned `group.hasProject` is computed from `!!group.projectId`.
+
+### Scoring an evaluation submission
+
+#### `POST /api/supervisor/evaluations/score-submission`
+
+**Auth**
+- Requires role `supervisor`.
+
+**Request body**
+- `submissionId` (required)
+- `score` (required; validated range)
+- `feedback` (optional; trimmed)
+- `maxScore` (optional fallback)
+- `scoringType` (optional):
+  - omit / any value other than `'panel'` → supervisor scoring path
+  - `'panel'` → panel chair scoring path
+
+**Validation rules (implemented)**
+- `submissionId` required → 400.
+- Submission must exist → 404.
+- `score` must be within `0..totalMarks`:
+  - `totalMarks` is taken from `submission.evaluation.totalMarks` if present,
+  - else uses `maxScore` if provided,
+  - else defaults to `100`.
+
+**Authorization rules**
+- If `scoringType === 'panel'`:
+  - caller must be a `panelMember` with `role: 'chair'` for a panel that has the submission’s `groupId` assigned.
+  - otherwise `403 Only panel heads can give panel scores`.
+  - writes: `panelScore`, `panelFeedback`, `panelScoredById`, `panelScoredAt`.
+- Else (supervisor scoring):
+  - caller must be the assigned supervisor of the group (`group.supervisorId === userId`).
+  - otherwise `403 You are not the supervisor of this group`.
+  - writes: `supervisorScore`, `supervisorFeedback`, `supervisorScoredById`, `supervisorScoredAt`.
 
 ---
 
-## Profile Management
+## Resource Requests Review
 
-### Supervisor Profile Fields
+Supervisors can view all resource requests for groups they supervise and approve/reject them.
 
-| Field | Description | Editable |
-|-------|-------------|----------|
-| Name | Display name | Via User model |
-| Email | Contact email | Via User model |
-| Profile Image | Avatar | ✅ |
-| Description | About section | ✅ |
-| Specialization | Primary expertise | ✅ |
-| Domains | Research domains | ✅ |
-| Skills | Technical skills | ✅ |
-| Achievements | Notable accomplishments | ✅ |
-| Max Groups | Group limit | By Coordinator |
-| Total Groups | Current groups | Auto-calculated |
+#### `GET /api/supervisor/resource-requests`
 
-### Profile Update API
+**Auth**
+- Requires role `supervisor`.
 
-```typescript
-// PUT /api/profile/update
-export async function PUT(request: NextRequest) {
-  const session = await auth();
-  const userId = parseInt(session.user.id);
-  const body = await request.json();
+**Behavior**
+- Finds all groups where `group.supervisorId === currentUserId`.
+- If none, returns `{ requests: [] }`.
+- Fetches all `resourceRequest` rows for those groups ordered newest-first.
+- Enriches with:
+  - `groupName`
+  - `createdBy` (user name)
+  - `items` parsed from JSON
 
-  if (session.user.role === 'supervisor') {
-    const { description, specialization, domains, skills, achievements } = body;
-    
-    await prisma.fYPSupervisor.update({
-      where: { userId },
-      data: {
-        description,
-        specialization,
-        domains,
-        skills,
-        achievements
-      }
-    });
-  }
+**Edge cases**
+- As in the student endpoint, invalid `items` JSON would throw and return `500` (no guard in implementation).
 
-  return NextResponse.json({ success: true });
-}
-```
+#### `POST /api/supervisor/resource-requests`
+
+**Purpose**: supervisor review action.
+
+**Request body**
+- `requestId` (required)
+- `action` (required): `'approved' | 'rejected'`
+- `note` (optional)
+
+**Authorization and constraints**
+- Supervisor must supervise the request’s group, else `403 You don't supervise this group`.
+- Only requests with `status === 'pending'` can be reviewed, else `400 Request has already been reviewed`.
+
+**Status transitions (implemented)**
+- action `approved` → status becomes `supervisor_approved`
+- action `rejected` → status becomes `supervisor_rejected`
+
+Also stores: `supervisorId`, `supervisorNote`, `supervisorAction`, `supervisorReviewedAt`.
 
 ---
 
 ## API Routes & Endpoints
 
-### Complete Supervisor API Reference
+Add/verify these supervisor-scoped endpoints (in addition to the common project/group/chat/profile endpoints documented in `docs/Common.md`).
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/supervisor/dashboard` | GET | Dashboard statistics |
-| `/api/supervisor/invitations` | GET | Get group invitations |
-| `/api/supervisor/invitations/[id]` | PATCH | Accept/reject invitation |
-| `/api/supervisor/get-coordinator` | GET | Get campus coordinator |
-| `/api/projects` | GET | List supervisor's projects |
-| `/api/projects` | POST | Create project |
-| `/api/projects/[id]` | GET/PUT/DELETE | Project CRUD |
-| `/api/projects/check-similarity` | POST | Check similarity |
-| `/api/projects/[id]/permission` | PUT | Handle permission request |
-| `/api/groups` | GET | Get supervised groups |
-| `/api/chat` | GET/POST | Conversations |
-| `/api/profile` | GET | Get profile |
-| `/api/profile/update` | PUT | Update profile |
-| `/api/profile/image` | POST | Upload image |
-| `/api/notifications` | GET | Get notifications |
+| Method | Endpoint | Purpose | Key constraints |
+|---|---|---|---|
+| GET | `/api/supervisor/dashboard` | Supervisor dashboard snapshot (groups, proposals, stats) | role must be `supervisor` |
+| GET | `/api/supervisor/evaluations` | Fetch panel assignments + group stats | role must be `supervisor` |
+| POST | `/api/supervisor/evaluations/score-submission` | Score an evaluation submission | score range enforced; supervisor or chair authorization enforced |
+| GET/POST | `/api/supervisor/resource-requests` | View and review resource requests | only `pending` can be reviewed; must supervise group |
+| GET | `/api/supervisor/get-coordinator` | Fetch campus coordinator contact for this supervisor | role must be `supervisor` |
+| GET/PATCH | `/api/supervisor/invitations` | List/respond to group invitations | see route handlers |
+| GET/PATCH | `/api/supervisor/invitations/[id]` | Invitation detail/action | see route handlers |
 
 ---
 
