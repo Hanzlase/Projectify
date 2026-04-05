@@ -20,12 +20,16 @@ const createPrismaClient = () => {
     throw new Error('DATABASE_URL environment variable is not set. Please configure it in Railway.');
   }
   
+  // In development, increase pool timeout and slightly increase pool size to reduce P2024 errors
+  const url = process.env.DATABASE_URL;
+  const devUrl = !isProd && url ? `${url}${url.includes('?') ? '&' : '?'}connection_limit=10&pool_timeout=30` : url;
+
   return new PrismaClient({
     // Minimal logging in production for performance
     log: isProd ? [] : ['error', 'warn'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: devUrl,
       },
     },
   });

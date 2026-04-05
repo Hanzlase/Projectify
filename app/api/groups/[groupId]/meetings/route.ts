@@ -124,43 +124,75 @@ export async function POST(
       name: s.user.name,
     }));
 
-    if (group.supervisorId && group.supervisorId !== userId) {
+    // Always include supervisor if assigned (even if they created the meeting)
+    if (group.supervisorId) {
       try {
         const supervisor = await prisma.user.findUnique({
           where: { userId: group.supervisorId },
           select: { email: true, name: true },
         });
-        if (supervisor) emailTargets.push({ email: supervisor.email, name: supervisor.name });
+        if (supervisor) {
+          const already = emailTargets.some((t) => t.email.toLowerCase() === supervisor.email.toLowerCase());
+          if (!already) emailTargets.push({ email: supervisor.email, name: supervisor.name });
+        }
       } catch {
         // non-fatal
       }
     }
 
+    const groupName = group.groupName || `Group #${group.groupId}`;
+
     // Send "new meeting" email immediately to all members (fire-and-forget)
-    Promise.allSettled(
-      emailTargets.map(({ email, name }) =>
-        sendMeetingCreatedEmail({
-          to: email,
-          userName: name,
-          meetingTitle: meeting.title,
-          scheduledAt: meeting.scheduledAt,
-          duration: meeting.duration,
-          meetingLink: meeting.meetingLink ?? undefined,
-          description: meeting.description ?? undefined,
-          groupName: group.groupName ?? undefined,
-        })
-      )
-    ).then((results) => {
-      const failed = results.filter((r) => r.status === 'rejected').length;
-      if (failed > 0) console.error(`Meeting created email: ${failed}/${results.length} failed`);
-    }).catch((err) => console.error('Meeting created email batch error:', err));
+    let emailDebug: any = undefined;
+    try {
+      const results = await Promise.allSettled(
+        emailTargets.map(({ email, name }) =>
+          sendMeetingCreatedEmail({
+            to: email,
+            userName: name,
+            meetingTitle: meeting.title,
+            scheduledAt: meeting.scheduledAt,
+            duration: meeting.duration,
+            meetingLink: meeting.meetingLink ?? undefined,
+            description: meeting.description ?? undefined,
+            groupName,
+          })
+        )
+      );
+
+      const rejected = results
+        .map((res, i) => ({ res, i }))
+        .filter((x) => x.res.status === 'rejected')
+        .map((x) => ({
+          to: emailTargets[x.i]?.email,
+          reason: (x.res as PromiseRejectedResult).reason?.message ?? String((x.res as PromiseRejectedResult).reason),
+        }));
+
+      if (process.env.NODE_ENV === 'development') {
+        emailDebug = {
+          total: results.length,
+          rejected,
+        };
+      }
+    } catch (e) {
+      console.error('[Meetings] meeting-created email batch failed:', e);
+      if (process.env.NODE_ENV === 'development') {
+        emailDebug = { error: (e as any)?.message ?? String(e) };
+      }
+    }
 
     // Schedule 24h and 1h reminder records (immediate notification already sent above)
     scheduleMeetingReminders(meeting.meetingId, meeting.scheduledAt).catch((err) =>
       console.error('Failed to schedule meeting reminders:', err)
     );
 
-    return NextResponse.json({ meeting }, { status: 201 });
+    return NextResponse.json(
+      {
+        meeting,
+        ...(process.env.NODE_ENV === 'development' ? { emailDebug } : {}),
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating meeting:', error);
     return NextResponse.json({ error: 'Failed to create meeting' }, { status: 500 });

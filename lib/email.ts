@@ -41,15 +41,29 @@ async function sendEmail({ to, subject, html, text }: { to: string; subject: str
   const { from } = getGmailSmtpConfig();
   const transporter = getTransport();
 
-  const info = await transporter.sendMail({
-    from: `Projectify <${from}>`,
-    to,
-    subject,
-    html,
-    text,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: `Projectify <${from}>`,
+      to,
+      subject,
+      html,
+      text,
+    });
 
-  return info;
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Email] sent:', { to, subject, messageId: (info as any)?.messageId });
+    }
+    return info;
+  } catch (err: any) {
+    console.error('[Email] sendMail failed:', {
+      to,
+      subject,
+      code: err?.code,
+      response: err?.response,
+      message: err?.message,
+    });
+    throw err;
+  }
 }
 
 // Backwards-compatible alias (older code expected Brevo config)
