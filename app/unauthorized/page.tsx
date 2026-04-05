@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button"
 export default function UnauthorizedPage() {
   const router = useRouter()
   const { data: session } = useSession()
+  const [mounted, setMounted] = useState(false)
 
-  const role = (session?.user as any)?.role as string | undefined
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const role = mounted ? ((session?.user as any)?.role as string | undefined) : undefined
 
   const dashboardHref = useMemo(() => {
     if (!role) return "/login"
@@ -22,7 +27,7 @@ export default function UnauthorizedPage() {
     return "/login"
   }, [role])
 
-  const primaryLabel = session ? "Back to Dashboard" : "Go to Login"
+  const primaryLabel = mounted && session ? "Back to Dashboard" : "Go to Login"
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#18181B] flex items-center justify-center p-4 relative overflow-hidden">
@@ -77,7 +82,7 @@ export default function UnauthorizedPage() {
                 You don’t have permission to view this page. If you think this is a mistake, contact your coordinator.
               </p>
 
-              {session?.user && (
+              {mounted && session?.user && (
                 <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-100 dark:border-zinc-700">
                   <span className="w-2 h-2 rounded-full bg-[#1E6F3E]" />
                   <span className="text-sm text-gray-700 dark:text-zinc-300">
@@ -102,7 +107,7 @@ export default function UnauthorizedPage() {
                     window.location.href = dashboardHref
                   }}
                 >
-                  {session ? (
+                  {mounted && session ? (
                     <>
                       <Home className="w-4 h-4 mr-2" />
                       {primaryLabel}
