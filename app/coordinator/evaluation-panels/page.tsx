@@ -175,6 +175,8 @@ export default function EvaluationPanelsPage() {
   const [aiSidebarWidth, setAiSidebarWidth] = useState(500);
   const [isAiResizing, setIsAiResizing] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [autoGenerating, setAutoGenerating] = useState(false);
+  const [generatedPanels, setGeneratedPanels] = useState<any[]>([]);
 
   // Create Panel Sidebar State
   const [createPanelWidth, setCreatePanelWidth] = useState(600);
@@ -397,6 +399,7 @@ export default function EvaluationPanelsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: aiQuery,
+          mode: 'chat',
           context: {
             totalSupervisors: statistics.totalSupervisors,
             totalGroups: statistics.totalGroups,
@@ -451,6 +454,101 @@ export default function EvaluationPanelsPage() {
       setAiMessages(prev => [...prev, errorMessage]);
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleAutoGeneratePanels = async () => {
+    if (!confirm('This will generate optimal evaluation panels automatically based on AI analysis. Continue?')) {
+      return;
+    }
+
+    setAutoGenerating(true);
+
+    try {
+      const res = await fetch("/api/coordinator/evaluation-panels/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: 'auto-generate'
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedPanels(data.panels);
+        
+        // Show success message
+        alert(`Successfully generated ${data.panels.length} optimal panels!\n\n` +
+              `Total Supervisors: ${data.summary.totalSupervisors}\n` +
+              `Total Groups: ${data.summary.totalGroups}\n` +
+              `Average Panel Size: ${data.summary.averagePanelSize} supervisors\n` +
+              `Average Groups per Panel: ${data.summary.averageGroupsPerPanel} groups\n\n` +
+              `Review the panels below and click "Create All Panels" to save them.`);
+        
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to auto-generate panels");
+      }
+    } catch (error) {
+      console.error("Error auto-generating panels:", error);
+      alert("Failed to auto-generate panels");
+    } finally {
+      setAutoGenerating(false);
+    }
+  };
+
+  const handleCreateAllGeneratedPanels = async () => {
+    if (generatedPanels.length === 0) return;
+
+    if (!confirm(`Create all ${generatedPanels.length} generated panels?`)) {
+      return;
+    }
+
+    setSaving(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const panel of generatedPanels) {
+      try {
+        const res = await fetch("/api/coordinator/evaluation-panels", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: panel.name,
+            description: panel.description,
+            minSupervisors: panel.minSupervisors,
+            maxSupervisors: panel.maxSupervisors,
+            panelMembers: panel.supervisors.map((s: any) => ({
+              supervisorId: s.supervisorId,
+              role: s.role
+            })),
+            groupAssignments: panel.groups.map((groupId: number) => ({ groupId })),
+          }),
+        });
+
+        if (res.ok) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch (error) {
+        console.error("Error creating panel:", error);
+        failCount++;
+      }
+    }
+
+    setSaving(false);
+    setGeneratedPanels([]);
+    
+    alert(`Panel creation complete!\n\nSuccess: ${successCount}\nFailed: ${failCount}`);
+    
+    // Refresh data
+    fetchData();
+  };
+
+  const handleDiscardGeneratedPanels = () => {
+    if (confirm('Discard all generated panels?')) {
+      setGeneratedPanels([]);
     }
   };
 
@@ -756,6 +854,23 @@ export default function EvaluationPanelsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <Button
+                  onClick={handleAutoGeneratePanels}
+                  disabled={autoGenerating || statistics.totalSupervisors === 0 || statistics.totalGroups === 0}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                >
+                  {autoGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Bot className="w-4 h-4 mr-2" />
+                      Auto-Generate Panels
+                    </>
+                  )}
+                </Button>
+                <Button
                   onClick={() => setShowAIAssistant(true)}
                   variant="outline"
                   className="border-2 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700"
@@ -881,6 +996,122 @@ export default function EvaluationPanelsPage() {
               </div>
             </div>
           </motion.div>
+
+          {/* Generated Panels Preview */}
+          {generatedPanels.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <Card className="border-2 border-purple-500 dark:border-purple-600 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7] flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                        AI-Generated Panels ({generatedPanels.length})
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">
+                        Review the AI-generated panels below and create them all at once
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleCreateAllGeneratedPanels}
+                        disabled={saving}
+                        className="bg-[#1E6F3E] hover:bg-[#166534] text-white"
+                      >
+                        {saving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Create All Panels
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={handleDiscardGeneratedPanels}
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Discard
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mt-4">
+                    {generatedPanels.map((panel, index) => (
+                      <Card key={index} className="bg-white dark:bg-[#27272A]">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">
+                                {panel.name}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-zinc-400 mb-2">
+                                {panel.description}
+                              </p>
+                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-500">
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {panel.supervisors.length} supervisors
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <GraduationCap className="w-3 h-3" />
+                                  {panel.groups.length} groups
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Supervisors */}
+                          <div className="mb-3">
+                            <p className="text-xs font-semibold text-gray-700 dark:text-zinc-300 mb-2">
+                              Panel Members:
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {panel.supervisors.map((supervisor: any, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className={`px-3 py-1.5 rounded-lg text-xs ${
+                                    supervisor.role === 'chair'
+                                      ? 'bg-[#1E6F3E] text-white'
+                                      : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300'
+                                  }`}
+                                >
+                                  {supervisor.name}
+                                  {supervisor.role === 'chair' && (
+                                    <span className="ml-1 font-bold">(Chair)</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Rationale */}
+                          <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
+                            <p className="text-xs font-semibold text-blue-900 dark:text-blue-300 mb-1 flex items-center gap-1">
+                              <Lightbulb className="w-3 h-3" />
+                              AI Rationale:
+                            </p>
+                            <p className="text-xs text-blue-800 dark:text-blue-400">
+                              {panel.rationale}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Panels List */}
           <div className="space-y-4">

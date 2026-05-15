@@ -10,6 +10,42 @@ const cohere = new CohereClient({
 // Centralized Cohere model configuration
 const COHERE_MODEL = process.env.COHERE_MODEL || 'command-r-08-2024';
 
+interface SupervisorData {
+  userId: number;
+  name: string;
+  specialization: string;
+  description: string;
+  domains: string;
+  skills: string;
+  achievements: string;
+  maxGroups: number;
+  currentGroups: number;
+  workloadPercentage: number;
+  assignedGroupIds: number[];
+}
+
+interface GroupData {
+  groupId: number;
+  groupName: string;
+  supervisorId: number | null;
+  memberCount: number;
+}
+
+interface PanelSuggestion {
+  name: string;
+  description: string;
+  minSupervisors: number;
+  maxSupervisors: number;
+  supervisors: Array<{
+    supervisorId: number;
+    role: 'chair' | 'member';
+    name: string;
+    reason: string;
+  }>;
+  groups: number[];
+  rationale: string;
+}
+
 // POST - Get AI suggestions for panel creation
 export async function POST(request: NextRequest) {
   try {
@@ -21,8 +57,14 @@ export async function POST(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
     const body = await request.json();
-    const { query, context } = body; // context includes supervisors, groups, existing panels
+    const { query, context, mode } = body; // mode can be 'chat' or 'auto-generate'
 
+    // Auto-generate mode: Create complete panel suggestions
+    if (mode === 'auto-generate') {
+      return await handleAutoGeneratePanels(userId);
+    }
+
+    // Chat mode: Answer questions
     if (!query) {
       return NextResponse.json({ error: 'Query required' }, { status: 400 });
     }
@@ -196,4 +238,509 @@ Provide a clear answer in 2-3 sentences. Recommend specific supervisor(s) by nam
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
+}
+
+// Auto-generate optimal evaluation panels using AI
+async function handleAutoGeneratePanels(userId: number) {
+  try {
+    // Get coordinator's campus
+    const coordinator = await prisma.fYPCoordinator.findUnique({
+      where: { userId },
+      select: { campusId: true }
+    });
+
+    if (!coordinator) {
+      return NextResponse.json({ error: 'Coordinator not found' }, { status: 404 });
+    }
+
+    const { campusId } = coordinator;
+
+    // Get all supervisors with their groups
+    const supervisors = await prisma.user.findMany({
+      where: {
+        role: 'supervisor',
+        supervisor: { campusId }
+      },
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        supervisor: {
+          select: {
+            specialization: true,
+            maxGroups: true,
+            totalGroups: true,
+            domains: true,
+            skills: true,
+            achievements: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    // Get all groups with supervisor assignments
+    const groups = await prisma.group.findMany({
+      where: {
+        students: {
+          some: {
+            campusId,
+            groupId: { not: null }
+          }
+        },
+        supervisorId: { not: null }
+      },
+      select: {
+        groupId: true,
+        groupName: true,
+        supervisorId: true,
+        students: {
+          select: {
+            userId: true,
+            user: { select: { name: true } }
+          }
+        }
+      }
+    });
+
+    // Transform data for AI processing
+    const supervisorData: SupervisorData[] = supervisors.map(s => {
+      const assignedGroupIds = groups
+        .filter(g => g.supervisorId === s.userId)
+        .map(g => g.groupId);
+      
+      return {
+        userId: s.userId,
+        name: s.name,
+        specialization: s.supervisor?.specialization || 'Not specified',
+        description: s.supervisor?.description || '',
+        domains: s.supervisor?.domains || '',
+        skills: s.supervisor?.skills || '',
+        achievements: s.supervisor?.achievements || '',
+        maxGroups: s.supervisor?.maxGroups || 0,
+        currentGroups: s.supervisor?.totalGroups || 0,
+        workloadPercentage: s.supervisor?.maxGroups 
+          ? Math.round((s.supervisor.totalGroups || 0) / s.supervisor.maxGroups * 100)
+          : 0,
+        assignedGroupIds
+      };
+    });
+
+    const groupData: GroupData[] = groups.map(g => ({
+      groupId: g.groupId,
+      groupName: g.groupName || `Group ${g.groupId}`,
+      supervisorId: g.supervisorId,
+      memberCount: g.students.length
+    }));
+
+    // Build comprehensive prompt for AI
+    const prompt = buildAutoGeneratePrompt(supervisorData, groupData);
+
+    // Call Cohere API
+    const response = await cohere.chat({
+      model: COHERE_MODEL,
+      message: prompt,
+      temperature: 0.3, // Lower temperature for more consistent results
+      maxTokens: 4000,
+      preamble: "You are an expert FYP evaluation panel organizer. Create balanced, fair panels following all constraints."
+    });
+
+    // Parse AI response to extract panel suggestions
+    const panelSuggestions = parseAIPanelSuggestions(response.text, supervisorData, groupData);
+
+    return NextResponse.json({
+      success: true,
+      panels: panelSuggestions,
+      summary: {
+        totalPanels: panelSuggestions.length,
+        totalSupervisors: supervisorData.length,
+        totalGroups: groupData.length,
+        averagePanelSize: Math.round(supervisorData.length / panelSuggestions.length),
+        averageGroupsPerPanel: Math.round(groupData.length / panelSuggestions.length)
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error auto-generating panels:', error);
+    return NextResponse.json({ 
+      error: 'Failed to auto-generate panels',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+function buildAutoGeneratePrompt(supervisors: SupervisorData[], groups: GroupData[]): string {
+  // Build supervisor profiles
+  const supervisorProfiles = supervisors.map(s => {
+    const hasSEExpertise = 
+      s.specialization?.toLowerCase().includes('software') ||
+      s.specialization?.toLowerCase().includes('se') ||
+      s.domains?.toLowerCase().includes('software') ||
+      s.skills?.toLowerCase().includes('software');
+    
+    return `Supervisor ${s.userId} - ${s.name}:
+  - Specialization: ${s.specialization}
+  - Domains: ${s.domains || 'Not specified'}
+  - Skills: ${s.skills || 'Not specified'}
+  - Current Workload: ${s.currentGroups}/${s.maxGroups} groups (${s.workloadPercentage}%)
+  - Assigned Groups: [${s.assignedGroupIds.join(', ')}]
+  - SE Expertise: ${hasSEExpertise ? 'YES' : 'NO'}`;
+  }).join('\n\n');
+
+  // Build group assignments
+  const groupAssignments = groups.map(g => 
+    `Group ${g.groupId} (${g.groupName}): Supervised by Supervisor ${g.supervisorId}`
+  ).join('\n');
+
+  // Calculate optimal panel configuration
+  const totalSupervisors = supervisors.length;
+  const totalGroups = groups.length;
+  const avgGroupsPerSupervisor = totalGroups / totalSupervisors;
+  
+  // Dynamic panel count calculation
+  let optimalPanelCount: number;
+  let optimalSupervisorsPerPanel: number;
+  
+  if (totalSupervisors <= 4) {
+    optimalPanelCount = 1;
+    optimalSupervisorsPerPanel = totalSupervisors;
+  } else if (totalSupervisors <= 8) {
+    optimalPanelCount = 2;
+    optimalSupervisorsPerPanel = Math.ceil(totalSupervisors / 2);
+  } else if (totalSupervisors <= 15) {
+    optimalPanelCount = 3;
+    optimalSupervisorsPerPanel = Math.ceil(totalSupervisors / 3);
+  } else if (totalSupervisors <= 24) {
+    optimalPanelCount = 4;
+    optimalSupervisorsPerPanel = Math.ceil(totalSupervisors / 4);
+  } else {
+    optimalPanelCount = Math.ceil(totalSupervisors / 6);
+    optimalSupervisorsPerPanel = 6;
+  }
+  
+  const avgGroupsPerPanel = Math.ceil(totalGroups / optimalPanelCount);
+
+  return `You are creating optimal FYP evaluation panels. Analyze the supervisors and groups below, then create balanced panels.
+
+SUPERVISORS (Total: ${supervisors.length}):
+${supervisorProfiles}
+
+GROUPS (Total: ${groups.length}):
+${groupAssignments}
+
+STATISTICS:
+- Average groups per supervisor: ${avgGroupsPerSupervisor.toFixed(1)}
+- Recommended panel count: ${optimalPanelCount}
+- Recommended supervisors per panel: ${optimalSupervisorsPerPanel}
+- Target groups per panel: ~${avgGroupsPerPanel}
+
+REQUIREMENTS:
+1. **Balanced Workload**: Distribute supervisors so each panel has similar total group counts. Avoid panels with ${Math.ceil(totalGroups * 0.6)} groups while others have ${Math.ceil(totalGroups * 0.1)}.
+2. **SE Expertise**: Each panel MUST have at least one supervisor with Software Engineering expertise.
+3. **Supervisor-Group Matching**: Each supervisor MUST be in the panel evaluating their own groups.
+4. **Dynamic Panel Size**: Create ${optimalPanelCount} panels. Panel size should be flexible based on workload balance - some panels may have ${optimalSupervisorsPerPanel - 1} supervisors, others ${optimalSupervisorsPerPanel + 1}, as long as workload is balanced.
+5. **Expertise Distribution**: Balance technical expertise across panels.
+6. **Panel Chair**: Select the most experienced supervisor (based on achievements, workload) as chair for each panel.
+
+INSTRUCTIONS:
+Create ${optimalPanelCount} evaluation panels. For each panel, provide:
+
+Panel [Number]: [Descriptive Name]
+Description: [Brief description of panel focus]
+Min Supervisors: [calculated based on panel members]
+Max Supervisors: [calculated based on panel members + 2]
+Chair: Supervisor [ID] - [Name] (Reason: [why they're chair])
+Members:
+  - Supervisor [ID] - [Name] (Role: member, Reason: [expertise/groups])
+  - Supervisor [ID] - [Name] (Role: member, Reason: [expertise/groups])
+Assigned Groups: [Group IDs]
+Total Groups: [count]
+Rationale: [Why this composition is balanced and effective]
+
+---
+
+Ensure:
+- Every supervisor appears in exactly ONE panel
+- Every group is assigned to exactly ONE panel
+- Each panel has its supervisors' groups assigned to it
+- Workload is balanced (each panel has ~${avgGroupsPerPanel} groups, variance ±${Math.ceil(avgGroupsPerPanel * 0.2)})
+- Each panel has SE expertise
+- Panel sizes are flexible - prioritize workload balance over fixed supervisor counts
+
+Generate the panels now:`;
+}
+
+function parseAIPanelSuggestions(
+  aiResponse: string, 
+  supervisors: SupervisorData[], 
+  groups: GroupData[]
+): PanelSuggestion[] {
+  const panels: PanelSuggestion[] = [];
+  
+  try {
+    // Split response into panel sections
+    const panelSections = aiResponse.split(/Panel \d+:/i).filter(s => s.trim());
+    
+    for (let i = 0; i < panelSections.length; i++) {
+      const section = panelSections[i];
+      
+      // Extract panel name
+      const nameMatch = section.match(/^([^\n]+)/);
+      const name = nameMatch ? nameMatch[1].trim() : `Evaluation Panel ${i + 1}`;
+      
+      // Extract description
+      const descMatch = section.match(/Description:\s*([^\n]+)/i);
+      const description = descMatch ? descMatch[1].trim() : 'FYP Evaluation Panel';
+      
+      // Extract min/max supervisors
+      const minMatch = section.match(/Min Supervisors:\s*(\d+)/i);
+      const maxMatch = section.match(/Max Supervisors:\s*(\d+)/i);
+      const minSupervisors = minMatch ? parseInt(minMatch[1]) : 3;
+      const maxSupervisors = maxMatch ? parseInt(maxMatch[1]) : 5;
+      
+      // Extract chair
+      const chairMatch = section.match(/Chair:\s*Supervisor\s*(\d+)[^\(]*\(Reason:\s*([^\)]+)\)/i);
+      const chairId = chairMatch ? parseInt(chairMatch[1]) : null;
+      const chairReason = chairMatch ? chairMatch[2].trim() : 'Experienced supervisor';
+      
+      // Extract members
+      const memberMatches = [...section.matchAll(/Supervisor\s*(\d+)\s*-\s*([^\(]+)\s*\(Role:\s*member,\s*Reason:\s*([^\)]+)\)/gi)];
+      
+      // Extract assigned groups
+      const groupsMatch = section.match(/Assigned Groups:\s*\[([^\]]+)\]/i);
+      const assignedGroupIds = groupsMatch 
+        ? groupsMatch[1].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+        : [];
+      
+      // Extract rationale
+      const rationaleMatch = section.match(/Rationale:\s*([^\n]+(?:\n(?!Panel|---)[^\n]+)*)/i);
+      const rationale = rationaleMatch ? rationaleMatch[1].trim() : 'Balanced panel composition';
+      
+      // Build supervisor list
+      const panelSupervisors: PanelSuggestion['supervisors'] = [];
+      
+      // Add chair
+      if (chairId) {
+        const chairSupervisor = supervisors.find(s => s.userId === chairId);
+        if (chairSupervisor) {
+          panelSupervisors.push({
+            supervisorId: chairId,
+            role: 'chair',
+            name: chairSupervisor.name,
+            reason: chairReason
+          });
+        }
+      }
+      
+      // Add members
+      for (const match of memberMatches) {
+        const memberId = parseInt(match[1]);
+        const memberName = match[2].trim();
+        const memberReason = match[3].trim();
+        
+        if (memberId !== chairId) { // Don't add chair twice
+          panelSupervisors.push({
+            supervisorId: memberId,
+            role: 'member',
+            name: memberName,
+            reason: memberReason
+          });
+        }
+      }
+      
+      // If no supervisors were extracted, try fallback parsing
+      if (panelSupervisors.length === 0) {
+        const allSupervisorMatches = [...section.matchAll(/Supervisor\s*(\d+)/gi)];
+        const uniqueSupervisorIds = [...new Set(allSupervisorMatches.map(m => parseInt(m[1])))];
+        
+        uniqueSupervisorIds.forEach((id, index) => {
+          const supervisor = supervisors.find(s => s.userId === id);
+          if (supervisor) {
+            panelSupervisors.push({
+              supervisorId: id,
+              role: index === 0 ? 'chair' : 'member',
+              name: supervisor.name,
+              reason: index === 0 ? 'Panel head' : 'Panel member'
+            });
+          }
+        });
+      }
+      
+      // Validate and add panel
+      if (panelSupervisors.length > 0) {
+        panels.push({
+          name: name.length > 100 ? name.substring(0, 100) : name,
+          description: description.length > 500 ? description.substring(0, 500) : description,
+          minSupervisors,
+          maxSupervisors,
+          supervisors: panelSupervisors,
+          groups: assignedGroupIds,
+          rationale: rationale.length > 1000 ? rationale.substring(0, 1000) : rationale
+        });
+      }
+    }
+    
+    // Fallback: If parsing failed, create balanced panels manually
+    if (panels.length === 0) {
+      return createFallbackPanels(supervisors, groups);
+    }
+    
+    // Validate and fix panels
+    return validateAndFixPanels(panels, supervisors, groups);
+    
+  } catch (error) {
+    console.error('Error parsing AI response:', error);
+    // Return fallback panels
+    return createFallbackPanels(supervisors, groups);
+  }
+}
+
+function createFallbackPanels(
+  supervisors: SupervisorData[], 
+  groups: GroupData[]
+): PanelSuggestion[] {
+  const panels: PanelSuggestion[] = [];
+  
+  // Calculate optimal panel count based on supervisors and groups
+  const totalSupervisors = supervisors.length;
+  const totalGroups = groups.length;
+  
+  let panelCount: number;
+  if (totalSupervisors <= 4) {
+    panelCount = 1;
+  } else if (totalSupervisors <= 8) {
+    panelCount = 2;
+  } else if (totalSupervisors <= 15) {
+    panelCount = 3;
+  } else if (totalSupervisors <= 24) {
+    panelCount = 4;
+  } else {
+    panelCount = Math.ceil(totalSupervisors / 6);
+  }
+  
+  const supervisorsPerPanel = Math.ceil(totalSupervisors / panelCount);
+  
+  // Sort supervisors by workload (groups assigned) for balanced distribution
+  const sortedSupervisors = [...supervisors].sort((a, b) => 
+    b.assignedGroupIds.length - a.assignedGroupIds.length
+  );
+  
+  // Distribute supervisors across panels in round-robin to balance workload
+  const panelSupervisors: SupervisorData[][] = Array.from({ length: panelCount }, () => []);
+  
+  sortedSupervisors.forEach((supervisor, index) => {
+    const panelIndex = index % panelCount;
+    panelSupervisors[panelIndex].push(supervisor);
+  });
+  
+  // Create panels
+  for (let i = 0; i < panelCount; i++) {
+    const supervisorsInPanel = panelSupervisors[i];
+    
+    if (supervisorsInPanel.length === 0) continue;
+    
+    // Collect all groups for this panel's supervisors
+    const panelGroupIds = supervisorsInPanel.flatMap(s => s.assignedGroupIds);
+    
+    // Select chair (most experienced)
+    const chair = supervisorsInPanel.reduce((prev, curr) => 
+      curr.currentGroups > prev.currentGroups ? curr : prev
+    );
+    
+    panels.push({
+      name: `Evaluation Panel ${String.fromCharCode(65 + i)}`,
+      description: `FYP Evaluation Panel with ${supervisorsInPanel.length} supervisors evaluating ${panelGroupIds.length} groups`,
+      minSupervisors: Math.max(2, supervisorsInPanel.length - 1),
+      maxSupervisors: supervisorsInPanel.length + 2,
+      supervisors: supervisorsInPanel.map(s => ({
+        supervisorId: s.userId,
+        role: s.userId === chair.userId ? 'chair' : 'member',
+        name: s.name,
+        reason: s.userId === chair.userId 
+          ? `Most experienced with ${s.currentGroups} groups`
+          : `Supervising ${s.assignedGroupIds.length} groups in this panel`
+      })),
+      groups: panelGroupIds,
+      rationale: `Balanced panel with ${panelGroupIds.length} groups distributed among ${supervisorsInPanel.length} supervisors. Workload per supervisor: ~${(panelGroupIds.length / supervisorsInPanel.length).toFixed(1)} groups.`
+    });
+  }
+  
+  return panels;
+}
+
+function validateAndFixPanels(
+  panels: PanelSuggestion[], 
+  supervisors: SupervisorData[], 
+  groups: GroupData[]
+): PanelSuggestion[] {
+  const usedSupervisorIds = new Set<number>();
+  const usedGroupIds = new Set<number>();
+  const validPanels: PanelSuggestion[] = [];
+  
+  // First pass: validate and collect used IDs
+  for (const panel of panels) {
+    const validSupervisors = panel.supervisors.filter(s => {
+      const supervisor = supervisors.find(sup => sup.userId === s.supervisorId);
+      return supervisor && !usedSupervisorIds.has(s.supervisorId);
+    });
+    
+    if (validSupervisors.length === 0) continue;
+    
+    // Mark supervisors as used
+    validSupervisors.forEach(s => usedSupervisorIds.add(s.supervisorId));
+    
+    // Ensure groups match supervisors
+    const supervisorIds = validSupervisors.map(s => s.supervisorId);
+    const validGroups = groups
+      .filter(g => supervisorIds.includes(g.supervisorId || 0) && !usedGroupIds.has(g.groupId))
+      .map(g => g.groupId);
+    
+    validGroups.forEach(gId => usedGroupIds.add(gId));
+    
+    // Ensure there's a chair
+    const hasChair = validSupervisors.some(s => s.role === 'chair');
+    if (!hasChair && validSupervisors.length > 0) {
+      validSupervisors[0].role = 'chair';
+    }
+    
+    validPanels.push({
+      ...panel,
+      supervisors: validSupervisors,
+      groups: validGroups,
+      minSupervisors: Math.max(2, validSupervisors.length - 1),
+      maxSupervisors: validSupervisors.length + 1
+    });
+  }
+  
+  // Second pass: assign remaining supervisors and groups
+  const remainingSupervisors = supervisors.filter(s => !usedSupervisorIds.has(s.userId));
+  const remainingGroups = groups.filter(g => !usedGroupIds.has(g.groupId));
+  
+  if (remainingSupervisors.length > 0 && validPanels.length > 0) {
+    // Distribute remaining supervisors to smallest panels
+    const sortedPanels = [...validPanels].sort((a, b) => 
+      a.supervisors.length - b.supervisors.length
+    );
+    
+    remainingSupervisors.forEach((supervisor, idx) => {
+      const targetPanel = sortedPanels[idx % sortedPanels.length];
+      targetPanel.supervisors.push({
+        supervisorId: supervisor.userId,
+        role: 'member',
+        name: supervisor.name,
+        reason: `Added for balance`
+      });
+      
+      // Add supervisor's groups
+      const supervisorGroups = groups
+        .filter(g => g.supervisorId === supervisor.userId && !usedGroupIds.has(g.groupId))
+        .map(g => g.groupId);
+      
+      targetPanel.groups.push(...supervisorGroups);
+      supervisorGroups.forEach(gId => usedGroupIds.add(gId));
+    });
+  }
+  
+  return validPanels.length > 0 ? validPanels : createFallbackPanels(supervisors, groups);
 }
