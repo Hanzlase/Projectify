@@ -505,7 +505,12 @@ function parseAIPanelSuggestions(
       const chairReason = chairMatch ? chairMatch[2].trim() : 'Experienced supervisor';
       
       // Extract members
-      const memberMatches = [...section.matchAll(/Supervisor\s*(\d+)\s*-\s*([^\(]+)\s*\(Role:\s*member,\s*Reason:\s*([^\)]+)\)/gi)];
+      const memberMatches = [];
+      const memberRegex = /Supervisor\s*(\d+)\s*-\s*([^\(]+)\s*\(Role:\s*member,\s*Reason:\s*([^\)]+)\)/gi;
+      let match;
+      while ((match = memberRegex.exec(section)) !== null) {
+        memberMatches.push(match);
+      }
       
       // Extract assigned groups
       const groupsMatch = section.match(/Assigned Groups:\s*\[([^\]]+)\]/i);
@@ -549,10 +554,25 @@ function parseAIPanelSuggestions(
         }
       }
       
+      // Extract all supervisor IDs (for fallback parsing)
+      const allSupervisorMatches = [];
+      const supervisorRegex = /Supervisor\s*(\d+)/gi;
+      let supMatch;
+      while ((supMatch = supervisorRegex.exec(section)) !== null) {
+        allSupervisorMatches.push(supMatch);
+      }
+      
       // If no supervisors were extracted, try fallback parsing
       if (panelSupervisors.length === 0) {
-        const allSupervisorMatches = [...section.matchAll(/Supervisor\s*(\d+)/gi)];
-        const uniqueSupervisorIds = [...new Set(allSupervisorMatches.map(m => parseInt(m[1])))];
+        const uniqueSupervisorIds: number[] = [];
+        const seen = new Set<number>();
+        for (const m of allSupervisorMatches) {
+          const id = parseInt(m[1]);
+          if (!seen.has(id)) {
+            seen.add(id);
+            uniqueSupervisorIds.push(id);
+          }
+        }
         
         uniqueSupervisorIds.forEach((id, index) => {
           const supervisor = supervisors.find(s => s.userId === id);
