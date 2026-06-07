@@ -42,12 +42,11 @@ export async function GET(req: NextRequest) {
       orderBy: [{ fypPhase: "asc" }, { orderIndex: "asc" }],
     });
 
-    // Fetch all evaluations linked to phases for this campus+cohort (with submissions)
-    const evaluationsWithPhase = await (prisma as any).evaluation.findMany({
+    // Fetch all phases for this campus+cohort (with submissions)
+    const phasesWithSubmissions = await (prisma as any).fypEvaluationPhase.findMany({
       where: {
         campusId,
         cohort: cohort as any,
-        phaseId: { not: null },
       },
       include: {
         submissions: {
@@ -58,14 +57,6 @@ export async function GET(req: NextRequest) {
             panelScore: true,
             obtainedMarks: true,
             status: true,
-          },
-        },
-        phase: {
-          select: {
-            phaseId: true,
-            name: true,
-            weightage: true,
-            fypPhase: true,
           },
         },
       },
@@ -101,12 +92,14 @@ export async function GET(req: NextRequest) {
 
     const groupPhaseMap = new Map<number, Map<number, PhaseScore>>();
 
-    for (const ev of evaluationsWithPhase) {
-      if (!ev.phase) continue;
-      const { phaseId, name: phaseName, weightage, fypPhase } = ev.phase;
-      const totalMarks: number = ev.totalMarks;
+    for (const ph of phasesWithSubmissions) {
+      const phaseId = ph.phaseId;
+      const phaseName = ph.name;
+      const weightage = ph.weightage;
+      const fypPhase = ph.fypPhase;
+      const totalMarks = ph.totalMarks;
 
-      for (const sub of ev.submissions) {
+      for (const sub of ph.submissions) {
         const { groupId, supervisorScore, panelScore } = sub;
 
         if (!groupPhaseMap.has(groupId)) {

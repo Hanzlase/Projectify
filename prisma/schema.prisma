@@ -555,62 +555,26 @@ enum TaskPriority {
   high
 }
 
-// Evaluation - Announcements/Assignments created by coordinators
-model Evaluation {
-  evaluationId  Int               @id @default(autoincrement()) @map("evaluation_id")
-  title         String            @db.VarChar(255)
-  description   String            @db.Text
-  instructions  String?           @db.Text
-  totalMarks    Int               @default(100) @map("total_marks")
-  dueDate       DateTime          @map("due_date")
-  status        EvaluationStatus  @default(active)
-  cohort        Cohort            @default(REGULAR)
-  fypPhase      FypPhase          @default(FYP_1) @map("fyp_phase")
-  phaseId       Int?              @map("phase_id") // Optional link to a FypEvaluationPhase
-  createdById   Int               @map("created_by_id") // Coordinator userId
-  campusId      Int               @map("campus_id")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+// Phase Attachments - Files attached to evaluation phases by coordinators
+model PhaseAttachment {
+  attachmentId  Int                 @id @default(autoincrement()) @map("attachment_id")
+  phaseId       Int                 @map("phase_id")
+  fileName      String              @db.VarChar(255) @map("file_name")
+  fileUrl       String              @db.VarChar(500) @map("file_url")
+  fileSize      Int?                @map("file_size") // In bytes
+  fileType      String?             @db.VarChar(100) @map("file_type")
+  createdAt     DateTime            @default(now())
 
-  phase         FypEvaluationPhase? @relation(fields: [phaseId], references: [phaseId])
-  attachments   EvaluationAttachment[]
-  submissions   EvaluationSubmission[]
+  phase         FypEvaluationPhase  @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
 
-  @@index([campusId])
-  @@index([createdById])
-  @@index([status])
-  @@index([dueDate])
   @@index([phaseId])
-  @@map("evaluations")
+  @@map("phase_attachments")
 }
 
-enum EvaluationStatus {
-  draft
-  active
-  closed
-  graded
-}
-
-// Evaluation Attachments - Files attached to evaluation announcements
-model EvaluationAttachment {
-  attachmentId  Int         @id @default(autoincrement()) @map("attachment_id")
-  evaluationId  Int         @map("evaluation_id")
-  fileName      String      @db.VarChar(255) @map("file_name")
-  fileUrl       String      @db.VarChar(500) @map("file_url")
-  fileSize      Int?        @map("file_size") // In bytes
-  fileType      String?     @db.VarChar(100) @map("file_type")
-  createdAt     DateTime    @default(now())
-
-  evaluation    Evaluation  @relation(fields: [evaluationId], references: [evaluationId], onDelete: Cascade)
-
-  @@index([evaluationId])
-  @@map("evaluation_attachments")
-}
-
-// Evaluation Submission - Student/Group submissions for evaluations
+// Evaluation Submission - Student/Group submissions for phases
 model EvaluationSubmission {
   submissionId    Int                     @id @default(autoincrement()) @map("submission_id")
-  evaluationId    Int                     @map("evaluation_id")
+  phaseId         Int                     @map("phase_id")
   groupId         Int                     @map("group_id")
   submittedById   Int                     @map("submitted_by_id") // Student userId who submitted
   content         String?                 @db.Text // Text content/notes
@@ -632,11 +596,11 @@ model EvaluationSubmission {
   submittedAt     DateTime                @default(now()) @map("submitted_at")
   updatedAt       DateTime                @updatedAt
 
-  evaluation      Evaluation              @relation(fields: [evaluationId], references: [evaluationId], onDelete: Cascade)
+  phase           FypEvaluationPhase      @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
   attachments     SubmissionAttachment[]
 
-  @@unique([evaluationId, groupId])
-  @@index([evaluationId])
+  @@unique([phaseId, groupId])
+  @@index([phaseId])
   @@index([groupId])
   @@index([submittedById])
   @@index([status])
@@ -702,6 +666,10 @@ model FypEvaluationPhase {
   phaseId      Int      @id @default(autoincrement()) @map("phase_id")
   name         String   @db.VarChar(255)   // e.g., "Proposal Review", "Mid-Term", "Final Defense"
   description  String?  @db.Text
+  instructions String?  @db.Text
+  totalMarks   Int      @default(100) @map("total_marks")
+  deadline     DateTime? @map("deadline")
+  status       EvaluationStatus @default(draft)
   weightage    Float    @default(0)         // % weight toward FYP total score (0–100, phases should sum to 100)
   fypPhase     FypPhase @map("fyp_phase")  // Which FYP this phase belongs to (FYP_1 or FYP_2)
   cohort       Cohort   @default(REGULAR)
@@ -712,12 +680,20 @@ model FypEvaluationPhase {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  evaluations  Evaluation[]
+  attachments  PhaseAttachment[]
+  submissions  EvaluationSubmission[]
   panels       EvaluationPanel[]
 
   @@index([campusId, fypPhase, cohort])
   @@index([campusId, isActive])
   @@map("fyp_evaluation_phases")
+}
+
+enum EvaluationStatus {
+  draft
+  active
+  closed
+  graded
 }
 
 enum EvaluationPanelStatus {

@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const submission = await (prisma as any).evaluationSubmission.findUnique({
       where: { submissionId: parseInt(submissionId) },
       include: {
-        evaluation: { select: { totalMarks: true } }
+        phase: { select: { totalMarks: true } }
       }
     });
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
     }
 
-    const totalMarks = submission.evaluation?.totalMarks || maxScore || 100;
+    const totalMarks = submission.phase?.totalMarks || maxScore || 100;
 
     if (score === undefined || score === null || score < 0 || score > totalMarks) {
       return NextResponse.json({ error: `Score must be between 0 and ${totalMarks}` }, { status: 400 });

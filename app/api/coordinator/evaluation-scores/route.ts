@@ -24,29 +24,29 @@ export async function GET(request: NextRequest) {
 
     const campusId = coordinator.campusId;
 
-    // Get all evaluations for this campus
-    const evaluations = await (prisma as any).evaluation.findMany({
+    // Get all active phases for this campus
+    const phases = await (prisma as any).fypEvaluationPhase.findMany({
       where: { campusId },
       select: {
-        evaluationId: true,
-        title: true,
+        phaseId: true,
+        name: true,
         totalMarks: true,
-        dueDate: true,
+        deadline: true,
         status: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { orderIndex: 'asc' },
     });
 
-    // Get all submissions with scores for this campus's evaluations
-    const evaluationIds = evaluations.map((e: any) => e.evaluationId);
+    const phaseIds = phases.map((p: any) => p.phaseId);
 
+    // Get all submissions with scores for this campus's phases
     const submissions = await (prisma as any).evaluationSubmission.findMany({
       where: {
-        evaluationId: { in: evaluationIds },
+        phaseId: { in: phaseIds },
       },
       select: {
         submissionId: true,
-        evaluationId: true,
+        phaseId: true,
         groupId: true,
         content: true,
         status: true,
@@ -94,14 +94,14 @@ export async function GET(request: NextRequest) {
     });
     const supervisorNameMap = new Map(supervisorUsers.map(u => [u.userId, u.name]));
 
-    // Create evaluation map
-    const evaluationMap = new Map<number, any>(evaluations.map((e: any) => [e.evaluationId, e]));
+    // Create phase map
+    const phaseMap = new Map<number, any>(phases.map((p: any) => [p.phaseId, p]));
 
     // Build the scores data
     const scoresData = submissions.map((sub: any) => {
       const group = groupMap.get(sub.groupId);
-      const evaluation: any = evaluationMap.get(sub.evaluationId);
-      const totalMarks = evaluation?.totalMarks || 100;
+      const phase: any = phaseMap.get(sub.phaseId);
+      const totalMarks = phase?.totalMarks || 100;
 
       // Calculate combined score (50% supervisor + 50% panel)
       let combinedScore: number | null = null;
@@ -114,8 +114,8 @@ export async function GET(request: NextRequest) {
 
       return {
         submissionId: sub.submissionId,
-        evaluationId: sub.evaluationId,
-        evaluationTitle: evaluation?.title || 'Unknown',
+        evaluationId: sub.phaseId,
+        evaluationTitle: phase?.name || 'Unknown',
         totalMarks,
         groupId: sub.groupId,
         groupName: group?.groupName || `Group ${sub.groupId}`,
@@ -153,12 +153,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       scores: scoresData,
-      evaluations: evaluations.map((e: any) => ({
-        evaluationId: e.evaluationId,
-        title: e.title,
-        totalMarks: e.totalMarks,
-        dueDate: e.dueDate,
-        status: e.status,
+      evaluations: phases.map((p: any) => ({
+        evaluationId: p.phaseId,
+        title: p.name,
+        totalMarks: p.totalMarks,
+        dueDate: p.deadline,
+        status: p.status,
       })),
       summary: {
         totalSubmissions,

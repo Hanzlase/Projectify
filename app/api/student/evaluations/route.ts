@@ -89,8 +89,8 @@ export async function GET(req: NextRequest) {
     });
     const activePhase = campus ? getActivePhase(student.cohort, campus.activeSemester) : 'FYP_1';
 
-    // Fetch active evaluations for student's campus matching their cohort & phase
-    const evaluations = await (prisma as any).evaluation.findMany({
+    // Fetch active phases for student's campus matching their cohort & phase
+    const evaluations = await (prisma as any).fypEvaluationPhase.findMany({
       where: {
         campusId: student.campusId,
         status: { in: ["active", "closed", "graded"] },
@@ -104,23 +104,23 @@ export async function GET(req: NextRequest) {
           include: { attachments: true },
         } : false,
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { deadline: "asc" },
     });
 
-    // Format evaluations with submission status
+    // Format evaluations with submission status (mapping to what frontend expects)
     const formattedEvaluations = evaluations.map((ev: any) => {
       const submission = ev.submissions?.[0] || null;
       const now = new Date();
-      const dueDate = new Date(ev.dueDate);
-      const isOverdue = now > dueDate && !submission;
+      const dueDate = ev.deadline ? new Date(ev.deadline) : null;
+      const isOverdue = dueDate ? (now > dueDate && !submission) : false;
       
       return {
-        id: ev.evaluationId,
-        title: ev.title,
-        description: ev.description,
+        id: ev.phaseId,
+        title: ev.name,
+        description: ev.description || "",
         instructions: ev.instructions,
         totalMarks: ev.totalMarks,
-        dueDate: ev.dueDate,
+        dueDate: ev.deadline,
         status: ev.status,
         createdAt: ev.createdAt,
         isOverdue,
@@ -166,12 +166,12 @@ export async function GET(req: NextRequest) {
       isCompleted,
     });
   } catch (error) {
-    console.error("Error fetching evaluations:", error);
+    console.error("Error fetching student evaluations:", error);
     return NextResponse.json({ error: "Failed to fetch evaluations" }, { status: 500 });
   }
 }
 
-// POST - Submit evaluation work
+// POST - Submit evaluation work (links to FypEvaluationPhase via phaseId)
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -184,10 +184,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
     }
     const body = await req.json();
-    const { evaluationId, content, attachments } = body;
+    const { evaluationId, content, attachments } = body; // evaluationId here is the phaseId
 
     if (!evaluationId) {
-      return NextResponse.json({ error: "Evaluation ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "Phase ID is required" }, { status: 400 });
     }
 
     // Get student's group
@@ -199,24 +199,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "You must be in a group to submit" }, { status: 400 });
     }
 
-    // Check if evaluation exists and is active
-    const evaluation = await (prisma as any).evaluation.findUnique({
-      where: { evaluationId: parseInt(evaluationId) },
+    // Check if phase exists and is active
+    const phase = await (prisma as any).fypEvaluationPhase.findUnique({
+      where: { phaseId: parseInt(evaluationId) },
     });
 
-    if (!evaluation) {
-      return NextResponse.json({ error: "Evaluation not found" }, { status: 404 });
+    if (!phase) {
+      return NextResponse.json({ error: "Evaluation Phase not found" }, { status: 404 });
     }
 
-    if (evaluation.status === "closed" || evaluation.status === "graded") {
+    if (phase.status === "closed" || phase.status === "graded") {
       return NextResponse.json({ error: "This evaluation is closed for submissions" }, { status: 400 });
     }
 
     // Check if already submitted
     const existingSubmission = await (prisma as any).evaluationSubmission.findUnique({
       where: {
-        evaluationId_groupId: {
-          evaluationId: parseInt(evaluationId),
+        phaseId_groupId: {
+          phaseId: parseInt(evaluationId),
           groupId: student.groupId,
         },
       },
@@ -228,13 +228,13 @@ export async function POST(req: NextRequest) {
 
     // Determine if late submission
     const now = new Date();
-    const dueDate = new Date(evaluation.dueDate);
-    const isLate = now > dueDate;
+    const dueDate = phase.deadline ? new Date(phase.deadline) : null;
+    const isLate = dueDate ? (now > dueDate) : false;
 
     // Create submission
     const submission = await (prisma as any).evaluationSubmission.create({
       data: {
-        evaluationId: parseInt(evaluationId),
+        phaseId: parseInt(evaluationId),
         groupId: student.groupId,
         submittedById: userId,
         content: content || null,
@@ -299,7 +299,7 @@ export async function PATCH(req: NextRequest) {
     // Check if submission exists and belongs to student's group
     const existingSubmission = await (prisma as any).evaluationSubmission.findUnique({
       where: { submissionId: parseInt(submissionId) },
-      include: { evaluation: true },
+      include: { phase: true },
     });
 
     if (!existingSubmission || existingSubmission.groupId !== student.groupId) {
@@ -370,7 +370,7 @@ export async function DELETE(req: NextRequest) {
     // Check if submission exists and belongs to student's group
     const existingSubmission = await (prisma as any).evaluationSubmission.findUnique({
       where: { submissionId: parseInt(submissionId) },
-      include: { evaluation: true },
+      include: { phase: true },
     });
 
     if (!existingSubmission || existingSubmission.groupId !== student.groupId) {

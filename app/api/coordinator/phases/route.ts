@@ -31,14 +31,32 @@ export async function GET(req: NextRequest) {
         fypPhase: fypPhase as any,
       },
       include: {
+        attachments: true,
+        submissions: {
+          include: {
+            attachments: true,
+          },
+        },
         _count: {
           select: {
-            evaluations: true,
+            submissions: true,
             panels: true,
           },
         },
       },
       orderBy: { orderIndex: "asc" },
+    });
+
+    // Get total groups count for campus under this specific cohort
+    const totalGroups = await (prisma as any).group.count({
+      where: {
+        cohort: cohort as any,
+        students: {
+          some: {
+            campusId: coordinator.campusId,
+          },
+        },
+      },
     });
 
     // Compute total weightage for this FYP+cohort
@@ -49,17 +67,49 @@ export async function GET(req: NextRequest) {
         phaseId: p.phaseId,
         name: p.name,
         description: p.description,
-        weightage: p.weightage,
+        instructions: p.instructions,
+        totalMarks: p.totalMarks,
+        deadline: p.deadline,
+        status: p.status,
         fypPhase: p.fypPhase,
         cohort: p.cohort,
         isActive: p.isActive,
         orderIndex: p.orderIndex,
-        evaluationCount: p._count.evaluations,
+        evaluationCount: p._count.submissions > 0 ? 1 : 0, // for backward compatibility/simplicity
         panelCount: p._count.panels,
+        submissionsCount: p._count.submissions,
+        totalGroups,
+        gradedCount: p.submissions.filter((s: any) => s.status === "graded").length,
         createdAt: p.createdAt,
+        attachments: p.attachments.map((att: any) => ({
+          id: att.attachmentId,
+          fileName: att.fileName,
+          fileUrl: att.fileUrl,
+          fileSize: att.fileSize,
+          fileType: att.fileType,
+        })),
+        submissions: p.submissions.map((sub: any) => ({
+          id: sub.submissionId,
+          groupId: sub.groupId,
+          content: sub.content,
+          status: sub.status,
+          obtainedMarks: sub.obtainedMarks,
+          feedback: sub.feedback,
+          submittedAt: sub.submittedAt,
+          gradedAt: sub.gradedAt,
+          attachments: sub.attachments.map((att: any) => ({
+            id: att.attachmentId,
+            fileName: att.fileName,
+            fileUrl: att.fileUrl,
+            fileSize: att.fileSize,
+            fileType: att.fileType,
+          })),
+        })),
       })),
       totalWeightage,
       campusName: coordinator.campus.name,
+      totalGroups,
+      activeSemester: coordinator.campus.activeSemester,
     });
   } catch (error) {
     console.error("Error fetching phases:", error);
@@ -77,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     const userId = parseInt(session.user.id);
     const body = await req.json();
-    const { name, description, weightage, fypPhase, cohort } = body;
+    const { name, description, weightage, fypPhase, cohort, instructions, totalMarks, deadline, attachments } = body;
 
     if (!name || weightage === undefined || !fypPhase || !cohort) {
       return NextResponse.json(
@@ -120,15 +170,61 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         description: description || null,
-        weightage: Number(weightage),
+        instructions: instructions || null,
+        totalMarks: totalMarks !== undefined ? Number(totalMarks) : 100,
+        deadline: deadline ? new Date(deadline) : null,
+        status: "active", // default to active as requested/assumed
         fypPhase: fypPhase as any,
         cohort: cohort as any,
         campusId: coordinator.campusId,
         isActive: false,
         orderIndex: maxOrder + 1,
         createdById: userId,
+        attachments: attachments?.length > 0 ? {
+          create: attachments.map((att: any) => ({
+            fileName: att.fileName,
+            fileUrl: att.fileUrl,
+            fileSize: att.fileSize || null,
+            fileType: att.fileType || null,
+          })),
+        } : undefined,
+      },
+      include: {
+        attachments: true,
       },
     });
+
+    // Create notifications for all students in this cohort on this campus (non-blocking)
+    try {
+      const students = await prisma.student.findMany({
+        where: {
+          campusId: coordinator.campusId,
+          cohort: cohort as any,
+        },
+        select: { userId: true },
+      });
+
+      if (students.length > 0) {
+        const notification = await (prisma as any).notification.create({
+          data: {
+            title: "New Phase Posted",
+            message: `A new phase "${name}" has been announced. Deadline: ${deadline ? new Date(deadline).toLocaleDateString() : "No deadline"}`,
+            type: "announcement",
+            targetCohort: cohort as any,
+            campusId: coordinator.campusId,
+          },
+        });
+
+        await (prisma as any).notificationRecipient.createMany({
+          data: students.map((s: any) => ({
+            notificationId: notification.notificationId,
+            userId: s.userId,
+          })),
+        });
+      }
+    } catch (notificationError) {
+      console.error("Error creating notifications (non-blocking):", notificationError);
+    }
 
     return NextResponse.json({ success: true, phase });
   } catch (error) {
@@ -137,7 +233,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PATCH - Update a phase (name, description, weightage, activate, reorder)
+// PATCH - Update a phase or grade submission
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
@@ -147,17 +243,39 @@ export async function PATCH(req: NextRequest) {
 
     const userId = parseInt(session.user.id);
     const body = await req.json();
-    const { phaseId, action, name, description, weightage } = body;
-
-    if (!phaseId) {
-      return NextResponse.json({ error: "phaseId is required" }, { status: 400 });
-    }
+    const { phaseId, submissionId, action, name, description, weightage, instructions, totalMarks, deadline, status } = body;
 
     const coordinator = await (prisma as any).fYPCoordinator.findFirst({
       where: { userId },
     });
     if (!coordinator) {
       return NextResponse.json({ error: "Coordinator not found" }, { status: 404 });
+    }
+
+    // If grading a submission
+    if (action === "grade" && submissionId) {
+      const { obtainedMarks, feedback } = body;
+
+      if (obtainedMarks === undefined) {
+        return NextResponse.json({ error: "Marks are required" }, { status: 400 });
+      }
+
+      const submission = await (prisma as any).evaluationSubmission.update({
+        where: { submissionId: parseInt(submissionId) },
+        data: {
+          obtainedMarks: parseInt(obtainedMarks),
+          feedback: feedback || null,
+          status: "graded",
+          gradedById: userId,
+          gradedAt: new Date(),
+        },
+      });
+
+      return NextResponse.json({ success: true, submission });
+    }
+
+    if (!phaseId) {
+      return NextResponse.json({ error: "phaseId is required" }, { status: 400 });
     }
 
     // Fetch the phase to confirm ownership
@@ -195,6 +313,14 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true, phase });
     }
 
+    if (action === "updateStatus") {
+      const phase = await (prisma as any).fypEvaluationPhase.update({
+        where: { phaseId: parseInt(phaseId) },
+        data: { status: status as any },
+      });
+      return NextResponse.json({ success: true, phase });
+    }
+
     // General update
     if (weightage !== undefined) {
       // Validate new total
@@ -221,6 +347,10 @@ export async function PATCH(req: NextRequest) {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description: description || null }),
         ...(weightage !== undefined && { weightage: Number(weightage) }),
+        ...(instructions !== undefined && { instructions: instructions || null }),
+        ...(totalMarks !== undefined && { totalMarks: Number(totalMarks) }),
+        ...(deadline !== undefined && { deadline: deadline ? new Date(deadline) : null }),
+        ...(status !== undefined && { status: status as any }),
       },
     });
 
@@ -231,7 +361,7 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE - Delete a phase (only if no evaluations or panels linked)
+// DELETE - Delete a phase (only if no submissions or panels linked)
 export async function DELETE(req: NextRequest) {
   try {
     const session = await auth();
@@ -257,7 +387,7 @@ export async function DELETE(req: NextRequest) {
     const existing = await (prisma as any).fypEvaluationPhase.findUnique({
       where: { phaseId: parseInt(phaseId) },
       include: {
-        _count: { select: { evaluations: true, panels: true } },
+        _count: { select: { submissions: true, panels: true } },
       },
     });
 
@@ -265,10 +395,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Phase not found" }, { status: 404 });
     }
 
-    if (existing._count.evaluations > 0 || existing._count.panels > 0) {
+    if (existing._count.submissions > 0 || existing._count.panels > 0) {
       return NextResponse.json(
         {
-          error: `Cannot delete phase with linked evaluations (${existing._count.evaluations}) or panels (${existing._count.panels}). Unlink them first.`,
+          error: `Cannot delete phase with linked submissions (${existing._count.submissions}) or panels (${existing._count.panels}). Unlink or delete them first.`,
         },
         { status: 400 }
       );

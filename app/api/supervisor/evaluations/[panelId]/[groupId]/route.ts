@@ -129,12 +129,10 @@ export async function GET(
 
       if (activePhaseLookup) {
         activePhase = activePhaseLookup;
-        // Filter submissions to only those linked to evaluations in the active phase
+        // Filter submissions to only those linked to this active phase
         submissionFilter = {
           groupId,
-          evaluation: {
-            phaseId: activePhaseLookup.phaseId,
-          }
+          phaseId: activePhaseLookup.phaseId,
         };
       }
       // If no active phase exists (phases not set up), fall back to all submissions
@@ -144,16 +142,15 @@ export async function GET(
     const submissions = await (prisma as any).evaluationSubmission.findMany({
       where: submissionFilter,
       include: {
-        evaluation: {
+        phase: {
           select: {
-            evaluationId: true,
-            title: true,
+            phaseId: true,
+            name: true,
             description: true,
             instructions: true,
             totalMarks: true,
-            dueDate: true,
+            deadline: true,
             status: true,
-            phaseId: true,
           }
         },
         attachments: true
@@ -161,9 +158,9 @@ export async function GET(
       orderBy: { submittedAt: 'desc' }
     });
 
-    // Determine max score from the highest totalMarks across evaluations, or default 100
+    // Determine max score from the highest totalMarks across phases, or default 100
     const maxScore = submissions.length > 0
-      ? Math.max(...submissions.map((s: any) => s.evaluation?.totalMarks || 100))
+      ? Math.max(...submissions.map((s: any) => s.phase?.totalMarks || 100))
       : 100;
 
     // Get submitter names
@@ -221,10 +218,10 @@ export async function GET(
       } : null,
       submissions: submissions.map((s: any) => ({
         submissionId: s.submissionId,
-        title: s.evaluation?.title || null,
-        evaluationDescription: s.evaluation?.description || null,
-        totalMarks: s.evaluation?.totalMarks || null,
-        dueDate: s.evaluation?.dueDate || null,
+        title: s.phase?.name || null,
+        evaluationDescription: s.phase?.description || null,
+        totalMarks: s.phase?.totalMarks || null,
+        dueDate: s.phase?.deadline || null,
         content: s.content,
         status: s.status,
         obtainedMarks: s.obtainedMarks,
