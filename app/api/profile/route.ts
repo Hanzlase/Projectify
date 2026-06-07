@@ -1,69 +1,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { getActivePhase } from "@/lib/cohort-utils";
+import { getActivePhase, getSupervisorGroups } from "@/lib/cohort-utils";
 
-async function getPastProjects(supervisorUserId: number) {
-  try {
-    const groups = await prisma.group.findMany({
-      where: { supervisorId: supervisorUserId },
-      include: {
-        students: {
-          include: {
-            user: {
-              select: { name: true }
-            },
-            campus: true
-          }
-        }
-      }
-    });
 
-    const groupIds = groups.map(g => g.groupId);
-    if (groupIds.length === 0) return [];
-
-    const projects = await prisma.project.findMany({
-      where: {
-        OR: [
-          { projectId: { in: groups.map(g => g.projectId).filter(Boolean) as number[] } },
-          { groupId: { in: groupIds } }
-        ]
-      }
-    });
-
-    const pastProjects = [];
-    for (const group of groups) {
-      const project = projects.find(p => p.groupId === group.groupId || (group.projectId && p.projectId === group.projectId));
-      if (!project) continue;
-
-      let isCompleted = project.status === "completed" || project.status === "archived";
-      
-      if (!isCompleted && group.fypPhase === "FYP_2" && group.students.length > 0) {
-        const student = group.students[0];
-        const activePhase = getActivePhase(group.cohort, student.campus.activeSemester);
-        if (activePhase === "FYP_1") {
-          isCompleted = true;
-        }
-      }
-
-      if (isCompleted) {
-        pastProjects.push({
-          projectId: project.projectId,
-          title: project.title,
-          description: project.description,
-          category: project.category,
-          status: project.status,
-          completedAt: project.updatedAt,
-          students: group.students.map(s => s.user.name)
-        });
-      }
-    }
-    return pastProjects;
-  } catch (error) {
-    console.error("Error fetching past supervised projects:", error);
-    return [];
-  }
-}
 
 // Helper function to get another user's profile (read-only)
 async function getOtherUserProfile(userId: number, role: string) {
@@ -81,7 +21,8 @@ async function getOtherUserProfile(userId: number, role: string) {
         return NextResponse.json({ error: "Supervisor not found" }, { status: 404 });
       }
 
-      const pastProjects = await getPastProjects(supervisor.userId);
+      const { activeGroups, pastProjects } = await getSupervisorGroups(supervisor.userId);
+      const totalGroups = activeGroups.length;
 
       return NextResponse.json({
         userId: supervisor.userId,
@@ -94,12 +35,13 @@ async function getOtherUserProfile(userId: number, role: string) {
         skills: supervisor.skills,
         achievements: supervisor.achievements,
         maxGroups: supervisor.maxGroups,
-        totalGroups: supervisor.totalGroups,
-        available: supervisor.totalGroups < supervisor.maxGroups,
+        totalGroups,
+        available: totalGroups < supervisor.maxGroups,
         campus: {
           name: supervisor.campus.name,
           location: supervisor.campus.location,
         },
+        activeGroups,
         pastProjects,
       });
     } else if (role === 'student') {
@@ -218,7 +160,8 @@ export async function GET(request: NextRequest) {
         github: user.student.github,
       };
     } else if (user.role === "supervisor" && user.supervisor) {
-      const pastProjects = await getPastProjects(user.supervisor.userId);
+      const { activeGroups, pastProjects } = await getSupervisorGroups(user.supervisor.userId);
+      const totalGroups = activeGroups.length;
       profileData = {
         ...profileData,
         campus: user.supervisor.campus?.name,
@@ -229,7 +172,8 @@ export async function GET(request: NextRequest) {
         skills: user.supervisor.skills,
         achievements: user.supervisor.achievements,
         maxGroups: user.supervisor.maxGroups,
-        totalGroups: user.supervisor.totalGroups,
+        totalGroups,
+        activeGroups,
         pastProjects,
       };
     } else if (user.role === "coordinator" && user.coordinator) {

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { isStudentCompleted } from '@/lib/cohort-utils';
+import { isStudentCompleted, getActivePhase } from '@/lib/cohort-utils';
+import { FypPhase } from '@prisma/client';
 
 export async function GET() {
   try {
@@ -104,20 +105,63 @@ export async function GET() {
       })
     ]);
 
+    // Fetch groups and projects for all campus supervisors in batch to calculate capacities dynamically
+    const supervisorUserIds = supervisors.map(s => s.userId);
+    const groups = await prisma.group.findMany({
+      where: { supervisorId: { in: supervisorUserIds } },
+      include: {
+        students: {
+          include: {
+            campus: true
+          }
+        }
+      }
+    });
+
+    const projectIds = groups.map(g => g.projectId).filter(Boolean) as number[];
+    const groupIds = groups.map(g => g.groupId);
+    
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { projectId: { in: projectIds } },
+          { groupId: { in: groupIds } }
+        ]
+      }
+    });
+
     // Format supervisors for response
-    const formattedSupervisors = supervisors.map((sup) => ({
-      id: sup.supervisorId,
-      userId: sup.user.userId,
-      name: sup.user.name,
-      email: sup.user.email,
-      profileImage: sup.user.profileImage,
-      specialization: sup.specialization,
-      domains: sup.domains,
-      skills: sup.skills,
-      maxGroups: sup.maxGroups,
-      totalGroups: sup.totalGroups,
-      available: sup.totalGroups < sup.maxGroups
-    }));
+    const formattedSupervisors = supervisors.map((sup) => {
+      const supGroups = groups.filter(g => g.supervisorId === sup.userId);
+      const activeCount = supGroups.filter(g => {
+        const project = projects.find(p => p.groupId === g.groupId || (g.projectId && p.projectId === g.projectId));
+        let isCompleted = false;
+        if (project && (project.status === "completed" || project.status === "archived")) {
+          isCompleted = true;
+        } else if (g.fypPhase === FypPhase.FYP_2 && g.students.length > 0) {
+          const student = g.students[0];
+          const activePhase = getActivePhase(g.cohort, student.campus.activeSemester);
+          if (activePhase === FypPhase.FYP_1) {
+            isCompleted = true;
+          }
+        }
+        return !isCompleted;
+      }).length;
+
+      return {
+        id: sup.supervisorId,
+        userId: sup.user.userId,
+        name: sup.user.name,
+        email: sup.user.email,
+        profileImage: sup.user.profileImage,
+        specialization: sup.specialization,
+        domains: sup.domains,
+        skills: sup.skills,
+        maxGroups: sup.maxGroups,
+        totalGroups: activeCount,
+        available: activeCount < sup.maxGroups
+      };
+    });
 
     // Format fellow students for response
     const formattedStudents = fellowStudents.map((stu) => ({

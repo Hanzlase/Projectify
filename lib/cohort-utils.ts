@@ -127,4 +127,104 @@ export async function isGroupCompleted(groupId: number): Promise<boolean> {
   }
 }
 
+/**
+ * Retrieves all groups (active and completed) supervised by a supervisor.
+ * Automatically syncs fyp_supervisors totalGroups field.
+ */
+export async function getSupervisorGroups(supervisorUserId: number) {
+  try {
+    const groups = await prisma.group.findMany({
+      where: { supervisorId: supervisorUserId },
+      include: {
+        students: {
+          include: {
+            campus: true,
+            user: {
+              select: { name: true }
+            }
+          }
+        }
+      }
+    });
+
+    const groupIds = groups.map(g => g.groupId);
+    const projectIds = groups.map(g => g.projectId).filter(Boolean) as number[];
+
+    // Fetch all projects for these groups
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { projectId: { in: projectIds } },
+          { groupId: { in: groupIds } }
+        ]
+      }
+    });
+
+    const activeGroups = [];
+    const pastProjects = [];
+
+    for (const group of groups) {
+      const project = projects.find(p => p.groupId === group.groupId || (group.projectId && p.projectId === group.projectId));
+      
+      let isCompleted = false;
+      if (project && (project.status === "completed" || project.status === "archived")) {
+        isCompleted = true;
+      } else if (group.fypPhase === FypPhase.FYP_2 && group.students.length > 0) {
+        const student = group.students[0];
+        const activePhase = getActivePhase(group.cohort, student.campus.activeSemester);
+        if (activePhase === FypPhase.FYP_1) {
+          isCompleted = true;
+        }
+      }
+
+      const groupData = {
+        groupId: group.groupId,
+        groupName: group.groupName || `Group ${group.groupId}`,
+        cohort: group.cohort,
+        fypPhase: group.fypPhase,
+        students: group.students.map(s => s.user.name),
+        project: project ? {
+          projectId: project.projectId,
+          title: project.title,
+          description: project.description,
+          category: project.category,
+          status: project.status,
+          updatedAt: project.updatedAt
+        } : null
+      };
+
+      if (isCompleted) {
+        pastProjects.push({
+          projectId: project?.projectId || 0,
+          title: project?.title || group.groupName || `Group ${group.groupId}`,
+          description: project?.description || "No project description available",
+          category: project?.category || null,
+          status: project?.status || "completed",
+          completedAt: project?.updatedAt || group.updatedAt,
+          students: group.students.map(s => s.user.name)
+        });
+      } else {
+        activeGroups.push(groupData);
+      }
+    }
+
+    // Update fyp_supervisors totalGroups dynamically to keep it synced
+    try {
+      const activeCount = activeGroups.length;
+      await prisma.fYPSupervisor.updateMany({
+        where: { userId: supervisorUserId },
+        data: { totalGroups: activeCount }
+      });
+    } catch (err) {
+      console.error("Failed to sync totalGroups for supervisor:", err);
+    }
+
+    return { activeGroups, pastProjects };
+  } catch (error) {
+    console.error("Error in getSupervisorGroups helper:", error);
+    return { activeGroups: [], pastProjects: [] };
+  }
+}
+
+
 

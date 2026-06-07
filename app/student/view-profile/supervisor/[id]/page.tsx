@@ -31,6 +31,21 @@ interface PastProject {
   students: string[];
 }
 
+interface ActiveGroup {
+  groupId: number;
+  groupName: string;
+  cohort: string;
+  fypPhase: string;
+  students: string[];
+  project: {
+    projectId: number;
+    title: string;
+    description: string;
+    category: string | null;
+    status: string;
+  } | null;
+}
+
 interface SupervisorProfile {
   userId: number;
   name: string;
@@ -48,6 +63,7 @@ interface SupervisorProfile {
     name: string;
     location: string | null;
   };
+  activeGroups?: ActiveGroup[];
   pastProjects?: PastProject[];
 }
 
@@ -450,6 +466,55 @@ export default function ViewSupervisorProfilePage() {
                   </div>
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-4 border border-amber-100 dark:border-amber-700/50">
                     <p className="text-slate-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{profile.achievements}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Active Supervised Projects */}
+            {profile.activeGroups && profile.activeGroups.length > 0 && (
+              <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A] overflow-hidden animate-fadeIn">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                      <FolderKanban className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-[#E4E4E7]">Currently Supervising</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.activeGroups.map((group) => (
+                      <Card key={group.groupId} className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/45 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-4 flex flex-col h-full justify-between">
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <h4 className="font-bold text-sm text-gray-900 dark:text-[#E4E4E7] line-clamp-1">
+                                {group.project?.title || group.groupName}
+                              </h4>
+                              <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/40 text-[#1E6F3E] dark:text-emerald-400 rounded-full flex-shrink-0">
+                                {group.fypPhase}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-zinc-400 line-clamp-3 mb-3 leading-relaxed">
+                              {group.project?.description || "No project description available. This group is currently setting up their project."}
+                            </p>
+                          </div>
+                          <div>
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-400 pt-2 border-t border-gray-100 dark:border-zinc-800">
+                              <span>Cohort: {group.cohort}</span>
+                              <span>Category: {group.project?.category || 'General'}</span>
+                            </div>
+                            {group.students.length > 0 && (
+                              <div className="mt-2 flex items-center gap-1.5">
+                                <Users className="w-3.5 h-3.5 text-gray-400" />
+                                <span className="text-[10px] text-gray-500 dark:text-zinc-400 truncate">
+                                  {group.students.join(', ')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

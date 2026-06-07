@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getActivePhase } from '@/lib/cohort-utils';
+import { FypPhase } from '@prisma/client';
 
 // GET - Search for supervisors and students for group creation
 export async function GET(req: NextRequest) {
@@ -59,15 +61,57 @@ export async function GET(req: NextRequest) {
         take: 10
       });
 
-      const formattedSupervisors = supervisors.map((s: any) => ({
-        userId: s.user.userId,
-        name: s.user.name,
-        email: s.user.email,
-        profileImage: s.user.profileImage,
-        specialization: s.specialization,
-        totalGroups: s.totalGroups,
-        maxGroups: s.maxGroups
-      }));
+      // Calculate dynamic active group counts for each searched supervisor
+      const supervisorUserIds = supervisors.map((s: any) => s.userId);
+      const groups = await prisma.group.findMany({
+        where: { supervisorId: { in: supervisorUserIds } },
+        include: {
+          students: {
+            include: {
+              campus: true
+            }
+          }
+        }
+      });
+
+      const projectIds = groups.map(g => g.projectId).filter(Boolean) as number[];
+      const groupIds = groups.map(g => g.groupId);
+      const projects = await prisma.project.findMany({
+        where: {
+          OR: [
+            { projectId: { in: projectIds } },
+            { groupId: { in: groupIds } }
+          ]
+        }
+      });
+
+      const formattedSupervisors = supervisors.map((s: any) => {
+        const supGroups = groups.filter(g => g.supervisorId === s.userId);
+        const activeCount = supGroups.filter(g => {
+          const project = projects.find(p => p.groupId === g.groupId || (g.projectId && p.projectId === g.projectId));
+          let isCompleted = false;
+          if (project && (project.status === "completed" || project.status === "archived")) {
+            isCompleted = true;
+          } else if (g.fypPhase === FypPhase.FYP_2 && g.students.length > 0) {
+            const student = g.students[0];
+            const activePhase = getActivePhase(g.cohort, student.campus.activeSemester);
+            if (activePhase === FypPhase.FYP_1) {
+              isCompleted = true;
+            }
+          }
+          return !isCompleted;
+        }).length;
+
+        return {
+          userId: s.user.userId,
+          name: s.user.name,
+          email: s.user.email,
+          profileImage: s.user.profileImage,
+          specialization: s.specialization,
+          totalGroups: activeCount,
+          maxGroups: s.maxGroups
+        };
+      });
 
       return NextResponse.json({ users: formattedSupervisors });
 

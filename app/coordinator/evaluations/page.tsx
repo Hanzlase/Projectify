@@ -1023,7 +1023,14 @@ export default function CoordinatorEvaluationsPage() {
                       type="datetime-local"
                       value={phaseForm.deadline}
                       onChange={(e) => setPhaseForm({ ...phaseForm, deadline: e.target.value })}
-                      className="rounded-xl h-11 dark:bg-gray-700"
+                      onClick={(e) => {
+                        try {
+                          e.currentTarget.showPicker();
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                      className="rounded-xl h-11 dark:bg-gray-700 cursor-pointer"
                     />
                   </div>
                   <div>
