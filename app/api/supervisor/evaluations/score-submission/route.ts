@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isGroupCompleted } from '@/lib/cohort-utils';
 
 // POST - Supervisor scores a submission for a group they supervise
 export async function POST(request: NextRequest) {
@@ -27,6 +28,10 @@ export async function POST(request: NextRequest) {
 
     if (!submission) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+    }
+
+    if (await isGroupCompleted(submission.groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
     }
 
     const totalMarks = submission.evaluation?.totalMarks || maxScore || 100;

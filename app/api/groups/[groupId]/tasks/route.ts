@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { isStudentCompleted, isGroupCompleted } from '@/lib/cohort-utils';
 
 // GET - Get all tasks for a group
 export async function GET(
@@ -119,6 +120,12 @@ export async function POST(
     }
 
     const userId = parseInt(session.user.id);
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const isSupervisor = group.supervisorId === userId;
     const isStudent = group.students.some(s => s.userId === userId);
 
@@ -200,6 +207,12 @@ export async function PATCH(
     }
 
     const userId = parseInt(session.user.id);
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const isSupervisor = group.supervisorId === userId;
     const isStudent = group.students.some(s => s.userId === userId);
 
@@ -278,6 +291,12 @@ export async function DELETE(
     }
 
     const userId = parseInt(session.user.id);
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const isSupervisor = group.supervisorId === userId;
     const isStudent = group.students.some(s => s.userId === userId);
     const isCreator = task.createdById === userId;

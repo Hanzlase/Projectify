@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { emitGroupUpdated, emitNotificationToUser } from '@/lib/socket-emitters';
+import { getActivePhase, isStudentCompleted } from '@/lib/cohort-utils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -91,6 +92,9 @@ export async function POST(req: NextRequest) {
     if (!session?.user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     if (session.user.role !== 'student') return NextResponse.json({ error: 'Only students can create groups' }, { status: 403 });
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { projectId: rawProjectId, studentUserIds, supervisorUserId } = body;
     if (!rawProjectId) return NextResponse.json({ error: 'Please select a project' }, { status: 400 });
@@ -102,6 +106,15 @@ export async function POST(req: NextRequest) {
     if (student.groupId) return NextResponse.json({ error: 'You are already in a group' }, { status: 400 });
     const existingCreatedGroup = await (prisma as any).group.findFirst({ where: { createdById: student.studentId } });
     if (existingCreatedGroup) return NextResponse.json({ error: 'You have already created a group' }, { status: 400 });
+    
+    // Resolve campus active semester
+    const campus = await prisma.campus.findUnique({
+      where: { campusId: student.campusId },
+      select: { activeSemester: true }
+    });
+    if (!campus) return NextResponse.json({ error: 'Campus not found' }, { status: 404 });
+    const activePhase = getActivePhase(student.cohort, campus.activeSemester);
+
     const project = await (prisma as any).project.findUnique({ where: { projectId } });
     if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     if (project.status === 'taken') return NextResponse.json({ error: 'This project has already been taken' }, { status: 400 });
@@ -110,12 +123,30 @@ export async function POST(req: NextRequest) {
     const invitedStudentIds: number[] = (studentUserIds || []).map((id: any) => typeof id === 'string' ? parseInt(id) : id);
     if (invitedStudentIds.length > 2) return NextResponse.json({ error: 'You can invite maximum 2 other students' }, { status: 400 });
     if (invitedStudentIds.length > 0) {
-      const invitedStudents = await prisma.student.findMany({ where: { userId: { in: invitedStudentIds }, groupId: null } });
-      if (invitedStudents.length !== invitedStudentIds.length) return NextResponse.json({ error: 'Some selected students are already in a group' }, { status: 400 });
+      const invitedStudents = await prisma.student.findMany({ 
+        where: { 
+          userId: { in: invitedStudentIds }, 
+          groupId: null,
+          cohort: student.cohort // Must be same cohort
+        } 
+      });
+      if (invitedStudents.length !== invitedStudentIds.length) {
+        return NextResponse.json({ error: 'Some selected students are already in a group or belong to a different cohort' }, { status: 400 });
+      }
     }
     const supervisor = await prisma.user.findUnique({ where: { userId: supervisorId, role: 'supervisor' } });
     if (!supervisor) return NextResponse.json({ error: 'Supervisor not found' }, { status: 404 });
-    const group = await (prisma as any).group.create({ data: { groupName: project.title, projectId, createdById: student.studentId, supervisorId: null, isFull: false } });
+    const group = await (prisma as any).group.create({ 
+      data: { 
+        groupName: project.title, 
+        projectId, 
+        createdById: student.studentId, 
+        supervisorId: null, 
+        isFull: false,
+        cohort: student.cohort,
+        fypPhase: activePhase
+      } 
+    });
     await (prisma as any).student.update({ where: { studentId: student.studentId }, data: { groupId: group.groupId, isGroupAdmin: true } });
     await (prisma as any).project.update({ where: { projectId }, data: { status: 'taken' } });
     const conversation = await (prisma as any).conversation.create({ data: {} });
@@ -138,6 +169,9 @@ export async function DELETE(req: NextRequest) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const groupId = searchParams.get('groupId');
     if (!groupId) return NextResponse.json({ error: 'Group ID is required' }, { status: 400 });
@@ -172,6 +206,9 @@ export async function PATCH(req: NextRequest) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { groupId, action, targetUserId } = body;
     if (!groupId || !action) return NextResponse.json({ error: 'Group ID and action are required' }, { status: 400 });
@@ -222,6 +259,9 @@ export async function PATCH(req: NextRequest) {
         const targetStudent = await prisma.student.findUnique({ where: { userId: parseInt(targetUserId) } });
         if (!targetStudent) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
         if (targetStudent.groupId) return NextResponse.json({ error: 'Student is already in a group' }, { status: 400 });
+        if (targetStudent.cohort !== group.cohort) {
+          return NextResponse.json({ error: 'Student belongs to a different cohort' }, { status: 400 });
+        }
         await (prisma as any).student.update({ where: { studentId: targetStudent.studentId }, data: { groupId: parseInt(groupId) } });
         const groupChat = await (prisma as any).groupChat.findFirst({ where: { groupId: parseInt(groupId) } });
         if (groupChat) {

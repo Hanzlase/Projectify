@@ -72,6 +72,7 @@ export interface SocketData {
   role: 'student' | 'supervisor' | 'coordinator';
   campusId: number;
   name: string;
+  cohort?: string | null;
 }
 
 // Data types
@@ -272,10 +273,15 @@ export function authenticateSocket(
   socket.join(`campus:${userData.campusId}`);
   socket.join(`role:${userData.role}:${userData.campusId}`);
   
+  if (userData.cohort) {
+    socket.join(`campus:${userData.campusId}:cohort:${userData.cohort}`);
+    socket.join(`role:${userData.role}:${userData.campusId}:cohort:${userData.cohort}`);
+  }
+  
   // Broadcast user online
   broadcastToRole(userData.campusId, 'user:online', { userId: userData.userId });
   
-  console.log(`✅ User authenticated: ${userData.name} (${userData.role}) - Campus ${userData.campusId}`);
+  console.log(`✅ User authenticated: ${userData.name} (${userData.role}) - Campus ${userData.campusId} (Cohort: ${userData.cohort || 'None'})`);
 }
 
 /**

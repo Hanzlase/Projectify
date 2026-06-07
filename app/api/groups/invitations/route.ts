@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 import { emitSupervisorAvailability, emitProjectStatus, emitNotificationToUser } from '@/lib/socket-emitters';
 
 // GET - Get group invitations for current user (received or sent)
@@ -166,6 +167,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await request.json();
     const { invitationId, action } = body;
 
@@ -422,6 +426,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const invitationId = searchParams.get('id');
 

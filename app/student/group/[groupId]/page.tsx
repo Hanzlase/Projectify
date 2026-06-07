@@ -126,6 +126,7 @@ interface GroupDetails {
   isAdmin: boolean;
   isCreator: boolean;
   currentStudentId: number | null;
+  isCompleted?: boolean;
 }
 
 export default function GroupDetailsPage() {
@@ -168,7 +169,13 @@ export default function GroupDetailsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
-  const [meetingForm, setMeetingForm] = useState({
+  const [meetingForm, setMeetingForm] = useState<{
+    title: string;
+    description: string;
+    meetingLink: string;
+    scheduledAt: string;
+    duration: number | '';
+  }>({
     title: '',
     description: '',
     meetingLink: '',
@@ -572,10 +579,11 @@ export default function GroupDetailsPage() {
     
     setSavingMeeting(true);
     try {
+      const finalDuration = meetingForm.duration === '' ? 60 : Math.max(15, Number(meetingForm.duration) || 60);
       const method = editingMeeting ? 'PATCH' : 'POST';
       const body = editingMeeting 
-        ? { meetingId: editingMeeting.meetingId, ...meetingForm }
-        : meetingForm;
+        ? { meetingId: editingMeeting.meetingId, ...meetingForm, duration: finalDuration }
+        : { ...meetingForm, duration: finalDuration };
 
       const res = await fetch(`/api/groups/${groupId}/meetings`, {
         method,
@@ -791,8 +799,8 @@ export default function GroupDetailsPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              {!isCreator && (
+             <div className="flex items-center gap-2">
+              {!isCreator && !group.isCompleted && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -802,7 +810,7 @@ export default function GroupDetailsPage() {
                   <LogOut className="w-4 h-4" />
                 </Button>
               )}
-              {group.isAdmin && (
+              {group.isAdmin && !group.isCompleted && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -815,6 +823,23 @@ export default function GroupDetailsPage() {
             </div>
           </div>
         </header>
+
+        {group.isCompleted && (
+          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl p-4 mx-4 md:mx-6 mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4 max-w-5xl md:mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/30 flex-shrink-0">
+                📁
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Read-Only / Portfolio Mode</h3>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">This group has completed its FYP. The group settings, meetings, and tasks are in read-only mode for portfolio presentation.</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/30 flex-shrink-0">
+              Portfolio Active
+            </span>
+          </div>
+        )}
 
         <main className="p-4 md:p-6 max-w-5xl mx-auto">
           {/* Tab Navigation */}
@@ -863,7 +888,7 @@ export default function GroupDetailsPage() {
                         </div>
                       )}
                     </div>
-                    {group.isAdmin && (
+                    {group.isAdmin && !group.isCompleted && (
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingImage}
@@ -910,7 +935,7 @@ export default function GroupDetailsPage() {
 
                   {/* Quick Actions - Desktop */}
                   <div className="hidden sm:flex items-start gap-2">
-                    {group.isAdmin && (
+                    {group.isAdmin && !group.isCompleted && (
                       <Button
                         size="sm"
                         onClick={() => setShowAddMemberModal(true)}
@@ -1065,7 +1090,7 @@ export default function GroupDetailsPage() {
                             </div>
                           </div>
                           
-                          {group.isAdmin && member.userId !== parseInt(session?.user?.id || '0') && group.createdById !== member.studentId && (
+                          {group.isAdmin && !group.isCompleted && member.userId !== parseInt(session?.user?.id || '0') && group.createdById !== member.studentId && (
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               {member.isGroupAdmin ? (
                                 <button
@@ -1179,7 +1204,7 @@ export default function GroupDetailsPage() {
                               </div>
                             </div>
                             
-                            {group.isAdmin && (
+                            {group.isAdmin && !group.isCompleted && (
                               <button
                                 onClick={() => handleCancelInvitation(invitation)}
                                 disabled={actionLoading === `cancel-${invitation.inviteeId}` || (!canCancel && invitation.inviteeRole === 'supervisor')}
@@ -1309,7 +1334,7 @@ export default function GroupDetailsPage() {
                       <div className="text-center py-6 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl">
                         <GraduationCap className="w-10 h-10 text-gray-300 dark:text-zinc-400 mx-auto mb-2" />
                         <p className="text-sm text-gray-500 dark:text-zinc-400">No supervisor assigned</p>
-                        {group.isAdmin && (
+                        {group.isAdmin && !group.isCompleted && (
                           <Button
                             onClick={() => {
                               setInviteType('supervisor');
@@ -1380,7 +1405,7 @@ export default function GroupDetailsPage() {
                             </div>
                           </div>
                           
-                          {group.isAdmin && member.userId !== parseInt(session?.user?.id || '0') && group.createdById !== member.studentId && (
+                          {group.isAdmin && !group.isCompleted && member.userId !== parseInt(session?.user?.id || '0') && group.createdById !== member.studentId && (
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               {member.isGroupAdmin ? (
                                 <button
@@ -1426,7 +1451,7 @@ export default function GroupDetailsPage() {
                         </motion.div>
                       ))}
                       
-                      {group.students.length < 3 && group.isAdmin && (
+                      {group.students.length < 3 && group.isAdmin && !group.isCompleted && (
                         <button
                           onClick={() => {
                             setInviteType('student');
@@ -1522,14 +1547,16 @@ export default function GroupDetailsPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Meetings</h3>
-                <Button
-                  onClick={() => openMeetingModal()}
-                  size="sm"
-                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Request Meeting
-                </Button>
+                {!group.isCompleted && (
+                  <Button
+                    onClick={() => openMeetingModal()}
+                    size="sm"
+                    className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Request Meeting
+                  </Button>
+                )}
               </div>
 
               {meetings.length > 0 ? (
@@ -1591,7 +1618,7 @@ export default function GroupDetailsPage() {
                                   <ExternalLink className="w-4 h-4" />
                                 </a>
                               )}
-                              {meeting.createdById === parseInt(session?.user?.id || '0') && meeting.status === 'scheduled' && (
+                              {meeting.createdById === parseInt(session?.user?.id || '0') && meeting.status === 'scheduled' && !group.isCompleted && (
                                 <>
                                   <button
                                     onClick={() => openMeetingModal(meeting)}
@@ -1621,14 +1648,18 @@ export default function GroupDetailsPage() {
                       <Calendar className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Meetings</h3>
-                    <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">Request a meeting with your supervisor</p>
-                    <Button
-                      onClick={() => openMeetingModal()}
-                      className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
-                    >
-                      <CalendarPlus className="w-4 h-4 mr-2" />
-                      Request Meeting
-                    </Button>
+                    <p className="text-gray-500 dark:text-zinc-400 text-sm mb-4">
+                      {group.isCompleted ? 'No meetings scheduled' : 'Request a meeting with your supervisor'}
+                    </p>
+                    {!group.isCompleted && (
+                      <Button
+                        onClick={() => openMeetingModal()}
+                        className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                      >
+                        <CalendarPlus className="w-4 h-4 mr-2" />
+                        Request Meeting
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -1644,14 +1675,16 @@ export default function GroupDetailsPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Tasks</h3>
-                <Button
-                  onClick={() => openTaskModal()}
-                  size="sm"
-                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Task
-                </Button>
+                {!group.isCompleted && (
+                  <Button
+                    onClick={() => openTaskModal()}
+                    size="sm"
+                    className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Task
+                  </Button>
+                )}
               </div>
 
               {/* Task Progress Overview */}
@@ -1687,8 +1720,9 @@ export default function GroupDetailsPage() {
                         <div className="p-4">
                           <div className="flex items-start gap-3">
                             <button
-                              onClick={() => updateTaskStatus(task.taskId, task.status === 'completed' ? 'pending' : task.status === 'pending' ? 'in_progress' : 'completed')}
+                              onClick={() => !group.isCompleted && updateTaskStatus(task.taskId, task.status === 'completed' ? 'pending' : task.status === 'pending' ? 'in_progress' : 'completed')}
                               className="mt-0.5 flex-shrink-0"
+                              disabled={group.isCompleted}
                             >
                               {getStatusIcon(task.status)}
                             </button>
@@ -1745,7 +1779,9 @@ export default function GroupDetailsPage() {
                                       {task.subtasks.map((subtask) => (
                                         <div key={subtask.taskId} className="flex items-center gap-2 py-1">
                                           <button
-                                            onClick={() => updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
+                                            onClick={() => !group.isCompleted && updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
+                                            disabled={group.isCompleted}
+                                            className={group.isCompleted ? 'cursor-not-allowed' : ''}
                                           >
                                             {getStatusIcon(subtask.status)}
                                           </button>
@@ -1760,19 +1796,23 @@ export default function GroupDetailsPage() {
                                               By Supervisor
                                             </span>
                                           )}
-                                          <button
-                                            onClick={() => openTaskModal(subtask)}
-                                            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700"
-                                          >
-                                            <Edit2 className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
-                                          </button>
-                                          {canDeleteTask(subtask) && (
-                                            <button
-                                              onClick={() => deleteTask(subtask.taskId)}
-                                              className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30"
-                                            >
-                                              <Trash2 className="w-3 h-3 text-red-400" />
-                                            </button>
+                                          {!group.isCompleted && (
+                                            <>
+                                              <button
+                                                onClick={() => openTaskModal(subtask)}
+                                                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700"
+                                              >
+                                                <Edit2 className="w-3 h-3 text-gray-400 dark:text-zinc-500" />
+                                              </button>
+                                              {canDeleteTask(subtask) && (
+                                                <button
+                                                  onClick={() => deleteTask(subtask.taskId)}
+                                                  className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30"
+                                                >
+                                                  <Trash2 className="w-3 h-3 text-red-400" />
+                                                </button>
+                                              )}
+                                            </>
                                           )}
                                         </div>
                                       ))}
@@ -1781,37 +1821,39 @@ export default function GroupDetailsPage() {
                                 </div>
                               )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => openTaskModal(undefined, task.taskId)}
-                                className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-                                title="Add subtask"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => openTaskModal(task)}
-                                className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              {canDeleteTask(task) ? (
+                            {!group.isCompleted && (
+                              <div className="flex items-center gap-1">
                                 <button
-                                  onClick={() => deleteTask(task.taskId)}
-                                  className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                                  title="Delete task"
+                                  onClick={() => openTaskModal(undefined, task.taskId)}
+                                  className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                                  title="Add subtask"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Plus className="w-4 h-4" />
                                 </button>
-                              ) : (
-                                <div
-                                  className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-400 dark:text-zinc-500 cursor-not-allowed"
-                                  title="Cannot delete supervisor's task"
+                                <button
+                                  onClick={() => openTaskModal(task)}
+                                  className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
                                 >
-                                  <Trash2 className="w-4 h-4" />
-                                </div>
-                              )}
-                            </div>
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                {canDeleteTask(task) ? (
+                                  <button
+                                    onClick={() => deleteTask(task.taskId)}
+                                    className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                    title="Delete task"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                ) : (
+                                  <div
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-400 dark:text-zinc-500 cursor-not-allowed"
+                                    title="Cannot delete supervisor's task"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -1915,7 +1957,10 @@ export default function GroupDetailsPage() {
                     <Input
                       type="number"
                       value={meetingForm.duration}
-                      onChange={(e) => setMeetingForm({ ...meetingForm, duration: parseInt(e.target.value) || 60 })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setMeetingForm({ ...meetingForm, duration: val === '' ? '' : parseInt(val) || 0 });
+                      }}
                       min={15}
                       step={15}
                       className="rounded-xl dark:bg-zinc-700 dark:border-zinc-600"

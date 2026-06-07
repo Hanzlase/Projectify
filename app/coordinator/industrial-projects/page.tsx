@@ -78,6 +78,15 @@ export default function IndustrialProjectsPage() {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  const [selectedCohort, setSelectedCohort] = useState<'REGULAR' | 'DELAYED'>('REGULAR');
+  const [activeSemester, setActiveSemester] = useState<'FALL' | 'SPRING'>('FALL');
+  const [campusName, setCampusName] = useState('');
+
+  // Calculate phase based on active semester and selected cohort
+  const resolvedPhase = activeSemester === 'FALL'
+    ? (selectedCohort === 'REGULAR' ? 'FYP_1' : 'FYP_2')
+    : (selectedCohort === 'REGULAR' ? 'FYP_2' : 'FYP_1');
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -97,19 +106,20 @@ export default function IndustrialProjectsPage() {
       return;
     }
     
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-    
-    // Fetch both in parallel
-    Promise.all([
-      fetchProjects(true),
-      fetch('/api/page-data?include=profile').then(res => res.ok ? res.json() : null)
-    ]).then(([_, profileData]) => {
-      if (profileData?.profile) {
-        setProfileImage(profileData.profile.profileImage || null);
-      }
-    });
-  }, [session, status]);
+    fetchProjects(true);
+  }, [session, status, selectedCohort, resolvedPhase]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetch('/api/page-data?include=profile')
+        .then(res => res.ok ? res.json() : null)
+        .then(profileData => {
+          if (profileData?.profile) {
+            setProfileImage(profileData.profile.profileImage || null);
+          }
+        });
+    }
+  }, [status]);
 
   const fetchProjects = async (isInitial = false) => {
     if (isInitial) {
@@ -121,11 +131,14 @@ export default function IndustrialProjectsPage() {
       const params = new URLSearchParams();
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (searchQuery) params.append('search', searchQuery);
+      params.append('fypPhase', resolvedPhase);
 
       const response = await fetch(`/api/coordinator/industrial-projects?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setProjects(data.industrialProjects || []);
+        if (data.campusName) setCampusName(data.campusName);
+        if (data.activeSemester) setActiveSemester(data.activeSemester);
       }
     } catch (error) {
       console.error('Failed to fetch industrial projects:', error);
@@ -212,7 +225,10 @@ export default function IndustrialProjectsPage() {
       const response = await fetch('/api/coordinator/industrial-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          fypPhase: resolvedPhase,
+        }),
       });
 
       if (response.ok) {
@@ -379,7 +395,9 @@ export default function IndustrialProjectsPage() {
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Industry Projects</h1>
-                <p className="text-sm text-gray-500 dark:text-zinc-400">Manage industrial project offerings</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">
+                  Manage industrial project offerings • {campusName ? `${campusName} • ` : ""}Cohort: {selectedCohort} ({resolvedPhase.replace("_", "-")})
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 md:hidden">
@@ -388,6 +406,30 @@ export default function IndustrialProjectsPage() {
                 Add Project
               </Button>
             </div>
+          </div>
+
+          {/* Cohort Selector Tabs */}
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl w-fit mb-6 border border-gray-200/50 dark:border-zinc-700/50">
+            <button
+              onClick={() => setSelectedCohort("REGULAR")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "REGULAR"
+                  ? "bg-white dark:bg-zinc-700 text-[#1a5d1a] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Regular ({activeSemester === "FALL" ? "FYP-1" : "FYP-2"})
+            </button>
+            <button
+              onClick={() => setSelectedCohort("DELAYED")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "DELAYED"
+                  ? "bg-white dark:bg-zinc-700 text-[#1a5d1a] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Delayed ({activeSemester === "FALL" ? "FYP-2" : "FYP-1"})
+            </button>
           </div>
 
           {/* Stats Cards */}

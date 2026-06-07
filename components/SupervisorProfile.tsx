@@ -22,6 +22,16 @@ import LoadingScreen from '@/components/LoadingScreen';
 
 const SupervisorSidebar = dynamic(() => import('@/components/SupervisorSidebar'), { ssr: false });
 
+interface PastProject {
+  projectId: number;
+  title: string;
+  description: string;
+  category: string | null;
+  status: string;
+  completedAt: string;
+  students: string[];
+}
+
 interface ProfileData {
   userId: number;
   name: string;
@@ -38,6 +48,7 @@ interface ProfileData {
   achievements?: string;
   maxGroups?: number;
   totalGroups?: number;
+  pastProjects?: PastProject[];
 }
 
 export default function SupervisorProfile() {
@@ -106,10 +117,17 @@ export default function SupervisorProfile() {
         setError('Current password is required to change password');
         return;
       }
-      if (formData.newPassword.length < 6) {
-        setError('New password must be at least 6 characters');
+      
+      const hasUpper = /[A-Z]/.test(formData.newPassword);
+      const hasLower = /[a-z]/.test(formData.newPassword);
+      const hasDigit = /[0-9]/.test(formData.newPassword);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword);
+
+      if (formData.newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        setError('New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).');
         return;
       }
+
       if (formData.newPassword !== formData.confirmPassword) {
         setError('New passwords do not match');
         return;
@@ -380,6 +398,43 @@ export default function SupervisorProfile() {
                                 <Star className="w-4 h-4 text-[#1a5d1a] flex-shrink-0 mt-0.5" />
                                 <p className="text-sm">{achievement}</p>
                               </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* Past Supervised Projects */}
+                      {profile.pastProjects && profile.pastProjects.length > 0 && (
+                        <div className="pt-6 border-t border-gray-100 dark:border-zinc-800 animate-fadeIn">
+                          <p className="text-xs text-gray-500 mb-4 uppercase tracking-wider font-semibold">Past Supervised Projects</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {profile.pastProjects.map((project) => (
+                              <Card key={project.projectId} className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-850 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                                <CardContent className="p-4 flex flex-col h-full justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="p-1.5 bg-[#1a5d1a]/10 rounded-lg">
+                                        <FolderKanban className="w-4 h-4 text-[#1a5d1a]" />
+                                      </div>
+                                      <h4 className="font-bold text-sm text-gray-900 dark:text-[#E4E4E7] line-clamp-1">{project.title}</h4>
+                                    </div>
+                                    <p className="text-xs text-gray-600 dark:text-zinc-400 line-clamp-3 mb-3 leading-relaxed">{project.description}</p>
+                                  </div>
+                                  <div>
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-400 pt-2 border-t border-gray-100 dark:border-zinc-800">
+                                      <span>Category: {project.category || 'General'}</span>
+                                      <span>Completed: {new Date(project.completedAt).toLocaleDateString()}</span>
+                                    </div>
+                                    {project.students.length > 0 && (
+                                      <div className="mt-2 flex items-center gap-1.5">
+                                        <Users className="w-3.5 h-3.5 text-gray-400" />
+                                        <span className="text-[10px] text-gray-500 dark:text-zinc-400 truncate">
+                                          {project.students.join(', ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
                             ))}
                           </div>
                         </div>

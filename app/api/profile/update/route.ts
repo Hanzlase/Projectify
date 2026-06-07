@@ -69,9 +69,14 @@ export async function POST(request: Request) {
 
     // Hash new password if provided
     if (newPassword && currentPassword) {
-      if (newPassword.length < 6) {
+      const hasUpper = /[A-Z]/.test(newPassword);
+      const hasLower = /[a-z]/.test(newPassword);
+      const hasDigit = /[0-9]/.test(newPassword);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+      if (newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
         return NextResponse.json(
-          { error: 'New password must be at least 6 characters' },
+          { error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).' },
           { status: 400 }
         );
       }
@@ -150,6 +155,22 @@ export async function POST(request: Request) {
           where: { userId },
           data: studentUpdate,
         });
+      }
+    }
+
+    // Update coordinator-specific fields (activeSemester) if applicable
+    if (user.role === 'coordinator') {
+      const { activeSemester } = body;
+      if (activeSemester !== undefined && (activeSemester === 'FALL' || activeSemester === 'SPRING')) {
+        const coordinator = await (prisma as any).fYPCoordinator.findUnique({
+          where: { userId },
+        });
+        if (coordinator) {
+          await (prisma as any).campus.update({
+            where: { campusId: coordinator.campusId },
+            data: { activeSemester },
+          });
+        }
       }
     }
 

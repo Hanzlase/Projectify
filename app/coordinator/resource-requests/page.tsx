@@ -79,6 +79,15 @@ export default function CoordinatorResourceRequestsPage() {
   const [showActionModal, setShowActionModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
+  const [selectedCohort, setSelectedCohort] = useState<"REGULAR" | "DELAYED">("REGULAR");
+  const [activeSemester, setActiveSemester] = useState<"FALL" | "SPRING">("FALL");
+  const [campusName, setCampusName] = useState("");
+
+  // Calculate phase based on active semester and selected cohort
+  const resolvedPhase = activeSemester === "FALL"
+    ? (selectedCohort === "REGULAR" ? "FYP_1" : "FYP_2")
+    : (selectedCohort === "REGULAR" ? "FYP_2" : "FYP_1");
+
   // Meeting form
   const [actionType, setActionType] = useState<"schedule_meeting" | "approve" | "reject" | null>(null);
   const [meetingDate, setMeetingDate] = useState("");
@@ -93,14 +102,16 @@ export default function CoordinatorResourceRequestsPage() {
     if (status === "unauthenticated") window.location.href = "/login";
     else if (status === "authenticated" && session?.user?.role !== "coordinator") window.location.href = "/unauthorized";
     else if (status === "authenticated") fetchRequests();
-  }, [status, session]);
+  }, [status, session, selectedCohort]);
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch("/api/coordinator/resource-requests");
+      const res = await fetch(`/api/coordinator/resource-requests?cohort=${selectedCohort}`);
       if (res.ok) {
         const data = await res.json();
         setRequests(data.requests || []);
+        if (data.campusName) setCampusName(data.campusName);
+        if (data.activeSemester) setActiveSemester(data.activeSemester);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -203,7 +214,7 @@ export default function CoordinatorResourceRequestsPage() {
                 Resource Requests
               </h1>
               <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
-                Review forwarded requests and schedule meetings
+                {campusName ? `${campusName} • ` : ""}Cohort: {selectedCohort} ({resolvedPhase.replace("_", "-")})
               </p>
             </div>
             <button
@@ -217,6 +228,30 @@ export default function CoordinatorResourceRequestsPage() {
         </header>
 
         <main className="p-4 md:p-6 max-w-6xl mx-auto">
+          {/* Cohort Selector Tabs */}
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl w-fit mb-6 border border-gray-200/50 dark:border-zinc-700/50">
+            <button
+              onClick={() => setSelectedCohort("REGULAR")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "REGULAR"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Regular ({activeSemester === "FALL" ? "FYP-1" : "FYP-2"})
+            </button>
+            <button
+              onClick={() => setSelectedCohort("DELAYED")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "DELAYED"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Delayed ({activeSemester === "FALL" ? "FYP-2" : "FYP-1"})
+            </button>
+          </div>
+
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[

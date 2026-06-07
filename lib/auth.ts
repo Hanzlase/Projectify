@@ -43,7 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: true,
               status: true,
               student: {
-                select: { campusId: true }
+                select: { campusId: true, cohort: true }
               },
               supervisor: {
                 select: { campusId: true }
@@ -105,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: user.role,
             status: user.status || 'ACTIVE',
             campusId: campusId?.toString() || null,
+            cohort: user.student?.cohort || null,
           }
         } catch (error) {
           logError("Auth error:", error)
@@ -122,6 +123,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.originalRole = (user as any).originalRole
         token.status = (user as any).status
         token.campusId = user.campusId
+        token.cohort = (user as any).cohort
       }
       return token
     },
@@ -133,6 +135,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         ;(session.user as any).originalRole = token.originalRole
         session.user.status = token.status as string
         session.user.campusId = token.campusId as string | null
+        ;(session.user as any).cohort = token.cohort as string | null
       }
       return session
     }

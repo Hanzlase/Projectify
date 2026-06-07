@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { decryptMessage } from '@/lib/encryption';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // GET - Get all conversations for the current user
 export async function GET(request: NextRequest) {
@@ -229,6 +230,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const { recipientId } = await request.json();
 
     if (!recipientId) {
@@ -244,6 +248,23 @@ export async function POST(request: NextRequest) {
 
     if (!recipient) {
       return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
+    }
+
+    // Enforce cohort separation for students messaging other students
+    if (session.user.role === 'student') {
+      const student = await prisma.student.findUnique({
+        where: { userId },
+        select: { cohort: true }
+      });
+      if (student && recipient.role === 'student') {
+        const recipientStudent = await prisma.student.findUnique({
+          where: { userId: recipientIdNum },
+          select: { cohort: true }
+        });
+        if (recipientStudent && recipientStudent.cohort !== student.cohort) {
+          return NextResponse.json({ error: 'Cannot message students in a different cohort' }, { status: 403 });
+        }
+      }
     }
 
     // Find existing direct conversation between these two users

@@ -28,6 +28,7 @@ interface ProfileData {
   createdAt: string;
   campus?: string;
   campusLocation?: string;
+  activeSemester?: string;
 }
 
 export default function CoordinatorProfile() {
@@ -48,6 +49,7 @@ export default function CoordinatorProfile() {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
+    activeSemester: 'FALL',
   });
 
   useEffect(() => {
@@ -66,6 +68,7 @@ export default function CoordinatorProfile() {
           currentPassword: '',
           newPassword: '',
           confirmPassword: '',
+          activeSemester: data.activeSemester || 'FALL',
         });
       } else {
         router.push('/login');
@@ -102,10 +105,17 @@ export default function CoordinatorProfile() {
         setError('Current password is required to change password');
         return;
       }
-      if (formData.newPassword.length < 6) {
-        setError('New password must be at least 6 characters');
+      
+      const hasUpper = /[A-Z]/.test(formData.newPassword);
+      const hasLower = /[a-z]/.test(formData.newPassword);
+      const hasDigit = /[0-9]/.test(formData.newPassword);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword);
+
+      if (formData.newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        setError('New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).');
         return;
       }
+
       if (formData.newPassword !== formData.confirmPassword) {
         setError('New passwords do not match');
         return;
@@ -122,6 +132,7 @@ export default function CoordinatorProfile() {
           name: formData.name,
           currentPassword: formData.currentPassword || undefined,
           newPassword: formData.newPassword || undefined,
+          activeSemester: formData.activeSemester,
         }),
       });
 
@@ -159,6 +170,7 @@ export default function CoordinatorProfile() {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      activeSemester: profile?.activeSemester || 'FALL',
     });
   };
 
@@ -344,6 +356,13 @@ export default function CoordinatorProfile() {
                               </div>
                             </div>
                           )}
+
+                          {profile.activeSemester && (
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Active Semester</p>
+                              <p className="font-semibold text-gray-900 dark:text-[#E4E4E7]">{profile.activeSemester}</p>
+                            </div>
+                          )}
                           
                           <div>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Member Since</p>
@@ -401,6 +420,19 @@ export default function CoordinatorProfile() {
                           className="h-11 border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
                           required
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="activeSemester" className="text-gray-700 dark:text-zinc-300">Active Campus Semester</Label>
+                        <select
+                          id="activeSemester"
+                          value={formData.activeSemester}
+                          onChange={(e) => setFormData({ ...formData, activeSemester: e.target.value })}
+                          className="w-full h-11 border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-[#E4E4E7] rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-[#1a5d1a]/20"
+                        >
+                          <option value="FALL">FALL (Regular: FYP-1, Delayed: FYP-2)</option>
+                          <option value="SPRING">SPRING (Regular: FYP-2, Delayed: FYP-1)</option>
+                        </select>
                       </div>
 
                       {/* Password Section */}

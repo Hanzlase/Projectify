@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    const { searchParams } = new URL(req.url);
+    const cohort = searchParams.get("cohort") || "REGULAR";
+    const fypPhase = searchParams.get("fypPhase") || "FYP_1";
 
     // Get coordinator's campus
     const coordinator = await (prisma as any).fYPCoordinator.findFirst({
@@ -22,9 +25,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Coordinator not found" }, { status: 404 });
     }
 
-    // Fetch evaluations with submissions count
+    // Fetch evaluations with submissions count (filtered by cohort & phase)
     const evaluations = await (prisma as any).evaluation.findMany({
-      where: { campusId: coordinator.campusId },
+      where: { 
+        campusId: coordinator.campusId,
+        cohort: cohort as any,
+        fypPhase: fypPhase as any,
+      },
       include: {
         attachments: true,
         submissions: {
@@ -39,9 +46,10 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Get total groups count for campus
+    // Get total groups count for campus under this specific cohort
     const totalGroups = await (prisma as any).group.count({
       where: {
+        cohort: cohort as any,
         students: {
           some: {
             campusId: coordinator.campusId,
@@ -59,6 +67,8 @@ export async function GET(req: NextRequest) {
       totalMarks: ev.totalMarks,
       dueDate: ev.dueDate,
       status: ev.status,
+      cohort: ev.cohort,
+      fypPhase: ev.fypPhase,
       createdAt: ev.createdAt,
       attachments: ev.attachments.map((att: any) => ({
         id: att.attachmentId,
@@ -93,6 +103,7 @@ export async function GET(req: NextRequest) {
       evaluations: formattedEvaluations,
       campusName: coordinator.campus.name,
       totalGroups,
+      activeSemester: coordinator.campus.activeSemester,
     });
   } catch (error) {
     console.error("Error fetching evaluations:", error);
@@ -110,7 +121,7 @@ export async function POST(req: NextRequest) {
 
     const userId = parseInt(session.user.id);
     const body = await req.json();
-    const { title, description, instructions, totalMarks, dueDate, attachments } = body;
+    const { title, description, instructions, totalMarks, dueDate, attachments, cohort, fypPhase } = body;
 
     if (!title || !description || !dueDate) {
       return NextResponse.json({ error: "Title, description, and due date are required" }, { status: 400 });
@@ -134,6 +145,8 @@ export async function POST(req: NextRequest) {
         totalMarks: totalMarks || 100,
         dueDate: new Date(dueDate),
         status: "active",
+        cohort: cohort || "REGULAR",
+        fypPhase: fypPhase || "FYP_1",
         createdById: userId,
         campusId: coordinator.campusId,
         attachments: attachments?.length > 0 ? {
@@ -150,10 +163,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create notification for all students in the campus (non-blocking)
+    // Create notification for all students in this specific cohort in the campus (non-blocking)
     try {
       const students = await prisma.student.findMany({
-        where: { campusId: coordinator.campusId },
+        where: { 
+          campusId: coordinator.campusId,
+          cohort: cohort || "REGULAR"
+        },
         select: { userId: true },
       });
 
@@ -162,7 +178,9 @@ export async function POST(req: NextRequest) {
           data: {
             title: "New Evaluation Posted",
             message: `A new evaluation "${title}" has been posted. Due date: ${new Date(dueDate).toLocaleDateString()}`,
-            type: "info",
+            type: "announcement",
+            targetCohort: cohort || "REGULAR",
+            campusId: coordinator.campusId
           },
         });
 
@@ -185,6 +203,8 @@ export async function POST(req: NextRequest) {
         description: evaluation.description,
         dueDate: evaluation.dueDate,
         status: evaluation.status,
+        cohort: evaluation.cohort,
+        fypPhase: evaluation.fypPhase,
         attachments: evaluation.attachments,
       },
     });

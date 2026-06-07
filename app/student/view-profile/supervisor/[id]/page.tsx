@@ -11,7 +11,7 @@ import {
   ArrowLeft, Mail, Briefcase, Award, BookOpen,
   CheckCircle2, XCircle, Users, GraduationCap, Target,
   MessageCircle, UserPlus, Building2, Clock, TrendingUp,
-  Code, Brain, Sparkles, ChevronRight, Shield, Zap, Menu
+  Code, Brain, Sparkles, ChevronRight, Shield, Zap, Menu, FolderKanban
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -20,6 +20,16 @@ const StudentSidebar = dynamic(() => import('@/components/StudentSidebar'), {
   ssr: false,
   loading: () => null 
 });
+
+interface PastProject {
+  projectId: number;
+  title: string;
+  description: string;
+  category: string | null;
+  status: string;
+  completedAt: string;
+  students: string[];
+}
 
 interface SupervisorProfile {
   userId: number;
@@ -38,6 +48,7 @@ interface SupervisorProfile {
     name: string;
     location: string | null;
   };
+  pastProjects?: PastProject[];
 }
 
 // Maximum groups a supervisor can supervise
@@ -439,6 +450,48 @@ export default function ViewSupervisorProfilePage() {
                   </div>
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-4 border border-amber-100 dark:border-amber-700/50">
                     <p className="text-slate-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{profile.achievements}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Past Supervised Projects */}
+            {profile.pastProjects && profile.pastProjects.length > 0 && (
+              <Card className="border-0 shadow-lg bg-white dark:bg-[#27272A] overflow-hidden animate-fadeIn">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/20 rounded-lg flex items-center justify-center">
+                      <FolderKanban className="w-4 h-4 text-[#1a5d1a] dark:text-[#4ade80]" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-[#E4E4E7]">Past Supervised Projects</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.pastProjects.map((project) => (
+                      <Card key={project.projectId} className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/45 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-4 flex flex-col h-full justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-bold text-sm text-gray-900 dark:text-[#E4E4E7] line-clamp-1">{project.title}</h4>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-zinc-400 line-clamp-3 mb-3 leading-relaxed">{project.description}</p>
+                          </div>
+                          <div>
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-400 pt-2 border-t border-gray-100 dark:border-zinc-800">
+                              <span>Category: {project.category || 'General'}</span>
+                              <span>Completed: {new Date(project.completedAt).toLocaleDateString()}</span>
+                            </div>
+                            {project.students.length > 0 && (
+                              <div className="mt-2 flex items-center gap-1.5">
+                                <Users className="w-3.5 h-3.5 text-gray-400" />
+                                <span className="text-[10px] text-gray-500 dark:text-zinc-400 truncate">
+                                  {project.students.join(', ')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

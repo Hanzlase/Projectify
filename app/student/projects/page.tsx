@@ -82,6 +82,7 @@ function ProjectsPageContent() {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard', active: false },
@@ -152,9 +153,10 @@ function ProjectsPageContent() {
 
   const fetchInitialData = useCallback(async () => {
     try {
-      const [projectsRes, profileRes] = await Promise.all([
+      const [projectsRes, profileRes, dashboardRes] = await Promise.all([
         fetch(`/api/projects?filter=${filter}${categoryFilter ? `&category=${categoryFilter}` : ''}`),
-        fetch('/api/page-data?include=profile')
+        fetch('/api/page-data?include=profile'),
+        fetch('/api/student/dashboard')
       ]);
 
       if (projectsRes.ok) {
@@ -165,6 +167,11 @@ function ProjectsPageContent() {
       if (profileRes.ok) {
         const data = await profileRes.json();
         setProfileImage(data.profile?.profileImage || null);
+      }
+
+      if (dashboardRes.ok) {
+        const data = await dashboardRes.json();
+        setIsCompleted(!!data.isCompleted);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -486,6 +493,23 @@ function ProjectsPageContent() {
 
         {/* Page Content */}
         <main className="p-4 md:p-6">
+          {isCompleted && (
+            <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/30 flex-shrink-0">
+                  📁
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Read-Only / Portfolio Mode</h3>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">You have completed both FYP-1 and FYP-2. Your projects are in read-only mode for portfolio presentation.</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/30 flex-shrink-0">
+                Portfolio Active
+              </span>
+            </div>
+          )}
+
           {/* Page Header */}
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -499,13 +523,15 @@ function ProjectsPageContent() {
                 </div>
               </div>
 
-              <Button
-                onClick={openCreateModal}
-                className="bg-[#1a5d1a] hover:bg-[#145214] text-white w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Idea
-              </Button>
+              {!isCompleted && (
+                <Button
+                  onClick={openCreateModal}
+                  className="bg-[#1a5d1a] hover:bg-[#145214] text-white w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Idea
+                </Button>
+              )}
             </div>
           </div>
 
@@ -612,7 +638,7 @@ function ProjectsPageContent() {
                         )}
 
                         {/* Actions overlay */}
-                        {isOwner && (
+                        {isOwner && !isCompleted && (
                           <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
@@ -689,7 +715,7 @@ function ProjectsPageContent() {
                       : 'Be the first to share a public idea with your campus!'
                     }
                   </p>
-                  {filter === 'my' && (
+                  {filter === 'my' && !isCompleted && (
                     <Button
                       onClick={openCreateModal}
                       className="bg-[#1a5d1a] hover:bg-[#145214] text-white"

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getActivePhase } from '@/lib/cohort-utils';
 
 // GET - Fetch all industrial projects for the coordinator's campus
 export async function GET(request: Request) {
@@ -14,16 +15,24 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || 'all';
     const search = searchParams.get('search') || '';
+    const queryFypPhase = searchParams.get('fypPhase');
 
     // Get campus based on user role
     let campusId: number | null = null;
+    let studentActivePhase: any = null;
+    let campusName = '';
+    let activeSemester = 'FALL';
     
     if (session.user.role === 'coordinator') {
       const coordinator = await prisma.fYPCoordinator.findUnique({
         where: { userId },
-        select: { campusId: true }
+        include: { campus: true }
       });
       campusId = coordinator?.campusId || null;
+      if (coordinator?.campus) {
+        campusName = coordinator.campus.name;
+        activeSemester = coordinator.campus.activeSemester;
+      }
     } else if (session.user.role === 'supervisor') {
       const supervisor = await prisma.fYPSupervisor.findUnique({
         where: { userId },
@@ -33,9 +42,18 @@ export async function GET(request: Request) {
     } else if (session.user.role === 'student') {
       const student = await prisma.student.findUnique({
         where: { userId },
-        select: { campusId: true }
+        select: { campusId: true, cohort: true }
       });
       campusId = student?.campusId || null;
+      if (student) {
+        const campus = await prisma.campus.findUnique({
+          where: { campusId: student.campusId },
+          select: { activeSemester: true }
+        });
+        if (campus) {
+          studentActivePhase = getActivePhase(student.cohort, campus.activeSemester);
+        }
+      }
     }
 
     if (!campusId) {
@@ -47,6 +65,13 @@ export async function GET(request: Request) {
 
     if (status !== 'all') {
       whereClause.status = status;
+    }
+
+    // Scope by active phase for student; or by query param for coordinator
+    if (session.user.role === 'student') {
+      whereClause.fypPhase = studentActivePhase || 'FYP_1';
+    } else if (queryFypPhase) {
+      whereClause.fypPhase = queryFypPhase;
     }
 
     if (search) {
@@ -86,7 +111,11 @@ export async function GET(request: Request) {
       })
     );
 
-    return NextResponse.json({ industrialProjects: projectsWithDetails });
+    return NextResponse.json({
+      industrialProjects: projectsWithDetails,
+      campusName,
+      activeSemester
+    });
   } catch (error) {
     console.error('Error fetching industrial projects:', error);
     return NextResponse.json({ error: 'Failed to fetch industrial projects' }, { status: 500 });
@@ -107,7 +136,7 @@ export async function POST(request: Request) {
 
     const userId = parseInt(session.user.id);
     const body = await request.json();
-    const { title, description, features, techStack, thumbnailUrl } = body;
+    const { title, description, features, techStack, thumbnailUrl, fypPhase } = body;
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -130,6 +159,7 @@ export async function POST(request: Request) {
         features,
         techStack,
         thumbnailUrl,
+        fypPhase: fypPhase || 'FYP_1',
         uploadedById: userId,
         campusId: coordinator.campusId,
         status: 'available'

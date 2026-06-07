@@ -44,6 +44,7 @@ model Campus {
   name            String   @db.VarChar(255)
   location        String?  @db.VarChar(255)
   maxCoordinators Int      @default(5) @map("max_coordinators")
+  activeSemester  Semester @default(FALL) @map("active_semester")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -97,6 +98,8 @@ model Group {
   createdById  Int      @map("created_by_id") // Student who created the group
   supervisorId Int?     @map("supervisor_id") // Assigned supervisor user ID (null until accepted)
   isFull       Boolean  @default(false) @map("is_full") // True when 3 students + 1 supervisor
+  cohort       Cohort   @default(REGULAR)
+  fypPhase     FypPhase @default(FYP_1) @map("fyp_phase")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -146,6 +149,7 @@ model IndustrialProject {
   techStack       String?                   @db.Text @map("tech_stack")
   thumbnailUrl    String?                   @db.VarChar(500) @map("thumbnail_url")
   status          IndustrialProjectStatus   @default(available)
+  fypPhase        FypPhase                  @default(FYP_1) @map("fyp_phase")
   uploadedById    Int                       @map("uploaded_by_id")
   campusId        Int                       @map("campus_id")
   assignedGroupId Int?                      @unique @map("assigned_group_id")
@@ -224,6 +228,7 @@ model Student {
   campusId     Int      @map("campus_id")
   groupId      Int?     @map("group_id")
   isGroupAdmin Boolean  @default(false) @map("is_group_admin") // Whether student is admin of their group
+  cohort       Cohort   @default(REGULAR)
   gpa          Float?
   skills       String?  @db.Text
   interests    String?  @db.Text
@@ -284,6 +289,7 @@ model Notification {
   message        String   @db.Text
   type           NotificationType @default(general)
   targetType     NotificationTarget @map("target_type")
+  targetCohort   Cohort?  @map("target_cohort")
   createdById    Int?     @map("created_by_id")
   campusId       Int      @map("campus_id")
   createdAt      DateTime @default(now())
@@ -337,6 +343,21 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   REMOVED
+}
+
+enum Cohort {
+  REGULAR
+  DELAYED
+}
+
+enum Semester {
+  FALL
+  SPRING
+}
+
+enum FypPhase {
+  FYP_1
+  FYP_2
 }
 
 // Chat/Messaging System
@@ -543,6 +564,8 @@ model Evaluation {
   totalMarks    Int               @default(100) @map("total_marks")
   dueDate       DateTime          @map("due_date")
   status        EvaluationStatus  @default(active)
+  cohort        Cohort            @default(REGULAR)
+  fypPhase      FypPhase          @default(FYP_1) @map("fyp_phase")
   createdById   Int               @map("created_by_id") // Coordinator userId
   campusId      Int               @map("campus_id")
   createdAt     DateTime          @default(now())
@@ -652,6 +675,8 @@ model EvaluationPanel {
   scheduledDate    DateTime?          @map("scheduled_date")
   status           EvaluationPanelStatus @default(draft)
   campusId         Int                @map("campus_id")
+  cohort           Cohort             @default(REGULAR)
+  fypPhase         FypPhase           @default(FYP_1) @map("fyp_phase")
   createdById      Int                @map("created_by_id") // Coordinator userId
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt

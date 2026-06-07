@@ -130,6 +130,7 @@ export default function StudentEvaluationsPage() {
   const [panels, setPanels] = useState<any[]>([]);
   const [hasGroup, setHasGroup] = useState(false);
   const [activeTab, setActiveTab] = useState<"pending" | "submitted" | "graded">("pending");
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Modal states
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -166,6 +167,7 @@ export default function StudentEvaluationsPage() {
         setEvaluations(data.evaluations || []);
         setPanels(data.panels || []);
         setHasGroup(data.hasGroup || false);
+        setIsCompleted(data.isCompleted || false);
       }
     } catch (error) {
       console.error("Error fetching evaluations:", error);
@@ -432,6 +434,23 @@ export default function StudentEvaluationsPage() {
             </button>
           </div>
         </header>
+
+        {isCompleted && (
+          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl p-4 mx-4 md:mx-6 mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4 max-w-6xl md:mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/30 flex-shrink-0">
+                📁
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Read-Only / Portfolio Mode</h3>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Your final FYP grades and feedback are locked. You can view all panel and supervisor feedback, download documents, and view scores.</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/30 flex-shrink-0">
+              Portfolio Active
+            </span>
+          </div>
+        )}
 
         <main className="p-4 md:p-6 max-w-6xl mx-auto">
           {/* No Group Warning */}
@@ -912,7 +931,7 @@ export default function StudentEvaluationsPage() {
 
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2 lg:flex-col lg:items-end">
-                          {!evaluation.submission && hasGroup && (
+                          {!evaluation.submission && hasGroup && !isCompleted && (
                             <Button
                               onClick={() => {
                                 setSelectedEvaluation(evaluation);
@@ -1046,7 +1065,7 @@ export default function StudentEvaluationsPage() {
                                     </div>
 
                                     {/* Edit / Unsubmit buttons — only if not graded */}
-                                    {evaluation.submission!.status !== "graded" && !evaluation.submission!.supervisorScore && !evaluation.submission!.panelScore && (
+                                    {evaluation.submission!.status !== "graded" && !evaluation.submission!.supervisorScore && !evaluation.submission!.panelScore && !isCompleted && (
                                       <div className="flex items-center gap-2">
                                         <button
                                           onClick={() => handleEditSubmission(evaluation)}

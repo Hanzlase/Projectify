@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 export async function GET() {
   try {
@@ -143,6 +144,8 @@ export async function GET() {
       isCurrentUser: member.userId === userId
     })) || [];
 
+    const isCompleted = await isStudentCompleted(userId);
+
     return NextResponse.json({
       student: {
         id: student.studentId,
@@ -173,7 +176,8 @@ export async function GET() {
         totalProjects
       },
       supervisors: formattedSupervisors,
-      fellowStudents: formattedStudents
+      fellowStudents: formattedStudents,
+      isCompleted
     });
 
   } catch (error) {

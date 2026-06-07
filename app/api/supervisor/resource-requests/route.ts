@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isGroupCompleted } from "@/lib/cohort-utils";
 
 // GET - Fetch resource requests for supervisor's groups
 export async function GET(req: NextRequest) {
@@ -103,6 +104,10 @@ export async function POST(req: NextRequest) {
 
     if (!group) {
       return NextResponse.json({ error: "You don't supervise this group" }, { status: 403 });
+    }
+
+    if (await isGroupCompleted(request.groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
     }
 
     if (request.status !== "pending") {

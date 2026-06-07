@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
     const body = await request.json();
-    const { title, message, type = 'general', targetType, specificUserIds = [] } = body;
+    const { title, message, type = 'general', targetType, specificUserIds = [], cohort } = body;
 
     if (!title || !message || !targetType) {
       return NextResponse.json({ error: 'Title, message, and target type are required' }, { status: 400 });
@@ -117,7 +117,10 @@ export async function POST(request: NextRequest) {
 
       case 'all_students':
         const students = await prisma.student.findMany({
-          where: { campusId },
+          where: { 
+            campusId,
+            ...(cohort ? { cohort: cohort as any } : {})
+          },
           select: { userId: true }
         });
         recipientIds = students.map(s => s.userId);
@@ -164,6 +167,7 @@ export async function POST(request: NextRequest) {
         message,
         type,
         targetType,
+        targetCohort: cohort || null,
         createdById: userId,
         campusId,
         recipients: {
@@ -191,7 +195,11 @@ export async function POST(request: NextRequest) {
       if (targetType === 'all_users') {
         emitNotificationToCampus(campusId, socketNotification);
       } else if (targetType === 'all_students') {
-        emitNotificationToRole(campusId, 'student', socketNotification);
+        if (cohort) {
+          emitNotificationToUsers(recipientIds, socketNotification);
+        } else {
+          emitNotificationToRole(campusId, 'student', socketNotification);
+        }
       } else if (targetType === 'all_supervisors') {
         emitNotificationToRole(campusId, 'supervisor', socketNotification);
       } else {

@@ -59,7 +59,8 @@ export function SocketProvider({ children }: SocketProviderProps) {
           authenticateSocket(
             user.id || user.userId,
             user.role,
-            user.campusId
+            user.campusId,
+            user.cohort
           );
           
           setIsConnected(true);
@@ -75,7 +76,8 @@ export function SocketProvider({ children }: SocketProviderProps) {
               authenticateSocket(
                 user.id || user.userId,
                 user.role,
-                user.campusId
+                user.campusId,
+                user.cohort
               );
             }
           });

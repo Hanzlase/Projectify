@@ -110,8 +110,14 @@ function ResetPasswordContent() {
       return;
     }
 
-    if (!passwordStrength.length) {
-      setError('Password must be at least 8 characters long');
+    if (
+      !passwordStrength.length || 
+      !passwordStrength.hasUpperCase || 
+      !passwordStrength.hasLowerCase || 
+      !passwordStrength.hasNumber || 
+      !passwordStrength.hasSpecial
+    ) {
+      setError('Password does not meet all the strength requirements');
       return;
     }
 
@@ -422,12 +428,24 @@ function ResetPasswordContent() {
                       <CheckCircle2 className={`w-4 h-4 ${passwordStrength.hasNumber ? '' : 'opacity-50'}`} />
                       Number
                     </div>
+                    <div className={`flex items-center gap-2 ${passwordStrength.hasSpecial ? 'text-green-600' : 'text-slate-400'}`}>
+                      <CheckCircle2 className={`w-4 h-4 ${passwordStrength.hasSpecial ? '' : 'opacity-50'}`} />
+                      Special character
+                    </div>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isLoading || password !== confirmPassword || !passwordStrength.length}
+                  disabled={
+                    isLoading || 
+                    password !== confirmPassword || 
+                    !passwordStrength.length || 
+                    !passwordStrength.hasUpperCase || 
+                    !passwordStrength.hasLowerCase || 
+                    !passwordStrength.hasNumber || 
+                    !passwordStrength.hasSpecial
+                  }
                   className="w-full h-12 bg-[#1E6F3E] hover:bg-[#185a32] text-white font-semibold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-900/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading ? (

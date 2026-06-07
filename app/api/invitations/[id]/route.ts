@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { emitInvitationUpdated } from '@/lib/socket-emitters';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // PATCH - Update invitation status (accept/reject)
 export async function PATCH(
@@ -16,6 +17,9 @@ export async function PATCH(
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const invitationId = parseInt(params.id);
     const body = await request.json();
     const { status } = body;
@@ -115,6 +119,9 @@ export async function DELETE(
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const invitationId = parseInt(params.id);
 
     // Get the student record for the current user

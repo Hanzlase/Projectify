@@ -113,6 +113,18 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
       }
 
+      const hasUpper = /[A-Z]/.test(newPassword);
+      const hasLower = /[a-z]/.test(newPassword);
+      const hasDigit = /[0-9]/.test(newPassword);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+      if (newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        return NextResponse.json(
+          { error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).' },
+          { status: 400 }
+        );
+      }
+
       // Hash new password
       updateData.passwordHash = await bcrypt.hash(newPassword, 10);
     }

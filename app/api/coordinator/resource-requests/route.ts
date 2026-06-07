@@ -10,10 +10,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const cohortFilter = searchParams.get('cohort') || 'REGULAR';
     const userId = parseInt(session.user.id);
 
     const coordinator = await prisma.fYPCoordinator.findUnique({
       where: { userId },
+      include: { campus: true }
     });
 
     if (!coordinator) {
@@ -31,18 +34,24 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Get group names
+    // Get group names and cohorts
     const groupIds = Array.from(new Set(requests.map((r: any) => r.groupId))) as number[];
     const groups = groupIds.length > 0 ? await prisma.group.findMany({
-      where: { groupId: { in: groupIds } },
-      select: { groupId: true, groupName: true },
+      where: { 
+        groupId: { in: groupIds },
+        cohort: cohortFilter as any
+      },
+      select: { groupId: true, groupName: true, cohort: true },
     }) : [];
     const groupMap = new Map(groups.map(g => [g.groupId, g.groupName]));
 
+    // Filter requests to only those belonging to the selected cohort
+    const filteredRequests = requests.filter((r: any) => groupMap.has(r.groupId));
+
     // Get creator & supervisor names
     const userIds = Array.from(new Set([
-      ...requests.map((r: any) => r.createdById),
-      ...requests.filter((r: any) => r.supervisorId).map((r: any) => r.supervisorId),
+      ...filteredRequests.map((r: any) => r.createdById),
+      ...filteredRequests.filter((r: any) => r.supervisorId).map((r: any) => r.supervisorId),
     ])) as number[];
 
     const users = userIds.length > 0 ? await prisma.user.findMany({
@@ -51,7 +60,7 @@ export async function GET(req: NextRequest) {
     }) : [];
     const userMap = new Map(users.map(u => [u.userId, u.name]));
 
-    const formatted = requests.map((r: any) => ({
+    const formatted = filteredRequests.map((r: any) => ({
       id: r.id,
       title: r.title,
       description: r.description,
@@ -76,7 +85,11 @@ export async function GET(req: NextRequest) {
       coordinatorReviewedAt: r.coordinatorReviewedAt,
     }));
 
-    return NextResponse.json({ requests: formatted });
+    return NextResponse.json({
+      requests: formatted,
+      campusName: coordinator.campus.name,
+      activeSemester: coordinator.campus.activeSemester,
+    });
   } catch (error) {
     console.error("Error fetching resource requests:", error);
     return NextResponse.json({ error: "Failed to fetch resource requests" }, { status: 500 });

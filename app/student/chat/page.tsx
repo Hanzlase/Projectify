@@ -132,6 +132,7 @@ function ChatPageContent() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
   const [showMessageMenu, setShowMessageMenu] = useState<number | null>(null);
+  const [isCompleted, setIsCompleted] = useState(false);
   
   // Group creation state
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
@@ -189,11 +190,24 @@ function ChatPageContent() {
     inputRef.current?.focus();
   };
 
+  const fetchCompletedState = async () => {
+    try {
+      const res = await fetch('/api/student/dashboard');
+      if (res.ok) {
+        const data = await res.json();
+        setIsCompleted(!!data.isCompleted);
+      }
+    } catch (error) {
+      console.error('Failed to fetch completed state:', error);
+    }
+  };
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       window.location.href = '/login';
     } else if (status === 'authenticated') {
       fetchConversations();
+      fetchCompletedState();
       
       // Check if there's a recipient to start new conversation
       const recipientId = searchParams?.get('recipientId');
@@ -995,7 +1009,7 @@ function ChatPageContent() {
               </div>
               
               {/* Create Group Button */}
-              {!hasGroup && (
+              {!hasGroup && !isCompleted && (
                 <Button
                   onClick={() => setShowCreateGroupModal(true)}
                   className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white border-0"
@@ -1623,96 +1637,103 @@ function ChatPageContent() {
                     </div>
                   )}
                   
-                  <form onSubmit={selectedFile ? (e) => { e.preventDefault(); uploadAndSendFile(); } : sendMessage} className="flex items-center gap-2 sm:gap-3">
-                    {/* Hidden file inputs */}
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={(e) => handleFileSelect(e, 'file')}
-                      className="hidden"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
-                    />
-                    <input
-                      type="file"
-                      ref={imageInputRef}
-                      onChange={(e) => handleFileSelect(e, 'image')}
-                      className="hidden"
-                      accept="image/*"
-                    />
-                    
-                    {/* Attachment buttons */}
-                    <div className="flex items-center gap-1">
-                      <button 
-                        type="button" 
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors"
-                        title="Attach file"
-                      >
-                        <Paperclip className="w-5 h-5" />
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => imageInputRef.current?.click()}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors hidden sm:flex"
-                        title="Send image"
-                      >
-                        <ImageIcon className="w-5 h-5" />
-                      </button>
+                  {isCompleted ? (
+                    <div className="bg-amber-500/10 border border-amber-500/20 backdrop-blur-md rounded-xl p-3 flex items-center justify-center gap-2 text-amber-700 dark:text-amber-400 text-sm font-medium">
+                      <Lock className="w-4 h-4" />
+                      Chat is in read-only mode because you have completed both FYP-1 and FYP-2.
                     </div>
-                    
-                    {/* Input field */}
-                    <div className="flex-1 relative">
-                      <Input
-                        ref={inputRef}
-                        placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-zinc-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-zinc-700 focus:bg-white dark:focus:bg-gray-600 dark:text-[#E4E4E7] transition-colors"
-                        disabled={sending || uploadingFile}
+                  ) : (
+                    <form onSubmit={selectedFile ? (e) => { e.preventDefault(); uploadAndSendFile(); } : sendMessage} className="flex items-center gap-2 sm:gap-3">
+                      {/* Hidden file inputs */}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(e) => handleFileSelect(e, 'file')}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <input
+                        type="file"
+                        ref={imageInputRef}
+                        onChange={(e) => handleFileSelect(e, 'image')}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                      
+                      {/* Attachment buttons */}
+                      <div className="flex items-center gap-1">
                         <button 
-                          ref={emojiButtonRef}
                           type="button" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowEmojiPicker(!showEmojiPicker);
-                          }}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showEmojiPicker ? 'text-[#1a5d1a] bg-[#d1e7d1]' : 'text-gray-400 hover:text-gray-600'}`}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors"
+                          title="Attach file"
                         >
-                          <Smile className="w-5 h-5" />
+                          <Paperclip className="w-5 h-5" />
                         </button>
-                        {showEmojiPicker && (
-                          <div 
-                            ref={emojiPickerRef}
-                            className="absolute bottom-12 right-0 sm:right-0 z-50 shadow-xl rounded-xl overflow-hidden max-sm:fixed max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto max-sm:bottom-20"
-                          >
-                            <EmojiPicker 
-                              onEmojiClick={onEmojiClick} 
-                              theme={Theme.LIGHT}
-                              width={window.innerWidth < 640 ? Math.min(320, window.innerWidth - 32) : 320}
-                              height={350}
-                              searchPlaceHolder="Search emoji..."
-                              previewConfig={{ showPreview: false }}
-                            />
-                          </div>
-                        )}
+                        <button 
+                          type="button" 
+                          onClick={() => imageInputRef.current?.click()}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1a5d1a] dark:hover:text-[#2d7a2d] hover:bg-[#d1e7d1] dark:hover:bg-[#1a5d1a]/30 transition-colors hidden sm:flex"
+                          title="Send image"
+                        >
+                          <ImageIcon className="w-5 h-5" />
+                        </button>
                       </div>
-                    </div>
-                    
-                    {/* Send button */}
-                    <Button
-                      type="submit"
-                      disabled={(!newMessage.trim() && !selectedFile) || sending || uploadingFile}
-                      className="h-12 w-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] hover:from-[#145214] hover:to-[#1a5d1a] rounded-full shadow-lg shadow-[#1a5d1a]/30 transition-all hover:shadow-xl hover:shadow-[#1a5d1a]/40 disabled:opacity-50 disabled:shadow-none"
-                    >
-                      {sending || uploadingFile ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
-                    </Button>
-                  </form>
+                      
+                      {/* Input field */}
+                      <div className="flex-1 relative">
+                        <Input
+                          ref={inputRef}
+                          placeholder={selectedFile ? "Add a caption (optional)..." : "Type your message..."}
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          className="h-12 pl-4 pr-12 border-2 border-gray-200 dark:border-zinc-600 focus:border-[#1a5d1a] rounded-full bg-gray-50 dark:bg-zinc-700 focus:bg-white dark:focus:bg-gray-600 dark:text-[#E4E4E7] transition-colors"
+                          disabled={sending || uploadingFile}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <button 
+                            ref={emojiButtonRef}
+                            type="button" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowEmojiPicker(!showEmojiPicker);
+                            }}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showEmojiPicker ? 'text-[#1a5d1a] bg-[#d1e7d1]' : 'text-gray-400 hover:text-gray-600'}`}
+                          >
+                            <Smile className="w-5 h-5" />
+                          </button>
+                          {showEmojiPicker && (
+                            <div 
+                              ref={emojiPickerRef}
+                              className="absolute bottom-12 right-0 sm:right-0 z-50 shadow-xl rounded-xl overflow-hidden max-sm:fixed max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto max-sm:bottom-20"
+                            >
+                              <EmojiPicker 
+                                onEmojiClick={onEmojiClick} 
+                                theme={Theme.LIGHT}
+                                width={window.innerWidth < 640 ? Math.min(320, window.innerWidth - 32) : 320}
+                                height={350}
+                                searchPlaceHolder="Search emoji..."
+                                previewConfig={{ showPreview: false }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Send button */}
+                      <Button
+                        type="submit"
+                        disabled={(!newMessage.trim() && !selectedFile) || sending || uploadingFile}
+                        className="h-12 w-12 bg-gradient-to-br from-[#1a5d1a] to-[#2d7a2d] hover:from-[#145214] hover:to-[#1a5d1a] rounded-full shadow-lg shadow-[#1a5d1a]/30 transition-all hover:shadow-xl hover:shadow-[#1a5d1a]/40 disabled:opacity-50 disabled:shadow-none"
+                      >
+                        {sending || uploadingFile ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Send className="w-5 h-5" />
+                        )}
+                      </Button>
+                    </form>
+                  )}
                 </div>
               </>
             ) : (

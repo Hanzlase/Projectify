@@ -253,9 +253,9 @@ export function disconnectSocket(): void {
 /**
  * Authenticate user on socket connection
  */
-export function authenticateSocket(userId: number, role: string, campusId?: number): void {
+export function authenticateSocket(userId: number, role: string, campusId?: number, cohort?: string | null): void {
   if (socket?.connected) {
-    socket.emit('user:auth' as any, { userId, role, campusId });
+    socket.emit('user:auth' as any, { userId, role, campusId, cohort });
     if (isDev) console.log('🔐 Socket authenticated for user:', userId);
   }
 }

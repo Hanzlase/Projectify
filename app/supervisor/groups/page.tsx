@@ -57,6 +57,7 @@ interface Group {
   projectId: number | null;
   projectStatus: string | null;
   conversationId: number | null;
+  isCompleted?: boolean;
 }
 
 export default function SupervisorGroupsPage() {
@@ -70,6 +71,7 @@ export default function SupervisorGroupsPage() {
   const [filterBy, setFilterBy] = useState<'all' | 'with-project' | 'no-project'>('all');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -110,6 +112,8 @@ export default function SupervisorGroupsPage() {
   });
 
   const filteredGroups = groups.filter(group => {
+    const matchesTab = activeTab === 'active' ? !group.isCompleted : group.isCompleted;
+
     const matchesSearch = searchQuery === "" || 
       group.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       group.projectTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -119,7 +123,7 @@ export default function SupervisorGroupsPage() {
       (filterBy === 'with-project' && group.projectTitle) ||
       (filterBy === 'no-project' && !group.projectTitle);
     
-    return matchesSearch && matchesFilter;
+    return matchesTab && matchesSearch && matchesFilter;
   }).sort((a, b) => {
     switch (sortBy) {
       case 'students':
@@ -254,6 +258,32 @@ export default function SupervisorGroupsPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Interactive Tabs for Active vs Completed Groups */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'active'
+                  ? 'bg-[#1a5d1a] text-white shadow-md shadow-[#1a5d1a]/20'
+                  : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Active Groups ({groups.filter(g => !g.isCompleted).length})
+            </button>
+            <button
+              onClick={() => setActiveTab('completed')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'completed'
+                  ? 'bg-[#1a5d1a] text-white shadow-md shadow-[#1a5d1a]/20'
+                  : 'bg-white dark:bg-[#27272A] text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              Past Supervised Projects ({groups.filter(g => g.isCompleted).length})
+            </button>
           </div>
 
           {/* Search & Filter Area - Floating Design */}
@@ -404,11 +434,18 @@ export default function SupervisorGroupsPage() {
                               </div>
                               
                               {/* Status Dot */}
-                              {statusConfig.show && (
-                                <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.text === 'text-[#1E6F3E]' ? 'bg-[#1E6F3E]' : 'bg-amber-500'}`} />
-                                  {statusConfig.label}
+                              {group.isCompleted ? (
+                                <span className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1E6F3E]/10 text-[#1E6F3E]">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#1E6F3E]" />
+                                  Completed Archive
                                 </span>
+                              ) : (
+                                statusConfig.show && (
+                                  <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.text === 'text-[#1E6F3E]' ? 'bg-[#1E6F3E]' : 'bg-amber-500'}`} />
+                                    {statusConfig.label}
+                                  </span>
+                                )
                               )}
                             </div>
                           </div>
@@ -490,7 +527,9 @@ export default function SupervisorGroupsPage() {
                       <p className="text-gray-500 dark:text-zinc-400 text-sm max-w-md mx-auto mb-6">
                         {searchQuery 
                           ? "No groups match your search criteria. Try adjusting your filters."
-                          : "You haven't been assigned to any groups yet. Accept invitations from students to start supervising."
+                          : activeTab === 'completed'
+                          ? "You don't have any completed supervised projects in the archive."
+                          : "You haven't been assigned to any active groups yet. Accept invitations from students to start supervising."
                         }
                       </p>
                       <Link

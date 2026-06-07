@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { deleteProjectEmbedding } from '@/lib/pinecone';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 import { emitProjectStatus, emitProjectStatusToUsers } from '@/lib/socket-emitters';
 
 // GET - Fetch single project
@@ -111,6 +112,9 @@ export async function PUT(
 
     const projectId = parseInt(params.id);
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
 
     // Check if project exists and user owns it
     const existingProject = await (prisma as any).project.findUnique({
@@ -197,6 +201,9 @@ export async function DELETE(
 
     const projectId = parseInt(params.id);
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
 
     // Check if project exists and user owns it
     const existingProject = await (prisma as any).project.findUnique({

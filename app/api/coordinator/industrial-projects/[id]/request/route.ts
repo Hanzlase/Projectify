@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { emitNotificationToUser } from '@/lib/socket-emitters';
+import { getActivePhase } from '@/lib/cohort-utils';
 
 // POST - Request an industrial project (Students only)
 export async function POST(
@@ -26,12 +27,24 @@ export async function POST(
     // Check if student is already in a group
     const student = await prisma.student.findUnique({
       where: { userId },
-      select: { groupId: true, studentId: true }
+      select: { groupId: true, studentId: true, campusId: true, cohort: true }
     });
 
     if (student?.groupId) {
       return NextResponse.json({ error: 'You are already in a group. Leave your current group before requesting a new project.' }, { status: 400 });
     }
+
+    // Get student active phase based on campus active semester
+    const campus = await prisma.campus.findUnique({
+      where: { campusId: student?.campusId },
+      select: { activeSemester: true }
+    });
+
+    if (!campus) {
+      return NextResponse.json({ error: 'Campus not found' }, { status: 404 });
+    }
+
+    const studentActivePhase = getActivePhase(student!.cohort, campus.activeSemester);
 
     // Check if project exists and is available
     const industrialProject = await (prisma as any).industrialProject.findUnique({
@@ -40,6 +53,10 @@ export async function POST(
 
     if (!industrialProject) {
       return NextResponse.json({ error: 'Industrial project not found' }, { status: 404 });
+    }
+
+    if (industrialProject.fypPhase !== studentActivePhase) {
+      return NextResponse.json({ error: 'This project belongs to a different FYP phase' }, { status: 403 });
     }
 
     if (industrialProject.status !== 'available') {

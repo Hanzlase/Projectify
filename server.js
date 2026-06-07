@@ -112,6 +112,7 @@ app.prepare().then(() => {
         socket.data.userId = data.userId;
         socket.data.role = data.role;
         socket.data.campusId = data.campusId;
+        socket.data.cohort = data.cohort;
         
         // Join user-specific room
         socket.join(`user:${data.userId}`);
@@ -119,11 +120,17 @@ app.prepare().then(() => {
         // Join campus room
         if (data.campusId) {
           socket.join(`campus:${data.campusId}`);
+          if (data.cohort) {
+            socket.join(`campus:${data.campusId}:cohort:${data.cohort}`);
+          }
         }
         
         // Join role-specific room
         if (data.role && data.campusId) {
           socket.join(`role:${data.role}:${data.campusId}`);
+          if (data.cohort) {
+            socket.join(`role:${data.role}:${data.campusId}:cohort:${data.cohort}`);
+          }
         }
 
         // Track user sockets
@@ -132,7 +139,7 @@ app.prepare().then(() => {
         }
         userSockets.get(data.userId).add(socket.id);
 
-        if (dev) console.log(`✅ User ${data.userId} (${data.role}) authenticated`);
+        if (dev) console.log(`✅ User ${data.userId} (${data.role}) authenticated (Cohort: ${data.cohort || 'None'})`);
       }
     });
 

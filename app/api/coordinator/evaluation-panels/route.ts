@@ -12,11 +12,14 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    const { searchParams } = new URL(request.url);
+    const cohort = searchParams.get('cohort') || 'REGULAR';
+    const fypPhase = searchParams.get('fypPhase') || 'FYP_1';
 
     // Get coordinator's campus
     const coordinator = await prisma.fYPCoordinator.findUnique({
       where: { userId },
-      select: { campusId: true }
+      include: { campus: true }
     });
 
     if (!coordinator) {
@@ -31,9 +34,13 @@ export async function GET(request: NextRequest) {
       select: { name: true, location: true }
     });
 
-    // Get all evaluation panels for this campus
+    // Get all evaluation panels for this campus filtered by cohort & phase
     const panels = await prisma.evaluationPanel.findMany({
-      where: { campusId },
+      where: { 
+        campusId,
+        cohort: cohort as any,
+        fypPhase: fypPhase as any
+      },
       include: {
         panelMembers: {
           include: {
@@ -64,9 +71,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Get statistics
-    // Total groups with supervisor assigned (ready for evaluation)
+    // Total groups with supervisor assigned (ready for evaluation) filtered by cohort
     const totalGroups = await prisma.group.count({
       where: {
+        cohort: cohort as any,
         students: {
           some: {
             campusId,
@@ -82,10 +90,14 @@ export async function GET(request: NextRequest) {
       where: { campusId }
     });
 
-    // Get supervisors already in panels
+    // Get supervisors already in panels for this specific cohort/phase
     const supervisorsInPanels = await prisma.panelMember.findMany({
       where: {
-        panel: { campusId }
+        panel: { 
+          campusId,
+          cohort: cohort as any,
+          fypPhase: fypPhase as any
+        }
       },
       select: { supervisorId: true },
       distinct: ['supervisorId']
@@ -93,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     const supervisorIdsInPanels = supervisorsInPanels.map(pm => pm.supervisorId);
 
-    // Get all supervisors NOT already in panels
+    // Get all supervisors NOT already in panels for this cohort/phase
     const supervisors = await prisma.user.findMany({
       where: {
         role: 'supervisor',
@@ -126,9 +138,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Get all groups with their supervisor and project info
-    // Include groups that have a supervisor assigned (ready for evaluation)
+    // Include groups that have a supervisor assigned (ready for evaluation) filtered by cohort
     const groups = await prisma.group.findMany({
       where: {
+        cohort: cohort as any,
         students: {
           some: {
             campusId,
@@ -223,7 +236,8 @@ export async function GET(request: NextRequest) {
           rollNumber: s.rollNumber
         }))
       })),
-      campusName: campus?.name || 'Unknown Campus'
+      campusName: campus?.name || 'Unknown Campus',
+      activeSemester: coordinator.campus.activeSemester
     });
 
   } catch (error) {
@@ -250,6 +264,8 @@ export async function POST(request: NextRequest) {
       minSupervisors, 
       maxSupervisors,
       scheduledDate,
+      cohort,
+      fypPhase,
       panelMembers, // Array of { supervisorId, role }
       groupAssignments // Array of { groupId, evaluationDate?, timeSlot?, venue? }
     } = body;
@@ -291,6 +307,8 @@ export async function POST(request: NextRequest) {
         maxSupervisors,
         scheduledDate: scheduledDate ? new Date(scheduledDate) : null,
         campusId: coordinator.campusId,
+        cohort: cohort || 'REGULAR',
+        fypPhase: fypPhase || 'FYP_1',
         createdById: userId,
         status: panelMembers && panelMembers.length >= minSupervisors ? 'active' : 'draft',
         panelMembers: panelMembers ? {

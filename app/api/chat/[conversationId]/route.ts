@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { encryptMessage, decryptMessage } from '@/lib/encryption';
 import { emitChatMessage, emitMessageDeleted } from '@/lib/socket-emitters';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // GET - Get messages for a conversation
 export async function GET(
@@ -156,6 +157,9 @@ export async function POST(
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const conversationId = parseInt(params.conversationId);
     const { content, attachmentUrl, attachmentType, attachmentName } = await request.json();
 

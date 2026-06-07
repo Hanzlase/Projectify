@@ -105,6 +105,7 @@ interface DashboardData {
     pendingInvitations: number;
     totalProjects: number;
   };
+  isCompleted?: boolean;
 }
 
 export default function StudentDashboard() {
@@ -383,6 +384,23 @@ export default function StudentDashboard() {
           </div>
         </header>
 
+        {dashboardData?.isCompleted && (
+          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl p-4 mx-4 md:mx-6 mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/30 flex-shrink-0">
+                📁
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Read-Only / Portfolio Mode</h3>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">You have successfully completed both FYP-1 and FYP-2. Your dashboard is now in portfolio mode to showcase your scores and documents.</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/30 flex-shrink-0">
+              Completed Mode
+            </span>
+          </div>
+        )}
+
         <main className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
@@ -390,13 +408,15 @@ export default function StudentDashboard() {
               <p className="text-sm text-gray-500 dark:text-zinc-400">Plan, prioritize, and accomplish your tasks with ease.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
-                onClick={() => router.push('/student/projects?addProject=true')}
-                className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Project
-              </Button>
+              {!dashboardData?.isCompleted && (
+                <Button 
+                  onClick={() => router.push('/student/projects?addProject=true')}
+                  className="bg-[#1a5d1a] hover:bg-[#145214] text-white rounded-xl h-10 px-4 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Project
+                </Button>
+              )}
             </div>
           </div>
 
@@ -717,12 +737,14 @@ export default function StudentDashboard() {
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Tasks</h3>
-                    <button 
-                      onClick={() => dashboardData?.group?.id && router.push(`/student/group/${dashboardData.group.id}?tab=tasks`)}
-                      className="w-6 h-6 rounded-lg bg-[#1a5d1a] flex items-center justify-center hover:bg-[#145214] transition-all"
-                    >
-                      <Plus className="w-3.5 h-3.5 text-white" />
-                    </button>
+                    {!dashboardData?.isCompleted && (
+                      <button 
+                        onClick={() => dashboardData?.group?.id && router.push(`/student/group/${dashboardData.group.id}?tab=tasks`)}
+                        className="w-6 h-6 rounded-lg bg-[#1a5d1a] flex items-center justify-center hover:bg-[#145214] transition-all"
+                      >
+                        <Plus className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    )}
                   </div>
                   <div className="space-y-2">
                     {tasks.length > 0 ? (

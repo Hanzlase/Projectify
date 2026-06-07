@@ -105,6 +105,14 @@ export default function CoordinatorEvaluationsPage() {
   const [campusName, setCampusName] = useState("");
   const [totalGroups, setTotalGroups] = useState(0);
 
+  const [selectedCohort, setSelectedCohort] = useState<"REGULAR" | "DELAYED">("REGULAR");
+  const [activeSemester, setActiveSemester] = useState<"FALL" | "SPRING">("FALL");
+
+  // Calculate phase based on active semester and selected cohort
+  const resolvedPhase = activeSemester === "FALL"
+    ? (selectedCohort === "REGULAR" ? "FYP_1" : "FYP_2")
+    : (selectedCohort === "REGULAR" ? "FYP_2" : "FYP_1");
+
   // UI State
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "closed" | "graded">("all");
@@ -117,7 +125,13 @@ export default function CoordinatorEvaluationsPage() {
   const [showViewModal, setShowViewModal] = useState(false);
 
   // Form States
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    instructions: string;
+    totalMarks: number | '';
+    dueDate: string;
+  }>({
     title: "",
     description: "",
     instructions: "",
@@ -140,16 +154,19 @@ export default function CoordinatorEvaluationsPage() {
     } else if (status === "authenticated") {
       fetchEvaluations();
     }
-  }, [status, session]);
+  }, [status, session, selectedCohort, resolvedPhase]);
 
   const fetchEvaluations = async () => {
     try {
-      const res = await fetch("/api/coordinator/evaluations");
+      const res = await fetch(`/api/coordinator/evaluations?cohort=${selectedCohort}&fypPhase=${resolvedPhase}`);
       if (res.ok) {
         const data = await res.json();
         setEvaluations(data.evaluations || []);
         setCampusName(data.campusName || "");
         setTotalGroups(data.totalGroups || 0);
+        if (data.activeSemester) {
+          setActiveSemester(data.activeSemester);
+        }
       }
     } catch (error) {
       console.error("Error fetching evaluations:", error);
@@ -202,7 +219,10 @@ export default function CoordinatorEvaluationsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          totalMarks: formData.totalMarks === '' ? 100 : Number(formData.totalMarks) || 100,
           attachments: uploadedAttachments,
+          cohort: selectedCohort,
+          fypPhase: resolvedPhase,
         }),
       });
 
@@ -348,7 +368,7 @@ export default function CoordinatorEvaluationsPage() {
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">Evaluation Management</h1>
               <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
-                {campusName} • {totalGroups} Groups
+                {campusName} • {totalGroups} Groups • Cohort: {selectedCohort} ({resolvedPhase.replace("_", "-")})
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -378,6 +398,30 @@ export default function CoordinatorEvaluationsPage() {
         </header>
 
         <main className="p-4 md:p-6 max-w-7xl mx-auto">
+          {/* Cohort Selector Tabs */}
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl w-fit mb-6 border border-gray-200/50 dark:border-zinc-700/50">
+            <button
+              onClick={() => setSelectedCohort("REGULAR")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "REGULAR"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Regular ({activeSemester === "FALL" ? "FYP-1" : "FYP-2"})
+            </button>
+            <button
+              onClick={() => setSelectedCohort("DELAYED")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                selectedCohort === "DELAYED"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              Delayed ({activeSemester === "FALL" ? "FYP-2" : "FYP-1"})
+            </button>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
@@ -848,7 +892,10 @@ export default function CoordinatorEvaluationsPage() {
                     <Input
                       type="number"
                       value={formData.totalMarks}
-                      onChange={(e) => setFormData({ ...formData, totalMarks: parseInt(e.target.value) })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, totalMarks: val === '' ? '' : parseInt(val) || 0 });
+                      }}
                       className="rounded-xl h-11 dark:bg-gray-700"
                     />
                   </div>

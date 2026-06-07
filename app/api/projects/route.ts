@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { generateEmbedding } from '@/lib/cohere';
 import { addProjectEmbedding, searchSimilarProjects, checkUniqueness } from '@/lib/pinecone';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // GET - Fetch projects
 export async function GET(request: Request) {
@@ -111,6 +112,9 @@ export async function POST(request: Request) {
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await request.json();
     const {
       title,

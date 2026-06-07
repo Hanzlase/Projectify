@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getActivePhase, isStudentCompleted } from '@/lib/cohort-utils';
 
 // POST - Create a group based on an approved industrial project
 export async function POST(req: NextRequest) {
@@ -15,6 +16,9 @@ export async function POST(req: NextRequest) {
     }
     
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { industrialProjectId: rawIndustrialProjectId, studentUserIds, supervisorUserId } = body;
     
@@ -33,7 +37,7 @@ export async function POST(req: NextRequest) {
     // Get student info
     const student = await prisma.student.findUnique({ 
       where: { userId },
-      select: { studentId: true, groupId: true, campusId: true }
+      select: { studentId: true, groupId: true, campusId: true, cohort: true }
     });
     
     if (!student) {
@@ -96,12 +100,13 @@ export async function POST(req: NextRequest) {
       const invitedStudents = await prisma.student.findMany({ 
         where: { 
           userId: { in: invitedStudentIds }, 
-          groupId: null 
+          groupId: null,
+          cohort: student.cohort // Must be same cohort
         } 
       });
       
       if (invitedStudents.length !== invitedStudentIds.length) {
-        return NextResponse.json({ error: 'Some selected students are already in a group' }, { status: 400 });
+        return NextResponse.json({ error: 'Some selected students are already in a group or belong to a different cohort' }, { status: 400 });
       }
     }
     
@@ -114,6 +119,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Supervisor not found' }, { status: 404 });
     }
     
+    // Get campus active semester
+    const campus = await prisma.campus.findUnique({
+      where: { campusId: student.campusId },
+      select: { activeSemester: true }
+    });
+    
+    if (!campus) {
+      return NextResponse.json({ error: 'Campus not found' }, { status: 404 });
+    }
+    
+    const activePhase = getActivePhase(student.cohort, campus.activeSemester);
+
     // Create the group (no projectId - this is for industrial project)
     const group = await (prisma as any).group.create({ 
       data: { 
@@ -121,7 +138,9 @@ export async function POST(req: NextRequest) {
         projectId: null,  // No regular project
         createdById: student.studentId, 
         supervisorId: null, 
-        isFull: false 
+        isFull: false,
+        cohort: student.cohort,
+        fypPhase: activePhase
       } 
     });
     

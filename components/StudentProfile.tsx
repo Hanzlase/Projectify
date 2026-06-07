@@ -110,10 +110,17 @@ export default function StudentProfile() {
         setError('Current password is required to change password');
         return;
       }
-      if (formData.newPassword.length < 6) {
-        setError('New password must be at least 6 characters');
+      
+      const hasUpper = /[A-Z]/.test(formData.newPassword);
+      const hasLower = /[a-z]/.test(formData.newPassword);
+      const hasDigit = /[0-9]/.test(formData.newPassword);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword);
+
+      if (formData.newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        setError('New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).');
         return;
       }
+
       if (formData.newPassword !== formData.confirmPassword) {
         setError('New passwords do not match');
         return;

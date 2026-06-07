@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { emitEvaluationComment } from '@/lib/socket-emitters';
+import { isGroupCompleted } from '@/lib/cohort-utils';
 
 // GET - Fetch group details for a panel assignment (submissions, comments, score)
 export async function GET(
@@ -233,6 +234,10 @@ export async function POST(
     const panelId = parseInt(params.panelId);
     const groupId = parseInt(params.groupId);
 
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
+
     // Verify membership
     const membership = await prisma.panelMember.findUnique({
       where: { panelId_supervisorId: { panelId, supervisorId: userId } }
@@ -326,6 +331,10 @@ export async function PATCH(
     const panelId = parseInt(params.panelId);
     const groupId = parseInt(params.groupId);
 
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
+
     const body = await request.json();
 
     // If scoring
@@ -402,6 +411,10 @@ export async function DELETE(
     }
 
     const userId = parseInt(session.user.id);
+    const groupId = parseInt(params.groupId);
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
     const { commentId } = await request.json();
 
     const comment = await (prisma as any).panelComment.findUnique({

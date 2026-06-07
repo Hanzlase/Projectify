@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { isStudentCompleted, isGroupCompleted } from '@/lib/cohort-utils';
 
 // GET - Get group details
 export async function GET(
@@ -113,6 +114,8 @@ export async function GET(
     const isStudentAdmin = student?.groupId === groupId && student?.isGroupAdmin;
     const isAdmin = isCreator || isSupervisor || isStudentAdmin;
 
+    const isCompleted = (student && await isStudentCompleted(userId)) || await isGroupCompleted(groupId);
+
     return NextResponse.json({
       group: {
         ...group,
@@ -121,7 +124,8 @@ export async function GET(
         pendingInvitations,
         isAdmin,
         isCreator,
-        currentStudentId: student?.studentId
+        currentStudentId: student?.studentId,
+        isCompleted
       }
     });
 
@@ -144,7 +148,13 @@ export async function PATCH(
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const groupId = parseInt(params.groupId);
+    if (await isGroupCompleted(groupId)) {
+      return NextResponse.json({ error: "Forbidden: This group's FYP is completed." }, { status: 403 });
+    }
     const body = await req.json();
     const { groupImage } = body;
 

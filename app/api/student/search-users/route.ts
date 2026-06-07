@@ -20,15 +20,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid role parameter' }, { status: 400 });
     }
 
-    // Get current user's campus
+    // Get current user's campus and cohort
     let campusId: number | null = null;
+    let userCohort: any = null;
     
     if (session.user.role === 'student') {
       const student = await prisma.student.findUnique({
         where: { userId },
-        select: { campusId: true }
+        select: { campusId: true, cohort: true }
       });
       campusId = student?.campusId || null;
+      userCohort = student?.cohort || null;
     }
 
     if (role === 'supervisor') {
@@ -70,10 +72,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ users: formattedSupervisors });
 
     } else if (role === 'student') {
-      // Search students by roll number
+      // Search students by roll number (same cohort only)
       const students = await (prisma as any).student.findMany({
         where: {
           ...(campusId ? { campusId } : {}),
+          cohort: userCohort || undefined, // Restrict to same cohort
           userId: { not: userId }, // Exclude current user
           groupId: null, // Only students without a group
           ...(search ? {

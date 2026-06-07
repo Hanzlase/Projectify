@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getActivePhase } from "@/lib/cohort-utils";
 
 export async function GET() {
   try {
@@ -160,22 +161,31 @@ export async function GET() {
     }));
 
     // Format groups for response
-    const formattedGroups = groupsWithProjects.map((group: any) => ({
-      id: group.groupId,
-      name: group.groupName,
-      studentCount: group.students.length,
-      students: group.students.map((s: any) => ({
-        userId: s.userId,
-        name: s.user.name,
-        email: s.user.email,
-        rollNumber: s.rollNumber,
-        profileImage: s.user.profileImage,
-      })),
-      projectTitle: group.project?.title || null,
-      projectId: group.project?.projectId || null,
-      projectStatus: group.project?.status || null,
-      conversationId: group.groupChats?.[0]?.conversationId || null,
-    }));
+    const formattedGroups = groupsWithProjects.map((group: any) => {
+      const activePhase = getActivePhase(group.cohort, supervisor.campus.activeSemester);
+      const isCompleted = 
+        group.project?.status === "completed" || 
+        group.project?.status === "archived" ||
+        (group.fypPhase === "FYP_2" && activePhase === "FYP_1");
+
+      return {
+        id: group.groupId,
+        name: group.groupName,
+        studentCount: group.students.length,
+        students: group.students.map((s: any) => ({
+          userId: s.userId,
+          name: s.user.name,
+          email: s.user.email,
+          rollNumber: s.rollNumber,
+          profileImage: s.user.profileImage,
+        })),
+        projectTitle: group.project?.title || null,
+        projectId: group.project?.projectId || null,
+        projectStatus: group.project?.status || null,
+        conversationId: group.groupChats?.[0]?.conversationId || null,
+        isCompleted,
+      };
+    });
 
     // Format invitations
     const formattedInvitations = invitationsWithProjects.map((inv: any) => ({

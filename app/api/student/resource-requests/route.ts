@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isStudentCompleted } from "@/lib/cohort-utils";
 
 // GET - Fetch resource requests for student's group
 export async function GET(req: NextRequest) {
@@ -80,6 +81,9 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { title, description, resourceType, items, justification } = body;
 
@@ -125,6 +129,9 @@ export async function PATCH(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { requestId, title, description, resourceType, items, justification } = body;
 
@@ -179,6 +186,9 @@ export async function DELETE(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const requestId = searchParams.get("id");
 

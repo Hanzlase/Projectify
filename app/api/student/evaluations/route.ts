@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getActivePhase, isStudentCompleted } from "@/lib/cohort-utils";
 
 // GET - Fetch evaluations for student
 export async function GET(req: NextRequest) {
@@ -82,11 +83,19 @@ export async function GET(req: NextRequest) {
       }));
     }
 
-    // Fetch active evaluations for student's campus (coordinator-created tasks)
+    const campus = await prisma.campus.findUnique({
+      where: { campusId: student.campusId },
+      select: { activeSemester: true }
+    });
+    const activePhase = campus ? getActivePhase(student.cohort, campus.activeSemester) : 'FYP_1';
+
+    // Fetch active evaluations for student's campus matching their cohort & phase
     const evaluations = await (prisma as any).evaluation.findMany({
       where: {
         campusId: student.campusId,
         status: { in: ["active", "closed", "graded"] },
+        cohort: student.cohort,
+        fypPhase: activePhase,
       },
       include: {
         attachments: true,
@@ -147,11 +156,14 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    const isCompleted = await isStudentCompleted(userId);
+
     return NextResponse.json({
       evaluations: formattedEvaluations,
       panels: panels,
       hasGroup: !!student.groupId,
       groupId: student.groupId,
+      isCompleted,
     });
   } catch (error) {
     console.error("Error fetching evaluations:", error);
@@ -168,6 +180,9 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { evaluationId, content, attachments } = body;
 
@@ -262,6 +277,9 @@ export async function PATCH(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await req.json();
     const { submissionId, content, attachments } = body;
 
@@ -330,6 +348,9 @@ export async function DELETE(req: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const submissionId = searchParams.get("submissionId");
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { emitInvitationToUser } from '@/lib/socket-emitters';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // GET - Fetch invitations for the current user
 export async function GET(request: Request) {
@@ -117,6 +118,9 @@ export async function POST(request: Request) {
     }
 
     const userId = parseInt(session.user.id);
+    if (await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const body = await request.json();
     const { receiverUserId, message, type = 'group_invite' } = body;
 

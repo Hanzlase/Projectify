@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { isStudentCompleted } from '@/lib/cohort-utils';
 
 // DELETE - Cancel a pending invitation
 export async function DELETE(
@@ -15,6 +16,9 @@ export async function DELETE(
     }
 
     const userId = parseInt(session.user.id);
+    if (session.user.role === 'student' && await isStudentCompleted(userId)) {
+      return NextResponse.json({ error: "Forbidden: You are in Read-Only / Portfolio Mode." }, { status: 403 });
+    }
     const groupId = parseInt(params.groupId);
     const body = await req.json();
     const { inviteeId } = body;

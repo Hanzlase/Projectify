@@ -128,8 +128,13 @@ export default function AdminProfilePage() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters');
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasDigit = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (newPassword.length < 8 || !hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      setError('New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*, etc.).');
       return;
     }
 

@@ -123,6 +123,7 @@ interface GroupDetails {
   students: GroupMember[];
   project?: Project;
   conversationId?: number;
+  isCompleted?: boolean;
 }
 
 export default function SupervisorGroupDetailsPage() {
@@ -141,7 +142,13 @@ export default function SupervisorGroupDetailsPage() {
   // Meeting Modal State
   const [showMeetingModal, setShowMeetingModal] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
-  const [meetingForm, setMeetingForm] = useState({
+  const [meetingForm, setMeetingForm] = useState<{
+    title: string;
+    description: string;
+    meetingLink: string;
+    scheduledAt: string;
+    duration: number | '';
+  }>({
     title: '',
     description: '',
     meetingLink: '',
@@ -329,10 +336,11 @@ export default function SupervisorGroupDetailsPage() {
     
     setSavingMeeting(true);
     try {
+      const finalDuration = meetingForm.duration === '' ? 60 : Math.max(5, Number(meetingForm.duration) || 60);
       const method = editingMeeting ? 'PATCH' : 'POST';
       const body = editingMeeting 
-        ? { meetingId: editingMeeting.meetingId, ...meetingForm }
-        : meetingForm;
+        ? { meetingId: editingMeeting.meetingId, ...meetingForm, duration: finalDuration }
+        : { ...meetingForm, duration: finalDuration };
 
       const res = await fetch(`/api/groups/${groupId}/meetings`, {
         method,
@@ -564,19 +572,32 @@ export default function SupervisorGroupDetailsPage() {
               >
                 <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl h-9 w-9 p-0"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              {!group.isCompleted && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-gray-600 dark:text-zinc-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl h-9 w-9 p-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </header>
 
         <main className="p-4 md:p-6 max-w-5xl mx-auto">
+          {group?.isCompleted && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-md flex items-center gap-3 animate-fadeIn">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">Read-Only Archive</h3>
+                <p className="text-amber-700/80 dark:text-amber-400/80 text-xs">This group's FYP has been completed. All details are in read-only mode.</p>
+              </div>
+            </div>
+          )}
           {/* Tab Navigation - Same style as Student */}
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             {[
@@ -622,17 +643,19 @@ export default function SupervisorGroupDetailsPage() {
                         )}
                       </div>
                       {/* Image Upload Button - Supervisor as Admin */}
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploadingImage}
-                        className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-zinc-800"
-                      >
-                        {uploadingImage ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Camera className="w-3.5 h-3.5" />
-                        )}
-                      </button>
+                      {!group.isCompleted && (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingImage}
+                          className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#1a5d1a] text-white flex items-center justify-center hover:bg-[#145214] transition-all shadow-md border-2 border-white dark:border-zinc-800"
+                        >
+                          {uploadingImage ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Camera className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      )}
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -999,19 +1022,21 @@ export default function SupervisorGroupDetailsPage() {
                           <div className="flex items-center gap-2">
                             <p className="text-xs text-gray-500 dark:text-zinc-400 hidden sm:block">{student.user?.email}</p>
                             {/* Remove Member Button - Supervisor Admin Access */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveMember(student.studentId, student.user?.name || 'this student')}
-                              disabled={actionLoading === `remove-${student.studentId}`}
-                              className="h-8 w-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
-                            >
-                              {actionLoading === `remove-${student.studentId}` ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <UserMinus className="w-4 h-4" />
-                              )}
-                            </Button>
+                            {!group.isCompleted && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveMember(student.studentId, student.user?.name || 'this student')}
+                                disabled={actionLoading === `remove-${student.studentId}`}
+                                className="h-8 w-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
+                              >
+                                {actionLoading === `remove-${student.studentId}` ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <UserMinus className="w-4 h-4" />
+                                )}
+                              </Button>
+                            )}
                           </div>
                         </motion.div>
                       ))}
@@ -1042,14 +1067,16 @@ export default function SupervisorGroupDetailsPage() {
                   <CalendarPlus className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
                   <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Group Meetings</h3>
                 </div>
-                <Button
-                  onClick={() => openMeetingModal()}
-                  size="sm"
-                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl text-sm"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Schedule
-                </Button>
+                {!group.isCompleted && (
+                  <Button
+                    onClick={() => openMeetingModal()}
+                    size="sm"
+                    className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl text-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Schedule
+                  </Button>
+                )}
               </div>
 
               {meetings.length > 0 ? (
@@ -1128,30 +1155,32 @@ export default function SupervisorGroupDetailsPage() {
                             </div>
                             
                             {/* Actions */}
-                            <div className="flex items-center gap-1">
-                              {meeting.meetingLink && meeting.status === 'scheduled' && (
-                                <a
-                                  href={meeting.meetingLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 rounded-lg bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] hover:bg-[#1a5d1a]/20 transition-colors"
+                            {!group.isCompleted && (
+                              <div className="flex items-center gap-1">
+                                {meeting.meetingLink && meeting.status === 'scheduled' && (
+                                  <a
+                                    href={meeting.meetingLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-lg bg-[#1a5d1a]/10 text-[#1a5d1a] dark:text-[#4ade80] hover:bg-[#1a5d1a]/20 transition-colors"
+                                  >
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
+                                <button
+                                  onClick={() => openMeetingModal(meeting)}
+                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
                                 >
-                                  <ExternalLink className="w-4 h-4" />
-                                </a>
-                              )}
-                              <button
-                                onClick={() => openMeetingModal(meeting)}
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => deleteMeeting(meeting.meetingId)}
-                                className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteMeeting(meeting.meetingId)}
+                                  className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </motion.div>
                       );
@@ -1163,13 +1192,15 @@ export default function SupervisorGroupDetailsPage() {
                   <CardContent className="p-8 text-center">
                     <Calendar className="w-12 h-12 text-gray-300 dark:text-zinc-400 mx-auto mb-3" />
                     <p className="text-gray-500 dark:text-zinc-400">No meetings scheduled yet</p>
-                    <Button
-                      onClick={() => openMeetingModal()}
-                      className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Schedule First Meeting
-                    </Button>
+                    {!group.isCompleted && (
+                      <Button
+                        onClick={() => openMeetingModal()}
+                        className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Schedule First Meeting
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -1189,14 +1220,16 @@ export default function SupervisorGroupDetailsPage() {
                   <ListTodo className="w-5 h-5 text-[#1a5d1a] dark:text-[#4ade80]" />
                   <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Tasks</h3>
                 </div>
-                <Button
-                  onClick={() => openTaskModal()}
-                  size="sm"
-                  className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl text-sm"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Task
-                </Button>
+                {!group.isCompleted && (
+                  <Button
+                    onClick={() => openTaskModal()}
+                    size="sm"
+                    className="bg-[#1a5d1a] hover:bg-[#145214] rounded-xl text-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Task
+                  </Button>
+                )}
               </div>
 
               {/* Task List */}
@@ -1219,12 +1252,13 @@ export default function SupervisorGroupDetailsPage() {
                             <div className="flex items-start gap-3">
                               {/* Status Checkbox */}
                               <button
-                                onClick={() => updateTaskStatus(task.taskId, task.status === 'completed' ? 'pending' : 'completed')}
+                                onClick={() => !group.isCompleted && updateTaskStatus(task.taskId, task.status === 'completed' ? 'pending' : 'completed')}
+                                disabled={group.isCompleted}
                                 className={`flex-shrink-0 w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center transition-all ${
                                   task.status === 'completed'
                                     ? 'bg-[#1a5d1a] border-[#1a5d1a] text-white'
                                     : 'border-gray-300 hover:border-[#1a5d1a]'
-                                }`}
+                                } ${group.isCompleted ? 'opacity-70 cursor-not-allowed' : ''}`}
                               >
                                 {task.status === 'completed' && <CheckCircle2 className="w-3 h-3" />}
                               </button>
@@ -1275,32 +1309,34 @@ export default function SupervisorGroupDetailsPage() {
                               </div>
                               
                               {/* Actions */}
-                              <div className="flex items-center gap-1">
-                                <button
-                                  onClick={() => openTaskModal(task)}
-                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setParentTaskId(task.taskId);
-                                    setEditingTask(null);
-                                    setTaskForm({ title: '', description: '', assignedTo: '', priority: 'medium', dueDate: '' });
-                                    setShowTaskModal(true);
-                                  }}
-                                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
-                                  title="Add subtask"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => deleteTask(task.taskId)}
-                                  className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
+                              {!group.isCompleted && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => openTaskModal(task)}
+                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setParentTaskId(task.taskId);
+                                      setEditingTask(null);
+                                      setTaskForm({ title: '', description: '', assignedTo: '', priority: 'medium', dueDate: '' });
+                                      setShowTaskModal(true);
+                                    }}
+                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-500 transition-colors"
+                                    title="Add subtask"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => deleteTask(task.taskId)}
+                                    className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </motion.div>
                           
@@ -1311,24 +1347,27 @@ export default function SupervisorGroupDetailsPage() {
                                 <div key={subtask.taskId} className="p-3 border-t border-gray-100 dark:border-zinc-700/50">
                                   <div className="flex items-center gap-3">
                                     <button
-                                      onClick={() => updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
+                                      onClick={() => !group.isCompleted && updateTaskStatus(subtask.taskId, subtask.status === 'completed' ? 'pending' : 'completed')}
+                                      disabled={group.isCompleted}
                                       className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center ${
                                         subtask.status === 'completed'
                                           ? 'bg-[#1a5d1a] border-[#1a5d1a] text-white'
                                           : 'border-gray-300'
-                                      }`}
+                                      } ${group.isCompleted ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                       {subtask.status === 'completed' && <CheckCircle2 className="w-2.5 h-2.5" />}
                                     </button>
                                     <span className={`flex-1 text-sm ${subtask.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-zinc-300'}`}>
                                       {subtask.title}
                                     </span>
-                                    <button
-                                      onClick={() => deleteTask(subtask.taskId)}
-                                      className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-600"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
+                                    {!group.isCompleted && (
+                                      <button
+                                        onClick={() => deleteTask(subtask.taskId)}
+                                        className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-600"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               ))}
@@ -1344,13 +1383,15 @@ export default function SupervisorGroupDetailsPage() {
                   <CardContent className="p-8 text-center">
                     <ListTodo className="w-12 h-12 text-gray-300 dark:text-zinc-400 mx-auto mb-3" />
                     <p className="text-gray-500 dark:text-zinc-400">No tasks created yet</p>
-                    <Button
-                      onClick={() => openTaskModal()}
-                      className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create First Task
-                    </Button>
+                    {!group.isCompleted && (
+                      <Button
+                        onClick={() => openTaskModal()}
+                        className="mt-4 bg-[#1a5d1a] hover:bg-[#145214] rounded-xl"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create First Task
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -1493,7 +1534,10 @@ export default function SupervisorGroupDetailsPage() {
                         <Input
                           type="number"
                           value={meetingForm.duration}
-                          onChange={(e) => setMeetingForm({ ...meetingForm, duration: Math.max(5, parseInt(e.target.value) || 60) })}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMeetingForm({ ...meetingForm, duration: val === '' ? '' : parseInt(val) || 0 });
+                          }}
                           min={5}
                           step={5}
                           className="rounded-xl h-11 pl-10 pr-14 dark:bg-zinc-700 dark:border-zinc-600 dark:text-[#E4E4E7]"

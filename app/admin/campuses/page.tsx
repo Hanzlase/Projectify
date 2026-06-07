@@ -50,7 +50,11 @@ export default function CampusesPage() {
   const [success, setSuccess] = useState('');
 
   // Form states
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    location: string;
+    maxCoordinators: number | '';
+  }>({
     name: '',
     location: '',
     maxCoordinators: 5,
@@ -107,7 +111,10 @@ export default function CampusesPage() {
       const res = await fetch('/api/admin/campuses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          maxCoordinators: formData.maxCoordinators === '' ? 5 : Number(formData.maxCoordinators)
+        }),
       });
 
       const data = await res.json();
@@ -141,7 +148,10 @@ export default function CampusesPage() {
       const res = await fetch(`/api/admin/campuses/${selectedCampus.campusId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          maxCoordinators: formData.maxCoordinators === '' ? 5 : Number(formData.maxCoordinators)
+        }),
       });
 
       const data = await res.json();
@@ -563,7 +573,10 @@ export default function CampusesPage() {
                       type="number"
                       min={1}
                       value={formData.maxCoordinators}
-                      onChange={(e) => setFormData({ ...formData, maxCoordinators: parseInt(e.target.value) || 5 })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, maxCoordinators: val === '' ? '' : parseInt(val) || 0 });
+                      }}
                       className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
@@ -664,7 +677,10 @@ export default function CampusesPage() {
                       type="number"
                       min={1}
                       value={formData.maxCoordinators}
-                      onChange={(e) => setFormData({ ...formData, maxCoordinators: parseInt(e.target.value) || 5 })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, maxCoordinators: val === '' ? '' : parseInt(val) || 0 });
+                      }}
                       className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
                     />
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">

@@ -40,7 +40,7 @@ const StudentSidebar = dynamic(() => import("@/components/StudentSidebar"), {
 
 interface ResourceItem {
   name: string;
-  quantity: number;
+  quantity: number | '';
   details?: string;
   type?: "hardware" | "software";
 }
@@ -79,6 +79,7 @@ export default function StudentResourceRequestsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ResourceRequest | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Form states
   const [formTitle, setFormTitle] = useState("");
@@ -91,8 +92,23 @@ export default function StudentResourceRequestsPage() {
   useEffect(() => {
     if (status === "unauthenticated") window.location.href = "/login";
     else if (status === "authenticated" && session?.user?.role !== "student") window.location.href = "/unauthorized";
-    else if (status === "authenticated") fetchRequests();
+    else if (status === "authenticated") {
+      fetchRequests();
+      fetchCompletedState();
+    }
   }, [status, session]);
+
+  const fetchCompletedState = async () => {
+    try {
+      const res = await fetch("/api/student/dashboard");
+      if (res.ok) {
+        const data = await res.json();
+        setIsCompleted(!!data.isCompleted);
+      }
+    } catch (error) {
+      console.error("Error fetching completed state:", error);
+    }
+  };
 
   const fetchRequests = async () => {
     try {
@@ -116,7 +132,10 @@ export default function StudentResourceRequestsPage() {
     }
     setSubmitting(true);
     try {
-      const filteredItems = formItems.filter(i => i.name.trim());
+      const filteredItems = formItems.filter(i => i.name.trim()).map(i => ({
+        ...i,
+        quantity: i.quantity === '' ? 1 : Math.max(1, Number(i.quantity) || 1)
+      }));
       const types = new Set(filteredItems.map(i => i.type || "hardware"));
       const derivedType = types.size > 1 ? "both" : (types.values().next().value || "hardware");
       const res = await fetch("/api/student/resource-requests", {
@@ -149,7 +168,10 @@ export default function StudentResourceRequestsPage() {
     if (!selectedRequest || !formTitle.trim()) return;
     setSubmitting(true);
     try {
-      const filteredItems = formItems.filter(i => i.name.trim());
+      const filteredItems = formItems.filter(i => i.name.trim()).map(i => ({
+        ...i,
+        quantity: i.quantity === '' ? 1 : Math.max(1, Number(i.quantity) || 1)
+      }));
       const types = new Set(filteredItems.map(i => i.type || "hardware"));
       const derivedType = types.size > 1 ? "both" : (types.values().next().value || "hardware");
       const res = await fetch("/api/student/resource-requests", {
@@ -264,18 +286,37 @@ export default function StudentResourceRequestsPage() {
               >
                 <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-zinc-400 ${refreshing ? "animate-spin" : ""}`} />
               </button>
-              <Button
-                onClick={() => { resetForm(); setShowCreateModal(true); }}
-                className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl px-5 h-10 font-semibold"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Request
-              </Button>
+              {!isCompleted && (
+                <Button
+                  onClick={() => { resetForm(); setShowCreateModal(true); }}
+                  className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl px-5 h-10 font-semibold"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Request
+                </Button>
+              )}
             </div>
           </div>
         </header>
 
         <main className="p-4 md:p-6 max-w-6xl mx-auto">
+          {isCompleted && (
+            <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/30 flex-shrink-0">
+                  📁
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Read-Only / Portfolio Mode</h3>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">You have completed both FYP-1 and FYP-2. Your resource requests are in read-only mode for portfolio presentation.</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/30 flex-shrink-0">
+                Portfolio Active
+              </span>
+            </div>
+          )}
+
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[
@@ -309,10 +350,12 @@ export default function StudentResourceRequestsPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Resource Requests</h3>
                 <p className="text-gray-500 dark:text-zinc-400 mb-4">Create your first resource request for your project</p>
-                <Button onClick={() => { resetForm(); setShowCreateModal(true); }} className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Request
-                </Button>
+                {!isCompleted && (
+                  <Button onClick={() => { resetForm(); setShowCreateModal(true); }} className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Request
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
@@ -395,7 +438,7 @@ export default function StudentResourceRequestsPage() {
                           >
                             View Details
                           </Button>
-                          {req.status === "pending" && (
+                          {req.status === "pending" && !isCompleted && (
                             <>
                               <Button
                                 variant="outline"
@@ -509,7 +552,10 @@ export default function StudentResourceRequestsPage() {
                               type="number"
                               min={1}
                               value={item.quantity}
-                              onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 1)}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateItem(idx, "quantity", val === '' ? '' : parseInt(val) || 0);
+                              }}
                               className="rounded-xl text-center"
                             />
                           </div>
