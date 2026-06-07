@@ -482,12 +482,12 @@ export default function ViewSupervisorProfilePage() {
                     <h3 className="font-bold text-slate-900 dark:text-[#E4E4E7]">Currently Supervising</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {profile.activeGroups.map((group) => (
-                      <Card key={group.groupId} className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/45 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
-                        <CardContent className="p-4 flex flex-col h-full justify-between">
+                    {profile.activeGroups.map((group) => {
+                      const cardContent = (
+                        <CardContent className="p-4 flex flex-col h-full justify-between cursor-pointer">
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
-                              <h4 className="font-bold text-sm text-gray-900 dark:text-[#E4E4E7] line-clamp-1">
+                              <h4 className="font-bold text-sm text-gray-900 dark:text-[#E4E4E7] line-clamp-1 group-hover:text-[#1a5d1a] dark:group-hover:text-[#4ade80] transition-colors">
                                 {group.project?.title || group.groupName}
                               </h4>
                               <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/40 text-[#1E6F3E] dark:text-emerald-400 rounded-full flex-shrink-0">
@@ -513,8 +513,20 @@ export default function ViewSupervisorProfilePage() {
                             )}
                           </div>
                         </CardContent>
-                      </Card>
-                    ))}
+                      );
+
+                      return group.project ? (
+                        <Link key={group.groupId} href={`/student/projects/${group.project.projectId}`}>
+                          <Card className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/45 rounded-2xl overflow-hidden hover:shadow-md hover:border-[#1a5d1a]/30 dark:hover:border-[#1a5d1a]/55 transition-all duration-300 group h-full">
+                            {cardContent}
+                          </Card>
+                        </Link>
+                      ) : (
+                        <Card key={group.groupId} className="border border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/45 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300 h-full">
+                          {cardContent}
+                        </Card>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

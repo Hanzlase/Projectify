@@ -43,7 +43,7 @@ interface Project {
   description: string;
   abstractText: string | null;
   category: string | null;
-  status: 'idea' | 'in_progress' | 'completed' | 'archived';
+  status: 'idea' | 'in_progress' | 'completed' | 'archived' | 'taken';
   visibility: 'public' | 'private';
   thumbnailUrl: string | null;
   documentUrl: string | null;
@@ -176,6 +176,7 @@ export default function ProjectDetailPage() {
       case 'in_progress': return 'bg-yellow-100 text-yellow-700';
       case 'completed': return 'bg-[#1E6F3E]/10 text-[#1E6F3E]';
       case 'archived': return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
+      case 'taken': return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400';
       default: return 'bg-gray-100 dark:bg-zinc-700 text-gray-700';
     }
   };
@@ -752,7 +753,17 @@ export default function ProjectDetailPage() {
                       </p>
                     </div>
 
-                    {!hasRequestedPermission ? (
+                    {project.status === 'taken' || project.isAssignedToGroup ? (
+                      <div className="p-4 rounded-xl border bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50">
+                        <div className="flex items-center gap-2 mb-1">
+                          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                          <span className="font-medium text-red-700 dark:text-red-400">Project Taken</span>
+                        </div>
+                        <p className="text-xs text-red-600 dark:text-red-400/80">
+                          This project has already been taken/assigned to a group.
+                        </p>
+                      </div>
+                    ) : !hasRequestedPermission ? (
                       <Button
                         className="w-full bg-[#1a5d1a] hover:bg-[#145214] text-white"
                         onClick={() => setShowPermissionModal(true)}
