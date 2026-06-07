@@ -26,6 +26,9 @@ import {
   Loader2,
   ArrowLeft,
   TrendingUp,
+  Layers,
+  ChevronRight,
+  Trophy,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,6 +72,40 @@ interface EvaluationOption {
   status: string;
 }
 
+interface PhaseBreakdown {
+  phaseId: number;
+  name: string;
+  weightage: number;
+  combinedScore: number | null;
+  combinedPct: number | null;
+  supervisorScore: number | null;
+  panelScore: number | null;
+  totalMarks: number;
+}
+
+interface FypGroupScore {
+  groupId: number;
+  groupName: string;
+  cohort: string;
+  students: Array<{ name: string; rollNumber: string }>;
+  fyp1: {
+    totalScore: number | null;
+    partialScore: number;
+    coveredWeightage: number;
+    totalWeightage: number;
+    isComplete: boolean;
+    phaseBreakdown: PhaseBreakdown[];
+  } | null;
+  fyp2: {
+    totalScore: number | null;
+    partialScore: number;
+    coveredWeightage: number;
+    totalWeightage: number;
+    isComplete: boolean;
+    phaseBreakdown: PhaseBreakdown[];
+  } | null;
+}
+
 export default function CoordinatorEvaluationScoresPage() {
   const { data: session, status } = useSession();
   // const router = useRouter();
@@ -85,6 +122,13 @@ export default function CoordinatorEvaluationScoresPage() {
     fullyScored: 0,
   });
 
+  // FYP Total Scores
+  const [fypScores, setFypScores] = useState<FypGroupScore[]>([]);
+  const [fypScoresCohort, setFypScoresCohort] = useState<"REGULAR" | "DELAYED">("REGULAR");
+  const [loadingFypScores, setLoadingFypScores] = useState(false);
+  const [expandedFypGroups, setExpandedFypGroups] = useState<Set<number>>(new Set());
+  const [activeView, setActiveView] = useState<"submissions" | "fyp-totals">("submissions");
+
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEvaluation, setSelectedEvaluation] = useState<string>("all");
@@ -100,8 +144,15 @@ export default function CoordinatorEvaluationScoresPage() {
       window.location.href = "/unauthorized";
     } else if (status === "authenticated") {
       fetchScores();
+      fetchFypScores();
     }
   }, [status, session]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchFypScores();
+    }
+  }, [fypScoresCohort]);
 
   const fetchScores = async () => {
     try {
@@ -118,6 +169,21 @@ export default function CoordinatorEvaluationScoresPage() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const fetchFypScores = async () => {
+    setLoadingFypScores(true);
+    try {
+      const res = await fetch(`/api/coordinator/fyp-scores?cohort=${fypScoresCohort}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFypScores(data.groupScores || []);
+      }
+    } catch (error) {
+      console.error("Error fetching FYP scores:", error);
+    } finally {
+      setLoadingFypScores(false);
     }
   };
 
@@ -397,6 +463,36 @@ export default function CoordinatorEvaluationScoresPage() {
             </Card>
           </div>
 
+          {/* View Toggle */}
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl w-fit mb-6 border border-gray-200/50 dark:border-zinc-700/50">
+            <button
+              onClick={() => setActiveView("submissions")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeView === "submissions"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Submission Scores
+            </button>
+            <button
+              onClick={() => setActiveView("fyp-totals")}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeView === "fyp-totals"
+                  ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900"
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              FYP Total Scores
+            </button>
+          </div>
+
+          {/* =========== SUBMISSION SCORES VIEW =========== */}
+          {activeView === "submissions" && (
+          <div>
+
           {/* Filters */}
           <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] mb-6">
             <CardContent className="p-4">
@@ -646,6 +742,180 @@ export default function CoordinatorEvaluationScoresPage() {
               </motion.div>
             ))}
           </div>
+          </div>
+          )} {/* end submissions view */}
+
+          {/* =========== FYP TOTALS VIEW =========== */}
+          {activeView === "fyp-totals" && (
+          <div className="space-y-4">
+            {/* Cohort selector */}
+            <div className="flex items-center gap-3">
+              <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl border border-gray-200/50 dark:border-zinc-700/50">
+                <button
+                  onClick={() => setFypScoresCohort("REGULAR")}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    fypScoresCohort === "REGULAR"
+                      ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                      : "text-gray-600 dark:text-zinc-400"
+                  }`}
+                >
+                  Regular Cohort
+                </button>
+                <button
+                  onClick={() => setFypScoresCohort("DELAYED")}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    fypScoresCohort === "DELAYED"
+                      ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                      : "text-gray-600 dark:text-zinc-400"
+                  }`}
+                >
+                  Delayed Cohort
+                </button>
+              </div>
+              {loadingFypScores && <Loader2 className="w-4 h-4 animate-spin text-[#1E6F3E]" />}
+            </div>
+
+            {fypScores.length === 0 ? (
+              <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A]">
+                <CardContent className="p-16 text-center">
+                  <Layers className="w-12 h-12 text-gray-300 dark:text-zinc-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 mb-1">No FYP Score Data</h3>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">
+                    Create phases on the Evaluations page, link evaluations to phases, and score submissions to see FYP totals here.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {fypScores.map((group, idx) => {
+                  const isExpanded = expandedFypGroups.has(group.groupId);
+                  return (
+                    <motion.div
+                      key={group.groupId}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.04 }}
+                    >
+                      <Card className="border-0 shadow-sm rounded-2xl dark:bg-[#27272A] overflow-hidden">
+                        <button
+                          type="button"
+                          className="w-full px-5 py-4 flex items-center gap-4 text-left hover:bg-gray-50 dark:hover:bg-zinc-700/30 transition-colors"
+                          onClick={() => {
+                            setExpandedFypGroups(prev => {
+                              const next = new Set(prev);
+                              if (next.has(group.groupId)) next.delete(group.groupId);
+                              else next.add(group.groupId);
+                              return next;
+                            });
+                          }}
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-[#1E6F3E]/10 flex items-center justify-center flex-shrink-0">
+                            <Users className="w-5 h-5 text-[#1E6F3E]" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-900 dark:text-[#E4E4E7] truncate">{group.groupName}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">
+                              {group.students.map(s => s.name).join(", ")}
+                            </p>
+                          </div>
+                          <div className="text-center flex-shrink-0 min-w-[80px]">
+                            <p className="text-xs text-gray-400 mb-0.5">FYP-1</p>
+                            {group.fyp1 ? (
+                              group.fyp1.isComplete ? (
+                                <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp1.totalScore}%</p>
+                              ) : (
+                                <p className="text-sm font-semibold text-amber-600">
+                                  ~{group.fyp1.partialScore}%
+                                  <span className="text-[10px] text-gray-400 block">partial</span>
+                                </p>
+                              )
+                            ) : (
+                              <p className="text-xs text-gray-400">N/A</p>
+                            )}
+                          </div>
+                          <div className="text-center flex-shrink-0 min-w-[80px]">
+                            <p className="text-xs text-gray-400 mb-0.5">FYP-2</p>
+                            {group.fyp2 ? (
+                              group.fyp2.isComplete ? (
+                                <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp2.totalScore}%</p>
+                              ) : (
+                                <p className="text-sm font-semibold text-amber-600">
+                                  ~{group.fyp2.partialScore}%
+                                  <span className="text-[10px] text-gray-400 block">partial</span>
+                                </p>
+                              )
+                            ) : (
+                              <p className="text-xs text-gray-400">N/A</p>
+                            )}
+                          </div>
+                          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-5 pb-5 pt-2 border-t border-gray-100 dark:border-zinc-700 space-y-4">
+                                {["fyp1", "fyp2"].map((fypKey) => {
+                                  const fypData = (group as any)[fypKey];
+                                  if (!fypData || fypData.phaseBreakdown.length === 0) return null;
+                                  return (
+                                    <div key={fypKey}>
+                                      <h5 className="text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <Layers className="w-3 h-3" />
+                                        {fypKey === "fyp1" ? "FYP-1" : "FYP-2"} Phase Breakdown
+                                        {fypData.isComplete && (
+                                          <span className="px-1.5 py-0.5 rounded-full bg-[#1E6F3E]/10 text-[#1E6F3E] font-bold">
+                                            Total: {fypData.totalScore}%
+                                          </span>
+                                        )}
+                                      </h5>
+                                      <div className="space-y-2">
+                                        {fypData.phaseBreakdown.map((phase: any) => (
+                                          <div key={phase.phaseId} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-700">
+                                            <div className="flex-1 min-w-0">
+                                              <p className="text-sm font-semibold text-gray-800 dark:text-[#E4E4E7]">{phase.name}</p>
+                                              <div className="flex gap-3 mt-0.5">
+                                                {phase.supervisorScore !== null && (
+                                                  <span className="text-[11px] text-blue-600 dark:text-blue-400">Sup: {phase.supervisorScore}/{phase.totalMarks}</span>
+                                                )}
+                                                {phase.panelScore !== null && (
+                                                  <span className="text-[11px] text-purple-600 dark:text-purple-400">Panel: {phase.panelScore}/{phase.totalMarks}</span>
+                                                )}
+                                              </div>
+                                            </div>
+                                            <div className="text-right flex-shrink-0">
+                                              <p className="text-xs text-gray-400">Weight: {phase.weightage}%</p>
+                                              {phase.combinedPct !== null ? (
+                                                <p className="text-base font-bold text-[#1E6F3E]">{phase.combinedPct}%</p>
+                                              ) : (
+                                                <p className="text-xs text-gray-400 italic">Pending</p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          )} {/* end fyp-totals view */}
+
         </main>
       </div>
     </div>

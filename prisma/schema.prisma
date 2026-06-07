@@ -566,11 +566,13 @@ model Evaluation {
   status        EvaluationStatus  @default(active)
   cohort        Cohort            @default(REGULAR)
   fypPhase      FypPhase          @default(FYP_1) @map("fyp_phase")
+  phaseId       Int?              @map("phase_id") // Optional link to a FypEvaluationPhase
   createdById   Int               @map("created_by_id") // Coordinator userId
   campusId      Int               @map("campus_id")
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
+  phase         FypEvaluationPhase? @relation(fields: [phaseId], references: [phaseId])
   attachments   EvaluationAttachment[]
   submissions   EvaluationSubmission[]
 
@@ -578,6 +580,7 @@ model Evaluation {
   @@index([createdById])
   @@index([status])
   @@index([dueDate])
+  @@index([phaseId])
   @@map("evaluations")
 }
 
@@ -677,10 +680,12 @@ model EvaluationPanel {
   campusId         Int                @map("campus_id")
   cohort           Cohort             @default(REGULAR)
   fypPhase         FypPhase           @default(FYP_1) @map("fyp_phase")
+  phaseId          Int?               @map("phase_id") // Optional link to a FypEvaluationPhase
   createdById      Int                @map("created_by_id") // Coordinator userId
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
+  phase            FypEvaluationPhase? @relation(fields: [phaseId], references: [phaseId])
   panelMembers     PanelMember[]
   groupAssignments GroupPanelAssignment[]
 
@@ -688,7 +693,31 @@ model EvaluationPanel {
   @@index([createdById])
   @@index([status])
   @@index([scheduledDate])
+  @@index([phaseId])
   @@map("evaluation_panels")
+}
+
+// FYP Evaluation Phases - Named milestones within FYP-1 or FYP-2 with weightage
+model FypEvaluationPhase {
+  phaseId      Int      @id @default(autoincrement()) @map("phase_id")
+  name         String   @db.VarChar(255)   // e.g., "Proposal Review", "Mid-Term", "Final Defense"
+  description  String?  @db.Text
+  weightage    Float    @default(0)         // % weight toward FYP total score (0–100, phases should sum to 100)
+  fypPhase     FypPhase @map("fyp_phase")  // Which FYP this phase belongs to (FYP_1 or FYP_2)
+  cohort       Cohort   @default(REGULAR)
+  campusId     Int      @map("campus_id")
+  isActive     Boolean  @default(false) @map("is_active")   // Only one phase active at a time per FYP+cohort
+  orderIndex   Int      @default(0) @map("order_index")     // Display/sequential order
+  createdById  Int      @map("created_by_id")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  evaluations  Evaluation[]
+  panels       EvaluationPanel[]
+
+  @@index([campusId, fypPhase, cohort])
+  @@index([campusId, isActive])
+  @@map("fyp_evaluation_phases")
 }
 
 enum EvaluationPanelStatus {

@@ -92,6 +92,7 @@ interface Comment {
 interface GroupDetails {
   assignment: any;
   maxScore: number;
+  activePhase?: { name: string; weightage: number } | null;
   group: any;
   project: any;
   submissions: any[];
@@ -840,6 +841,18 @@ export default function SupervisorEvaluationsPage() {
                     {groupDetails?.assignment.score !== null && groupDetails?.assignment.score !== undefined && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-[#1E6F3E] text-white font-bold">
                         Score: {groupDetails.assignment.score}/{groupDetails.maxScore || 100}
+                      </span>
+                    )}
+                    {/* Active Phase Indicator */}
+                    {groupDetails?.activePhase && (
+                      <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1.5 border border-amber-200 dark:border-amber-800">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        Evaluating: {groupDetails.activePhase.name} ({groupDetails.activePhase.weightage}%)
+                      </span>
+                    )}
+                    {groupDetails && !groupDetails.activePhase && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400">
+                        All phases (no active phase set)
                       </span>
                     )}
                   </div>

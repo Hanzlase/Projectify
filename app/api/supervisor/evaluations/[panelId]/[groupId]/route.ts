@@ -89,9 +89,60 @@ export async function GET(
       project = p;
     }
 
-    // Get all evaluation submissions for this group
+    // Fetch panel info to determine fypPhase + cohort for active phase filtering
+    const panel = await (prisma as any).evaluationPanel.findUnique({
+      where: { panelId },
+      select: {
+        fypPhase: true,
+        cohort: true,
+        campusId: true,
+        phaseId: true,
+        phase: {
+          select: {
+            phaseId: true,
+            name: true,
+            weightage: true,
+            isActive: true,
+          }
+        }
+      }
+    });
+
+    // Find the active phase for this panel's FYP+cohort+campus
+    let activePhase: { phaseId: number; name: string; weightage: number } | null = null;
+    let submissionFilter: any = { groupId };
+
+    if (panel) {
+      const activePhaseLookup = await (prisma as any).fypEvaluationPhase.findFirst({
+        where: {
+          campusId: panel.campusId,
+          fypPhase: panel.fypPhase,
+          cohort: panel.cohort,
+          isActive: true,
+        },
+        select: {
+          phaseId: true,
+          name: true,
+          weightage: true,
+        }
+      });
+
+      if (activePhaseLookup) {
+        activePhase = activePhaseLookup;
+        // Filter submissions to only those linked to evaluations in the active phase
+        submissionFilter = {
+          groupId,
+          evaluation: {
+            phaseId: activePhaseLookup.phaseId,
+          }
+        };
+      }
+      // If no active phase exists (phases not set up), fall back to all submissions
+    }
+
+    // Get evaluation submissions for this group, filtered by active phase
     const submissions = await (prisma as any).evaluationSubmission.findMany({
-      where: { groupId },
+      where: submissionFilter,
       include: {
         evaluation: {
           select: {
@@ -102,6 +153,7 @@ export async function GET(
             totalMarks: true,
             dueDate: true,
             status: true,
+            phaseId: true,
           }
         },
         attachments: true
@@ -144,6 +196,7 @@ export async function GET(
         scoredAt: assignment.scoredAt,
       },
       maxScore,
+      activePhase,  // null if no phases configured, or the active phase info
       group: {
         ...group,
         students: group?.students.map((s: any) => ({
