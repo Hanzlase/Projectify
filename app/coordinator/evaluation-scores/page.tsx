@@ -137,6 +137,20 @@ export default function CoordinatorEvaluationScoresPage() {
 
   // Export
   const [exporting, setExporting] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const exportDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target as Node)) {
+        setShowExportDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -214,6 +228,18 @@ export default function CoordinatorEvaluationScoresPage() {
 
   // Export functions
   const getExportData = () => {
+    if (activeView === "fyp-totals") {
+      return fypScores.map((g) => ({
+        "Group Name": g.groupName,
+        "Cohort": g.cohort,
+        "Students": g.students.map((st) => `${st.name} (${st.rollNumber})`).join(", "),
+        "FYP-1 Score %": g.fyp1 ? (g.fyp1.isComplete ? `${g.fyp1.totalScore}%` : `~${g.fyp1.partialScore}% (partial)`) : "N/A",
+        "FYP-1 Covered Weight": g.fyp1 ? `${g.fyp1.coveredWeightage}% / ${g.fyp1.totalWeightage}%` : "N/A",
+        "FYP-2 Score %": g.fyp2 ? (g.fyp2.isComplete ? `${g.fyp2.totalScore}%` : `~${g.fyp2.partialScore}% (partial)`) : "N/A",
+        "FYP-2 Covered Weight": g.fyp2 ? `${g.fyp2.coveredWeightage}% / ${g.fyp2.totalWeightage}%` : "N/A",
+      }));
+    }
+
     return filteredScores.map((s) => ({
       "Evaluation": s.evaluationTitle,
       "Total Marks": s.totalMarks,
@@ -226,7 +252,7 @@ export default function CoordinatorEvaluationScoresPage() {
       "Panel Score": s.panelScore !== null ? s.panelScore : "N/A",
       "Panel Feedback": s.panelFeedback || "",
       "Panel Scored By": s.panelScoredBy || "N/A",
-      "Combined Score (50/50)": s.combinedScore !== null ? s.combinedScore : "N/A",
+      "Combined Score (45/55)": s.combinedScore !== null ? s.combinedScore : "N/A",
       "Combined %": s.combinedPercentage !== null ? `${s.combinedPercentage}%` : "N/A",
       "Submitted At": new Date(s.submittedAt).toLocaleDateString(),
       "Status": s.status,
@@ -241,7 +267,8 @@ export default function CoordinatorEvaluationScoresPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `evaluation-scores-${new Date().toISOString().split("T")[0]}.json`;
+      const filename = activeView === "fyp-totals" ? "fyp-total-scores" : "evaluation-scores";
+      a.download = `${filename}-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -271,7 +298,8 @@ export default function CoordinatorEvaluationScoresPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `evaluation-scores-${new Date().toISOString().split("T")[0]}.csv`;
+      const filename = activeView === "fyp-totals" ? "fyp-total-scores" : "evaluation-scores";
+      a.download = `${filename}-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -307,7 +335,8 @@ export default function CoordinatorEvaluationScoresPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `evaluation-scores-${new Date().toISOString().split("T")[0]}.xls`;
+      const filename = activeView === "fyp-totals" ? "fyp-total-scores" : "evaluation-scores";
+      a.download = `${filename}-${new Date().toISOString().split("T")[0]}.xls`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -347,7 +376,7 @@ export default function CoordinatorEvaluationScoresPage() {
                   Evaluation Scores
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
-                  {campusName} &middot; Supervisor (50%) + Panel (50%) = Combined Score
+                  {campusName} &middot; Supervisor (45%) + Panel (55%) = Combined Score
                 </p>
               </div>
             </div>
@@ -361,38 +390,52 @@ export default function CoordinatorEvaluationScoresPage() {
               </button>
 
               {/* Export Dropdown */}
-              <div className="relative group">
-                <Button className="bg-[#1E6F3E] hover:bg-[#185a32] text-white rounded-xl px-5 h-11 font-semibold shadow-md">
+              <div ref={exportDropdownRef} className="relative">
+                <Button 
+                  onClick={() => setShowExportDropdown(!showExportDropdown)}
+                  className="bg-[#1E6F3E] hover:bg-[#185a32] text-white rounded-xl px-5 h-11 font-semibold shadow-md animate-none"
+                >
                   <Download className="w-4 h-4 mr-2" />
                   Export
-                  <ChevronDown className="w-4 h-4 ml-1" />
+                  <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${showExportDropdown ? "rotate-180" : ""}`} />
                 </Button>
-                <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
-                  <button
-                    onClick={exportJSON}
-                    disabled={exporting}
-                    className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
-                  >
-                    <FileJson className="w-4 h-4 text-amber-500" />
-                    Export as JSON
-                  </button>
-                  <button
-                    onClick={exportCSV}
-                    disabled={exporting}
-                    className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
-                  >
-                    <Table className="w-4 h-4 text-[#1E6F3E]" />
-                    Export as CSV
-                  </button>
-                  <button
-                    onClick={exportExcel}
-                    disabled={exporting}
-                    className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
-                  >
-                    <FileSpreadsheet className="w-4 h-4 text-blue-500" />
-                    Export as Excel
-                  </button>
-                </div>
+                {showExportDropdown && (
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#27272A] rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700 overflow-hidden transition-all z-20">
+                    <button
+                      onClick={() => {
+                        exportJSON();
+                        setShowExportDropdown(false);
+                      }}
+                      disabled={exporting}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
+                    >
+                      <FileJson className="w-4 h-4 text-amber-500" />
+                      Export as JSON
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportCSV();
+                        setShowExportDropdown(false);
+                      }}
+                      disabled={exporting}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
+                    >
+                      <Table className="w-4 h-4 text-[#1E6F3E]" />
+                      Export as CSV
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportExcel();
+                        setShowExportDropdown(false);
+                      }}
+                      disabled={exporting}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700 flex items-center gap-3 transition-colors"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-blue-500" />
+                      Export as Excel
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -436,11 +479,11 @@ export default function CoordinatorEvaluationScoresPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 mb-1">Panel</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{summary.panelScored}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">{summary.panelScored}</p>
                     <p className="text-xs text-gray-500 mt-1">Scored</p>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Award className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                    <Award className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                   </div>
                 </div>
               </CardContent>
@@ -562,7 +605,7 @@ export default function CoordinatorEvaluationScoresPage() {
                         Supervisor
                       </div>
                     </th>
-                    <th className="text-center px-5 py-4 text-xs font-bold text-purple-500 uppercase tracking-wider">
+                    <th className="text-center px-5 py-4 text-xs font-bold text-orange-500 uppercase tracking-wider">
                       <div className="flex items-center justify-center gap-1">
                         <Award className="w-3.5 h-3.5" />
                         Panel
@@ -640,7 +683,7 @@ export default function CoordinatorEvaluationScoresPage() {
                         <td className="px-5 py-4 text-center">
                           {score.panelScore !== null ? (
                             <div>
-                              <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                              <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
                                 {score.panelScore}
                               </span>
                               <span className="text-xs text-gray-400">/{score.totalMarks}</span>
@@ -724,10 +767,10 @@ export default function CoordinatorEvaluationScoresPage() {
                           <p className="text-sm text-gray-400 italic">Pending</p>
                         )}
                       </div>
-                      <div className="p-3 rounded-xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800">
-                        <p className="text-[10px] font-bold text-purple-500 uppercase mb-1">Panel</p>
+                      <div className="p-3 rounded-xl bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800">
+                        <p className="text-[10px] font-bold text-orange-500 uppercase mb-1">Panel</p>
                         {score.panelScore !== null ? (
-                          <p className="text-lg font-bold text-purple-600">
+                          <p className="text-lg font-bold text-orange-600">
                             {score.panelScore}<span className="text-xs text-gray-400">/{score.totalMarks}</span>
                           </p>
                         ) : (
@@ -928,7 +971,7 @@ export default function CoordinatorEvaluationScoresPage() {
                                                   <span className="text-[11px] text-blue-600 dark:text-blue-400">Sup: {phase.supervisorScore}/{phase.totalMarks}</span>
                                                 )}
                                                 {phase.panelScore !== null && (
-                                                  <span className="text-[11px] text-purple-600 dark:text-purple-400">Phase Panel: {phase.panelScore}/{phase.totalMarks}</span>
+                                                  <span className="text-[11px] text-orange-600 dark:text-orange-400">Phase Panel: {phase.panelScore}/{phase.totalMarks}</span>
                                                 )}
                                               </div>
                                             </div>

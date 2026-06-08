@@ -226,6 +226,31 @@ export default function StudentEvaluationsPage() {
     });
   };
 
+  const isGradedSubmission = (submission?: Submission | null) => {
+    if (!submission) return false;
+    if (submission.status === "graded") return true;
+    if (submission.obtainedMarks !== undefined && submission.obtainedMarks !== null) return true;
+    const hasSupervisor = submission.supervisorScore !== undefined && submission.supervisorScore !== null;
+    const hasPanel = submission.panelScore !== undefined && submission.panelScore !== null;
+    if (hasSupervisor && hasPanel) return true;
+    return false;
+  };
+
+  const getObtainedMarks = (submission: Submission) => {
+    if (submission.obtainedMarks !== undefined && submission.obtainedMarks !== null) {
+      return submission.obtainedMarks;
+    }
+    if (
+      submission.supervisorScore !== undefined &&
+      submission.supervisorScore !== null &&
+      submission.panelScore !== undefined &&
+      submission.panelScore !== null
+    ) {
+      return Number(((submission.supervisorScore * 0.45) + (submission.panelScore * 0.55)).toFixed(1));
+    }
+    return null;
+  };
+
   const handleSubmit = async () => {
     if (!selectedEvaluation) return;
 
@@ -381,9 +406,9 @@ export default function StudentEvaluationsPage() {
       case "pending":
         return !ev.submission || ev.submission.status === "pending";
       case "submitted":
-        return ev.submission && ["submitted", "late"].includes(ev.submission.status);
+        return ev.submission && ["submitted", "late"].includes(ev.submission.status) && !isGradedSubmission(ev.submission);
       case "graded":
-        return ev.submission && ev.submission.status === "graded";
+        return isGradedSubmission(ev.submission);
       default:
         return true;
     }
@@ -393,17 +418,19 @@ export default function StudentEvaluationsPage() {
   const stats = {
     total: evaluations.length,
     pending: evaluations.filter((e) => !e.submission).length,
-    submitted: evaluations.filter((e) => e.submission && ["submitted", "late"].includes(e.submission.status)).length,
-    graded: evaluations.filter((e) => e.submission?.status === "graded").length,
+    submitted: evaluations.filter((e) => e.submission && ["submitted", "late"].includes(e.submission.status) && !isGradedSubmission(e.submission)).length,
+    graded: evaluations.filter((e) => isGradedSubmission(e.submission)).length,
     overdue: evaluations.filter((e) => e.isOverdue && !e.submission).length,
   };
 
   // Calculate average grade
-  const gradedSubmissions = evaluations.filter((e) => e.submission?.status === "graded" && e.submission?.obtainedMarks !== undefined);
+  const gradedSubmissions = evaluations.filter((e) => isGradedSubmission(e.submission));
   const avgGrade = gradedSubmissions.length > 0
     ? Math.round(
-        (gradedSubmissions.reduce((acc, e) => acc + ((e.submission?.obtainedMarks || 0) / e.totalMarks) * 100, 0) /
-          gradedSubmissions.length)
+        gradedSubmissions.reduce((acc, e) => {
+          const marks = getObtainedMarks(e.submission!);
+          return acc + ((marks || 0) / e.totalMarks) * 100;
+        }, 0) / gradedSubmissions.length
       )
     : 0;
 
@@ -615,7 +642,7 @@ export default function StudentEvaluationsPage() {
             <div className="mb-6">
               <h2 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-[#1E6F3E]" />
-                Your Evaluation Panels
+                Your Evaluation Panel
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {panels.map((panel) => (
@@ -837,13 +864,13 @@ export default function StudentEvaluationsPage() {
                             {getDeadlineBadge(evaluation.dueDate, !!evaluation.submission)}
                             {evaluation.submission && (
                               <span className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
-                                evaluation.submission.status === "graded"
+                                isGradedSubmission(evaluation.submission)
                                   ? "bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20"
                                   : evaluation.submission.status === "late"
                                   ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
                                   : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-zinc-300"
                               }`}>
-                                {evaluation.submission.status === "graded" ? (
+                                {isGradedSubmission(evaluation.submission) ? (
                                   <><CheckCheck className="w-3 h-3" /> Graded</>
                                 ) : evaluation.submission.status === "late" ? (
                                   <><AlertCircle className="w-3 h-3" /> Late</>
@@ -883,28 +910,31 @@ export default function StudentEvaluationsPage() {
                           </div>
 
                           {/* Graded Score Display */}
-                          {evaluation.submission?.status === "graded" && (
-                            <div className="mt-3 p-3 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl flex items-center justify-between border border-[#1E6F3E]/10">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center">
-                                  <Award className="w-5 h-5 text-[#1E6F3E]" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-[#1E6F3E]">
-                                    Score: {evaluation.submission.obtainedMarks}/{evaluation.totalMarks}
-                                  </p>
-                                  {evaluation.submission.feedback && (
-                                    <p className="text-xs text-gray-600 dark:text-zinc-400 line-clamp-1">
-                                      {evaluation.submission.feedback}
+                          {isGradedSubmission(evaluation.submission) && (() => {
+                            const obtainedMarks = getObtainedMarks(evaluation.submission!);
+                            return (
+                              <div className="mt-3 p-3 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl flex items-center justify-between border border-[#1E6F3E]/10">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 flex items-center justify-center">
+                                    <Award className="w-5 h-5 text-[#1E6F3E]" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-[#1E6F3E]">
+                                      Score: {obtainedMarks !== null ? obtainedMarks : ""}/{evaluation.totalMarks}
                                     </p>
-                                  )}
+                                    {evaluation.submission!.feedback && (
+                                      <p className="text-xs text-gray-600 dark:text-zinc-400 line-clamp-1">
+                                        {evaluation.submission!.feedback}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
+                                <span className="text-lg font-bold text-[#1E6F3E]">
+                                  {obtainedMarks !== null ? Math.round((obtainedMarks / evaluation.totalMarks) * 100) : 0}%
+                                </span>
                               </div>
-                              <span className="text-lg font-bold text-[#1E6F3E]">
-                                {Math.round((evaluation.submission.obtainedMarks! / evaluation.totalMarks) * 100)}%
-                              </span>
-                            </div>
-                          )}
+                            );
+                          })()}
 
                           {/* Supervisor & Panel Score Display (for submitted evaluations) */}
                           {evaluation.submission && (evaluation.submission.supervisorScore !== null || evaluation.submission.panelScore !== null) && (
@@ -956,19 +986,7 @@ export default function StudentEvaluationsPage() {
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </Button>
-                          {evaluation.submission?.status === "graded" && (
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedEvaluation(evaluation);
-                                setShowGradeModal(true);
-                              }}
-                              className="rounded-xl px-4 h-10 border-[#1E6F3E]/20 text-[#1E6F3E] hover:bg-[#1E6F3E]/5"
-                            >
-                              <Award className="w-4 h-4 mr-2" />
-                              View Grade
-                            </Button>
-                          )}
+
                         </div>
                       </div>
 
@@ -1316,6 +1334,97 @@ export default function StudentEvaluationsPage() {
                   </div>
                 </div>
 
+                {/* Score & Feedback Breakdown inside View Details Modal */}
+                {selectedEvaluation.submission && (
+                  <div className="border border-gray-200 dark:border-zinc-700 rounded-xl p-4 bg-gray-50/50 dark:bg-zinc-800/40 space-y-4">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-zinc-300 flex items-center gap-2 border-b border-gray-200 dark:border-zinc-700 pb-2">
+                      <Award className="w-4 h-4 text-[#1E6F3E]" />
+                      Grade Breakdown & Feedback
+                    </h3>
+                    
+                    {/* Main Obtained Score */}
+                    {(() => {
+                      const obtainedMarks = getObtainedMarks(selectedEvaluation.submission!);
+                      if (obtainedMarks === null) return null;
+                      return (
+                        <div className="text-center p-4 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 rounded-xl border border-[#1E6F3E]/10">
+                          <p className="text-3xl font-bold text-[#1E6F3E]">
+                            {obtainedMarks} / {selectedEvaluation.totalMarks}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                            Combined Marks ({Math.round((obtainedMarks / selectedEvaluation.totalMarks) * 100)}%)
+                          </p>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Breakdown columns */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Supervisor */}
+                      <div className="p-3 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Supervisor Score</p>
+                        {selectedEvaluation.submission.supervisorScore !== null && selectedEvaluation.submission.supervisorScore !== undefined ? (
+                          <>
+                            <p className="text-xl font-bold text-[#1E6F3E]">
+                              {selectedEvaluation.submission.supervisorScore}/{selectedEvaluation.totalMarks}
+                            </p>
+                            <p className="text-[10px] text-gray-400 dark:text-zinc-500 mb-2">45% weightage</p>
+                            {selectedEvaluation.submission.supervisorFeedback ? (
+                              <p className="text-xs text-gray-600 dark:text-zinc-400 italic bg-gray-50 dark:bg-zinc-900/50 p-2 rounded border border-gray-100 dark:border-zinc-800 whitespace-pre-wrap">
+                                &ldquo;{selectedEvaluation.submission.supervisorFeedback}&rdquo;
+                              </p>
+                            ) : (
+                              <p className="text-xs text-gray-400 dark:text-zinc-500 italic mt-1">No comment</p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm text-gray-400 dark:text-zinc-500 italic">Not evaluated yet</p>
+                            <p className="text-xs text-gray-400 dark:text-zinc-500 italic mt-1">No comment</p>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Panel Head */}
+                      <div className="p-3 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Panel Head Score</p>
+                        {selectedEvaluation.submission.panelScore !== null && selectedEvaluation.submission.panelScore !== undefined ? (
+                          <>
+                            <p className="text-xl font-bold text-[#1E6F3E]">
+                              {selectedEvaluation.submission.panelScore}/{selectedEvaluation.totalMarks}
+                            </p>
+                            <p className="text-[10px] text-gray-400 dark:text-zinc-500 mb-2">55% weightage</p>
+                            {selectedEvaluation.submission.panelFeedback ? (
+                              <p className="text-xs text-gray-600 dark:text-zinc-400 italic bg-gray-50 dark:bg-zinc-900/50 p-2 rounded border border-gray-100 dark:border-zinc-800 whitespace-pre-wrap">
+                                &ldquo;{selectedEvaluation.submission.panelFeedback}&rdquo;
+                              </p>
+                            ) : (
+                              <p className="text-xs text-gray-400 dark:text-zinc-500 italic mt-1">No comment</p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm text-gray-400 dark:text-zinc-500 italic">Not evaluated yet</p>
+                            <p className="text-xs text-gray-400 dark:text-zinc-500 italic mt-1">No comment</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Coordinator Feedback */}
+                    <div className="p-3 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Feedback from Coordinator</p>
+                      {selectedEvaluation.submission.feedback ? (
+                        <p className="text-xs text-gray-600 dark:text-zinc-400 whitespace-pre-wrap">
+                          {selectedEvaluation.submission.feedback}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 dark:text-zinc-500 italic mt-1">No comment</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {selectedEvaluation.attachments.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-2">Attachments</h3>
@@ -1342,53 +1451,60 @@ export default function StudentEvaluationsPage() {
                   const allComments = panels.flatMap((p) =>
                     (panelComments[p.panelId] || []).map((c) => ({ ...c, panelName: p.panelName }))
                   );
-                  if (allComments.length === 0) return null;
                   return (
                     <div className="border-t border-gray-200 dark:border-zinc-700 pt-5">
                       <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 mb-3 flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 text-[#1E6F3E]" />
                         Panel Comments
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E]">
-                          {allComments.length}
-                        </span>
+                        {allComments.length > 0 && (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E]">
+                            {allComments.length}
+                          </span>
+                        )}
                       </h3>
-                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                        {allComments.map((comment) => (
-                          <div
-                            key={comment.commentId}
-                            className="flex gap-3 p-3 bg-gray-50 dark:bg-zinc-700/40 rounded-xl"
-                          >
-                            <div className="w-8 h-8 rounded-full bg-[#1E6F3E] flex items-center justify-center text-white font-bold text-xs shrink-0 overflow-hidden">
-                              {comment.userImage ? (
-                                <img src={comment.userImage} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                comment.userName.charAt(0)
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-zinc-300">
-                                  {comment.userName}
-                                </span>
-                                <span className="text-xs text-[#1E6F3E]/70 dark:text-[#1E6F3E] font-medium">
-                                  {comment.panelName}
-                                </span>
-                                <span className="text-xs text-gray-400 dark:text-zinc-500">
-                                  {new Date(comment.createdAt).toLocaleString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </span>
+                      {allComments.length === 0 ? (
+                        <p className="text-sm text-gray-400 dark:text-zinc-500 italic py-2">
+                          No comments
+                        </p>
+                      ) : (
+                        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                          {allComments.map((comment) => (
+                            <div
+                              key={comment.commentId}
+                              className="flex gap-3 p-3 bg-gray-50 dark:bg-zinc-700/40 rounded-xl"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-[#1E6F3E] flex items-center justify-center text-white font-bold text-xs shrink-0 overflow-hidden">
+                                {comment.userImage ? (
+                                  <img src={comment.userImage} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  comment.userName.charAt(0)
+                                )}
                               </div>
-                              <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
-                                {comment.content}
-                              </p>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <span className="text-xs font-semibold text-gray-700 dark:text-zinc-300">
+                                    {comment.userName}
+                                  </span>
+                                  <span className="text-xs text-[#1E6F3E]/70 dark:text-[#1E6F3E] font-medium">
+                                    {comment.panelName}
+                                  </span>
+                                  <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                    {new Date(comment.createdAt).toLocaleString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
+                                  {comment.content}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
@@ -1482,7 +1598,7 @@ export default function StudentEvaluationsPage() {
 
       {/* Grade Details Modal */}
       <AnimatePresence>
-        {showGradeModal && selectedEvaluation && selectedEvaluation.submission?.status === "graded" && (
+        {showGradeModal && selectedEvaluation && isGradedSubmission(selectedEvaluation.submission) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
