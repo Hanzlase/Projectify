@@ -1620,7 +1620,7 @@ export default function SupervisorEvaluationsPage() {
                                       )}
 
                                       {/* Panel Head Scoring */}
-                                      {groupDetails.currentUserRole === 'chair' && (
+                                      {groupDetails.currentUserRole && (
                                         <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
                                             <h5 className="text-sm font-bold text-[#1E6F3E] flex items-center gap-2">
@@ -1629,8 +1629,11 @@ export default function SupervisorEvaluationsPage() {
                                             </h5>
                                             {hasPanelScore && (
                                               <span className="text-xs text-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 px-2 py-0.5 rounded-full font-medium">
-                                                Current: {sub.panelScore}/{totalMarks}
+                                                Panel Avg: {sub.panelScore}/{totalMarks}
                                               </span>
+                                            )}
+                                            {sub.panelMemberScores && (
+                                              <span className="text-xs ml-2 text-gray-600">Your: {sub.panelMemberScores[Number(session?.user?.id)]?.score ?? '—'}</span>
                                             )}
                                           </div>
                                           {scoringSubmissionId === -(sub.submissionId) ? (
@@ -1676,7 +1679,10 @@ export default function SupervisorEvaluationsPage() {
                                             <Button
                                               onClick={() => {
                                                 setScoringSubmissionId(-(sub.submissionId));
-                                                setSubmissionScoreInput(sub.panelScore?.toString() || '');
+                                                // Pre-fill with this member's existing score if present, otherwise aggregated panel score
+                                                const myId = Number(session?.user?.id);
+                                                const myScore = sub.panelMemberScores ? sub.panelMemberScores[myId]?.score : null;
+                                                setSubmissionScoreInput(myScore?.toString() || sub.panelScore?.toString() || '');
                                                 setSubmissionFeedbackInput(sub.panelFeedback || '');
                                               }}
                                               variant="outline"

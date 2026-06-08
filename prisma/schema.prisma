@@ -8,49 +8,45 @@ datasource db {
 }
 
 model User {
-  userId       Int        @id @default(autoincrement()) @map("user_id")
-  name         String     @db.VarChar(255)
-  email        String     @unique @db.VarChar(255)
-  passwordHash String     @db.VarChar(255) @map("password_hash")
-  role         UserRole
-  status       UserStatus @default(ACTIVE)
-  profileImage String?    @db.VarChar(500) @map("profile_image")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  admin              Admin?
-  coordinator        FYPCoordinator?
-  supervisor         FYPSupervisor?
-  student            Student?
+  userId              Int                  @id @default(autoincrement()) @map("user_id")
+  name                String               @db.VarChar(255)
+  email               String               @unique @db.VarChar(255)
+  passwordHash        String               @map("password_hash") @db.VarChar(255)
+  role                UserRole
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  profileImage        String?              @map("profile_image") @db.VarChar(500)
+  status              UserStatus           @default(ACTIVE)
+  admin               Admin?
+  coordinator         FYPCoordinator?
+  supervisor          FYPSupervisor?
   passwordResetTokens PasswordResetToken[]
+  student             Student?
 
   @@map("users")
 }
 
-// Admin profile — one-to-one with User (role = admin)
 model Admin {
   adminId   Int      @id @default(autoincrement()) @map("admin_id")
   userId    Int      @unique @map("user_id")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("admins")
 }
 
 model Campus {
-  campusId        Int      @id @default(autoincrement()) @map("campus_id")
-  name            String   @db.VarChar(255)
-  location        String?  @db.VarChar(255)
-  maxCoordinators Int      @default(5) @map("max_coordinators")
-  activeSemester  Semester @default(FALL) @map("active_semester")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  coordinators FYPCoordinator[]
-  supervisors  FYPSupervisor[]
-  students     Student[]
+  campusId        Int              @id @default(autoincrement()) @map("campus_id")
+  name            String           @db.VarChar(255)
+  location        String?          @db.VarChar(255)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  maxCoordinators Int              @default(5) @map("max_coordinators")
+  activeSemester  Semester         @default(FALL) @map("active_semester")
+  coordinators    FYPCoordinator[]
+  supervisors     FYPSupervisor[]
+  students        Student[]
 
   @@map("campuses")
 }
@@ -61,9 +57,8 @@ model FYPCoordinator {
   campusId      Int      @map("campus_id")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus @relation(fields: [campusId], references: [campusId])
+  campus        Campus   @relation(fields: [campusId], references: [campusId])
+  user          User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("fyp_coordinators")
 }
@@ -72,60 +67,56 @@ model FYPSupervisor {
   supervisorId   Int      @id @default(autoincrement()) @map("supervisor_id")
   userId         Int      @unique @map("user_id")
   campusId       Int      @map("campus_id")
-  description    String?  @db.Text
+  description    String?
   specialization String?  @db.VarChar(255)
-  domains        String?  @db.Text
-  skills         String?  @db.Text
-  achievements   String?  @db.Text
   maxGroups      Int      @default(7) @map("max_groups")
   totalGroups    Int      @default(0) @map("total_groups")
   revertedBy     Int?     @map("reverted_by")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus @relation(fields: [campusId], references: [campusId])
+  achievements   String?
+  domains        String?
+  skills         String?
+  campus         Campus   @relation(fields: [campusId], references: [campusId])
+  user           User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([campusId])
   @@map("fyp_supervisors")
 }
 
 model Group {
-  groupId      Int      @id @default(autoincrement()) @map("group_id")
-  groupName    String?  @db.VarChar(255) @map("group_name")
-  groupImage   String?  @db.Text @map("group_image") // Group profile image URL
-  projectId    Int?     @unique @map("project_id") // The project this group is working on
-  createdById  Int      @map("created_by_id") // Student who created the group
-  supervisorId Int?     @map("supervisor_id") // Assigned supervisor user ID (null until accepted)
-  isFull       Boolean  @default(false) @map("is_full") // True when 3 students + 1 supervisor
-  cohort       Cohort   @default(REGULAR)
-  fypPhase     FypPhase @default(FYP_1) @map("fyp_phase")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  students         Student[]
+  groupId          Int               @id @default(autoincrement()) @map("group_id")
+  groupName        String?           @map("group_name") @db.VarChar(255)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  createdById      Int               @map("created_by_id")
+  supervisorId     Int?              @map("supervisor_id")
+  isFull           Boolean           @default(false) @map("is_full")
+  projectId        Int?              @unique @map("project_id")
+  groupImage       String?           @map("group_image")
+  cohort           Cohort            @default(REGULAR)
+  fypPhase         FypPhase          @default(FYP_1) @map("fyp_phase")
   groupChats       GroupChat[]
   groupInvitations GroupInvitation[]
   meetings         Meeting[]
+  students         Student[]
 
   @@index([supervisorId])
   @@index([createdById])
   @@map("groups")
 }
 
-// Group Invitations (for students and supervisors to join groups)
 model GroupInvitation {
-  id           Int                   @id @default(autoincrement())
-  groupId      Int                   @map("group_id")
-  inviterId    Int                   @map("inviter_id") // User who sent the invite
-  inviteeId    Int                   @map("invitee_id") // User being invited
-  inviteeRole  String                @db.VarChar(20) @map("invitee_role") // 'student' or 'supervisor'
-  status       GroupInvitationStatus @default(pending)
-  message      String?               @db.Text
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
-
-  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  id          Int                   @id @default(autoincrement())
+  groupId     Int                   @map("group_id")
+  inviterId   Int                   @map("inviter_id")
+  inviteeId   Int                   @map("invitee_id")
+  inviteeRole String                @map("invitee_role") @db.VarChar(20)
+  status      GroupInvitationStatus @default(pending)
+  message     String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  group       Group                 @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 
   @@unique([groupId, inviteeId])
   @@index([inviteeId, status])
@@ -133,30 +124,21 @@ model GroupInvitation {
   @@map("group_invitations")
 }
 
-enum GroupInvitationStatus {
-  pending
-  accepted
-  rejected
-  cancelled
-}
-
-// Industrial Projects (uploaded by coordinators for groups to request)
 model IndustrialProject {
-  id              Int                       @id @default(autoincrement())
-  title           String                    @db.VarChar(255)
-  description     String                    @db.Text
-  features        String?                   @db.Text
-  techStack       String?                   @db.Text @map("tech_stack")
-  thumbnailUrl    String?                   @db.VarChar(500) @map("thumbnail_url")
-  status          IndustrialProjectStatus   @default(available)
-  fypPhase        FypPhase                  @default(FYP_1) @map("fyp_phase")
-  uploadedById    Int                       @map("uploaded_by_id")
-  campusId        Int                       @map("campus_id")
-  assignedGroupId Int?                      @unique @map("assigned_group_id")
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
-
-  requests IndustrialProjectRequest[]
+  id              Int                        @id @default(autoincrement())
+  title           String                     @db.VarChar(255)
+  description     String
+  status          IndustrialProjectStatus    @default(available)
+  uploadedById    Int                        @map("uploaded_by_id")
+  campusId        Int                        @map("campus_id")
+  assignedGroupId Int?                       @unique @map("assigned_group_id")
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  features        String?
+  techStack       String?                    @map("tech_stack")
+  thumbnailUrl    String?                    @map("thumbnail_url") @db.VarChar(500)
+  fypPhase        FypPhase                   @default(FYP_1) @map("fyp_phase")
+  requests        IndustrialProjectRequest[]
 
   @@index([campusId])
   @@index([status])
@@ -168,20 +150,484 @@ model IndustrialProjectRequest {
   id                  Int                            @id @default(autoincrement())
   industrialProjectId Int                            @map("industrial_project_id")
   requesterId         Int                            @map("requester_id")
-  requesterRole       String                         @db.VarChar(20) @map("requester_role")
+  requesterRole       String                         @map("requester_role") @db.VarChar(20)
   groupId             Int?                           @map("group_id")
-  message             String?                        @db.Text
+  message             String?
   status              IndustrialProjectRequestStatus @default(pending)
   respondedAt         DateTime?                      @map("responded_at")
   createdAt           DateTime                       @default(now())
   updatedAt           DateTime                       @updatedAt
-
-  industrialProject IndustrialProject @relation(fields: [industrialProjectId], references: [id], onDelete: Cascade)
+  industrialProject   IndustrialProject              @relation(fields: [industrialProjectId], references: [id], onDelete: Cascade)
 
   @@unique([industrialProjectId, requesterId])
   @@index([requesterId])
   @@index([status])
   @@map("industrial_project_requests")
+}
+
+model GroupChat {
+  id             Int      @id @default(autoincrement())
+  groupId        Int      @map("group_id")
+  conversationId Int      @unique @map("conversation_id")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  group          Group    @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@map("group_chats")
+}
+
+model PinnedConversation {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  conversationId Int      @map("conversation_id")
+  pinnedAt       DateTime @default(now())
+
+  @@unique([userId, conversationId])
+  @@map("pinned_conversations")
+}
+
+model Student {
+  studentId           Int          @id @default(autoincrement()) @map("student_id")
+  userId              Int          @unique @map("user_id")
+  rollNumber          String       @unique @map("roll_number") @db.VarChar(50)
+  batch               String?      @db.VarChar(20)
+  campusId            Int          @map("campus_id")
+  groupId             Int?         @map("group_id")
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  bio                 String?
+  github              String?      @db.VarChar(255)
+  gpa                 Float?
+  interests           String?
+  linkedin            String?      @db.VarChar(255)
+  skills              String?
+  isGroupAdmin        Boolean      @default(false) @map("is_group_admin")
+  cohort              Cohort       @default(REGULAR)
+  receivedInvitations Invitation[] @relation("ReceivedInvitations")
+  sentInvitations     Invitation[] @relation("SentInvitations")
+  campus              Campus       @relation(fields: [campusId], references: [campusId])
+  group               Group?       @relation(fields: [groupId], references: [groupId])
+  user                User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([campusId])
+  @@index([groupId])
+  @@index([campusId, groupId])
+  @@map("students")
+}
+
+model Invitation {
+  invitationId Int              @id @default(autoincrement()) @map("invitation_id")
+  senderId     Int              @map("sender_id")
+  receiverId   Int              @map("receiver_id")
+  message      String?
+  status       InvitationStatus @default(pending)
+  type         InvitationType   @default(group_invite)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  receiver     Student          @relation("ReceivedInvitations", fields: [receiverId], references: [studentId], onDelete: Cascade)
+  sender       Student          @relation("SentInvitations", fields: [senderId], references: [studentId], onDelete: Cascade)
+
+  @@unique([senderId, receiverId, type])
+  @@index([receiverId, status])
+  @@index([senderId])
+  @@map("invitations")
+}
+
+model Notification {
+  notificationId Int                     @id @default(autoincrement()) @map("notification_id")
+  title          String                  @db.VarChar(255)
+  message        String
+  type           NotificationType        @default(general)
+  targetType     NotificationTarget      @map("target_type")
+  createdById    Int?                    @map("created_by_id")
+  campusId       Int                     @map("campus_id")
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  targetCohort   Cohort?                 @map("target_cohort")
+  recipients     NotificationRecipient[]
+
+  @@index([campusId])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationRecipient {
+  id             Int          @id @default(autoincrement())
+  notificationId Int          @map("notification_id")
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  readAt         DateTime?    @map("read_at")
+  createdAt      DateTime     @default(now())
+  notification   Notification @relation(fields: [notificationId], references: [notificationId], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notification_recipients")
+}
+
+model Conversation {
+  conversationId Int                       @id @default(autoincrement()) @map("conversation_id")
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  participants   ConversationParticipant[]
+  messages       Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             Int          @id @default(autoincrement())
+  conversationId Int          @map("conversation_id")
+  userId         Int          @map("user_id")
+  lastReadAt     DateTime?    @map("last_read_at")
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  messageId      Int          @id @default(autoincrement()) @map("message_id")
+  conversationId Int          @map("conversation_id")
+  senderId       Int          @map("sender_id")
+  content        String
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  attachmentName String?      @map("attachment_name") @db.VarChar(255)
+  attachmentType String?      @map("attachment_type") @db.VarChar(50)
+  attachmentUrl  String?      @map("attachment_url") @db.VarChar(500)
+  conversation   Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([conversationId, isRead])
+  @@map("messages")
+}
+
+model Project {
+  projectId         Int               @id @default(autoincrement()) @map("project_id")
+  title             String            @db.VarChar(255)
+  description       String
+  category          String?           @db.VarChar(100)
+  status            ProjectStatus     @default(in_progress)
+  visibility        ProjectVisibility @default(private)
+  thumbnailUrl      String?           @map("thumbnail_url") @db.VarChar(500)
+  documentUrl       String?           @map("document_url") @db.VarChar(500)
+  repositoryUrl     String?           @map("repository_url") @db.VarChar(500)
+  demoUrl           String?           @map("demo_url") @db.VarChar(500)
+  createdById       Int               @map("created_by_id")
+  groupId           Int?              @map("group_id")
+  campusId          Int               @map("campus_id")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  abstractText      String?           @map("abstract_text")
+  documentName      String?           @map("document_name") @db.VarChar(255)
+  embeddingId       String?           @map("embedding_id") @db.VarChar(100)
+  isUnique          Boolean           @default(false) @map("is_unique")
+  similarityScore   Float?            @map("similarity_score")
+  feasibilityReport Json?             @map("feasibility_report")
+
+  @@index([campusId])
+  @@index([campusId, visibility])
+  @@index([groupId])
+  @@index([createdById])
+  @@index([status])
+  @@map("projects")
+}
+
+model ProjectPermissionRequest {
+  id          Int                     @id @default(autoincrement())
+  projectId   Int                     @map("project_id")
+  requesterId Int                     @map("requester_id")
+  ownerId     Int                     @map("owner_id")
+  groupId     Int?                    @map("group_id")
+  message     String?
+  status      ProjectPermissionStatus @default(pending)
+  respondedAt DateTime?               @map("responded_at")
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@unique([projectId, requesterId])
+  @@map("project_permission_requests")
+}
+
+model Meeting {
+  meetingId     Int                    @id @default(autoincrement()) @map("meeting_id")
+  groupId       Int                    @map("group_id")
+  title         String                 @db.VarChar(255)
+  description   String?
+  meetingLink   String?                @map("meeting_link") @db.VarChar(500)
+  scheduledAt   DateTime               @map("scheduled_at")
+  duration      Int                    @default(60)
+  status        MeetingStatus          @default(scheduled)
+  createdById   Int                    @map("created_by_id")
+  createdByRole String                 @map("created_by_role") @db.VarChar(20)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  reminders     MeetingEmailReminder[]
+  group         Group                  @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([scheduledAt])
+  @@map("meetings")
+}
+
+model MeetingEmailReminder {
+  id           Int       @id @default(autoincrement())
+  meetingId    Int       @map("meeting_id")
+  reminderType String    @map("reminder_type") @db.VarChar(20)
+  sendAt       DateTime  @map("send_at")
+  sent         Boolean   @default(false)
+  sentAt       DateTime? @map("sent_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  meeting      Meeting   @relation(fields: [meetingId], references: [meetingId], onDelete: Cascade)
+
+  @@index([sent, sendAt])
+  @@index([meetingId])
+  @@map("meeting_email_reminders")
+}
+
+model ProjectTask {
+  taskId      Int          @id @default(autoincrement()) @map("task_id")
+  groupId     Int          @map("group_id")
+  parentId    Int?         @map("parent_id")
+  title       String       @db.VarChar(255)
+  description String?
+  assignedTo  Int?         @map("assigned_to")
+  status      TaskStatus   @default(pending)
+  priority    TaskPriority @default(medium)
+  dueDate     DateTime?    @map("due_date")
+  completedAt DateTime?    @map("completed_at")
+  createdById Int          @map("created_by_id")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([groupId])
+  @@index([parentId])
+  @@index([assignedTo])
+  @@index([status])
+  @@map("project_tasks")
+}
+
+model PhaseAttachment {
+  attachmentId Int                @id @default(autoincrement()) @map("attachment_id")
+  phaseId      Int                @map("phase_id")
+  fileName     String             @map("file_name") @db.VarChar(255)
+  fileUrl      String             @map("file_url") @db.VarChar(500)
+  fileSize     Int?               @map("file_size")
+  fileType     String?            @map("file_type") @db.VarChar(100)
+  createdAt    DateTime           @default(now())
+  phase        FypEvaluationPhase @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
+
+  @@index([phaseId])
+  @@map("phase_attachments")
+}
+
+model EvaluationSubmission {
+  submissionId         Int                    @id @default(autoincrement()) @map("submission_id")
+  groupId              Int                    @map("group_id")
+  submittedById        Int                    @map("submitted_by_id")
+  content              String?
+  status               SubmissionStatus       @default(pending)
+  obtainedMarks        Int?                   @map("obtained_marks")
+  feedback             String?
+  gradedById           Int?                   @map("graded_by_id")
+  gradedAt             DateTime?              @map("graded_at")
+  submittedAt          DateTime               @default(now()) @map("submitted_at")
+  updatedAt            DateTime               @updatedAt
+  panelFeedback        String?                @map("panel_feedback")
+  panelScore           Int?                   @map("panel_score")
+  panelScoredAt        DateTime?              @map("panel_scored_at")
+  panelScoredById      Int?                   @map("panel_scored_by_id")
+  supervisorFeedback   String?                @map("supervisor_feedback")
+  supervisorScore      Int?                   @map("supervisor_score")
+  supervisorScoredAt   DateTime?              @map("supervisor_scored_at")
+  supervisorScoredById Int?                   @map("supervisor_scored_by_id")
+  phaseId              Int                    @map("phase_id")
+  panelMemberScores    Json?                  @map("panel_member_scores")
+  phase                FypEvaluationPhase     @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
+  attachments          SubmissionAttachment[]
+
+  @@unique([phaseId, groupId])
+  @@index([phaseId])
+  @@index([groupId])
+  @@index([submittedById])
+  @@index([status])
+  @@map("evaluation_submissions")
+}
+
+model SubmissionAttachment {
+  attachmentId Int                  @id @default(autoincrement()) @map("attachment_id")
+  submissionId Int                  @map("submission_id")
+  fileName     String               @map("file_name") @db.VarChar(255)
+  fileUrl      String               @map("file_url") @db.VarChar(500)
+  fileSize     Int?                 @map("file_size")
+  fileType     String?              @map("file_type") @db.VarChar(100)
+  uploadedAt   DateTime             @default(now()) @map("uploaded_at")
+  submission   EvaluationSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("submission_attachments")
+}
+
+model EvaluationPanel {
+  panelId          Int                    @id @default(autoincrement()) @map("panel_id")
+  name             String                 @db.VarChar(255)
+  description      String?
+  evaluationType   String?                @map("evaluation_type") @db.VarChar(100)
+  minSupervisors   Int                    @default(2) @map("min_supervisors")
+  maxSupervisors   Int                    @default(4) @map("max_supervisors")
+  scheduledDate    DateTime?              @map("scheduled_date")
+  status           EvaluationPanelStatus  @default(draft)
+  campusId         Int                    @map("campus_id")
+  createdById      Int                    @map("created_by_id")
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  cohort           Cohort                 @default(REGULAR)
+  fypPhase         FypPhase               @default(FYP_1) @map("fyp_phase")
+  phaseId          Int?                   @map("phase_id")
+  phase            FypEvaluationPhase?    @relation(fields: [phaseId], references: [phaseId])
+  groupAssignments GroupPanelAssignment[]
+  panelMembers     PanelMember[]
+
+  @@index([campusId])
+  @@index([createdById])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([phaseId])
+  @@map("evaluation_panels")
+}
+
+model FypEvaluationPhase {
+  phaseId      Int                    @id @default(autoincrement()) @map("phase_id")
+  name         String                 @db.VarChar(255)
+  description  String?
+  weightage    Float                  @default(0)
+  fypPhase     FypPhase               @map("fyp_phase")
+  cohort       Cohort                 @default(REGULAR)
+  campusId     Int                    @map("campus_id")
+  isActive     Boolean                @default(false) @map("is_active")
+  orderIndex   Int                    @default(0) @map("order_index")
+  createdById  Int                    @map("created_by_id")
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  deadline     DateTime?              @map("deadline")
+  instructions String?
+  status       EvaluationStatus       @default(draft)
+  totalMarks   Int                    @default(100) @map("total_marks")
+  panels       EvaluationPanel[]
+  submissions  EvaluationSubmission[]
+  attachments  PhaseAttachment[]
+
+  @@index([campusId, fypPhase, cohort])
+  @@index([campusId, isActive])
+  @@map("fyp_evaluation_phases")
+}
+
+model PanelMember {
+  id           Int             @id @default(autoincrement())
+  panelId      Int             @map("panel_id")
+  supervisorId Int             @map("supervisor_id")
+  role         PanelMemberRole @default(member)
+  addedAt      DateTime        @default(now()) @map("added_at")
+  panel        EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
+
+  @@unique([panelId, supervisorId])
+  @@index([supervisorId])
+  @@map("panel_members")
+}
+
+model GroupPanelAssignment {
+  id             Int             @id @default(autoincrement())
+  panelId        Int             @map("panel_id")
+  groupId        Int             @map("group_id")
+  assignedAt     DateTime        @default(now()) @map("assigned_at")
+  evaluationDate DateTime?       @map("evaluation_date")
+  timeSlot       String?         @map("time_slot") @db.VarChar(50)
+  venue          String?         @db.VarChar(255)
+  remarks        String?
+  score          Int?
+  scoredAt       DateTime?       @map("scored_at")
+  scoredById     Int?            @map("scored_by_id")
+  panel          EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
+  comments       PanelComment[]
+
+  @@unique([panelId, groupId])
+  @@index([groupId])
+  @@index([evaluationDate])
+  @@map("group_panel_assignments")
+}
+
+model PanelComment {
+  commentId    Int                  @id @default(autoincrement()) @map("comment_id")
+  assignmentId Int                  @map("assignment_id")
+  userId       Int                  @map("user_id")
+  content      String
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  assignment   GroupPanelAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([userId])
+  @@map("panel_comments")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model ResourceRequest {
+  id                    Int                   @id @default(autoincrement())
+  groupId               Int                   @map("group_id")
+  title                 String                @db.VarChar(255)
+  description           String?
+  resourceType          ResourceType          @default(hardware) @map("resource_type")
+  items                 String
+  justification         String?
+  status                ResourceRequestStatus @default(pending)
+  supervisorId          Int?                  @map("supervisor_id")
+  supervisorNote        String?               @map("supervisor_note")
+  supervisorAction      String?               @map("supervisor_action") @db.VarChar(20)
+  supervisorReviewedAt  DateTime?             @map("supervisor_reviewed_at")
+  coordinatorId         Int?                  @map("coordinator_id")
+  coordinatorNote       String?               @map("coordinator_note")
+  meetingDate           DateTime?             @map("meeting_date")
+  meetingTime           String?               @map("meeting_time") @db.VarChar(50)
+  meetingLink           String?               @map("meeting_link") @db.VarChar(500)
+  meetingVenue          String?               @map("meeting_venue") @db.VarChar(255)
+  meetingType           String?               @map("meeting_type") @db.VarChar(20)
+  coordinatorReviewedAt DateTime?             @map("coordinator_reviewed_at")
+  createdById           Int                   @map("created_by_id")
+  campusId              Int                   @map("campus_id")
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@index([groupId])
+  @@index([campusId])
+  @@index([status])
+  @@index([supervisorId])
+  @@map("resource_requests")
+}
+
+enum GroupInvitationStatus {
+  pending
+  accepted
+  rejected
+  cancelled
 }
 
 enum IndustrialProjectStatus {
@@ -196,81 +642,6 @@ enum IndustrialProjectRequestStatus {
   rejected
 }
 
-// Group Chat for FYP Groups (visible in chat section)
-model GroupChat {
-  id             Int      @id @default(autoincrement())
-  groupId        Int      @map("group_id")
-  conversationId Int      @unique @map("conversation_id") // Links to Conversation for messages
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  group Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
-
-  @@map("group_chats")
-}
-
-// Pinned Conversations for users
-model PinnedConversation {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @map("user_id")
-  conversationId Int      @map("conversation_id")
-  pinnedAt       DateTime @default(now())
-
-  @@unique([userId, conversationId])
-  @@map("pinned_conversations")
-}
-
-model Student {
-  studentId    Int      @id @default(autoincrement()) @map("student_id")
-  userId       Int      @unique @map("user_id")
-  rollNumber   String   @unique @db.VarChar(50) @map("roll_number")
-  batch        String?  @db.VarChar(20)
-  campusId     Int      @map("campus_id")
-  groupId      Int?     @map("group_id")
-  isGroupAdmin Boolean  @default(false) @map("is_group_admin") // Whether student is admin of their group
-  cohort       Cohort   @default(REGULAR)
-  gpa          Float?
-  skills       String?  @db.Text
-  interests    String?  @db.Text
-  bio          String?  @db.Text
-  linkedin     String?  @db.VarChar(255)
-  github       String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user   User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  campus Campus  @relation(fields: [campusId], references: [campusId])
-  group  Group?  @relation(fields: [groupId], references: [groupId])
-  
-  sentInvitations     Invitation[] @relation("SentInvitations")
-  receivedInvitations Invitation[] @relation("ReceivedInvitations")
-
-  @@index([campusId])
-  @@index([groupId])
-  @@index([campusId, groupId])
-  @@map("students")
-}
-
-// Student-to-Student Invitations (Group/Team Invitations)
-model Invitation {
-  invitationId  Int              @id @default(autoincrement()) @map("invitation_id")
-  senderId      Int              @map("sender_id")
-  receiverId    Int              @map("receiver_id")
-  message       String?          @db.Text
-  status        InvitationStatus @default(pending)
-  type          InvitationType   @default(group_invite)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-
-  sender   Student @relation("SentInvitations", fields: [senderId], references: [studentId], onDelete: Cascade)
-  receiver Student @relation("ReceivedInvitations", fields: [receiverId], references: [studentId], onDelete: Cascade)
-
-  @@unique([senderId, receiverId, type])
-  @@index([receiverId, status])
-  @@index([senderId])
-  @@map("invitations")
-}
-
 enum InvitationStatus {
   pending
   accepted
@@ -281,41 +652,6 @@ enum InvitationStatus {
 enum InvitationType {
   group_invite
   collaboration
-}
-
-model Notification {
-  notificationId Int      @id @default(autoincrement()) @map("notification_id")
-  title          String   @db.VarChar(255)
-  message        String   @db.Text
-  type           NotificationType @default(general)
-  targetType     NotificationTarget @map("target_type")
-  targetCohort   Cohort?  @map("target_cohort")
-  createdById    Int?     @map("created_by_id")
-  campusId       Int      @map("campus_id")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  recipients NotificationRecipient[]
-
-  @@index([campusId])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-model NotificationRecipient {
-  id             Int      @id @default(autoincrement())
-  notificationId Int      @map("notification_id")
-  userId         Int      @map("user_id")
-  isRead         Boolean  @default(false) @map("is_read")
-  readAt         DateTime? @map("read_at")
-  createdAt      DateTime @default(now())
-
-  notification Notification @relation(fields: [notificationId], references: [notificationId], onDelete: Cascade)
-
-  @@unique([notificationId, userId])
-  @@index([userId, isRead])
-  @@index([userId, createdAt])
-  @@map("notification_recipients")
 }
 
 enum NotificationType {
@@ -333,10 +669,10 @@ enum NotificationTarget {
 }
 
 enum UserRole {
-  admin
   student
   supervisor
   coordinator
+  admin
 }
 
 enum UserStatus {
@@ -360,85 +696,6 @@ enum FypPhase {
   FYP_2
 }
 
-// Chat/Messaging System
-model Conversation {
-  conversationId Int      @id @default(autoincrement()) @map("conversation_id")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  participants ConversationParticipant[]
-  messages     Message[]
-
-  @@map("conversations")
-}
-
-model ConversationParticipant {
-  id             Int      @id @default(autoincrement())
-  conversationId Int      @map("conversation_id")
-  userId         Int      @map("user_id")
-  lastReadAt     DateTime? @map("last_read_at")
-  createdAt      DateTime @default(now())
-
-  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
-
-  @@unique([conversationId, userId])
-  @@index([userId])
-  @@map("conversation_participants")
-}
-
-model Message {
-  messageId      Int      @id @default(autoincrement()) @map("message_id")
-  conversationId Int      @map("conversation_id")
-  senderId       Int      @map("sender_id")
-  content        String   @db.Text
-  isRead         Boolean  @default(false) @map("is_read")
-  // Attachment fields
-  attachmentUrl  String?  @db.VarChar(500) @map("attachment_url")
-  attachmentType String?  @db.VarChar(50) @map("attachment_type") // image, file
-  attachmentName String?  @db.VarChar(255) @map("attachment_name")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
-
-  @@index([conversationId, createdAt])
-  @@index([senderId])
-  @@index([conversationId, isRead])
-  @@map("messages")
-}
-
-// Projects System
-model Project {
-  projectId     Int            @id @default(autoincrement()) @map("project_id")
-  title         String         @db.VarChar(255)
-  description   String         @db.Text
-  abstractText  String?        @db.Text @map("abstract_text") // Extracted from document
-  category      String?        @db.VarChar(100)
-  status        ProjectStatus  @default(in_progress)
-  visibility    ProjectVisibility @default(private)
-  thumbnailUrl  String?        @db.VarChar(500) @map("thumbnail_url")
-  documentUrl   String?        @db.VarChar(500) @map("document_url")
-  documentName  String?        @db.VarChar(255) @map("document_name")
-  repositoryUrl String?        @db.VarChar(500) @map("repository_url")
-  demoUrl       String?        @db.VarChar(500) @map("demo_url")
-  embeddingId   String?        @db.VarChar(100) @map("embedding_id") // Pinecone vector ID
-  isUnique      Boolean        @default(false) @map("is_unique") // True if passed similarity check
-  similarityScore Float?       @map("similarity_score") // Score when checked
-  feasibilityReport Json?       @map("feasibility_report") // JSON stored feasibility report
-  createdById   Int            @map("created_by_id")
-  groupId       Int?           @map("group_id")
-  campusId      Int            @map("campus_id")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@index([campusId])
-  @@index([campusId, visibility])
-  @@index([groupId])
-  @@index([createdById])
-  @@index([status])
-  @@map("projects")
-}
-
 enum ProjectStatus {
   idea
   in_progress
@@ -452,95 +709,16 @@ enum ProjectVisibility {
   private
 }
 
-// Project Permission Requests (for supervisor-uploaded projects)
-model ProjectPermissionRequest {
-  id           Int                        @id @default(autoincrement())
-  projectId    Int                        @map("project_id")
-  requesterId  Int                        @map("requester_id") // Student user ID requesting permission
-  ownerId      Int                        @map("owner_id") // Supervisor user ID who uploaded the project
-  groupId      Int?                       @map("group_id") // Student's group (if any)
-  message      String?                    @db.Text
-  status       ProjectPermissionStatus    @default(pending)
-  respondedAt  DateTime?                  @map("responded_at")
-  createdAt    DateTime                   @default(now())
-  updatedAt    DateTime                   @updatedAt
-
-  @@unique([projectId, requesterId])
-  @@map("project_permission_requests")
-}
-
 enum ProjectPermissionStatus {
   pending
   approved
   rejected
 }
 
-// Meeting model for group meetings scheduled by supervisors or students
-model Meeting {
-  meetingId    Int           @id @default(autoincrement()) @map("meeting_id")
-  groupId      Int           @map("group_id")
-  title        String        @db.VarChar(255)
-  description  String?       @db.Text
-  meetingLink  String?       @db.VarChar(500) @map("meeting_link")
-  scheduledAt  DateTime      @map("scheduled_at")
-  duration     Int           @default(60) // Duration in minutes
-  status       MeetingStatus @default(scheduled)
-  createdById  Int           @map("created_by_id")
-  createdByRole String       @db.VarChar(20) @map("created_by_role") // 'supervisor', 'student', or 'coordinator'
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  group        Group                @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
-  reminders    MeetingEmailReminder[]
-
-  @@index([groupId])
-  @@index([scheduledAt])
-  @@map("meetings")
-}
-
-model MeetingEmailReminder {
-  id           Int       @id @default(autoincrement())
-  meetingId    Int       @map("meeting_id")
-  reminderType String    @db.VarChar(20) @map("reminder_type") // 'immediate', '24h', '1h'
-  sendAt       DateTime  @map("send_at")
-  sent         Boolean   @default(false)
-  sentAt       DateTime? @map("sent_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-
-  meeting      Meeting   @relation(fields: [meetingId], references: [meetingId], onDelete: Cascade)
-
-  @@index([sent, sendAt])
-  @@index([meetingId])
-  @@map("meeting_email_reminders")
-}
-
 enum MeetingStatus {
   scheduled
   completed
   cancelled
-}
-
-// Project Task model for dividing project work among group members
-model ProjectTask {
-  taskId       Int           @id @default(autoincrement()) @map("task_id")
-  groupId      Int           @map("group_id")
-  parentId     Int?          @map("parent_id") // For subtasks
-  title        String        @db.VarChar(255)
-  description  String?       @db.Text
-  assignedTo   Int?          @map("assigned_to") // Student user ID
-  status       TaskStatus    @default(pending)
-  priority     TaskPriority  @default(medium)
-  dueDate      DateTime?     @map("due_date")
-  completedAt  DateTime?     @map("completed_at")
-  createdById  Int           @map("created_by_id")
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  @@index([groupId])
-  @@index([parentId])
-  @@index([assignedTo])
-  @@index([status])
-  @@map("project_tasks")
 }
 
 enum TaskStatus {
@@ -555,138 +733,12 @@ enum TaskPriority {
   high
 }
 
-// Phase Attachments - Files attached to evaluation phases by coordinators
-model PhaseAttachment {
-  attachmentId  Int                 @id @default(autoincrement()) @map("attachment_id")
-  phaseId       Int                 @map("phase_id")
-  fileName      String              @db.VarChar(255) @map("file_name")
-  fileUrl       String              @db.VarChar(500) @map("file_url")
-  fileSize      Int?                @map("file_size") // In bytes
-  fileType      String?             @db.VarChar(100) @map("file_type")
-  createdAt     DateTime            @default(now())
-
-  phase         FypEvaluationPhase  @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
-
-  @@index([phaseId])
-  @@map("phase_attachments")
-}
-
-// Evaluation Submission - Student/Group submissions for phases
-model EvaluationSubmission {
-  submissionId    Int                     @id @default(autoincrement()) @map("submission_id")
-  phaseId         Int                     @map("phase_id")
-  groupId         Int                     @map("group_id")
-  submittedById   Int                     @map("submitted_by_id") // Student userId who submitted
-  content         String?                 @db.Text // Text content/notes
-  status          SubmissionStatus        @default(pending)
-  obtainedMarks   Int?                    @map("obtained_marks")
-  feedback        String?                 @db.Text
-  gradedById      Int?                    @map("graded_by_id") // Coordinator/Supervisor userId
-  gradedAt        DateTime?               @map("graded_at")
-  // Supervisor scoring (group's own supervisor scores separately from panel)
-  supervisorScore     Int?                @map("supervisor_score")
-  supervisorFeedback  String?             @db.Text @map("supervisor_feedback")
-  supervisorScoredById Int?              @map("supervisor_scored_by_id")
-  supervisorScoredAt  DateTime?          @map("supervisor_scored_at")
-  // Panel scoring (panel head scores separately)
-  panelScore          Int?               @map("panel_score")
-  panelFeedback       String?            @db.Text @map("panel_feedback")
-  panelScoredById     Int?               @map("panel_scored_by_id")
-  panelScoredAt       DateTime?          @map("panel_scored_at")
-  submittedAt     DateTime                @default(now()) @map("submitted_at")
-  updatedAt       DateTime                @updatedAt
-
-  phase           FypEvaluationPhase      @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
-  attachments     SubmissionAttachment[]
-
-  @@unique([phaseId, groupId])
-  @@index([phaseId])
-  @@index([groupId])
-  @@index([submittedById])
-  @@index([status])
-  @@map("evaluation_submissions")
-}
-
 enum SubmissionStatus {
   pending
   submitted
   late
   graded
   returned
-}
-
-// Submission Attachments - Files attached to student submissions
-model SubmissionAttachment {
-  attachmentId  Int                   @id @default(autoincrement()) @map("attachment_id")
-  submissionId  Int                   @map("submission_id")
-  fileName      String                @db.VarChar(255) @map("file_name")
-  fileUrl       String                @db.VarChar(500) @map("file_url")
-  fileSize      Int?                  @map("file_size")
-  fileType      String?               @db.VarChar(100) @map("file_type")
-  uploadedAt    DateTime              @default(now()) @map("uploaded_at")
-
-  submission    EvaluationSubmission  @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade)
-
-  @@index([submissionId])
-  @@map("submission_attachments")
-}
-
-// Evaluation Panels - Panels of supervisors for evaluating FYP groups
-model EvaluationPanel {
-  panelId          Int                @id @default(autoincrement()) @map("panel_id")
-  name             String             @db.VarChar(255)
-  description      String?            @db.Text
-  evaluationType   String?            @db.VarChar(100) @map("evaluation_type") // e.g., "Mid-Term", "Final Defense", "Progress Review" - Optional for generic panels
-  minSupervisors   Int                @default(2) @map("min_supervisors") // Minimum supervisors required per panel
-  maxSupervisors   Int                @default(4) @map("max_supervisors") // Maximum supervisors allowed per panel
-  scheduledDate    DateTime?          @map("scheduled_date")
-  status           EvaluationPanelStatus @default(draft)
-  campusId         Int                @map("campus_id")
-  cohort           Cohort             @default(REGULAR)
-  fypPhase         FypPhase           @default(FYP_1) @map("fyp_phase")
-  phaseId          Int?               @map("phase_id") // Optional link to a FypEvaluationPhase
-  createdById      Int                @map("created_by_id") // Coordinator userId
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-
-  phase            FypEvaluationPhase? @relation(fields: [phaseId], references: [phaseId])
-  panelMembers     PanelMember[]
-  groupAssignments GroupPanelAssignment[]
-
-  @@index([campusId])
-  @@index([createdById])
-  @@index([status])
-  @@index([scheduledDate])
-  @@index([phaseId])
-  @@map("evaluation_panels")
-}
-
-// FYP Evaluation Phases - Named milestones within FYP-1 or FYP-2 with weightage
-model FypEvaluationPhase {
-  phaseId      Int      @id @default(autoincrement()) @map("phase_id")
-  name         String   @db.VarChar(255)   // e.g., "Proposal Review", "Mid-Term", "Final Defense"
-  description  String?  @db.Text
-  instructions String?  @db.Text
-  totalMarks   Int      @default(100) @map("total_marks")
-  deadline     DateTime? @map("deadline")
-  status       EvaluationStatus @default(draft)
-  weightage    Float    @default(0)         // % weight toward FYP total score (0–100, phases should sum to 100)
-  fypPhase     FypPhase @map("fyp_phase")  // Which FYP this phase belongs to (FYP_1 or FYP_2)
-  cohort       Cohort   @default(REGULAR)
-  campusId     Int      @map("campus_id")
-  isActive     Boolean  @default(false) @map("is_active")   // Only one phase active at a time per FYP+cohort
-  orderIndex   Int      @default(0) @map("order_index")     // Display/sequential order
-  createdById  Int      @map("created_by_id")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  attachments  PhaseAttachment[]
-  submissions  EvaluationSubmission[]
-  panels       EvaluationPanel[]
-
-  @@index([campusId, fypPhase, cohort])
-  @@index([campusId, isActive])
-  @@map("fyp_evaluation_phases")
 }
 
 enum EvaluationStatus {
@@ -703,116 +755,10 @@ enum EvaluationPanelStatus {
   cancelled
 }
 
-// Panel Members - Supervisors assigned to evaluation panels
-model PanelMember {
-  id           Int      @id @default(autoincrement())
-  panelId      Int      @map("panel_id")
-  supervisorId Int      @map("supervisor_id") // User ID of supervisor
-  role         PanelMemberRole @default(member)
-  addedAt      DateTime @default(now()) @map("added_at")
-
-  panel EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
-
-  @@unique([panelId, supervisorId])
-  @@index([supervisorId])
-  @@map("panel_members")
-}
-
 enum PanelMemberRole {
-  chair      // Panel chairperson
-  member     // Regular panel member
-  external   // External examiner
-}
-
-// Group Panel Assignment - Assigns groups to evaluation panels
-model GroupPanelAssignment {
-  id        Int      @id @default(autoincrement())
-  panelId   Int      @map("panel_id")
-  groupId   Int      @map("group_id")
-  assignedAt DateTime @default(now()) @map("assigned_at")
-  evaluationDate DateTime? @map("evaluation_date")
-  timeSlot   String?  @db.VarChar(50) @map("time_slot") // e.g., "09:00 AM - 10:00 AM"
-  venue      String?  @db.VarChar(255)
-  remarks    String?  @db.Text
-  score      Int?     // Score given by panel head (out of 100)
-  scoredById Int?     @map("scored_by_id") // Panel head userId who scored
-  scoredAt   DateTime? @map("scored_at")
-
-  panel EvaluationPanel @relation(fields: [panelId], references: [panelId], onDelete: Cascade)
-  comments PanelComment[]
-
-  @@unique([panelId, groupId])
-  @@index([groupId])
-  @@index([evaluationDate])
-  @@map("group_panel_assignments")
-}
-
-// Panel Comments - Comments by panel members on group assignments
-model PanelComment {
-  commentId    Int      @id @default(autoincrement()) @map("comment_id")
-  assignmentId Int      @map("assignment_id") // GroupPanelAssignment id
-  userId       Int      @map("user_id") // Panel member userId who commented
-  content      String   @db.Text
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  assignment GroupPanelAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-
-  @@index([assignmentId])
-  @@index([userId])
-  @@map("panel_comments")
-}
-
-// Password Reset Tokens - For forgot password functionality
-model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  token     String   @unique @db.VarChar(255)
-  expiresAt DateTime @map("expires_at")
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-
-  @@index([token])
-  @@index([userId])
-  @@map("password_reset_tokens")
-}
-
-// Resource Request - Groups request hardware/software resources for their projects
-model ResourceRequest {
-  id              Int                    @id @default(autoincrement())
-  groupId         Int                    @map("group_id")
-  title           String                 @db.VarChar(255)
-  description     String?                @db.Text
-  resourceType    ResourceType           @default(hardware) @map("resource_type")
-  items           String                 @db.Text // JSON array of requested items
-  justification   String?                @db.Text // Why the group needs these resources
-  status          ResourceRequestStatus  @default(pending)
-  // Supervisor review
-  supervisorId    Int?                   @map("supervisor_id") // Supervisor who reviewed
-  supervisorNote  String?                @db.Text @map("supervisor_note")
-  supervisorAction String?              @db.VarChar(20) @map("supervisor_action") // 'approved', 'rejected', 'forwarded'
-  supervisorReviewedAt DateTime?         @map("supervisor_reviewed_at")
-  // Coordinator meeting
-  coordinatorId   Int?                   @map("coordinator_id")
-  coordinatorNote String?                @db.Text @map("coordinator_note")
-  meetingDate     DateTime?              @map("meeting_date")
-  meetingTime     String?                @db.VarChar(50) @map("meeting_time")
-  meetingLink     String?                @db.VarChar(500) @map("meeting_link")
-  meetingVenue    String?                @db.VarChar(255) @map("meeting_venue")
-  meetingType     String?                @db.VarChar(20) @map("meeting_type") // 'online' or 'physical'
-  coordinatorReviewedAt DateTime?        @map("coordinator_reviewed_at")
-  createdById     Int                    @map("created_by_id")
-  campusId        Int                    @map("campus_id")
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-
-  @@index([groupId])
-  @@index([campusId])
-  @@index([status])
-  @@index([supervisorId])
-  @@map("resource_requests")
+  chair
+  member
+  external
 }
 
 enum ResourceType {
@@ -822,11 +768,11 @@ enum ResourceType {
 }
 
 enum ResourceRequestStatus {
-  pending           // Initial state - waiting for supervisor
-  supervisor_approved  // Supervisor approved, forwarded to coordinator
-  supervisor_rejected  // Supervisor rejected
-  coordinator_review   // Coordinator is reviewing
-  meeting_scheduled    // Coordinator scheduled a meeting
-  approved          // Fully approved
-  rejected          // Coordinator rejected
+  pending
+  supervisor_approved
+  supervisor_rejected
+  coordinator_review
+  meeting_scheduled
+  approved
+  rejected
 }

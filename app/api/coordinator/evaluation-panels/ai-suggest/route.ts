@@ -1172,7 +1172,7 @@ function createFallbackPanels(
     );
 
     const panel = normalizePanelMembers({
-      name: createPanelTitle(groupsInPanel, `Evaluation Panel ${String.fromCharCode(65 + i)}`),
+      name: createPanelTitle(groupsInPanel, `Panel ${i + 1}`),
       description: `FYP Evaluation Panel for ${groupsInPanel.map((group) => group.domainKey).join(", ")} projects`,
       minSupervisors: Math.max(1, Math.min(2, supervisorsInPanel.length)),
       maxSupervisors: supervisorsInPanel.length + 1,
@@ -1280,5 +1280,16 @@ function validateAndFixPanels(
     .map((panel) => normalizePanelMembers(panel, supervisors, groups))
     .filter((panel) => panel.groups.length > 0);
 
-  return repairedPanels.length > 0 ? repairedPanels : createFallbackPanels(supervisors, groups);
+  if (repairedPanels.length > 0) {
+    return repairedPanels.map((p, i) => ({
+      ...p,
+      name: `Panel ${i + 1}`,
+    }));
+  }
+
+  const fallback = createFallbackPanels(supervisors, groups);
+  return fallback.map((p, i) => ({
+    ...p,
+    name: `Panel ${i + 1}`,
+  }));
 }

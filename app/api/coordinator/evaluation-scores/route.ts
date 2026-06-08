@@ -103,12 +103,12 @@ export async function GET(request: NextRequest) {
       const phase: any = phaseMap.get(sub.phaseId);
       const totalMarks = phase?.totalMarks || 100;
 
-      // Calculate combined score (50% supervisor + 50% panel)
+      // Calculate combined score (45% supervisor + 55% panel)
       let combinedScore: number | null = null;
       let combinedPercentage: number | null = null;
 
       if (sub.supervisorScore !== null && sub.panelScore !== null) {
-        combinedScore = (sub.supervisorScore + sub.panelScore) / 2;
+        combinedScore = Math.round((sub.supervisorScore * 0.45) + (sub.panelScore * 0.55));
         combinedPercentage = (combinedScore / totalMarks) * 100;
       }
 

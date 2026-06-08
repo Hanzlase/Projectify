@@ -21,8 +21,11 @@ export async function POST(request: NextRequest) {
     // Get the submission
     const submission = await (prisma as any).evaluationSubmission.findUnique({
       where: { submissionId: parseInt(submissionId) },
-      include: {
-        phase: { select: { totalMarks: true } }
+      select: {
+        submissionId: true,
+        groupId: true,
+        phase: { select: { totalMarks: true } },
+        panelMemberScores: true
       }
     });
 
@@ -40,24 +43,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Score must be between 0 and ${totalMarks}` }, { status: 400 });
     }
 
-    // Determine scoring type: 'supervisor' (group's own supervisor) or 'panel' (panel head)
+    // Determine scoring type: 'supervisor' (group's own supervisor) or 'panel' (panel member)
     if (scoringType === 'panel') {
-      // Panel head scoring - verify the user is a panel head for a panel that has this group assigned
-      const group = await prisma.group.findFirst({
-        where: {
-          students: {
-            some: {
-              userId: submission.submittedById
-            }
-          }
-        }
-      });
-
-      // Find panel assignment for this group where user is chair
+      // Allow any panel member (not just chair) to submit a panel score for this submission
+      // Verify the user is a member of a panel that has this group assigned
       const panelMembership = await prisma.panelMember.findFirst({
         where: {
           supervisorId: userId,
-          role: 'chair',
           panel: {
             groupAssignments: {
               some: {
@@ -69,24 +61,50 @@ export async function POST(request: NextRequest) {
       });
 
       if (!panelMembership) {
-        return NextResponse.json({ error: 'Only panel heads can give panel scores' }, { status: 403 });
+        return NextResponse.json({ error: 'Only panel members can give panel scores' }, { status: 403 });
       }
+
+      // Read the existing panelMemberScores JSON, update this user's entry
+      const current = submission.panelMemberScores || null;
+      let memberScoresObj: any = {};
+      try {
+        memberScoresObj = current ? JSON.parse(JSON.stringify(current)) : {};
+      } catch {
+        memberScoresObj = {};
+      }
+
+      memberScoresObj[userId] = {
+        score: parseInt(score),
+        feedback: feedback?.trim() || null,
+        scoredAt: new Date().toISOString(),
+      };
+
+      // Compute aggregated panelScore as average of member scores
+      const numericScores = Object.values(memberScoresObj)
+        .map((v: any) => Number(v?.score))
+        .filter((n: number) => !isNaN(n));
+
+      const aggregatedPanelScore = numericScores.length > 0
+        ? Math.round(numericScores.reduce((a: number, b: number) => a + b, 0) / numericScores.length)
+        : null;
 
       await (prisma as any).evaluationSubmission.update({
         where: { submissionId: parseInt(submissionId) },
         data: {
-          panelScore: parseInt(score),
-          panelFeedback: feedback?.trim() || null,
-          panelScoredById: userId,
+          panelMemberScores: memberScoresObj,
+          panelScore: aggregatedPanelScore,
           panelScoredAt: new Date(),
+          panelScoredById: null,
+          panelFeedback: null,
         }
       });
 
       return NextResponse.json({
         success: true,
         type: 'panel',
-        score: parseInt(score),
-        feedback: feedback?.trim() || null,
+        aggregatedPanelScore,
+        memberScore: parseInt(score),
+        memberScores: memberScoresObj,
       });
     } else {
       // Supervisor scoring - verify the user is the supervisor for the group

@@ -236,6 +236,7 @@ export async function GET(
         panelScore: s.panelScore,
         panelFeedback: s.panelFeedback,
         panelScoredAt: s.panelScoredAt,
+        panelMemberScores: s.panelMemberScores || null,
         attachments: s.attachments.map((a: any) => ({
           attachmentId: a.attachmentId,
           fileName: a.fileName,
