@@ -167,6 +167,7 @@ export interface EvaluationCommentEvent {
   commentId: number;
   panelId: number;
   groupId: number;
+  submissionId?: number;
   content: string;
   createdAt: string;
   userId: number;
