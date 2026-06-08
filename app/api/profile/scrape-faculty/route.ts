@@ -18,7 +18,7 @@ export async function POST() {
       where: { userId },
       include: {
         campus: true,
-        user: { select: { email: true } }
+        user: { select: { email: true, name: true } }
       }
     });
 
@@ -27,7 +27,7 @@ export async function POST() {
     }
 
     const { facultyUrl } = supervisor.campus;
-    const { email } = supervisor.user;
+    const { email, name } = supervisor.user;
 
     if (!facultyUrl) {
       return NextResponse.json({ 
@@ -35,8 +35,8 @@ export async function POST() {
       }, { status: 400 });
     }
 
-    console.log(`Starting faculty directory scrape for supervisor: ${email} at URL: ${facultyUrl}`);
-    const result = await scrapeAndParseFaculty(facultyUrl, email);
+    console.log(`Starting faculty directory scrape for supervisor: ${email} (${name}) at URL: ${facultyUrl}`);
+    const result = await scrapeAndParseFaculty(facultyUrl, email, name);
 
     if (!result) {
       return NextResponse.json({ 

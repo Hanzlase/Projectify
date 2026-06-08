@@ -525,7 +525,7 @@ export default function SupervisorProfile() {
                             value={formData.specialization}
                             onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
                             className="h-11 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
-                            placeholder="e.g., Machine Learning"
+                            placeholder="Enter specialization (e.g., Software Engineering)"
                           />
                         </div>
                       </div>
@@ -537,7 +537,7 @@ export default function SupervisorProfile() {
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           className="w-full min-h-[80px] px-4 py-3 border border-gray-200 focus:border-[#1a5d1a] focus:ring-2 focus:ring-[#1a5d1a]/20 rounded-xl resize-none focus:outline-none text-sm"
-                          placeholder="Tell students about your expertise and interests..."
+                          placeholder="Enter a brief biography or 'About Me' description..."
                         />
                       </div>
 
@@ -549,7 +549,7 @@ export default function SupervisorProfile() {
                             value={formData.domains}
                             onChange={(e) => setFormData({ ...formData, domains: e.target.value })}
                             className="h-11 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
-                            placeholder="AI, IoT, Cybersecurity"
+                            placeholder="Enter research domains (e.g., Distributed Systems, Machine Learning)"
                           />
                         </div>
                         <div className="space-y-2">
@@ -559,7 +559,7 @@ export default function SupervisorProfile() {
                             value={formData.skills}
                             onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                             className="h-11 border-gray-200 focus:border-[#1a5d1a] focus:ring-[#1a5d1a]/20 rounded-xl"
-                            placeholder="Python, TensorFlow, React"
+                            placeholder="Enter key technical skills (e.g., Python, Java, Docker)"
                           />
                         </div>
                       </div>
@@ -571,7 +571,7 @@ export default function SupervisorProfile() {
                           value={formData.achievements}
                           onChange={(e) => setFormData({ ...formData, achievements: e.target.value })}
                           className="w-full min-h-[80px] px-4 py-3 border border-gray-200 focus:border-[#1a5d1a] focus:ring-2 focus:ring-[#1a5d1a]/20 rounded-xl resize-none focus:outline-none text-sm"
-                          placeholder="PhD in Computer Science&#10;Published 10+ papers in AI&#10;Best Supervisor Award 2024"
+                          placeholder="Enter achievements (one per line, e.g., PhD in Computer Science)"
                         />
                       </div>
 
