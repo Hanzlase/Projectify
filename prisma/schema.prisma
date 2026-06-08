@@ -45,7 +45,6 @@ model Campus {
   location        String?  @db.VarChar(255)
   maxCoordinators Int      @default(5) @map("max_coordinators")
   activeSemester  Semester @default(FALL) @map("active_semester")
-  facultyUrl      String?  @db.VarChar(500) @map("faculty_url")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

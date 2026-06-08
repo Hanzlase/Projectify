@@ -30,7 +30,6 @@ interface Campus {
   activeCoordinators: number;
   totalStudents: number;
   totalSupervisors: number;
-  facultyUrl: string | null;
 }
 
 export default function CampusesPage() {
@@ -55,12 +54,10 @@ export default function CampusesPage() {
     name: string;
     location: string;
     maxCoordinators: number | '';
-    facultyUrl: string;
   }>({
     name: '',
     location: '',
     maxCoordinators: 5,
-    facultyUrl: '',
   });
 
   useEffect(() => {
@@ -129,7 +126,7 @@ export default function CampusesPage() {
 
       setSuccess('Campus created successfully!');
       setShowCreateModal(false);
-      setFormData({ name: '', location: '', maxCoordinators: 5, facultyUrl: '' });
+      setFormData({ name: '', location: '', maxCoordinators: 5 });
       fetchData();
     } catch (error) {
       setError('Failed to create campus');
@@ -208,7 +205,6 @@ export default function CampusesPage() {
       name: campus.name,
       location: campus.location || '',
       maxCoordinators: campus.maxCoordinators,
-      facultyUrl: campus.facultyUrl || '',
     });
     setError('');
     setShowEditModal(true);
@@ -256,7 +252,7 @@ export default function CampusesPage() {
               <NotificationBell />
               <Button
                 onClick={() => {
-                  setFormData({ name: '', location: '', maxCoordinators: 5, facultyUrl: '' });
+                  setFormData({ name: '', location: '', maxCoordinators: 5 });
                   setError('');
                   setShowCreateModal(true);
                 }}
@@ -275,7 +271,7 @@ export default function CampusesPage() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">Campuses</h1>
             <Button
               onClick={() => {
-                setFormData({ name: '', location: '', maxCoordinators: 5, facultyUrl: '' });
+                setFormData({ name: '', location: '', maxCoordinators: 5 });
                 setError('');
                 setShowCreateModal(true);
               }}
@@ -406,7 +402,7 @@ export default function CampusesPage() {
                   {!searchQuery && (
                     <Button 
                       onClick={() => {
-                        setFormData({ name: '', location: '', maxCoordinators: 5, facultyUrl: '' });
+                        setFormData({ name: '', location: '', maxCoordinators: 5 });
                         setError('');
                         setShowCreateModal(true);
                       }}
@@ -587,18 +583,6 @@ export default function CampusesPage() {
                       Maximum number of coordinators allowed for this campus
                     </p>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Faculty Directory URL</Label>
-                    <Input
-                      value={formData.facultyUrl}
-                      onChange={(e) => setFormData({ ...formData, facultyUrl: e.target.value })}
-                      placeholder="e.g., https://cfd.nu.edu.pk/faculty/"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
-                    />
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
-                      Link to the campus faculty directory page for profile scraping
-                    </p>
-                  </div>
                 </div>
 
                 <div className="flex gap-3 mt-6">
@@ -701,18 +685,6 @@ export default function CampusesPage() {
                     />
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
                       Current: {selectedCampus.activeCoordinators} active coordinators
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700 dark:text-zinc-300">Faculty Directory URL</Label>
-                    <Input
-                      value={formData.facultyUrl}
-                      onChange={(e) => setFormData({ ...formData, facultyUrl: e.target.value })}
-                      placeholder="e.g., https://cfd.nu.edu.pk/faculty/"
-                      className="mt-1.5 rounded-xl border-gray-200 dark:border-zinc-600 focus:ring-[#1a5d1a]"
-                    />
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1.5 bg-gray-50 dark:bg-zinc-700/50 p-2 rounded-lg">
-                      Link to the campus faculty directory page for profile scraping
                     </p>
                   </div>
                 </div>

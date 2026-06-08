@@ -43,7 +43,6 @@ export async function GET(req: NextRequest) {
       name: campus.name,
       location: campus.location,
       maxCoordinators: campus.maxCoordinators || 5,
-      facultyUrl: campus.facultyUrl,
       activeCoordinators: campus.coordinators.filter(
         (c) => c.user.status !== 'REMOVED'
       ).length,
@@ -72,7 +71,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, location, maxCoordinators, facultyUrl } = body;
+    const { name, location, maxCoordinators } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Campus name is required' }, { status: 400 });
@@ -92,7 +91,6 @@ export async function POST(req: NextRequest) {
         name,
         location: location || null,
         maxCoordinators: maxCoordinators || 5,
-        facultyUrl: facultyUrl || null,
         updatedAt: new Date(),
       },
     });
@@ -104,7 +102,6 @@ export async function POST(req: NextRequest) {
         name: campus.name,
         location: campus.location,
         maxCoordinators: campus.maxCoordinators || 5,
-        facultyUrl: campus.facultyUrl,
       },
     });
   } catch (error) {

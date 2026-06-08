@@ -20,7 +20,7 @@ export async function PATCH(
 
     const campusId = parseInt(params.campusId);
     const body = await req.json();
-    const { name, location, maxCoordinators, facultyUrl } = body;
+    const { name, location, maxCoordinators } = body;
 
     // Check if campus exists
     const campus = await prisma.campus.findUnique({
@@ -50,7 +50,6 @@ export async function PATCH(
     if (name) updateData.name = name;
     if (location !== undefined) updateData.location = location;
     if (maxCoordinators !== undefined) updateData.maxCoordinators = maxCoordinators;
-    if (facultyUrl !== undefined) updateData.facultyUrl = facultyUrl;
 
     const updatedCampus = await prisma.campus.update({
       where: { campusId },
@@ -64,7 +63,6 @@ export async function PATCH(
         name: updatedCampus.name,
         location: updatedCampus.location,
         maxCoordinators: updatedCampus.maxCoordinators || 5,
-        facultyUrl: updatedCampus.facultyUrl,
       },
     });
   } catch (error) {

@@ -90,7 +90,6 @@ interface DashboardData {
   pendingInvitations: PendingInvitation[];
   campusName: string;
   specialization: string | null;
-  activityTrendData?: { month: string; meetings: number; reviews: number }[];
 }
 
 export default function SupervisorDashboard() {
@@ -199,16 +198,19 @@ export default function SupervisorDashboard() {
   const groups = dashboardData?.groups || [];
   const pendingInvitations = dashboardData?.pendingInvitations || [];
 
-  const activityTrendData = dashboardData?.activityTrendData || [];
-  const hasActivityData = activityTrendData.length > 0 && activityTrendData.some((d: any) => d.meetings > 0 || d.reviews > 0);
-
-  const completedCount = groups.filter(g => g.projectStatus === 'completed' || g.projectStatus === 'archived').length;
-  const inProgressCount = groups.filter(g => g.projectStatus && g.projectStatus !== 'completed' && g.projectStatus !== 'archived').length;
-  const hasProjectStatusData = completedCount > 0 || inProgressCount > 0;
+  // Mock data for graphs
+  const activityTrendData = [
+    { month: 'Jan', meetings: 4, reviews: 2 },
+    { month: 'Feb', meetings: 6, reviews: 4 },
+    { month: 'Mar', meetings: 8, reviews: 5 },
+    { month: 'Apr', meetings: 5, reviews: 7 },
+    { month: 'May', meetings: 9, reviews: 6 },
+    { month: 'Jun', meetings: 7, reviews: 8 },
+  ];
 
   const projectDistributionData = [
-    { name: 'In Progress', value: inProgressCount, color: '#1a5d1a' },
-    { name: 'Completed', value: completedCount, color: '#2d7a2d' },
+    { name: 'In Progress', value: stats.pendingProposals || 3, color: '#1a5d1a' },
+    { name: 'Completed', value: stats.approvedProposals || 2, color: '#2d7a2d' },
   ];
 
   return (
@@ -359,123 +361,116 @@ export default function SupervisorDashboard() {
           </div>
 
           {/* Charts Section */}
-          {/* Charts Section */}
-          {(hasActivityData || hasProjectStatusData) && (
-            <div className={`grid grid-cols-1 ${hasActivityData && hasProjectStatusData ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-4 mb-6`}>
-              {/* Activity Trend Chart */}
-              {hasActivityData && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
-                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Activity Trend</h3>
-                          <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Monthly overview</p>
-                        </div>
-                        <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
-                          <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
-                        </div>
-                      </div>
-                      <div className="h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={activityTrendData}>
-                            <defs>
-                              <linearGradient id="colorMeetings" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#1a5d1a" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="#1a5d1a" stopOpacity={0}/>
-                              </linearGradient>
-                              <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#2d7a2d" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="#2d7a2d" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'white', 
-                                border: 'none', 
-                                borderRadius: '12px', 
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                padding: '12px'
-                              }}
-                            />
-                            <Area type="monotone" dataKey="meetings" stroke="#1a5d1a" fillOpacity={1} fill="url(#colorMeetings)" strokeWidth={2.5} />
-                            <Area type="monotone" dataKey="reviews" stroke="#2d7a2d" fillOpacity={1} fill="url(#colorReviews)" strokeWidth={2.5} />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex items-center justify-center gap-6 mt-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-[#1a5d1a]"></div>
-                          <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Meetings</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-[#2d7a2d]"></div>
-                          <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Reviews</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            {/* Activity Trend Chart */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Activity Trend</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Monthly overview</p>
+                    </div>
+                    <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
+                      <BarChart3 className="w-5 h-5 text-[#1a5d1a]" />
+                    </div>
+                  </div>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={activityTrendData}>
+                        <defs>
+                          <linearGradient id="colorMeetings" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#1a5d1a" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#1a5d1a" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2d7a2d" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#2d7a2d" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: 'none', 
+                            borderRadius: '12px', 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            padding: '12px'
+                          }}
+                        />
+                        <Area type="monotone" dataKey="meetings" stroke="#1a5d1a" fillOpacity={1} fill="url(#colorMeetings)" strokeWidth={2.5} />
+                        <Area type="monotone" dataKey="reviews" stroke="#2d7a2d" fillOpacity={1} fill="url(#colorReviews)" strokeWidth={2.5} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex items-center justify-center gap-6 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#1a5d1a]"></div>
+                      <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Meetings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#2d7a2d]"></div>
+                      <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">Reviews</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-              {/* Project Distribution Chart */}
-              {hasProjectStatusData && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                  <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Status</h3>
-                          <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">By approval stage</p>
-                        </div>
-                        <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
-                          <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
-                        </div>
+            {/* Project Distribution Chart */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="border-0 shadow-sm bg-white dark:bg-[#27272A] rounded-2xl">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-[#E4E4E7]">Project Status</h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">By approval stage</p>
+                    </div>
+                    <div className="p-2.5 bg-[#1a5d1a]/10 rounded-xl">
+                      <FolderKanban className="w-5 h-5 text-[#1a5d1a]" />
+                    </div>
+                  </div>
+                  <div className="h-[200px] flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={projectDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={55}
+                          outerRadius={85}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {projectDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: 'none', 
+                            borderRadius: '12px', 
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            padding: '12px'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex items-center justify-center gap-6 mt-4">
+                    {projectDistributionData.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                        <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">{item.name} ({item.value})</span>
                       </div>
-                      <div className="h-[200px] flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={projectDistributionData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={55}
-                              outerRadius={85}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {projectDistributionData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: 'white', 
-                                border: 'none', 
-                                borderRadius: '12px', 
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                padding: '12px'
-                              }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex items-center justify-center gap-6 mt-4">
-                        {projectDistributionData.map((item, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                            <span className="text-xs text-gray-600 dark:text-zinc-400 font-medium">{item.name} ({item.value})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
 
           {/* Quick Actions & Pending Invitations */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">

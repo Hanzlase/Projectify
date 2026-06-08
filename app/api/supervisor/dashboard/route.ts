@@ -30,7 +30,7 @@ export async function GET() {
     }
 
     // Run all independent queries in parallel for better performance
-    const [assignedGroups, pendingInvitations, totalStudents, totalProjects, recentNotifications, meetings, reviews] = await Promise.all([
+    const [assignedGroups, pendingInvitations, totalStudents, totalProjects, recentNotifications] = await Promise.all([
       // Get groups where this supervisor is assigned
       (prisma as any).group.findMany({
         where: {
@@ -104,31 +104,6 @@ export async function GET() {
           createdAt: "desc",
         },
         take: 5,
-      }),
-      // Get all meetings for supervisor's groups
-      (prisma as any).meeting.findMany({
-        where: {
-          group: {
-            supervisorId: userId
-          }
-        },
-        select: {
-          scheduledAt: true
-        }
-      }),
-      // Get all reviews (graded submissions) by this supervisor
-      (prisma as any).evaluationSubmission.findMany({
-        where: {
-          OR: [
-            { supervisorScoredById: userId },
-            { gradedById: userId }
-          ]
-        },
-        select: {
-          supervisorScoredAt: true,
-          gradedAt: true,
-          submittedAt: true
-        }
       })
     ]);
 
@@ -228,51 +203,6 @@ export async function GET() {
       message: inv.message,
     }));
 
-    // Generate activity trend data for the last 6 months
-    const months: { name: string; monthIndex: number; year: number; meetings: number; reviews: number }[] = [];
-    const currentDate = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      months.push({
-        name: d.toLocaleString('en-US', { month: 'short' }),
-        monthIndex: d.getMonth(),
-        year: d.getFullYear(),
-        meetings: 0,
-        reviews: 0
-      });
-    }
-
-    if (meetings && Array.isArray(meetings)) {
-      meetings.forEach((m: any) => {
-        if (m.scheduledAt) {
-          const d = new Date(m.scheduledAt);
-          const match = months.find(item => item.monthIndex === d.getMonth() && item.year === d.getFullYear());
-          if (match) {
-            match.meetings++;
-          }
-        }
-      });
-    }
-
-    if (reviews && Array.isArray(reviews)) {
-      reviews.forEach((r: any) => {
-        const dateVal = r.supervisorScoredAt || r.gradedAt || r.submittedAt;
-        if (dateVal) {
-          const d = new Date(dateVal);
-          const match = months.find(item => item.monthIndex === d.getMonth() && item.year === d.getFullYear());
-          if (match) {
-            match.reviews++;
-          }
-        }
-      });
-    }
-
-    const activityTrendData = months.map(m => ({
-      month: m.name,
-      meetings: m.meetings,
-      reviews: m.reviews
-    }));
-
     return NextResponse.json({
       stats: {
         totalGroups: groupsWithProjects.length,
@@ -286,7 +216,6 @@ export async function GET() {
       pendingInvitations: formattedInvitations,
       campusName: supervisor.campus.name,
       specialization: supervisor.specialization,
-      activityTrendData,
     });
   } catch (error) {
     console.error("Supervisor Dashboard API error:", error);
