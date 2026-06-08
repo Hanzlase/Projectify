@@ -1559,16 +1559,23 @@ export default function SupervisorEvaluationsPage() {
                               >
                                 {/* Header */}
                                 <div className="px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                          supervisorScore: data.score || score,
-                                          supervisorFeedback: data.feedback || submissionFeedbackInput.trim() || null,
-                                          supervisorScoredAt: new Date().toISOString()
-                                      </h4>
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <FileText className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
+                                      <div className="min-w-0">
+                                        <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7] truncate">
+                                          {sub.title || `Evaluation ${idx + 1}`}
+                                        </h4>
+                                        {sub.evaluationDescription && (
+                                          <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-1">
+                                            {sub.evaluationDescription}
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
-                                    <span className="text-xs text-gray-500 dark:text-zinc-400">
+                                    <span className="text-xs text-gray-500 dark:text-zinc-400 flex-shrink-0">
                                       Total: {totalMarks} marks
-                                          panelScore: data.aggregatedPanelScore ?? data.memberScore ?? score,
+                                    </span>
                                   </div>
                                   {sub.submittedBy && (
                                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 ml-6">
