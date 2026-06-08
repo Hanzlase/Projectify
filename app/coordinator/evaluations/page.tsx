@@ -977,7 +977,7 @@ export default function CoordinatorEvaluationsPage() {
                       value={phaseForm.weightage}
                       onChange={(e) => setPhaseForm({ ...phaseForm, weightage: e.target.value === '' ? '' : Number(e.target.value) })}
                       placeholder="e.g., 25"
-                      className="rounded-xl h-11 dark:bg-gray-700"/>
+                      className="rounded-xl h-11 dark:bg-gray-700"
                     />
                   </div>
                 </div>
