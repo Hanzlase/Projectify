@@ -192,7 +192,7 @@ export default function CoordinatorEvaluationsPage() {
       name: phase.name,
       description: phase.description || "",
       instructions: phase.instructions || "",
-      weightage: phase.weightage,
+      weightage: phase.weightage ?? "",
       totalMarks: phase.totalMarks,
       deadline: phase.deadline ? new Date(phase.deadline).toISOString().substring(0, 16) : "",
       status: phase.status,
@@ -417,6 +417,10 @@ export default function CoordinatorEvaluationsPage() {
     active: phases.filter((p) => p.status === "active").length,
     totalSubmissions: phases.reduce((acc, p) => acc + p.submissionsCount, 0),
   };
+
+  // Remaining weightage calculation (safe against NaN)
+  const _remainingForModal = 100 - phaseTotalWeightage + (editingPhase ? Number(editingPhase.weightage ?? 0) : 0);
+  const remainingForModal = isNaN(_remainingForModal) ? 100 : _remainingForModal;
 
   if (status === "loading" || loading) {
     return <LoadingScreen message="Loading dashboard..." />;
@@ -963,17 +967,17 @@ export default function CoordinatorEvaluationsPage() {
                     <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                       Weightage (%) <span className="text-red-500">*</span>
                       <span className="ml-2 text-xs font-normal text-gray-400">
-                        Remaining: {(100 - phaseTotalWeightage + (editingPhase ? editingPhase.weightage : 0)).toFixed(1)}%
+                        Remaining: {remainingForModal.toFixed(1)}%
                       </span>
                     </label>
                     <Input
                       type="number"
                       min={0}
-                      max={100 - phaseTotalWeightage + (editingPhase ? editingPhase.weightage : 0)}
+                      max={Math.max(0, remainingForModal)}
                       value={phaseForm.weightage}
                       onChange={(e) => setPhaseForm({ ...phaseForm, weightage: e.target.value === '' ? '' : Number(e.target.value) })}
                       placeholder="e.g., 25"
-                      className="rounded-xl h-11 dark:bg-gray-700"
+                      className="rounded-xl h-11 dark:bg-gray-700"/>
                     />
                   </div>
                 </div>

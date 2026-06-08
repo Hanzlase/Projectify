@@ -158,6 +158,22 @@ export async function GET(
       orderBy: { submittedAt: 'desc' }
     });
 
+    // Fetch submission-level comments (per-submission) and user details
+    const submissionIds = submissions.map((s: any) => s.submissionId);
+    let submissionComments: any[] = [];
+    if (submissionIds.length > 0) {
+      submissionComments = await (prisma as any).submissionComment.findMany({
+        where: { submissionId: { in: submissionIds } },
+        orderBy: { createdAt: 'desc' }
+      });
+    }
+    const submissionCommentUserIds = Array.from(new Set(submissionComments.map((c: any) => c.userId)));
+    const submissionCommentUsers = submissionCommentUserIds.length > 0 ? await prisma.user.findMany({
+      where: { userId: { in: submissionCommentUserIds } },
+      select: { userId: true, name: true, profileImage: true }
+    }) : [];
+    const submissionUserMap = new Map(submissionCommentUsers.map(u => [u.userId, u]));
+
     // Determine max score from the highest totalMarks across phases, or default 100
     const maxScore = submissions.length > 0
       ? Math.max(...submissions.map((s: any) => s.phase?.totalMarks || 100))
@@ -244,6 +260,17 @@ export async function GET(
           fileSize: a.fileSize,
           fileType: a.fileType,
         })),
+        // attach submission-specific comments
+        comments: (submissionComments.filter((c: any) => c.submissionId === s.submissionId) || []).map((c: any) => ({
+          commentId: c.commentId,
+          content: c.content,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+          userId: c.userId,
+          userName: submissionUserMap.get(c.userId)?.name || 'Unknown',
+          userImage: submissionUserMap.get(c.userId)?.profileImage || null,
+          isOwn: c.userId === userId,
+        })),
       })),
       comments: (assignment.comments || []).map((c: any) => ({
         commentId: c.commentId,
@@ -298,13 +325,61 @@ export async function POST(
       return NextResponse.json({ error: 'Not a member of this panel' }, { status: 403 });
     }
 
-    const { content } = await request.json();
+    const { content, submissionId } = await request.json();
 
     if (!content?.trim()) {
       return NextResponse.json({ error: 'Comment cannot be empty' }, { status: 400 });
     }
 
-    // Get assignment
+    // If submissionId is provided, create a submission-scoped comment
+    if (submissionId) {
+      const submission = await (prisma as any).evaluationSubmission.findUnique({ where: { submissionId: parseInt(submissionId) } });
+      if (!submission) return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+
+      const comment = await (prisma as any).submissionComment.create({
+        data: {
+          submissionId: parseInt(submissionId),
+          userId,
+          content: content.trim(),
+        }
+      });
+
+      const user = await prisma.user.findUnique({ where: { userId }, select: { name: true, profileImage: true } });
+
+      const commentPayload = {
+        commentId: comment.commentId,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        userId: comment.userId,
+        userName: user?.name || 'Unknown',
+        userImage: user?.profileImage || null,
+        isOwn: true,
+      };
+
+      // Emit to group students
+      try {
+        const groupStudents = await prisma.student.findMany({ where: { groupId }, select: { userId: true } });
+        const studentUserIds = groupStudents.map((s) => s.userId);
+        if (studentUserIds.length > 0) {
+          emitEvaluationComment(studentUserIds, {
+            commentId: comment.commentId,
+            panelId,
+            groupId,
+            submissionId: submissionId,
+            content: comment.content,
+            createdAt: comment.createdAt.toISOString(),
+            userId: comment.userId,
+            userName: user?.name || 'Unknown',
+            userImage: user?.profileImage || null,
+          });
+        }
+      } catch (_) {}
+
+      return NextResponse.json({ comment: commentPayload });
+    }
+
+    // Otherwise create assignment-level comment
     const assignment = await prisma.groupPanelAssignment.findUnique({
       where: { panelId_groupId: { panelId, groupId } }
     });
@@ -390,13 +465,13 @@ export async function PATCH(
 
     // If scoring
     if (body.action === 'score') {
-      // Verify panel head
+      // Verify membership in the panel (allow any panel member to score)
       const membership = await prisma.panelMember.findUnique({
         where: { panelId_supervisorId: { panelId, supervisorId: userId } }
       });
 
-      if (!membership || membership.role !== 'chair') {
-        return NextResponse.json({ error: 'Only the panel head can score groups' }, { status: 403 });
+      if (!membership) {
+        return NextResponse.json({ error: 'Not a member of this panel' }, { status: 403 });
       }
 
       const { score, maxScore: clientMaxScore } = body;
@@ -426,20 +501,23 @@ export async function PATCH(
       }
 
       // Verify ownership
-      const comment = await (prisma as any).panelComment.findUnique({
-        where: { commentId: parseInt(commentId) }
-      });
-
-      if (!comment || comment.userId !== userId) {
-        return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
+      // Try panel comment first
+      const panelComment = await (prisma as any).panelComment.findUnique({ where: { commentId: parseInt(commentId) } });
+      if (panelComment) {
+        if (panelComment.userId !== userId) return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
+        const updated = await (prisma as any).panelComment.update({ where: { commentId: parseInt(commentId) }, data: { content: content.trim() } });
+        return NextResponse.json({ success: true, comment: updated });
       }
 
-      const updated = await (prisma as any).panelComment.update({
-        where: { commentId: parseInt(commentId) },
-        data: { content: content.trim() }
-      });
+      // Try submission comment
+      const subComment = await (prisma as any).submissionComment.findUnique({ where: { commentId: parseInt(commentId) } });
+      if (subComment) {
+        if (subComment.userId !== userId) return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
+        const updated = await (prisma as any).submissionComment.update({ where: { commentId: parseInt(commentId) }, data: { content: content.trim() } });
+        return NextResponse.json({ success: true, comment: updated });
+      }
 
-      return NextResponse.json({ success: true, comment: updated });
+      return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -468,19 +546,23 @@ export async function DELETE(
     }
     const { commentId } = await request.json();
 
-    const comment = await (prisma as any).panelComment.findUnique({
-      where: { commentId: parseInt(commentId) }
-    });
-
-    if (!comment || comment.userId !== userId) {
-      return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
+    // Try panel comment
+    const panelComment = await (prisma as any).panelComment.findUnique({ where: { commentId: parseInt(commentId) } });
+    if (panelComment) {
+      if (panelComment.userId !== userId) return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
+      await (prisma as any).panelComment.delete({ where: { commentId: parseInt(commentId) } });
+      return NextResponse.json({ success: true });
     }
 
-    await (prisma as any).panelComment.delete({
-      where: { commentId: parseInt(commentId) }
-    });
+    // Try submission comment
+    const subComment = await (prisma as any).submissionComment.findUnique({ where: { commentId: parseInt(commentId) } });
+    if (subComment) {
+      if (subComment.userId !== userId) return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
+      await (prisma as any).submissionComment.delete({ where: { commentId: parseInt(commentId) } });
+      return NextResponse.json({ success: true });
+    }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
 
   } catch (error) {
     console.error('Error deleting comment:', error);

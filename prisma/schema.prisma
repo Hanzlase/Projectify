@@ -451,6 +451,7 @@ model EvaluationSubmission {
   panelMemberScores    Json?                  @map("panel_member_scores")
   phase                FypEvaluationPhase     @relation(fields: [phaseId], references: [phaseId], onDelete: Cascade)
   attachments          SubmissionAttachment[]
+  comments             SubmissionComment[]
 
   @@unique([phaseId, groupId])
   @@index([phaseId])
@@ -458,6 +459,20 @@ model EvaluationSubmission {
   @@index([submittedById])
   @@index([status])
   @@map("evaluation_submissions")
+}
+
+model SubmissionComment {
+  commentId    Int                  @id @default(autoincrement()) @map("comment_id")
+  submissionId Int                  @map("submission_id")
+  userId       Int                  @map("user_id")
+  content      String
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  submission   EvaluationSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([userId])
+  @@map("submission_comments")
 }
 
 model SubmissionAttachment {

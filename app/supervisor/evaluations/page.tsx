@@ -123,6 +123,9 @@ export default function SupervisorEvaluationsPage() {
   const [addingComment, setAddingComment] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
+  // Submission-level comments state
+  const [newSubmissionComments, setNewSubmissionComments] = useState<Record<number, string>>({});
+  const [addingSubmissionComment, setAddingSubmissionComment] = useState(false);
   const commentEndRef = useRef<HTMLDivElement>(null);
 
   // Score state
@@ -244,13 +247,49 @@ export default function SupervisorEvaluationsPage() {
     }
   };
 
+  const handleAddSubmissionComment = async (submissionId: number) => {
+    if (!newSubmissionComments[submissionId]?.trim() || !selectedGroupPanel) return;
+    setAddingSubmissionComment(true);
+
+    try {
+      const res = await fetch(
+        `/api/supervisor/evaluations/${selectedGroupPanel.panelId}/${selectedGroupPanel.groupId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: newSubmissionComments[submissionId].trim(), submissionId }),
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setGroupDetails(prev => prev ? {
+          ...prev,
+          submissions: prev.submissions.map((s: any) => s.submissionId === submissionId ? { ...s, comments: [data.comment, ...(s.comments || [])] } : s)
+        } : null);
+        setNewSubmissionComments(prev => ({ ...prev, [submissionId]: "" }));
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to add comment");
+      }
+    } catch (error) {
+      alert("Failed to add comment");
+    } finally {
+      setAddingSubmissionComment(false);
+    }
+  };
+
   const handleDeleteComment = async (commentId: number) => {
     if (!confirm("Delete this comment?") || !selectedGroupPanel) return;
 
     // Optimistic
     setGroupDetails(prev => prev ? {
       ...prev,
-      comments: prev.comments.filter(c => c.commentId !== commentId)
+      comments: prev.comments.filter(c => c.commentId !== commentId),
+      submissions: prev.submissions.map((s: any) => ({
+        ...s,
+        comments: (s.comments || []).filter((c: any) => c.commentId !== commentId)
+      }))
     } : null);
 
     try {
@@ -1181,6 +1220,64 @@ export default function SupervisorEvaluationsPage() {
                                     </div>
                                   </div>
                                 )}
+
+                                {/* Submission Comments (per-submission) */}
+                                <div>
+                                  <p className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    Comments ({(sub.comments || []).length})
+                                  </p>
+                                  {sub.comments && sub.comments.length > 0 ? (
+                                    <div className="space-y-2 mb-2">
+                                      {sub.comments.map((c: any) => (
+                                        <div key={c.commentId} className={`p-3 rounded-lg ${c.isOwn ? 'bg-[#1E6F3E]/5 border-[#1E6F3E]/10' : 'bg-gray-50 dark:bg-zinc-700/30 border-gray-100 dark:border-zinc-700'} border` }>
+                                          <div className="flex items-start gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${c.isOwn ? 'bg-[#1E6F3E] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-600'}`}>
+                                              {c.userName?.charAt(0) || '?'}
+                                            </div>
+                                            <div className="flex-1">
+                                              <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-2">
+                                                  <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">{c.userName}</span>
+                                                  <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</span>
+                                                </div>
+                                                {c.isOwn && (
+                                                  <button onClick={() => handleDeleteComment(c.commentId)} className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500">
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
+                                              </div>
+                                              <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">{c.content}</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-gray-400 italic mb-2">No comments on this submission yet.</p>
+                                  )}
+
+                                  {/* Add submission comment input */}
+                                  {(groupDetails.isGroupSupervisor || groupDetails.currentUserRole) && (
+                                    <div className="flex gap-2">
+                                      <Input
+                                        value={newSubmissionComments[sub.submissionId] || ''}
+                                        onChange={(e) => setNewSubmissionComments(prev => ({ ...prev, [sub.submissionId]: e.target.value }))}
+                                        placeholder="Add a comment about this submission..."
+                                        className="flex-1 rounded-xl h-10"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleAddSubmissionComment(sub.submissionId);
+                                          }
+                                        }}
+                                      />
+                                      <Button onClick={() => handleAddSubmissionComment(sub.submissionId)} disabled={addingSubmissionComment || !(newSubmissionComments[sub.submissionId] || '').trim()} className="h-10">
+                                        {addingSubmissionComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
                                 {groupDetails.assignment.timeSlot && (
                                   <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <Clock className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
@@ -1422,12 +1519,12 @@ export default function SupervisorEvaluationsPage() {
                               <h4 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Submission Scoring</h4>
                               <p className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">
                                 {groupDetails.isGroupSupervisor && groupDetails.currentUserRole === 'chair'
-                                  ? "You can score as both the group's supervisor (50%) and panel head (50%)."
-                                  : groupDetails.isGroupSupervisor
-                                  ? "Score submissions as the group's supervisor. Your score counts as 50% of the total."
-                                  : groupDetails.currentUserRole === 'chair'
-                                  ? "Score submissions as panel head. Your score counts as 50% of the total."
-                                  : "View submission scores. Only the group's supervisor and panel head can score."}
+                                   ? "You can score as both the group's supervisor (50%) and a panel member (50%)."
+                                   : groupDetails.isGroupSupervisor 
+                                   ? "Score submissions as the group's supervisor. Your score counts as 50% of the total." 
+                                   : groupDetails.currentUserRole 
+                                   ? "Score submissions as a panel member. Your panel score contributes to the panel average." 
+                                   : "View submission scores. Only the group's supervisor and panel members can score."}
                               </p>
                             </div>
                           </div>
@@ -1464,14 +1561,14 @@ export default function SupervisorEvaluationsPage() {
                                 <div className="px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                      <FileText className="w-4 h-4 text-[#1E6F3E]" />
-                                      <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7]">
-                                        {sub.title || `Submission ${idx + 1}`}
+                                          supervisorScore: data.score || score,
+                                          supervisorFeedback: data.feedback || submissionFeedbackInput.trim() || null,
+                                          supervisorScoredAt: new Date().toISOString()
                                       </h4>
                                     </div>
                                     <span className="text-xs text-gray-500 dark:text-zinc-400">
                                       Total: {totalMarks} marks
-                                    </span>
+                                          panelScore: data.aggregatedPanelScore ?? data.memberScore ?? score,
                                   </div>
                                   {sub.submittedBy && (
                                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 ml-6">
@@ -1619,13 +1716,13 @@ export default function SupervisorEvaluationsPage() {
                                         </div>
                                       )}
 
-                                      {/* Panel Head Scoring */}
+                                      {/* Panel Scoring (any member) */}
                                       {groupDetails.currentUserRole && (
                                         <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
                                             <h5 className="text-sm font-bold text-[#1E6F3E] flex items-center gap-2">
                                               <Award className="w-4 h-4" />
-                                              Score as Panel Head
+                                              Panel Scoring
                                             </h5>
                                             {hasPanelScore && (
                                               <span className="text-xs text-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 px-2 py-0.5 rounded-full font-medium">
