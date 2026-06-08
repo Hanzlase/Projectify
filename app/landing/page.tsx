@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from 'framer-motion';
-import { 
+import {
   ArrowRight,
   Menu,
   X,
@@ -44,14 +44,14 @@ const useRouter = () => ({
 // TYPEWRITER ANIMATION COMPONENT
 // ============================================
 
-const TypewriterText = ({ 
-  words, 
+const TypewriterText = ({
+  words,
   className = "",
   typingSpeed = 100,
   deletingSpeed = 50,
-  delayBetweenWords = 2000 
-}: { 
-  words: string[]; 
+  delayBetweenWords = 2000
+}: {
+  words: string[];
   className?: string;
   typingSpeed?: number;
   deletingSpeed?: number;
@@ -63,7 +63,7 @@ const TypewriterText = ({
 
   useEffect(() => {
     const currentWord = words[currentWordIndex];
-    
+
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         // Typing
@@ -101,19 +101,19 @@ const TypewriterText = ({
 };
 
 // Character-by-character reveal animation
-const AnimatedText = ({ 
-  text, 
+const AnimatedText = ({
+  text,
   className = "",
   delay = 0,
   staggerDelay = 0.03
-}: { 
-  text: string; 
+}: {
+  text: string;
   className?: string;
   delay?: number;
   staggerDelay?: number;
 }) => {
   const characters = useMemo(() => text.split(''), [text]);
-  
+
   const container = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
@@ -123,8 +123,8 @@ const AnimatedText = ({
   };
 
   const child = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 20,
       filter: "blur(10px)"
     },
@@ -173,7 +173,7 @@ const Button = ({ className, variant = 'primary', size = 'default', children, ic
     dark: "bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20",
     outline: "bg-transparent border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
   };
-  
+
   const sizes = {
     sm: "h-9 px-4 text-sm",
     default: "h-11 px-6 text-[15px]",
@@ -181,7 +181,7 @@ const Button = ({ className, variant = 'primary', size = 'default', children, ic
   };
 
   return (
-    <button 
+    <button
       className={cn(
         "inline-flex items-center justify-center rounded-full font-semibold transition-all duration-200 active:scale-95",
         variants[variant as keyof typeof variants],
@@ -197,7 +197,7 @@ const Button = ({ className, variant = 'primary', size = 'default', children, ic
 };
 
 const Badge = ({ children }: { children: React.ReactNode }) => (
-  <motion.span 
+  <motion.span
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 1.0 }}
@@ -268,7 +268,7 @@ const ChatVisual = () => (
         { user: 'Dr. Ahmad', text: "Please review the documentation requirements.", time: "11:00 AM", self: false, supervisor: true },
         { user: 'Hanzla', text: "On it. Will update by EOD.", time: "11:05 AM", self: true },
       ].map((msg, i) => (
-        <motion.div 
+        <motion.div
           key={i}
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -277,9 +277,9 @@ const ChatVisual = () => (
         >
           <div className={cn(
             "px-3 py-2 rounded-2xl text-xs leading-relaxed shadow-sm transition-transform hover:scale-[1.02]",
-            msg.self 
-              ? "bg-[#1a5d1a] text-white rounded-tr-sm" 
-              : msg.supervisor 
+            msg.self
+              ? "bg-[#1a5d1a] text-white rounded-tr-sm"
+              : msg.supervisor
                 ? "bg-amber-50 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 border border-amber-100 dark:border-amber-800 rounded-tl-sm"
                 : "bg-white dark:bg-zinc-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-zinc-600 rounded-tl-sm"
           )}>
@@ -347,7 +347,7 @@ const HeroSection = () => {
       {/* Animated Background Mesh - Optimized */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
-        
+
         {/* Static gradient orbs for better performance */}
         <div className="absolute top-[-15%] left-[-5%] w-[500px] sm:w-[700px] h-[500px] sm:h-[700px] bg-gradient-to-br from-[#1a5d1a]/10 to-emerald-400/5 blur-[80px] sm:blur-[100px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-gradient-to-tl from-emerald-400/15 to-green-300/5 blur-[60px] sm:blur-[80px] rounded-full" />
@@ -376,24 +376,24 @@ const HeroSection = () => {
             >
               <span className="text-slate-900 dark:text-[#E4E4E7]">for </span>
               <span className="text-[#1a5d1a] dark:text-[#22C55E] relative">
-                <TypewriterText 
+                <TypewriterText
                   words={["Final Year Projects", "Academic Excellence", "Team Collaboration", "Research Success"]}
                   typingSpeed={120}
                   deletingSpeed={60}
                   delayBetweenWords={3000}
                 />
-                <motion.svg 
+                <motion.svg
                   initial={{ scaleX: 0, opacity: 0 }}
                   animate={{ scaleX: 1, opacity: 1 }}
                   transition={{ duration: 1.0, delay: 1.2 }}
-                  className="absolute w-full h-2 sm:h-3 -bottom-0.5 sm:-bottom-1 left-0 text-green-200 -z-10 origin-left" 
-                  viewBox="0 0 100 10" 
+                  className="absolute w-full h-2 sm:h-3 -bottom-0.5 sm:-bottom-1 left-0 text-green-200 -z-10 origin-left"
+                  viewBox="0 0 100 10"
                   preserveAspectRatio="none"
                 >
-                  <path 
-                    d="M0 5 Q 50 10 100 5" 
-                    stroke="currentColor" 
-                    strokeWidth="8" 
+                  <path
+                    d="M0 5 Q 50 10 100 5"
+                    stroke="currentColor"
+                    strokeWidth="8"
                     fill="none"
                   />
                 </motion.svg>
@@ -401,7 +401,7 @@ const HeroSection = () => {
             </motion.span>
           </h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
@@ -410,7 +410,7 @@ const HeroSection = () => {
             Projectify handles the chaos of FYP management. From team formation to final submission, keep everything in one synchronized workspace.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.0 }}
@@ -426,15 +426,15 @@ const HeroSection = () => {
               </Button>
             </motion.div>
           </motion.div>
-          
+
           {/* Trust Indicators */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 0.8 }}
             className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500 dark:text-slate-400 px-4"
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.3, duration: 0.5 }}
@@ -443,7 +443,7 @@ const HeroSection = () => {
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <span>Free for students</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.4, duration: 0.5 }}
@@ -452,7 +452,7 @@ const HeroSection = () => {
               <ShieldCheck className="w-4 h-4 text-green-600" />
               <span>Secure & Private</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.5, duration: 0.5 }}
@@ -465,14 +465,14 @@ const HeroSection = () => {
         </motion.div>
 
         {/* Hero Dashboard Preview - Hidden on mobile for performance */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.0, delay: 1.2 }}
           className="mt-12 sm:mt-20 relative mx-auto max-w-5xl hidden md:block"
         >
           {/* Floating Elements around dashboard */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 0.8 }}
@@ -488,9 +488,9 @@ const HeroSection = () => {
               </div>
             </div>
           </motion.div>
-          
+
           {/* Right floating element */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.6, duration: 0.8 }}
@@ -502,7 +502,7 @@ const HeroSection = () => {
                 <span className="text-[10px] font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wide">Live Activity</span>
               </div>
               <div className="space-y-1.5">
-                {[1,2,3].map(i => (
+                {[1, 2, 3].map(i => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-zinc-600 dark:to-zinc-700" />
                     <div className="h-2 bg-slate-100 dark:bg-zinc-600 rounded w-16" />
@@ -525,7 +525,7 @@ const HeroSection = () => {
                 projectify.edu/dashboard
               </div>
             </div>
-            
+
             {/* Dashboard Content Mock */}
             <div className="p-8 bg-slate-50/50 dark:bg-[#18181B]/50 min-h-[500px]">
               <div className="flex justify-between items-center mb-8">
@@ -534,16 +534,16 @@ const HeroSection = () => {
                   <p className="text-sm text-slate-500 dark:text-zinc-400">Overview for Fall 2025 Semester</p>
                 </div>
                 <div className="flex gap-3">
-                    <Button size="sm" variant="white" className="shadow-sm border border-slate-200">
-                      <Search className="w-4 h-4 mr-2" />
-                      Search
-                    </Button>
-                    <div className="h-9 w-9 bg-[#1a5d1a] rounded-full flex items-center justify-center text-white shadow-md shadow-green-900/10 cursor-pointer hover:scale-105 transition-transform">
-                        <span className="font-bold text-xs">HZ</span>
-                    </div>
+                  <Button size="sm" variant="white" className="shadow-sm border border-slate-200">
+                    <Search className="w-4 h-4 mr-2" />
+                    Search
+                  </Button>
+                  <div className="h-9 w-9 bg-[#1a5d1a] rounded-full flex items-center justify-center text-white shadow-md shadow-green-900/10 cursor-pointer hover:scale-105 transition-transform">
+                    <span className="font-bold text-xs">HZ</span>
+                  </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Stats Cards with Hover Effects */}
                 {[
@@ -552,33 +552,33 @@ const HeroSection = () => {
                   { icon: ShieldCheck, color: "text-purple-700", bg: "bg-purple-50", val: "98%", label: "Originality", badge: "Safe" }
                 ].map((card, i) => (
                   <div key={i} className="bg-white dark:bg-[#27272A] p-6 rounded-xl border border-slate-100 dark:border-zinc-700 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-200 dark:hover:border-zinc-600 hover:-translate-y-1">
-                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-4", card.bg)}>
-                          <card.icon className={cn("w-5 h-5", card.color)} />
+                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-4", card.bg)}>
+                      <card.icon className={cn("w-5 h-5", card.color)} />
+                    </div>
+                    <div className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">{card.val}</div>
+                    <div className="text-sm text-slate-500 dark:text-zinc-400 font-medium">{card.label}</div>
+
+                    {card.progress && (
+                      <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-zinc-600 rounded-full overflow-hidden">
+                        <div className={cn("h-full rounded-full animate-[width_1s_ease-out]", card.bar)} style={{ width: `${card.progress}%` }} />
                       </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">{card.val}</div>
-                      <div className="text-sm text-slate-500 dark:text-zinc-400 font-medium">{card.label}</div>
-                      
-                      {card.progress && (
-                        <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-zinc-600 rounded-full overflow-hidden">
-                            <div className={cn("h-full rounded-full animate-[width_1s_ease-out]", card.bar)} style={{ width: `${card.progress}%` }} />
-                        </div>
-                      )}
+                    )}
 
-                      {card.avatars && (
-                        <div className="mt-4 flex -space-x-2">
-                            {[1,2,3].map(a => (
-                              <div key={a} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-zinc-600 border-2 border-white dark:border-[#27272A] flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-zinc-300">
-                                {String.fromCharCode(64+a)}
-                              </div>
-                            ))}
-                        </div>
-                      )}
+                    {card.avatars && (
+                      <div className="mt-4 flex -space-x-2">
+                        {[1, 2, 3].map(a => (
+                          <div key={a} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-zinc-600 border-2 border-white dark:border-[#27272A] flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-zinc-300">
+                            {String.fromCharCode(64 + a)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                      {card.badge && (
-                        <div className="mt-4 text-xs text-green-600 font-medium bg-green-50 inline-flex items-center gap-1 px-2 py-1 rounded-full">
-                          <CheckCircle2 className="w-3 h-3" /> {card.badge}
-                        </div>
-                      )}
+                    {card.badge && (
+                      <div className="mt-4 text-xs text-green-600 font-medium bg-green-50 inline-flex items-center gap-1 px-2 py-1 rounded-full">
+                        <CheckCircle2 className="w-3 h-3" /> {card.badge}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -593,7 +593,7 @@ const HeroSection = () => {
                 </div>
                 <div className="flex items-end justify-between h-32 gap-2">
                   {[40, 65, 45, 80, 55, 90, 45, 60, 75, 50, 85, 95].map((h, i) => (
-                    <motion.div 
+                    <motion.div
                       key={i}
                       initial={{ height: 0 }}
                       whileInView={{ height: `${h}%` }}
@@ -601,7 +601,7 @@ const HeroSection = () => {
                       className={cn(
                         "flex-1 rounded-t-sm transition-all duration-300 hover:bg-[#1a5d1a]",
                         i >= 8 ? "bg-[#1a5d1a]" : "bg-slate-100 dark:bg-zinc-600"
-                      )} 
+                      )}
                     />
                   ))}
                 </div>
@@ -690,32 +690,32 @@ const FeatureSection = () => {
       visual: (
         <SpotlightCard className="h-full border-none shadow-none bg-slate-50/50">
           <div className="p-8 space-y-4">
-              <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-slate-100 dark:border-zinc-700 shadow-sm">
-                  <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center" />
-                      <span className="text-sm font-medium text-slate-700">Setup React Environment</span>
-                  </div>
-                  <Badge>Done</Badge>
+            <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-slate-100 dark:border-zinc-700 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center" />
+                <span className="text-sm font-medium text-slate-700">Setup React Environment</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-green-200 dark:border-green-700 shadow-md shadow-green-900/5 ring-1 ring-green-500/20">
-                  <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-sm font-bold text-slate-900 dark:text-[#E4E4E7]">API Integration</span>
-                  </div>
-                  <div className="flex -space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white" />
-                      <div className="w-6 h-6 rounded-full bg-green-100 border-2 border-white" />
-                  </div>
+              <Badge>Done</Badge>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white dark:bg-[#27272A] rounded-lg border border-green-200 dark:border-green-700 shadow-md shadow-green-900/5 ring-1 ring-green-500/20">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-sm font-bold text-slate-900 dark:text-[#E4E4E7]">API Integration</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-white/50 dark:bg-zinc-800/50 rounded-lg border border-slate-100 dark:border-zinc-700 opacity-60">
-                  <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
-                      <span className="text-sm font-medium text-slate-700">Final Documentation</span>
-                  </div>
-                  <span className="text-xs text-slate-400">Due in 2 days</span>
+              <div className="flex -space-x-2">
+                <div className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white" />
+                <div className="w-6 h-6 rounded-full bg-green-100 border-2 border-white" />
               </div>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white/50 dark:bg-zinc-800/50 rounded-lg border border-slate-100 dark:border-zinc-700 opacity-60">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                <span className="text-sm font-medium text-slate-700">Final Documentation</span>
+              </div>
+              <span className="text-xs text-slate-400">Due in 2 days</span>
+            </div>
           </div>
         </SpotlightCard>
       )
@@ -745,20 +745,20 @@ const FeatureSection = () => {
   return (
     <section id="features" className="bg-gradient-to-b from-slate-50 to-white dark:from-[#27272A] dark:to-[#18181B] py-20 sm:py-32 relative z-10">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-16 sm:mb-24 max-w-2xl"
         >
-            <span className="text-[#1a5d1a] dark:text-[#22C55E] font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 block">Features</span>
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 dark:text-[#E4E4E7] tracking-tight mb-4 sm:mb-6">
-                Everything you need to <br className="hidden sm:block" />
-                <span className="text-[#1a5d1a] dark:text-[#22C55E]">ship on time.</span>
-            </h2>
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Projectify unifies the fragmented tools students use into a single, cohesive platform designed for academic excellence.
-            </p>
+          <span className="text-[#1a5d1a] dark:text-[#22C55E] font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 block">Features</span>
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 dark:text-[#E4E4E7] tracking-tight mb-4 sm:mb-6">
+            Everything you need to <br className="hidden sm:block" />
+            <span className="text-[#1a5d1a] dark:text-[#22C55E]">ship on time.</span>
+          </h2>
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+            Projectify unifies the fragmented tools students use into a single, cohesive platform designed for academic excellence.
+          </p>
         </motion.div>
 
         <div className="space-y-16 sm:space-y-32">
@@ -777,16 +777,16 @@ const FeatureSection = () => {
 
               {/* Visual Side */}
               <div className="flex-1 w-full">
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
                   className="relative rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl shadow-slate-200/50 dark:shadow-black/50/50 overflow-hidden bg-white dark:bg-[#27272A]"
                 >
-                    <div className="aspect-[4/3]">
-                      {feature.visual}
-                    </div>
+                  <div className="aspect-[4/3]">
+                    {feature.visual}
+                  </div>
                 </motion.div>
               </div>
             </div>
@@ -805,47 +805,47 @@ const StatsSection = () => (
   <section id="stats" className="py-20 sm:py-28 bg-gradient-to-br from-[#1a5d1a] via-[#1e6b1e] to-[#145214] relative overflow-hidden text-white">
     {/* Animated Pattern */}
     <div className="absolute inset-0 opacity-10 bg-[linear-gradient(45deg,#ffffff33_1px,transparent_1px),linear-gradient(-45deg,#ffffff33_1px,transparent_1px)] bg-[size:32px_32px]" />
-    
+
     {/* Static gradient orbs */}
     <div className="absolute top-[-100px] left-[20%] w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-white/10 blur-[80px] sm:blur-[100px] rounded-full" />
     <div className="absolute bottom-[-50px] right-[10%] w-[200px] sm:w-[300px] h-[200px] sm:h-[300px] bg-emerald-300/10 blur-[60px] sm:blur-[80px] rounded-full" />
-    
+
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Trusted Across FAST Campuses</h2>
-          <p className="text-green-100/80 max-w-xl mx-auto text-sm sm:text-base px-4">Empowering students and supervisors to deliver exceptional final year projects.</p>
-        </motion.div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-12">
-            {[
-                { label: "FAST Campuses", value: "6", icon: GraduationCap },
-                { label: "Active Students", value: "500+", icon: Users },
-                { label: "Projects Completed", value: "150+", icon: FolderKanban },
-                { label: "Uniqueness Threshold", value: "50%", icon: ShieldCheck },
-            ].map((stat, i) => (
-                <motion.div 
-                  key={i} 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.4 }}
-                  viewport={{ once: true }}
-                  className="relative group"
-                >
-                    <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-white/20 transition-all duration-300">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 bg-white/10 rounded-lg sm:rounded-xl flex items-center justify-center">
-                          <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-200" />
-                        </div>
-                        <div className="text-2xl sm:text-4xl md:text-5xl font-[800] tracking-tight mb-1 sm:mb-2">{stat.value}</div>
-                        <div className="text-green-100/70 font-medium text-[10px] sm:text-sm uppercase tracking-wider">{stat.label}</div>
-                    </div>
-                </motion.div>
-            ))}
-        </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center mb-10 sm:mb-16"
+      >
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Trusted Across FAST Campuses</h2>
+        <p className="text-green-100/80 max-w-xl mx-auto text-sm sm:text-base px-4">Empowering students and supervisors to deliver exceptional final year projects.</p>
+      </motion.div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-12">
+        {[
+          { label: "FAST Campuses", value: "6", icon: GraduationCap },
+          { label: "Active Students", value: "500+", icon: Users },
+          { label: "Projects Completed", value: "150+", icon: FolderKanban },
+          { label: "Uniqueness Threshold", value: "50%", icon: ShieldCheck },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, duration: 0.4 }}
+            viewport={{ once: true }}
+            className="relative group"
+          >
+            <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-white/20 transition-all duration-300">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 bg-white/10 rounded-lg sm:rounded-xl flex items-center justify-center">
+                <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-200" />
+              </div>
+              <div className="text-2xl sm:text-4xl md:text-5xl font-[800] tracking-tight mb-1 sm:mb-2">{stat.value}</div>
+              <div className="text-green-100/70 font-medium text-[10px] sm:text-sm uppercase tracking-wider">{stat.label}</div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   </section>
 );
@@ -855,45 +855,38 @@ const StatsSection = () => (
 // ============================================
 
 const TeamSection = () => {
-  // ─── UPDATE PROFILE IMAGES HERE ───────────────────────────────────────────
-  // Set image to null to show the initials fallback avatar instead.
-  // Set image to a URL string (local path or https link) to show a photo.
-  // Example: image: "/images/hanzla.jpg"  or  image: "https://..."
-  // ──────────────────────────────────────────────────────────────────────────
   const developers = [
     {
       name: "Hanzla Sabir",
       initials: "HS",
-      image: null, // ← replace null with your image URL
-      bio: "Full-stack engineer who architected Projectify end-to-end — from the real-time chat system and REST APIs to the AI-powered similarity engine that keeps every project original.",
-      linkedin: "https://linkedin.com",
-      github: "https://github.com",
+      image: "/profileimage/Hanzla.png",
+      linkedin: "https://www.linkedin.com/in/hanzlasheikh",
+      github: "https://github.com/Hanzlase",
+      email: "hanzlasabir658@gmail.com",
     },
     {
       name: "Saad Tariq",
       initials: "ST",
-      image: null, // ← replace null with your image URL
-      bio: "Frontend craftsman behind every pixel of Projectify's UI — built the dashboards, animations, and role-based interfaces that make the platform feel effortless to use.",
-      linkedin: "https://linkedin.com",
-      github: "https://github.com",
+      image: "/profileimage/saad.png",
+      linkedin: "https://linkedin.com/in/saad-a500b0287",
+      github: "https://github.com/ramday",
+      email: "saadtariq328@gmail.com",
     },
     {
       name: "Ahmad Raza",
       initials: "AR",
-      image: null, // ← replace null with your image URL
-      bio: "Backend architect who designed the database schema, authentication system, and evaluation workflows that power the entire Projectify platform under the hood.",
-      linkedin: "https://linkedin.com",
-      github: "https://github.com",
+      image: "/profileimage/ahmad.png",
+      linkedin: "https://www.linkedin.com/in/ahmad-raza-53482b316/",
+      github: "https://github.com/AhmadR-11",
+      email: "ahmadraza792203@gmail.com",
     },
   ];
 
   const supervisor = {
     name: "Saqib Ameer",
     initials: "SA",
-    image: null, // ← replace null with your image URL
-    department: "Department of Computer Science · FAST NUCES",
-    bio: "Provided expert guidance, technical mentorship, and academic oversight throughout the development of Projectify — ensuring the project meets the highest standards of software engineering and research.",
-    linkedin: "https://linkedin.com",
+    image: "/profileimage/saqib.png",
+    department: "Department of Software Engineering · FAST NUCES",
   };
 
   return (
@@ -964,19 +957,7 @@ const TeamSection = () => {
                     Project Supervisor
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">{supervisor.department}</p>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6 max-w-2xl">
-                  {supervisor.bio}
-                </p>
-                <a
-                  href={supervisor.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0077B5] hover:bg-[#006097] text-white text-xs font-semibold shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <Linkedin className="w-3.5 h-3.5" />
-                  LinkedIn
-                </a>
+                <p className="text-xs text-slate-400 dark:text-slate-500">{supervisor.department}</p>
               </div>
             </div>
           </div>
@@ -1018,30 +999,36 @@ const TeamSection = () => {
 
                 {/* Card body */}
                 <div className="flex flex-col flex-1 px-5 pb-5 pt-3">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-[#E4E4E7] mb-2">{dev.name}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed flex-1 mb-5">
-                    {dev.bio}
-                  </p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-[#E4E4E7] mb-4">{dev.name}</h3>
 
                   {/* Social buttons */}
-                  <div className="flex gap-2.5">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <a
+                        href={dev.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-[#0077B5]/8 hover:bg-[#0077B5] text-[#0077B5] hover:text-white border border-[#0077B5]/20 hover:border-[#0077B5] transition-all duration-200"
+                      >
+                        <Linkedin className="w-3.5 h-3.5" />
+                        LinkedIn
+                      </a>
+                      <a
+                        href={dev.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-900 dark:hover:bg-zinc-600 text-slate-600 dark:text-slate-300 hover:text-white border border-slate-200 dark:border-zinc-700 transition-all duration-200"
+                      >
+                        <Github className="w-3.5 h-3.5" />
+                        GitHub
+                      </a>
+                    </div>
                     <a
-                      href={dev.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-[#0077B5]/8 hover:bg-[#0077B5] text-[#0077B5] hover:text-white border border-[#0077B5]/20 hover:border-[#0077B5] transition-all duration-200"
+                      href={`mailto:${dev.email}`}
+                      className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-200 dark:border-emerald-700/40 hover:border-emerald-600 transition-all duration-200"
                     >
-                      <Linkedin className="w-3.5 h-3.5" />
-                      LinkedIn
-                    </a>
-                    <a
-                      href={dev.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-900 dark:hover:bg-zinc-600 text-slate-600 dark:text-slate-300 hover:text-white border border-slate-200 dark:border-zinc-700 transition-all duration-200"
-                    >
-                      <Github className="w-3.5 h-3.5" />
-                      GitHub
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                      {dev.email}
                     </a>
                   </div>
                 </div>
@@ -1072,43 +1059,43 @@ const TeamSection = () => {
 
 const CTASection = () => {
   const router = useRouter();
-  
+
   return (
     <section id="about" className="relative py-24 sm:py-36 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
       {/* Top Angle */}
       <div className="absolute top-0 left-0 right-0 h-12 sm:h-20 bg-slate-50 origin-top-left skew-y-2" />
-      
+
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]" />
       </div>
-      
+
       {/* Static glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-[#1a5d1a]/20 blur-[100px] sm:blur-[120px] rounded-full" />
 
       <div className="relative z-10 max-w-[900px] mx-auto px-4 sm:px-6 text-center text-white pt-12 sm:pt-16">
         <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           whileInView={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.5 }}
-           viewport={{ once: true }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
         >
           <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 sm:mb-8 bg-[#1a5d1a] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-2xl shadow-green-500/30">
             <Logo className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
-          
+
           <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-6 px-4">
-              Ready to streamline your <br className="hidden sm:block" /> 
-              <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Academic Journey?</span>
+            Ready to streamline your <br className="hidden sm:block" />
+            <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Academic Journey?</span>
           </h2>
           <p className="text-base sm:text-xl text-slate-400 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed px-4">
-              Join students and supervisors across FAST campuses using Projectify to build better projects, faster.
+            Join students and supervisors across FAST campuses using Projectify to build better projects, faster.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
-              <Button size="lg" onClick={() => router.push('/login')} className="bg-gradient-to-r from-[#1a5d1a] to-emerald-600 hover:from-[#154d15] hover:to-emerald-700 transition-all duration-300 text-white border-0 shadow-2xl shadow-green-900/50 h-14 sm:h-16 px-8 sm:px-12 text-base sm:text-lg w-full sm:w-auto">
-                  Get Started Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+            <Button size="lg" onClick={() => router.push('/login')} className="bg-gradient-to-r from-[#1a5d1a] to-emerald-600 hover:from-[#154d15] hover:to-emerald-700 transition-all duration-300 text-white border-0 shadow-2xl shadow-green-900/50 h-14 sm:h-16 px-8 sm:px-12 text-base sm:text-lg w-full sm:w-auto">
+              Get Started Now
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
           </div>
         </motion.div>
       </div>
@@ -1178,7 +1165,7 @@ const Navbar = () => {
 
   return (
     <>
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
@@ -1190,64 +1177,64 @@ const Navbar = () => {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
           {/* Left side - Menu button (mobile) */}
           <div className="flex items-center gap-2 sm:gap-3">
-              {/* Mobile Menu Button - Left side */}
-              <button 
-                className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              
-              {/* Logo - Hidden on mobile, shown on desktop */}
-              <div className="hidden md:flex items-center gap-2 sm:gap-3 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
-                    <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <span className="text-lg sm:text-xl font-bold tracking-tight">Projectify</span>
+            {/* Mobile Menu Button - Left side */}
+            <button
+              className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Logo - Hidden on mobile, shown on desktop */}
+            <div className="hidden md:flex items-center gap-2 sm:gap-3 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
+                <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
+              <span className="text-lg sm:text-xl font-bold tracking-tight">Projectify</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a 
-                  key={link.name}
-                  href={link.href} 
-                  className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-[#1a5d1a] dark:hover:text-green-400 transition-colors relative group"
-                >
-                  {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#1a5d1a] dark:bg-green-400 group-hover:w-full transition-all duration-300" />
-                </a>
-              ))}
-              {/* Desktop Theme Toggle */}
-              <button 
-                onClick={toggleTheme}
-                className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#27272A] transition-colors"
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-[#1a5d1a] dark:hover:text-green-400 transition-colors relative group"
               >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
+                {link.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#1a5d1a] dark:bg-green-400 group-hover:w-full transition-all duration-300" />
+              </a>
+            ))}
+            {/* Desktop Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#27272A] transition-colors"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
 
           {/* Right side - Logo (mobile) + Sign In button */}
           <div className="flex items-center gap-3">
-              {/* Logo - Shown on mobile, hidden on desktop */}
-              <div className="flex md:hidden items-center gap-2 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
-                    <Logo className="w-5 h-5" />
-                </div>
-                <span className="text-lg font-bold tracking-tight">Projectify</span>
+            {/* Logo - Shown on mobile, hidden on desktop */}
+            <div className="flex md:hidden items-center gap-2 text-slate-900 dark:text-[#E4E4E7] cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className="w-9 h-9 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:shadow-green-900/30 transition-shadow">
+                <Logo className="w-5 h-5" />
               </div>
-              
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="sm" onClick={() => router.push('/login')} className="rounded-full shadow-lg shadow-green-900/20 hover:shadow-green-900/30 text-xs sm:text-sm px-3 sm:px-4">
-                    Sign In <ChevronRight className="w-3 h-3 ml-1" />
-                </Button>
-              </motion.div>
+              <span className="text-lg font-bold tracking-tight">Projectify</span>
+            </div>
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button size="sm" onClick={() => router.push('/login')} className="rounded-full shadow-lg shadow-green-900/20 hover:shadow-green-900/30 text-xs sm:text-sm px-3 sm:px-4">
+                Sign In <ChevronRight className="w-3 h-3 ml-1" />
+              </Button>
+            </motion.div>
           </div>
         </div>
       </motion.nav>
-      
+
       {/* Mobile Sidebar Menu - StudentSidebar Style */}
       {mobileMenuOpen && (
         <>
@@ -1259,7 +1246,7 @@ const Navbar = () => {
             className="fixed inset-0 bg-black/50 z-[60] md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-          
+
           {/* Sidebar */}
           <motion.div
             initial={{ x: '-100%' }}
@@ -1281,7 +1268,7 @@ const Navbar = () => {
                       <p className="text-xs text-slate-500 dark:text-slate-400">FYP Management</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setMobileMenuOpen(false)}
                     className="p-2 hover:bg-slate-100 dark:hover:bg-[#27272A] rounded-lg transition-colors"
                   >
@@ -1289,7 +1276,7 @@ const Navbar = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Navigation Links */}
               <div className="flex-1 p-4 overflow-y-auto">
                 <div className="mb-3">
@@ -1299,9 +1286,9 @@ const Navbar = () => {
                   {navLinks.map((link) => {
                     const Icon = link.icon;
                     return (
-                      <a 
+                      <a
                         key={link.name}
-                        href={link.href} 
+                        href={link.href}
                         className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#1a5d1a] dark:hover:text-green-400 transition-all font-medium"
                         onClick={() => setMobileMenuOpen(false)}
                       >
@@ -1313,7 +1300,7 @@ const Navbar = () => {
                     );
                   })}
                   {/* Theme Toggle */}
-                  <button 
+                  <button
                     onClick={toggleTheme}
                     className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium"
                   >
@@ -1324,15 +1311,15 @@ const Navbar = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Bottom Section */}
               <div className="p-4 border-t border-slate-100 dark:border-zinc-800">
-                <Button 
-                  size="default" 
+                <Button
+                  size="default"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     router.push('/login');
-                  }} 
+                  }}
                   className="w-full rounded-xl"
                 >
                   Sign In <ChevronRight className="w-4 h-4 ml-1" />
@@ -1350,46 +1337,46 @@ const Navbar = () => {
 // COMPONENT: FOOTER
 // ============================================
 const Footer = () => (
-    <footer className="bg-slate-900 dark:bg-[#18181B] py-8 sm:py-12 border-t border-slate-800 dark:border-zinc-800 text-sm">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg">
-                        <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-white text-base sm:text-lg">Projectify</span>
-                      <p className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs">FYP Management System</p>
-                    </div>
-                </div>
-                <p className="text-slate-400 text-center text-xs sm:text-sm max-w-md">
-                    Making academic project management intelligent and collaborative for FAST NUCES.
-                </p>
-            </div>
-            
-            {/* Team Section */}
-            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800">
-                <div className="flex flex-col items-center gap-3">
-                    <p className="text-slate-400 text-xs sm:text-sm">
-                        <span className="text-slate-500">Supervisor:</span>{' '}
-                        <span className="text-white font-medium">Saqib Ameer</span>
-                    </p>
-                    <p className="text-slate-400 text-xs sm:text-sm">
-                        <span className="text-slate-500">Team:</span>{' '}
-                        <span className="text-white font-medium">Hanzla</span>
-                        <span className="text-slate-600 mx-1">•</span>
-                        <span className="text-white font-medium">Saad</span>
-                        <span className="text-slate-600 mx-1">•</span>
-                        <span className="text-white font-medium">Ahmad</span>
-                    </p>
-                </div>
-            </div>
-            
-            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-                <p>© 2025 Projectify. Built with ❤️ for FAST students.</p>
-            </div>
+  <footer className="bg-slate-900 dark:bg-[#18181B] py-8 sm:py-12 border-t border-slate-800 dark:border-zinc-800 text-sm">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#1a5d1a] rounded-xl flex items-center justify-center shadow-lg">
+            <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <div>
+            <span className="font-bold text-white text-base sm:text-lg">Projectify</span>
+            <p className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs">FYP Management System</p>
+          </div>
         </div>
-    </footer>
+        <p className="text-slate-400 text-center text-xs sm:text-sm max-w-md">
+          Making academic project management intelligent and collaborative for FAST NUCES.
+        </p>
+      </div>
+
+      {/* Team Section */}
+      <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800">
+        <div className="flex flex-col items-center gap-3">
+          <p className="text-slate-400 text-xs sm:text-sm">
+            <span className="text-slate-500">Supervisor:</span>{' '}
+            <span className="text-white font-medium">Saqib Ameer</span>
+          </p>
+          <p className="text-slate-400 text-xs sm:text-sm">
+            <span className="text-slate-500">Team:</span>{' '}
+            <span className="text-white font-medium">Hanzla</span>
+            <span className="text-slate-600 mx-1">•</span>
+            <span className="text-white font-medium">Saad</span>
+            <span className="text-slate-600 mx-1">•</span>
+            <span className="text-white font-medium">Ahmad</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-800 dark:border-zinc-800 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+        <p>© 2025 Projectify. Built with ❤️ for FAST students.</p>
+      </div>
+    </div>
+  </footer>
 );
 
 // ============================================
