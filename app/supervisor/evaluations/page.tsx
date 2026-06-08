@@ -393,11 +393,20 @@ export default function SupervisorEvaluationsPage() {
                     supervisorScoredAt: new Date().toISOString(),
                   };
                 } else {
+                  const existingMemberScores = s.panelMemberScores || {};
                   return {
                     ...s,
-                    panelScore: score,
-                    panelFeedback: submissionFeedbackInput.trim() || null,
+                    panelScore: data.aggregatedPanelScore ?? score,
+                    panelFeedback: null,
                     panelScoredAt: new Date().toISOString(),
+                    panelMemberScores: data.memberScores || {
+                      ...existingMemberScores,
+                      [Number(session?.user?.id)]: {
+                        score,
+                        feedback: submissionFeedbackInput.trim() || null,
+                        scoredAt: new Date().toISOString(),
+                      },
+                    },
                   };
                 }
               }
@@ -1462,11 +1471,11 @@ export default function SupervisorEvaluationsPage() {
                               <h4 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Submission Scoring</h4>
                               <p className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">
                                 {groupDetails.isGroupSupervisor && groupDetails.currentUserRole === 'chair'
-                                   ? "You can score as both the group's supervisor (50%) and a panel member (50%)."
+                                   ? "You can score as both the group's supervisor (45%) and a panel member. Panel members share the 55% panel portion equally."
                                    : groupDetails.isGroupSupervisor 
-                                   ? "Score submissions as the group's supervisor. Your score counts as 50% of the total." 
+                                   ? "Score submissions as the group's supervisor. Your score counts as 45% of the total." 
                                    : groupDetails.currentUserRole 
-                                   ? "Score submissions as a panel member. Your panel score contributes to the panel average." 
+                                   ? "Score submissions as a panel member. Your score contributes equally to the 55% panel portion." 
                                    : "View submission scores. Only the group's supervisor and panel members can score."}
                               </p>
                             </div>
@@ -1489,7 +1498,7 @@ export default function SupervisorEvaluationsPage() {
                             const hasSupervisorScore = sub.supervisorScore !== null && sub.supervisorScore !== undefined;
                             const hasPanelScore = sub.panelScore !== null && sub.panelScore !== undefined;
                             const combinedScore = hasSupervisorScore && hasPanelScore
-                              ? (sub.supervisorScore + sub.panelScore) / 2
+                              ? (sub.supervisorScore * 0.45) + (sub.panelScore * 0.55)
                               : null;
 
                             return (
@@ -1581,7 +1590,7 @@ export default function SupervisorEvaluationsPage() {
                                           <CheckCircle className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Combined</span>
-                                        <span className="text-[10px] text-gray-400 ml-auto">50/50</span>
+                                        <span className="text-[10px] text-gray-400 ml-auto">45/55</span>
                                       </div>
                                       {combinedScore !== null ? (
                                         <p className="text-2xl font-bold text-[#1E6F3E]">
@@ -1594,7 +1603,7 @@ export default function SupervisorEvaluationsPage() {
                                   </div>
 
                                   {/* Scoring Actions */}
-                                  {(groupDetails.isGroupSupervisor || groupDetails.currentUserRole === 'chair') && (
+                                  {(groupDetails.isGroupSupervisor || !!groupDetails.currentUserRole) && (
                                     <div className="space-y-3">
                                       {/* Supervisor Scoring */}
                                       {groupDetails.isGroupSupervisor && (

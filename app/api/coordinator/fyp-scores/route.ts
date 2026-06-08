@@ -8,8 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
  * Returns per-group weighted FYP totals for the coordinator's campus.
  * For each group, for each FYP (FYP_1 / FYP_2):
  *   FYP_total = Σ (phase.weightage/100 × phase_combined_score)
- * where phase_combined_score = average(supervisorScore, panelScore) for
- * all submissions linked to evaluations in that phase.
+ * where phase_combined_score = supervisorScore × 45% + panelScore × 55%
+ * for all submissions linked to evaluations in that phase.
  *
  * Supports filtering by cohort (REGULAR | DELAYED).
  */
@@ -173,7 +173,7 @@ export async function GET(req: NextRequest) {
 
           let combinedScore: number | null = null;
           if (avgSupScore !== null && avgPanelScore !== null) {
-            combinedScore = (avgSupScore + avgPanelScore) / 2;
+            combinedScore = (avgSupScore * 0.45) + (avgPanelScore * 0.55);
           } else if (avgSupScore !== null) {
             combinedScore = avgSupScore;
           } else if (avgPanelScore !== null) {

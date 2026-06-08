@@ -1535,7 +1535,7 @@ export default function StudentEvaluationsPage() {
                               {selectedEvaluation.submission!.supervisorScore}<span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                             </p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                              {Math.round((selectedEvaluation.submission!.supervisorScore / selectedEvaluation.totalMarks) * 100)}% — 50% weight
+                              {Math.round((selectedEvaluation.submission!.supervisorScore / selectedEvaluation.totalMarks) * 100)}% - 45% weight
                             </p>
                             {selectedEvaluation.submission!.supervisorFeedback && (
                               <p className="text-xs text-gray-600 dark:text-zinc-400 mt-2 italic">&ldquo;{selectedEvaluation.submission!.supervisorFeedback}&rdquo;</p>
@@ -1546,13 +1546,13 @@ export default function StudentEvaluationsPage() {
                         )}
                       </div>
 
-                      {/* Panel Head Score */}
+                      {/* Panel Score */}
                       <div className={`p-4 rounded-xl border-2 ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'border-[#1E6F3E]/30 bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10' : 'border-dashed border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-700/50'}`}>
                         <div className="flex items-center gap-2 mb-2">
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? 'bg-[#1E6F3E]' : 'bg-gray-300 dark:bg-gray-600'}`}>
                             <Award className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel Head Score</span>
+                          <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-wider">Panel Score</span>
                         </div>
                         {selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined ? (
                           <>
@@ -1560,7 +1560,7 @@ export default function StudentEvaluationsPage() {
                               {selectedEvaluation.submission!.panelScore}<span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                             </p>
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                              {Math.round((selectedEvaluation.submission!.panelScore / selectedEvaluation.totalMarks) * 100)}% — 50% weight
+                              {Math.round((selectedEvaluation.submission!.panelScore / selectedEvaluation.totalMarks) * 100)}% - 55% weight
                             </p>
                             {selectedEvaluation.submission!.panelFeedback && (
                               <p className="text-xs text-gray-600 dark:text-zinc-400 mt-2 italic">&ldquo;{selectedEvaluation.submission!.panelFeedback}&rdquo;</p>
@@ -1575,9 +1575,9 @@ export default function StudentEvaluationsPage() {
                     {/* Combined Score */}
                     {selectedEvaluation.submission!.supervisorScore !== null && selectedEvaluation.submission!.supervisorScore !== undefined && selectedEvaluation.submission!.panelScore !== null && selectedEvaluation.submission!.panelScore !== undefined && (
                       <div className="mt-3 p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 text-center">
-                        <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Combined Score (50/50)</p>
+                        <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Combined Score (45/55)</p>
                         <p className="text-2xl sm:text-3xl font-bold text-[#1E6F3E]">
-                          {((selectedEvaluation.submission!.supervisorScore + selectedEvaluation.submission!.panelScore) / 2).toFixed(1)}
+                          {((selectedEvaluation.submission!.supervisorScore * 0.45) + (selectedEvaluation.submission!.panelScore * 0.55)).toFixed(1)}
                           <span className="text-sm font-normal text-gray-400">/{selectedEvaluation.totalMarks}</span>
                         </p>
                       </div>

@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         panelFeedback: sub.panelFeedback,
         panelScoredBy: sub.panelScoredById ? supervisorNameMap.get(sub.panelScoredById) || 'Unknown' : null,
         panelScoredAt: sub.panelScoredAt,
-        // Combined (50% each)
+        // Combined (45% supervisor, 55% panel)
         combinedScore,
         combinedPercentage: combinedPercentage !== null ? Math.round(combinedPercentage * 100) / 100 : null,
       };
