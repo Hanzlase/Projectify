@@ -4,6 +4,80 @@ import { auth } from '@/lib/auth';
 import bcrypt from 'bcrypt';
 import { emitSupervisorAvailability } from '@/lib/socket-emitters';
 
+/**
+ * Automatically carries over evaluation panels from FYP-1 to FYP-2 when the semester transitions.
+ * FALL -> SPRING: REGULAR cohort transitions (FYP_1 -> FYP_2)
+ * SPRING -> FALL: DELAYED cohort transitions (FYP_1 -> FYP_2)
+ */
+async function carryOverPanels(campusId: number, fromSemester: 'FALL' | 'SPRING', toSemester: 'FALL' | 'SPRING') {
+  let transitioningCohort: 'REGULAR' | 'DELAYED' | null = null;
+  if (fromSemester === 'FALL' && toSemester === 'SPRING') {
+    transitioningCohort = 'REGULAR';
+  } else if (fromSemester === 'SPRING' && toSemester === 'FALL') {
+    transitioningCohort = 'DELAYED';
+  }
+
+  if (!transitioningCohort) return;
+
+  try {
+    // Fetch all FYP_1 panels for this cohort on the campus
+    const fyp1Panels = await prisma.evaluationPanel.findMany({
+      where: {
+        campusId,
+        cohort: transitioningCohort,
+        fypPhase: 'FYP_1'
+      },
+      include: {
+        panelMembers: true,
+        groupAssignments: true
+      }
+    });
+
+    for (const panel of fyp1Panels) {
+      // Check if this panel has already been cloned to FYP_2
+      const existingClone = await prisma.evaluationPanel.findFirst({
+        where: {
+          campusId,
+          cohort: transitioningCohort,
+          fypPhase: 'FYP_2',
+          name: panel.name
+        }
+      });
+
+      if (!existingClone) {
+        // Clone the panel into FYP_2
+        await prisma.evaluationPanel.create({
+          data: {
+            name: panel.name,
+            description: panel.description,
+            minSupervisors: panel.minSupervisors,
+            maxSupervisors: panel.maxSupervisors,
+            campusId,
+            cohort: transitioningCohort,
+            fypPhase: 'FYP_2',
+            createdById: panel.createdById,
+            status: panel.status,
+            panelMembers: {
+              create: panel.panelMembers.map(pm => ({
+                supervisorId: pm.supervisorId,
+                role: pm.role
+              }))
+            },
+            groupAssignments: {
+              create: panel.groupAssignments.map(ga => ({
+                groupId: ga.groupId,
+                remarks: ga.remarks
+              }))
+            }
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error carrying over panels:", error);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -124,6 +198,35 @@ export async function POST(request: Request) {
           maxGroups: updatedSupervisor.maxGroups,
           totalGroups: updatedSupervisor.totalGroups,
         });
+
+        // Generate and store supervisor embedding in Pinecone
+        try {
+          const spec = updatedSupervisor.specialization || '';
+          const desc = updatedSupervisor.description || '';
+          const doms = updatedSupervisor.domains || '';
+          const skls = updatedSupervisor.skills || '';
+          const achs = updatedSupervisor.achievements || '';
+          
+          const textToEmbed = [spec, desc, doms, skls, achs].filter(Boolean).join(' ');
+          if (textToEmbed.trim()) {
+            const { generateEmbedding } = await import('@/lib/cohere');
+            const { upsertSupervisorEmbedding } = await import('@/lib/pinecone');
+            const embedding = await generateEmbedding(textToEmbed);
+            const finalName = name?.trim() || user.name;
+            await upsertSupervisorEmbedding(embedding, {
+              supervisorId: userId,
+              name: finalName,
+              specialization: spec,
+              description: desc,
+              domains: doms,
+              skills: skls,
+              achievements: achs,
+              campusId: updatedSupervisor.campusId,
+            });
+          }
+        } catch (embeddingError) {
+          console.error('Failed to update supervisor embedding in Pinecone:', embeddingError);
+        }
       }
     }
 
@@ -164,12 +267,17 @@ export async function POST(request: Request) {
       if (activeSemester !== undefined && (activeSemester === 'FALL' || activeSemester === 'SPRING')) {
         const coordinator = await (prisma as any).fYPCoordinator.findUnique({
           where: { userId },
+          include: { campus: true }
         });
-        if (coordinator) {
+        if (coordinator && coordinator.campus.activeSemester !== activeSemester) {
+          const fromSemester = coordinator.campus.activeSemester;
           await (prisma as any).campus.update({
             where: { campusId: coordinator.campusId },
             data: { activeSemester },
           });
+
+          // Carry over evaluation panels from FYP_1 to FYP_2
+          await carryOverPanels(coordinator.campusId, fromSemester, activeSemester);
         }
       }
     }

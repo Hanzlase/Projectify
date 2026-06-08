@@ -3,6 +3,7 @@ import { Pinecone } from '@pinecone-database/pinecone';
 // ─── Configuration ───────────────────────────────────────────────────────────
 const PINECONE_API_KEY = (process.env.PINECONE_API_KEY || '').trim();
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || 'project-embeddings';
+const PINECONE_SUPERVISORS_INDEX_NAME = process.env.PINECONE_SUPERVISORS_INDEX_NAME || 'supervisors';
 const VECTOR_DIMENSION = 1024; // Cohere embed-english-v3.0 produces 1024-dimensional vectors
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 500;
@@ -265,3 +266,117 @@ export function checkUniqueness(similarProjects: SimilarProject[], threshold: nu
   const highestScore = Math.max(...similarProjects.map(p => p.score));
   return highestScore < threshold;
 }
+
+// ─── Supervisor Embeddings ───────────────────────────────────────────────────
+export interface SupervisorEmbeddingPayload {
+  supervisorId: number;
+  name: string;
+  specialization: string;
+  description: string;
+  domains: string;
+  skills: string;
+  achievements: string;
+  campusId: number;
+}
+
+/**
+ * Upsert a supervisor profile embedding into Pinecone.
+ * Attempts to use the index named 'supervisors' first.
+ * If that fails (e.g. index not found), it falls back to using the default index with namespace 'supervisors'.
+ */
+export async function upsertSupervisorEmbedding(
+  embedding: number[],
+  payload: SupervisorEmbeddingPayload
+): Promise<string> {
+  const vectorId = `supervisor-${payload.supervisorId}`;
+  const record = {
+    id: vectorId,
+    values: embedding,
+    metadata: {
+      supervisorId: payload.supervisorId,
+      name: payload.name,
+      specialization: payload.specialization,
+      description: payload.description,
+      domains: payload.domains,
+      skills: payload.skills,
+      achievements: payload.achievements,
+      campusId: payload.campusId,
+    },
+  };
+
+  return withRetry(async () => {
+    const client = getPineconeClient();
+    try {
+      const index = client.index(PINECONE_SUPERVISORS_INDEX_NAME);
+      // Verify/healthcheck index
+      await index.describeIndexStats();
+      await index.upsert({
+        records: [record],
+      });
+      console.log(`Supervisor embedding stored in Pinecone index "${PINECONE_SUPERVISORS_INDEX_NAME}": ${vectorId}`);
+      return vectorId;
+    } catch (err: any) {
+      console.warn(`Could not upsert to index "${PINECONE_SUPERVISORS_INDEX_NAME}": ${err?.message || err}. Falling back to default index namespace "supervisors".`);
+    }
+
+    // Fallback
+    const index = client.index(PINECONE_INDEX_NAME);
+    const ns = index.namespace('supervisors');
+    await ns.upsert({
+      records: [record],
+    });
+    console.log(`Supervisor embedding stored in default index namespace "supervisors": ${vectorId}`);
+    return vectorId;
+  }, 'Upsert supervisor embedding');
+}
+
+/**
+ * Query Pinecone to find top-K matching supervisors for a project embedding vector.
+ * Attempts index 'supervisors' first, then falls back to namespace 'supervisors' on default index.
+ */
+export async function matchSupervisorsForProject(
+  projectVector: number[],
+  limit: number = 5,
+  campusId?: number
+): Promise<Array<{ supervisorId: number; score: number }>> {
+  return withRetry(async () => {
+    const client = getPineconeClient();
+    const filter: Record<string, any> = {};
+    if (campusId) {
+      filter.campusId = campusId;
+    }
+
+    // Try index PINECONE_SUPERVISORS_INDEX_NAME
+    try {
+      const index = client.index(PINECONE_SUPERVISORS_INDEX_NAME);
+      await index.describeIndexStats();
+      const results = await index.query({
+        vector: projectVector,
+        topK: limit,
+        includeMetadata: true,
+        ...(Object.keys(filter).length > 0 && { filter }),
+      });
+      return (results.matches || []).map(m => ({
+        supervisorId: (m.metadata?.supervisorId as number) || parseInt(m.id.replace('supervisor-', '')),
+        score: m.score ?? 0,
+      }));
+    } catch (err: any) {
+      console.warn(`Could not query index "${PINECONE_SUPERVISORS_INDEX_NAME}": ${err?.message || err}. Falling back to default index namespace "supervisors".`);
+    }
+
+    // Fallback
+    const index = client.index(PINECONE_INDEX_NAME);
+    const ns = index.namespace('supervisors');
+    const results = await ns.query({
+      vector: projectVector,
+      topK: limit,
+      includeMetadata: true,
+      ...(Object.keys(filter).length > 0 && { filter }),
+    });
+    return (results.matches || []).map(m => ({
+      supervisorId: (m.metadata?.supervisorId as number) || parseInt(m.id.replace('supervisor-', '')),
+      score: m.score ?? 0,
+    }));
+  }, 'Match supervisors for project');
+}
+

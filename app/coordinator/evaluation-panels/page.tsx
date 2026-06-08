@@ -206,6 +206,7 @@ export default function EvaluationPanelsPage() {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [expandedPanels, setExpandedPanels] = useState<Set<number>>(new Set());
   const [editingPanel, setEditingPanel] = useState<Panel | null>(null);
+  const [editingGeneratedPanelIndex, setEditingGeneratedPanelIndex] = useState<number | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<{
@@ -330,7 +331,98 @@ export default function EvaluationPanelsPage() {
     }
   };
 
+  const handleEditGeneratedPanel = (index: number) => {
+    const panel = generatedPanels[index];
+    setEditingGeneratedPanelIndex(index);
+    setFormData({
+      name: panel.name,
+      description: panel.description || "",
+      minSupervisors: panel.minSupervisors,
+      maxSupervisors: panel.maxSupervisors,
+      scheduledDate: "",
+    });
+
+    const panelSupervisors: PanelMember[] = panel.supervisors.map((pm: any) => ({
+      supervisorId: pm.supervisorId,
+      role: pm.role as "chair" | "member" | "external",
+    }));
+    setSelectedSupervisors(panelSupervisors);
+    setSelectedGroups(panel.groups);
+
+    setShowCreateModal(true);
+  };
+
+  const handleSaveEditedGeneratedPanel = () => {
+    if (editingGeneratedPanelIndex === null) return;
+
+    if (!formData.name) {
+      alert("Please fill in panel name");
+      return;
+    }
+
+    const minSup = formData.minSupervisors === '' ? 2 : Number(formData.minSupervisors) || 2;
+    const maxSup = formData.maxSupervisors === '' ? 4 : Number(formData.maxSupervisors) || 4;
+
+    if (selectedSupervisors.length < minSup) {
+      alert(`Please select at least ${minSup} supervisors`);
+      return;
+    }
+
+    if (selectedSupervisors.length > maxSup) {
+      alert(`Cannot exceed ${maxSup} supervisors`);
+      return;
+    }
+
+    // Validate that each selected group's supervisor is in the panel
+    const invalidGroups = selectedGroups.filter((groupId) => {
+      const group = groups.find((g) => g.groupId === groupId);
+      if (!group || !group.supervisorId) return false;
+      return !selectedSupervisors.some(
+        (s) => s.supervisorId === group.supervisorId,
+      );
+    });
+
+    if (invalidGroups.length > 0) {
+      alert("Each group's supervisor must be included in the panel!");
+      return;
+    }
+
+    // Update in-memory generated panel
+    setGeneratedPanels((prev) =>
+      prev.map((panel, idx) => {
+        if (idx !== editingGeneratedPanelIndex) return panel;
+
+        return {
+          ...panel,
+          name: formData.name,
+          description: formData.description,
+          minSupervisors: minSup,
+          maxSupervisors: maxSup,
+          supervisors: selectedSupervisors.map((s) => {
+            const supervisor = supervisors.find((sup) => sup.userId === s.supervisorId);
+            return {
+              supervisorId: s.supervisorId,
+              role: s.role,
+              name: supervisor ? supervisor.name : "Unknown",
+              reason: s.role === "chair" ? "Panel Chair" : "Panel Member",
+            };
+          }),
+          groups: selectedGroups,
+          rationale: "Manually edited by coordinator",
+        };
+      })
+    );
+
+    setShowCreateModal(false);
+    setEditingGeneratedPanelIndex(null);
+    resetForm();
+  };
+
   const handleCreatePanel = async () => {
+    // If editing a generated panel, save in-memory
+    if (editingGeneratedPanelIndex !== null) {
+      return handleSaveEditedGeneratedPanel();
+    }
     // If editing, use the update function instead
     if (editingPanel) {
       return handleUpdatePanel();
@@ -658,6 +750,7 @@ export default function EvaluationPanelsPage() {
     setSelectedSupervisors([]);
     setSelectedGroups([]);
     setEditingPanel(null);
+    setEditingGeneratedPanelIndex(null);
   };
 
   const toggleSupervisor = (
@@ -1254,9 +1347,20 @@ export default function EvaluationPanelsPage() {
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
-                              <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">
-                                {panel.name}
-                              </h4>
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-bold text-gray-900 dark:text-[#E4E4E7] mb-1">
+                                  {panel.name}
+                                </h4>
+                                <Button
+                                  onClick={() => handleEditGeneratedPanel(index)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/30 font-semibold flex items-center"
+                                >
+                                  <Edit2 className="w-4 h-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </div>
                               <p className="text-sm text-gray-600 dark:text-zinc-400 mb-2">
                                 {panel.description}
                               </p>

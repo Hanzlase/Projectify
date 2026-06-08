@@ -29,6 +29,7 @@ interface GroupData {
   groupName: string;
   supervisorId: number | null;
   memberCount: number;
+  semanticMatches?: string;
 }
 
 interface PanelSuggestion {
@@ -316,6 +317,7 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
         groupId: true,
         groupName: true,
         supervisorId: true,
+        projectId: true,
         students: {
           select: {
             userId: true,
@@ -324,6 +326,76 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
         },
       },
     });
+
+    // Get all associated projects to perform Pinecone semantic matching
+    const groupIds = groups.map((g) => g.groupId);
+    const projectIds = groups
+      .map((g) => g.projectId)
+      .filter((id): id is number => id !== null);
+
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { groupId: { in: groupIds } },
+          { projectId: { in: projectIds } },
+        ],
+      },
+      select: {
+        projectId: true,
+        groupId: true,
+        title: true,
+        description: true,
+        abstractText: true,
+      },
+    });
+
+    // Generate semantic supervisor matches via Pinecone for each group's project
+    const { generateEmbedding } = await import("@/lib/cohere");
+    const { matchSupervisorsForProject } = await import("@/lib/pinecone");
+
+    const groupSemanticMatches = await Promise.all(
+      groups.map(async (g) => {
+        const project =
+          projects.find((p) => p.groupId === g.groupId) ||
+          (g.projectId ? projects.find((p) => p.projectId === g.projectId) : null);
+
+        if (!project) return { groupId: g.groupId, matchesText: "" };
+
+        const textToEmbed = [
+          project.title,
+          project.abstractText || "",
+          project.description || "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        if (!textToEmbed.trim()) return { groupId: g.groupId, matchesText: "" };
+
+        try {
+          const embedding = await generateEmbedding(textToEmbed);
+          const matches = await matchSupervisorsForProject(embedding, 3, campusId);
+
+          if (matches.length === 0) return { groupId: g.groupId, matchesText: "" };
+
+          const matchesText = matches
+            .map((match) => {
+              const supervisorName =
+                supervisors.find((s) => s.userId === match.supervisorId)?.name ||
+                `Supervisor ${match.supervisorId}`;
+              return `${supervisorName} (Similarity: ${Math.round(match.score * 100)}%)`;
+            })
+            .join(", ");
+
+          return {
+            groupId: g.groupId,
+            matchesText: `Semantic Supervisor Matches: ${matchesText}`,
+          };
+        } catch (error) {
+          console.error(`Error matching supervisors for group ${g.groupId}:`, error);
+          return { groupId: g.groupId, matchesText: "" };
+        }
+      })
+    );
 
     // Transform data for AI processing
     const supervisorData: SupervisorData[] = supervisors.map((s) => {
@@ -350,12 +422,16 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
       };
     });
 
-    const groupData: GroupData[] = groups.map((g) => ({
-      groupId: g.groupId,
-      groupName: g.groupName || `Group ${g.groupId}`,
-      supervisorId: g.supervisorId,
-      memberCount: g.students.length,
-    }));
+    const groupData: GroupData[] = groups.map((g) => {
+      const matchObj = groupSemanticMatches.find((m) => m.groupId === g.groupId);
+      return {
+        groupId: g.groupId,
+        groupName: g.groupName || `Group ${g.groupId}`,
+        supervisorId: g.supervisorId,
+        memberCount: g.students.length,
+        semanticMatches: matchObj ? matchObj.matchesText : "",
+      };
+    });
 
     // Build comprehensive prompt for AI
     const prompt = buildAutoGeneratePrompt(supervisorData, groupData);
@@ -432,7 +508,7 @@ function buildAutoGeneratePrompt(
   const groupAssignments = groups
     .map(
       (g) =>
-        `Group ${g.groupId} (${g.groupName}): Supervised by Supervisor ${g.supervisorId}`,
+        `Group ${g.groupId} (${g.groupName}): Supervised by Supervisor ${g.supervisorId}${g.semanticMatches ? ` | ${g.semanticMatches}` : ''}`,
     )
     .join("\n");
 
@@ -485,6 +561,7 @@ REQUIREMENTS:
 4. **Dynamic Panel Size**: Create ${optimalPanelCount} panels. Panel size should be flexible based on workload balance - some panels may have ${optimalSupervisorsPerPanel - 1} supervisors, others ${optimalSupervisorsPerPanel + 1}, as long as workload is balanced.
 5. **Expertise Distribution**: Balance technical expertise across panels.
 6. **Panel Chair**: Select the most experienced supervisor (based on achievements, workload) as chair for each panel.
+7. **Semantic Supervisor-Group Alignment**: Strongly prioritize assigning supervisors to panels evaluating groups where they have high similarity matches (as indicated by the 'Semantic Supervisor Matches' metadata on each group). This aligns evaluation expertise with project content.
 
 INSTRUCTIONS:
 Create ${optimalPanelCount} evaluation panels. For each panel, provide:
@@ -545,8 +622,8 @@ function parseAIPanelSuggestions(
       // Extract min/max supervisors
       const minMatch = section.match(/Min Supervisors:\s*(\d+)/i);
       const maxMatch = section.match(/Max Supervisors:\s*(\d+)/i);
-      const minSupervisors = minMatch ? parseInt(minMatch[1]) : 3;
-      const maxSupervisors = maxMatch ? parseInt(maxMatch[1]) : 5;
+      const minSupervisors = minMatch ? Math.max(2, parseInt(minMatch[1])) : 3;
+      const maxSupervisors = maxMatch ? Math.max(minSupervisors, parseInt(maxMatch[1])) : 5;
 
       // Extract chair
       const chairMatch = section.match(
