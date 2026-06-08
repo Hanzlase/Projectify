@@ -1,3 +1,4 @@
+// Trigger redeploy: Faculty profile scraping & AI matching pipeline v1.0.1
 import { CohereClient } from 'cohere-ai';
 
 const cohere = new CohereClient({
