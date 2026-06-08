@@ -2,6 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+function hasSoftwareEngineeringExpertise(supervisor: {
+  specialization?: string | null;
+  domains?: string | null;
+  skills?: string | null;
+  description?: string | null;
+}): boolean {
+  const text = [
+    supervisor.specialization,
+    supervisor.domains,
+    supervisor.skills,
+    supervisor.description,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return /\b(software engineering|software|web engineering|requirements engineering|quality assurance|qa|testing|se)\b/.test(text);
+}
+
 // GET - Fetch evaluation panels and statistics
 export async function GET(request: NextRequest) {
   try {
@@ -274,6 +293,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    if (!groupAssignments || groupAssignments.length === 0) {
+      return NextResponse.json({
+        error: 'Every evaluation panel must have at least one assigned group'
+      }, { status: 400 });
+    }
+
     // Get coordinator's campus
     const coordinator = await prisma.fYPCoordinator.findUnique({
       where: { userId },
@@ -294,6 +319,30 @@ export async function POST(request: NextRequest) {
       if (panelMembers.length > maxSupervisors) {
         return NextResponse.json({ 
           error: `Panel cannot have more than ${maxSupervisors} supervisors` 
+        }, { status: 400 });
+      }
+    }
+
+    if (panelMembers && panelMembers.length > 0) {
+      const supervisorIds = panelMembers.map((member: any) => member.supervisorId);
+      const selectedSupervisors = await prisma.fYPSupervisor.findMany({
+        where: {
+          userId: { in: supervisorIds },
+          campusId: coordinator.campusId
+        },
+        select: {
+          userId: true,
+          specialization: true,
+          domains: true,
+          skills: true,
+          description: true
+        }
+      });
+
+      const hasSEMember = selectedSupervisors.some(hasSoftwareEngineeringExpertise);
+      if (!hasSEMember) {
+        return NextResponse.json({
+          error: 'Every evaluation panel must include at least one Software Engineering member'
         }, { status: 400 });
       }
     }

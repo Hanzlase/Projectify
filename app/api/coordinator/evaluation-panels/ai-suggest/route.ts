@@ -22,6 +22,7 @@ interface SupervisorData {
   currentGroups: number;
   workloadPercentage: number;
   assignedGroupIds: number[];
+  hasSEExpertise: boolean;
 }
 
 interface GroupData {
@@ -30,6 +31,11 @@ interface GroupData {
   supervisorId: number | null;
   memberCount: number;
   semanticMatches?: string;
+  semanticSupervisorIds: number[];
+  projectTitle: string;
+  projectCategory: string;
+  projectText: string;
+  domainKey: string;
 }
 
 interface PanelSuggestion {
@@ -344,6 +350,7 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
         projectId: true,
         groupId: true,
         title: true,
+        category: true,
         description: true,
         abstractText: true,
       },
@@ -359,7 +366,7 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
           projects.find((p) => p.groupId === g.groupId) ||
           (g.projectId ? projects.find((p) => p.projectId === g.projectId) : null);
 
-        if (!project) return { groupId: g.groupId, matchesText: "" };
+        if (!project) return { groupId: g.groupId, matchesText: "", supervisorIds: [] };
 
         const textToEmbed = [
           project.title,
@@ -369,13 +376,13 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
           .filter(Boolean)
           .join(" ");
 
-        if (!textToEmbed.trim()) return { groupId: g.groupId, matchesText: "" };
+        if (!textToEmbed.trim()) return { groupId: g.groupId, matchesText: "", supervisorIds: [] };
 
         try {
           const embedding = await generateEmbedding(textToEmbed);
           const matches = await matchSupervisorsForProject(embedding, 3, campusId);
 
-          if (matches.length === 0) return { groupId: g.groupId, matchesText: "" };
+          if (matches.length === 0) return { groupId: g.groupId, matchesText: "", supervisorIds: [] };
 
           const matchesText = matches
             .map((match) => {
@@ -389,10 +396,11 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
           return {
             groupId: g.groupId,
             matchesText: `Semantic Supervisor Matches: ${matchesText}`,
+            supervisorIds: matches.map((match) => match.supervisorId),
           };
         } catch (error) {
           console.error(`Error matching supervisors for group ${g.groupId}:`, error);
-          return { groupId: g.groupId, matchesText: "" };
+          return { groupId: g.groupId, matchesText: "", supervisorIds: [] };
         }
       })
     );
@@ -402,6 +410,13 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
       const assignedGroupIds = groups
         .filter((g) => g.supervisorId === s.userId)
         .map((g) => g.groupId);
+
+      const hasSEExpertise = supervisorHasSEExpertise({
+        specialization: s.supervisor?.specialization || "",
+        domains: s.supervisor?.domains || "",
+        skills: s.supervisor?.skills || "",
+        description: s.supervisor?.description || "",
+      });
 
       return {
         userId: s.userId,
@@ -419,19 +434,52 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
             )
           : 0,
         assignedGroupIds,
+        hasSEExpertise,
       };
     });
 
     const groupData: GroupData[] = groups.map((g) => {
       const matchObj = groupSemanticMatches.find((m) => m.groupId === g.groupId);
+      const project =
+        projects.find((p) => p.groupId === g.groupId) ||
+        (g.projectId ? projects.find((p) => p.projectId === g.projectId) : null);
+      const projectText = [
+        project?.title || "",
+        project?.category || "",
+        project?.abstractText || "",
+        project?.description || "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       return {
         groupId: g.groupId,
         groupName: g.groupName || `Group ${g.groupId}`,
         supervisorId: g.supervisorId,
         memberCount: g.students.length,
         semanticMatches: matchObj ? matchObj.matchesText : "",
+        semanticSupervisorIds: matchObj?.supervisorIds || [],
+        projectTitle: project?.title || "",
+        projectCategory: project?.category || "",
+        projectText,
+        domainKey: getDomainKey(projectText),
       };
     });
+
+    if (groupData.length === 0) {
+      return NextResponse.json({
+        success: true,
+        panels: [],
+        summary: {
+          totalPanels: 0,
+          totalSupervisors: supervisorData.length,
+          totalGroups: 0,
+          averagePanelSize: 0,
+          averageGroupsPerPanel: 0,
+        },
+        message: "No eligible supervised groups with projects were found for panel creation.",
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // Build comprehensive prompt for AI
     const prompt = buildAutoGeneratePrompt(supervisorData, groupData);
@@ -460,12 +508,14 @@ async function handleAutoGeneratePanels(userId: number, cohort: string, fypPhase
         totalPanels: panelSuggestions.length,
         totalSupervisors: supervisorData.length,
         totalGroups: groupData.length,
-        averagePanelSize: Math.round(
-          supervisorData.length / panelSuggestions.length,
-        ),
-        averageGroupsPerPanel: Math.round(
-          groupData.length / panelSuggestions.length,
-        ),
+        averagePanelSize:
+          panelSuggestions.length > 0
+            ? Math.round(supervisorData.length / panelSuggestions.length)
+            : 0,
+        averageGroupsPerPanel:
+          panelSuggestions.length > 0
+            ? Math.round(groupData.length / panelSuggestions.length)
+            : 0,
       },
       timestamp: new Date().toISOString(),
     });
@@ -488,11 +538,7 @@ function buildAutoGeneratePrompt(
   // Build supervisor profiles
   const supervisorProfiles = supervisors
     .map((s) => {
-      const hasSEExpertise =
-        s.specialization?.toLowerCase().includes("software") ||
-        s.specialization?.toLowerCase().includes("se") ||
-        s.domains?.toLowerCase().includes("software") ||
-        s.skills?.toLowerCase().includes("software");
+      const hasSEExpertise = s.hasSEExpertise || supervisorHasSEExpertise(s);
 
       return `Supervisor ${s.userId} - ${s.name}:
   - Specialization: ${s.specialization}
@@ -515,13 +561,16 @@ function buildAutoGeneratePrompt(
   // Calculate optimal panel configuration
   const totalSupervisors = supervisors.length;
   const totalGroups = groups.length;
-  const avgGroupsPerSupervisor = totalGroups / totalSupervisors;
+  const avgGroupsPerSupervisor = totalSupervisors > 0 ? totalGroups / totalSupervisors : 0;
 
   // Dynamic panel count calculation
   let optimalPanelCount: number;
   let optimalSupervisorsPerPanel: number;
 
-  if (totalSupervisors <= 4) {
+  if (totalGroups <= 1) {
+    optimalPanelCount = 1;
+    optimalSupervisorsPerPanel = Math.max(1, totalSupervisors);
+  } else if (totalSupervisors <= 4) {
     optimalPanelCount = 1;
     optimalSupervisorsPerPanel = totalSupervisors;
   } else if (totalSupervisors <= 8) {
@@ -537,6 +586,8 @@ function buildAutoGeneratePrompt(
     optimalPanelCount = Math.ceil(totalSupervisors / 6);
     optimalSupervisorsPerPanel = 6;
   }
+
+  optimalPanelCount = Math.max(1, Math.min(optimalPanelCount, totalGroups));
 
   const avgGroupsPerPanel = Math.ceil(totalGroups / optimalPanelCount);
 
@@ -558,10 +609,11 @@ REQUIREMENTS:
 1. **Balanced Workload**: Distribute supervisors so each panel has similar total group counts. Avoid panels with ${Math.ceil(totalGroups * 0.6)} groups while others have ${Math.ceil(totalGroups * 0.1)}.
 2. **SE Expertise**: Each panel MUST have at least one supervisor with Software Engineering expertise.
 3. **Supervisor-Group Matching**: Each supervisor MUST be in the panel evaluating their own groups.
-4. **Dynamic Panel Size**: Create ${optimalPanelCount} panels. Panel size should be flexible based on workload balance - some panels may have ${optimalSupervisorsPerPanel - 1} supervisors, others ${optimalSupervisorsPerPanel + 1}, as long as workload is balanced.
+4. **Dynamic Panel Size**: Create ${optimalPanelCount} panels. Never create more panels than available groups. If there is only one group, create one panel and assign all suitable members to that panel. For 5-8 supervisors, prefer 2 panels with balanced membership, e.g. 8 supervisors means 4 and 4 members.
 5. **Expertise Distribution**: Balance technical expertise across panels.
 6. **Panel Chair**: Select the most experienced supervisor (based on achievements, workload) as chair for each panel.
 7. **Semantic Supervisor-Group Alignment**: Strongly prioritize assigning supervisors to panels evaluating groups where they have high similarity matches (as indicated by the 'Semantic Supervisor Matches' metadata on each group). This aligns evaluation expertise with project content.
+8. **Project-Domain Grouping**: Panels are created around group project domains. AI/ML/Data Science groups should be placed together with AI/ML/Data Science supervisors, Security groups with Security supervisors, and so on.
 
 INSTRUCTIONS:
 Create ${optimalPanelCount} evaluation panels. For each panel, provide:
@@ -581,9 +633,10 @@ Rationale: [Why this composition is balanced and effective]
 ---
 
 Ensure:
-- Every supervisor appears in exactly ONE panel
+- Prefer each supervisor appearing in one panel, but an SE supervisor may be reused when needed to satisfy the SE-member requirement
 - Every group is assigned to exactly ONE panel
-- Each panel has its supervisors' groups assigned to it
+- Every panel has at least ONE assigned group; do not produce empty panels
+- Each group MUST be assigned to the panel that contains its own supervisor
 - Workload is balanced (each panel has ~${avgGroupsPerPanel} groups, variance ±${Math.ceil(avgGroupsPerPanel * 0.2)})
 - Each panel has SE expertise
 - Panel sizes are flexible - prioritize workload balance over fixed supervisor counts
@@ -758,66 +811,371 @@ function parseAIPanelSuggestions(
   }
 }
 
+function supervisorHasSEExpertise(supervisor: {
+  specialization?: string;
+  domains?: string;
+  skills?: string;
+  description?: string;
+}): boolean {
+  const text = [
+    supervisor.specialization,
+    supervisor.domains,
+    supervisor.skills,
+    supervisor.description,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return /\b(software engineering|software|web engineering|requirements engineering|quality assurance|qa|testing|se)\b/.test(text);
+}
+
+const DOMAIN_KEYWORDS: Record<string, string[]> = {
+  "AI/ML": [
+    "ai",
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "computer vision",
+    "nlp",
+    "data mining",
+    "data science",
+    "neural",
+    "predictive",
+  ],
+  Security: ["security", "cyber", "cryptography", "forensics", "malware", "privacy", "authentication"],
+  "Software Engineering": [
+    "software engineering",
+    "web",
+    "mobile",
+    "app",
+    "requirements",
+    "testing",
+    "quality assurance",
+    "devops",
+    "saas",
+  ],
+  "Networks/Cloud": ["network", "cloud", "distributed", "iot", "edge", "serverless"],
+  "Embedded/Hardware": ["embedded", "hardware", "robotics", "sensor", "microcontroller", "arduino"],
+};
+
+function getDomainKey(text: string): string {
+  const normalized = text.toLowerCase();
+  let bestDomain = "General";
+  let bestScore = 0;
+
+  for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
+    const score = keywords.reduce(
+      (total, keyword) => total + (normalized.includes(keyword) ? 1 : 0),
+      0,
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      bestDomain = domain;
+    }
+  }
+
+  return bestDomain;
+}
+
+function supervisorProjectScore(supervisor: SupervisorData, group: GroupData): number {
+  const supervisorText = [
+    supervisor.specialization,
+    supervisor.domains,
+    supervisor.skills,
+    supervisor.description,
+  ]
+    .join(" ")
+    .toLowerCase();
+  const groupText = group.projectText.toLowerCase();
+  const domainKeywords = DOMAIN_KEYWORDS[group.domainKey] || [];
+
+  let score = 0;
+  if (group.semanticSupervisorIds.includes(supervisor.userId)) score += 8;
+  if (group.supervisorId === supervisor.userId) score += 5;
+  for (const keyword of domainKeywords) {
+    if (supervisorText.includes(keyword)) score += 2;
+    if (groupText.includes(keyword)) score += 1;
+  }
+  if (group.domainKey === "Software Engineering" && supervisor.hasSEExpertise) score += 3;
+
+  return score;
+}
+
+function sortSupervisorsForGroup(
+  group: GroupData,
+  supervisors: SupervisorData[],
+): SupervisorData[] {
+  return [...supervisors].sort(
+    (a, b) => supervisorProjectScore(b, group) - supervisorProjectScore(a, group),
+  );
+}
+
+function createPanelTitle(groupsInPanel: GroupData[], fallback: string): string {
+  const domains = Array.from(new Set(groupsInPanel.map((group) => group.domainKey))).filter(
+    (domain) => domain !== "General",
+  );
+  if (domains.length > 0) {
+    return `${domains.slice(0, 2).join(" & ")} Evaluation Panel`;
+  }
+  return fallback;
+}
+
+function normalizePanelMembers(
+  panel: PanelSuggestion,
+  supervisors: SupervisorData[],
+  groups: GroupData[],
+): PanelSuggestion {
+  const groupsInPanel = groups.filter((group) => panel.groups.includes(group.groupId));
+  const memberMap = new Map<number, PanelSuggestion["supervisors"][number]>();
+
+  for (const member of panel.supervisors) {
+    const supervisor = supervisors.find((s) => s.userId === member.supervisorId);
+    if (!supervisor || memberMap.has(member.supervisorId)) continue;
+    memberMap.set(member.supervisorId, {
+      supervisorId: member.supervisorId,
+      role: member.role,
+      name: supervisor.name,
+      reason: member.reason || "Selected for panel balance",
+    });
+  }
+
+  for (const group of groupsInPanel) {
+    if (group.supervisorId && !memberMap.has(group.supervisorId)) {
+      const supervisor = supervisors.find((s) => s.userId === group.supervisorId);
+      if (supervisor) {
+        memberMap.set(supervisor.userId, {
+          supervisorId: supervisor.userId,
+          role: "member",
+          name: supervisor.name,
+          reason: `Own supervisor for ${group.groupName}`,
+        });
+      }
+    }
+
+    for (const supervisor of sortSupervisorsForGroup(group, supervisors).slice(0, 2)) {
+      if (!memberMap.has(supervisor.userId) && supervisorProjectScore(supervisor, group) > 0) {
+        memberMap.set(supervisor.userId, {
+          supervisorId: supervisor.userId,
+          role: "member",
+          name: supervisor.name,
+          reason: `Semantic/project-domain match for ${group.groupName}`,
+        });
+      }
+    }
+  }
+
+  const hasSEMember = Array.from(memberMap.keys()).some((id) => {
+    const supervisor = supervisors.find((s) => s.userId === id);
+    return supervisor?.hasSEExpertise;
+  });
+
+  if (!hasSEMember) {
+    const seSupervisor = supervisors
+      .filter((supervisor) => supervisor.hasSEExpertise)
+      .sort((a, b) => {
+        const aScore = groupsInPanel.reduce((sum, group) => sum + supervisorProjectScore(a, group), 0);
+        const bScore = groupsInPanel.reduce((sum, group) => sum + supervisorProjectScore(b, group), 0);
+        return bScore - aScore;
+      })[0];
+
+    if (seSupervisor) {
+      memberMap.set(seSupervisor.userId, {
+        supervisorId: seSupervisor.userId,
+        role: "member",
+        name: seSupervisor.name,
+        reason: "Required Software Engineering member",
+      });
+    }
+  }
+
+  const members = Array.from(memberMap.values());
+  const chairId =
+    members.find((member) => member.role === "chair")?.supervisorId ||
+    members
+      .map((member) => supervisors.find((s) => s.userId === member.supervisorId))
+      .filter((supervisor): supervisor is SupervisorData => Boolean(supervisor))
+      .sort((a, b) => b.currentGroups - a.currentGroups)[0]?.userId ||
+    members[0]?.supervisorId;
+
+  const normalizedMembers = members.map((member) => ({
+    ...member,
+    role: member.supervisorId === chairId ? ("chair" as const) : ("member" as const),
+  }));
+
+  const title = createPanelTitle(groupsInPanel, panel.name);
+
+  return {
+    ...panel,
+    name: title.length > 100 ? title.substring(0, 100) : title,
+    description:
+      groupsInPanel.length > 0
+        ? `Evaluation panel for ${Array.from(new Set(groupsInPanel.map((group) => group.domainKey))).join(", ")} projects.`
+        : panel.description,
+    supervisors: normalizedMembers,
+    groups: groupsInPanel.map((group) => group.groupId),
+    minSupervisors: Math.max(1, Math.min(2, normalizedMembers.length)),
+    maxSupervisors: Math.max(normalizedMembers.length, normalizedMembers.length + 1),
+    rationale: `${panel.rationale} Every panel has assigned group projects, Pinecone supervisor matches were considered, and an SE member is included where available.`.substring(0, 1000),
+  };
+}
+
+function scorePanelForGroup(panel: PanelSuggestion, group: GroupData, groups: GroupData[]): number {
+  const groupsInPanel = groups.filter((g) => panel.groups.includes(g.groupId));
+  const sameDomainCount = groupsInPanel.filter((g) => g.domainKey === group.domainKey).length;
+  const semanticMemberCount = panel.supervisors.filter((member) =>
+    group.semanticSupervisorIds.includes(member.supervisorId),
+  ).length;
+  const ownSupervisorPresent = panel.supervisors.some(
+    (member) => member.supervisorId === group.supervisorId,
+  );
+
+  return sameDomainCount * 6 + semanticMemberCount * 5 + (ownSupervisorPresent ? 4 : 0) - groupsInPanel.length;
+}
+
+function calculatePanelCount(totalSupervisors: number, totalGroups: number): number {
+  if (totalGroups <= 0 || totalSupervisors <= 0) return 0;
+  if (totalGroups <= 1 || totalSupervisors <= 4) return 1;
+  if (totalSupervisors <= 8) return 2;
+  if (totalSupervisors <= 15) return 3;
+  if (totalSupervisors <= 24) return 4;
+  return Math.ceil(totalSupervisors / 6);
+}
+
+function getSupervisorDomains(supervisor: SupervisorData, groups: GroupData[]): string[] {
+  return Array.from(
+    new Set(
+      groups
+        .filter((group) => group.supervisorId === supervisor.userId)
+        .map((group) => group.domainKey),
+    ),
+  );
+}
+
+function scoreSupervisorForPanel(
+  supervisor: SupervisorData,
+  panelSupervisors: SupervisorData[],
+  panelGroups: GroupData[],
+  groups: GroupData[],
+): number {
+  const supervisorDomains = getSupervisorDomains(supervisor, groups);
+  const panelDomains = new Set(panelGroups.map((group) => group.domainKey));
+  const domainScore = supervisorDomains.reduce(
+    (score, domain) => score + (panelDomains.has(domain) ? 4 : 0),
+    0,
+  );
+  const semanticScore = panelGroups.reduce(
+    (score, group) => score + (group.semanticSupervisorIds.includes(supervisor.userId) ? 3 : 0),
+    0,
+  );
+  const seScore =
+    supervisor.hasSEExpertise &&
+    !panelSupervisors.some((panelSupervisor) => panelSupervisor.hasSEExpertise)
+      ? 2
+      : 0;
+
+  return domainScore + semanticScore + seScore;
+}
+
+function buildBalancedSupervisorPanels(
+  supervisors: SupervisorData[],
+  groups: GroupData[],
+): SupervisorData[][] {
+  const panelCount = Math.max(
+    1,
+    Math.min(calculatePanelCount(supervisors.length, groups.length), groups.length),
+  );
+  const targetPanelSize = Math.ceil(supervisors.length / panelCount);
+  const panels: SupervisorData[][] = Array.from({ length: panelCount }, () => []);
+  const panelLoads = Array.from({ length: panelCount }, () => 0);
+
+  const sortedSupervisors = [...supervisors].sort((a, b) => {
+    const groupDiff = b.assignedGroupIds.length - a.assignedGroupIds.length;
+    if (groupDiff !== 0) return groupDiff;
+    return a.userId - b.userId;
+  });
+
+  for (const supervisor of sortedSupervisors) {
+    const candidatePanels = panels
+      .map((panel, index) => ({ panel, index }))
+      .filter(({ panel }) => panel.length < targetPanelSize);
+    const availablePanels = candidatePanels.length > 0
+      ? candidatePanels
+      : panels.map((panel, index) => ({ panel, index }));
+
+    const ownGroups = groups.filter((group) => group.supervisorId === supervisor.userId);
+    const bestPanel = availablePanels.sort((a, b) => {
+      const aScore = scoreSupervisorForPanel(supervisor, a.panel, groupsForPanel(a.panel, groups), groups);
+      const bScore = scoreSupervisorForPanel(supervisor, b.panel, groupsForPanel(b.panel, groups), groups);
+      if (aScore !== bScore) return bScore - aScore;
+      if (panelLoads[a.index] !== panelLoads[b.index]) return panelLoads[a.index] - panelLoads[b.index];
+      return a.panel.length - b.panel.length;
+    })[0];
+
+    bestPanel.panel.push(supervisor);
+    panelLoads[bestPanel.index] += ownGroups.length;
+  }
+
+  return panels.filter((panel) => panel.length > 0);
+}
+
+function groupsForPanel(panelSupervisors: SupervisorData[], groups: GroupData[]): GroupData[] {
+  const supervisorIds = new Set(panelSupervisors.map((supervisor) => supervisor.userId));
+  return groups.filter((group) => group.supervisorId && supervisorIds.has(group.supervisorId));
+}
+
+function ensurePanelHasSEMember(
+  panelSupervisors: SupervisorData[],
+  allSupervisors: SupervisorData[],
+  groupsInPanel: GroupData[],
+): SupervisorData[] {
+  if (panelSupervisors.some((supervisor) => supervisor.hasSEExpertise)) {
+    return panelSupervisors;
+  }
+
+  const seSupervisor = allSupervisors
+    .filter((supervisor) => supervisor.hasSEExpertise)
+    .sort((a, b) => {
+      const aScore = groupsInPanel.reduce((sum, group) => sum + supervisorProjectScore(a, group), 0);
+      const bScore = groupsInPanel.reduce((sum, group) => sum + supervisorProjectScore(b, group), 0);
+      return bScore - aScore;
+    })[0];
+
+  return seSupervisor && !panelSupervisors.some((supervisor) => supervisor.userId === seSupervisor.userId)
+    ? [...panelSupervisors, seSupervisor]
+    : panelSupervisors;
+}
+
 function createFallbackPanels(
   supervisors: SupervisorData[],
   groups: GroupData[],
 ): PanelSuggestion[] {
+  if (groups.length === 0) return [];
+
   const panels: PanelSuggestion[] = [];
 
-  // Calculate optimal panel count based on supervisors and groups
-  const totalSupervisors = supervisors.length;
-  const totalGroups = groups.length;
-
-  let panelCount: number;
-  if (totalSupervisors <= 4) {
-    panelCount = 1;
-  } else if (totalSupervisors <= 8) {
-    panelCount = 2;
-  } else if (totalSupervisors <= 15) {
-    panelCount = 3;
-  } else if (totalSupervisors <= 24) {
-    panelCount = 4;
-  } else {
-    panelCount = Math.ceil(totalSupervisors / 6);
-  }
-
-  const supervisorsPerPanel = Math.ceil(totalSupervisors / panelCount);
-
-  // Sort supervisors by workload (groups assigned) for balanced distribution
-  const sortedSupervisors = [...supervisors].sort(
-    (a, b) => b.assignedGroupIds.length - a.assignedGroupIds.length,
-  );
-
-  // Distribute supervisors across panels in round-robin to balance workload
-  const panelSupervisors: SupervisorData[][] = Array.from(
-    { length: panelCount },
-    () => [],
-  );
-
-  sortedSupervisors.forEach((supervisor, index) => {
-    const panelIndex = index % panelCount;
-    panelSupervisors[panelIndex].push(supervisor);
-  });
+  const supervisorPanels = buildBalancedSupervisorPanels(supervisors, groups);
 
   // Create panels
-  for (let i = 0; i < panelCount; i++) {
-    const supervisorsInPanel = panelSupervisors[i];
+  for (let i = 0; i < supervisorPanels.length; i++) {
+    let supervisorsInPanel = supervisorPanels[i];
+    const groupsInPanel = groupsForPanel(supervisorsInPanel, groups);
 
-    if (supervisorsInPanel.length === 0) continue;
+    if (groupsInPanel.length === 0) continue;
 
-    // Collect all groups for this panel's supervisors
-    const panelGroupIds = supervisorsInPanel.flatMap((s) => s.assignedGroupIds);
+    const panelGroupIds = groupsInPanel.map((group) => group.groupId);
+    supervisorsInPanel = ensurePanelHasSEMember(supervisorsInPanel, supervisors, groupsInPanel);
 
-    // Select chair (most experienced)
-    const chair = supervisorsInPanel.reduce((prev, curr) =>
-      curr.currentGroups > prev.currentGroups ? curr : prev,
+    const chair = supervisorsInPanel.reduce(
+      (prev, curr) => (curr.currentGroups > prev.currentGroups ? curr : prev),
+      supervisorsInPanel[0],
     );
 
-    panels.push({
-      name: `Evaluation Panel ${String.fromCharCode(65 + i)}`,
-      description: `FYP Evaluation Panel with ${supervisorsInPanel.length} supervisors evaluating ${panelGroupIds.length} groups`,
-      minSupervisors: Math.max(2, supervisorsInPanel.length - 1),
-      maxSupervisors: supervisorsInPanel.length + 2,
+    const panel = normalizePanelMembers({
+      name: createPanelTitle(groupsInPanel, `Evaluation Panel ${String.fromCharCode(65 + i)}`),
+      description: `FYP Evaluation Panel for ${groupsInPanel.map((group) => group.domainKey).join(", ")} projects`,
+      minSupervisors: Math.max(1, Math.min(2, supervisorsInPanel.length)),
+      maxSupervisors: supervisorsInPanel.length + 1,
       supervisors: supervisorsInPanel.map((s) => ({
         supervisorId: s.userId,
         role: s.userId === chair.userId ? "chair" : "member",
@@ -828,8 +1186,10 @@ function createFallbackPanels(
             : `Supervising ${s.assignedGroupIds.length} groups in this panel`,
       })),
       groups: panelGroupIds,
-      rationale: `Balanced panel with ${panelGroupIds.length} groups distributed among ${supervisorsInPanel.length} supervisors. Workload per supervisor: ~${(panelGroupIds.length / supervisorsInPanel.length).toFixed(1)} groups.`,
-    });
+      rationale: `Created around ${groupsInPanel.map((group) => group.domainKey).join(", ")} group projects with Pinecone semantic supervisor matches.`,
+    }, supervisors, groups);
+
+    panels.push(panel);
   }
 
   return panels;
@@ -840,33 +1200,49 @@ function validateAndFixPanels(
   supervisors: SupervisorData[],
   groups: GroupData[],
 ): PanelSuggestion[] {
-  const usedSupervisorIds = new Set<number>();
+  if (groups.length === 0) return [];
+
   const usedGroupIds = new Set<number>();
   const validPanels: PanelSuggestion[] = [];
 
-  // First pass: validate and collect used IDs
+  // First pass: keep valid panels, but require at least one real group.
   for (const panel of panels) {
+    const seenSupervisorIds = new Set<number>();
     const validSupervisors = panel.supervisors.filter((s) => {
-      const supervisor = supervisors.find(
-        (sup) => sup.userId === s.supervisorId,
-      );
-      return supervisor && !usedSupervisorIds.has(s.supervisorId);
+      const supervisor = supervisors.find((sup) => sup.userId === s.supervisorId);
+      if (!supervisor || seenSupervisorIds.has(s.supervisorId)) return false;
+      seenSupervisorIds.add(s.supervisorId);
+      return true;
     });
 
     if (validSupervisors.length === 0) continue;
 
-    // Mark supervisors as used
-    validSupervisors.forEach((s) => usedSupervisorIds.add(s.supervisorId));
+    const explicitGroupIds = panel.groups.filter((groupId) => {
+      const group = groups.find((g) => g.groupId === groupId);
+      return group && !usedGroupIds.has(groupId);
+    });
 
-    // Ensure groups match supervisors
     const supervisorIds = validSupervisors.map((s) => s.supervisorId);
-    const validGroups = groups
+    const supervisorGroupIds = groups
+      .filter((g) => supervisorIds.includes(g.supervisorId || 0) && !usedGroupIds.has(g.groupId))
+      .map((g) => g.groupId);
+    const semanticGroupIds = groups
       .filter(
         (g) =>
-          supervisorIds.includes(g.supervisorId || 0) &&
+          g.semanticSupervisorIds.some((id) => supervisorIds.includes(id)) &&
           !usedGroupIds.has(g.groupId),
       )
       .map((g) => g.groupId);
+
+    const validGroups = Array.from(
+      new Set(
+        explicitGroupIds.length > 0
+          ? explicitGroupIds
+          : [...supervisorGroupIds, ...semanticGroupIds],
+      ),
+    );
+
+    if (validGroups.length === 0) continue;
 
     validGroups.forEach((gId) => usedGroupIds.add(gId));
 
@@ -880,47 +1256,29 @@ function validateAndFixPanels(
       ...panel,
       supervisors: validSupervisors,
       groups: validGroups,
-      minSupervisors: Math.max(2, validSupervisors.length - 1),
+      minSupervisors: Math.max(1, Math.min(2, validSupervisors.length)),
       maxSupervisors: validSupervisors.length + 1,
     });
   }
 
-  // Second pass: assign remaining supervisors and groups
-  const remainingSupervisors = supervisors.filter(
-    (s) => !usedSupervisorIds.has(s.userId),
-  );
-  const remainingGroups = groups.filter((g) => !usedGroupIds.has(g.groupId));
-
-  if (remainingSupervisors.length > 0 && validPanels.length > 0) {
-    // Distribute remaining supervisors to smallest panels
-    const sortedPanels = [...validPanels].sort(
-      (a, b) => a.supervisors.length - b.supervisors.length,
-    );
-
-    remainingSupervisors.forEach((supervisor, idx) => {
-      const targetPanel = sortedPanels[idx % sortedPanels.length];
-      targetPanel.supervisors.push({
-        supervisorId: supervisor.userId,
-        role: "member",
-        name: supervisor.name,
-        reason: `Added for balance`,
-      });
-
-      // Add supervisor's groups
-      const supervisorGroups = groups
-        .filter(
-          (g) =>
-            g.supervisorId === supervisor.userId &&
-            !usedGroupIds.has(g.groupId),
-        )
-        .map((g) => g.groupId);
-
-      targetPanel.groups.push(...supervisorGroups);
-      supervisorGroups.forEach((gId) => usedGroupIds.add(gId));
-    });
+  if (validPanels.length === 0) {
+    return createFallbackPanels(supervisors, groups);
   }
 
-  return validPanels.length > 0
-    ? validPanels
-    : createFallbackPanels(supervisors, groups);
+  // Second pass: assign every remaining group to the best project-domain panel.
+  const remainingGroups = groups.filter((g) => !usedGroupIds.has(g.groupId));
+
+  for (const group of remainingGroups) {
+    const targetPanel = [...validPanels].sort(
+      (a, b) => scorePanelForGroup(b, group, groups) - scorePanelForGroup(a, group, groups),
+    )[0];
+    targetPanel.groups.push(group.groupId);
+    usedGroupIds.add(group.groupId);
+  }
+
+  const repairedPanels = validPanels
+    .map((panel) => normalizePanelMembers(panel, supervisors, groups))
+    .filter((panel) => panel.groups.length > 0);
+
+  return repairedPanels.length > 0 ? repairedPanels : createFallbackPanels(supervisors, groups);
 }
