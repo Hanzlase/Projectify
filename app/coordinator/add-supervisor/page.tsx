@@ -377,7 +377,7 @@ export default function AddSupervisorPage() {
                       <h4 className="font-semibold text-sm text-gray-900 dark:text-[#E4E4E7] mb-2">Auto-Generated Credentials:</h4>
                       <ul className="text-sm text-[#1E6F3E] dark:text-[#1E6F3E] space-y-1">
                         <li>• Username: Generated from email (part before @)</li>
-                        <li>• Password: username + 123</li>
+                        <li>• Password: email prefix without punctuation + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>
                         <li>• Specialization can be set by the supervisor later</li>
                       </ul>
@@ -449,7 +449,7 @@ export default function AddSupervisorPage() {
                       <h4 className="font-semibold text-sm text-gray-900 dark:text-[#E4E4E7] mb-2">Auto-Generated Credentials:</h4>
                       <ul className="text-sm text-[#1E6F3E] dark:text-[#1E6F3E] space-y-1">
                         <li>• Username: Generated from email (part before @)</li>
-                        <li>• Password: username + 123</li>
+                        <li>• Password: email prefix without punctuation + 123</li>
                         <li>• Campus: {campusName || 'N/A'}</li>
                       </ul>
                     </div>
