@@ -91,12 +91,10 @@ interface Comment {
 
 interface GroupDetails {
   assignment: any;
-  maxScore: number;
   activePhase?: { name: string; weightage: number } | null;
   group: any;
   project: any;
   submissions: any[];
-  comments: Comment[];
   currentUserRole: string;
   isGroupSupervisor: boolean;
   panelMembers: any[];
@@ -118,19 +116,10 @@ export default function SupervisorEvaluationsPage() {
   const [groupDetails, setGroupDetails] = useState<GroupDetails | null>(null);
   const [loadingGroupDetails, setLoadingGroupDetails] = useState(false);
 
-  // Comment state
-  const [newComment, setNewComment] = useState("");
-  const [addingComment, setAddingComment] = useState(false);
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
-  const [editingContent, setEditingContent] = useState("");
   // Submission-level comments state
   const [newSubmissionComments, setNewSubmissionComments] = useState<Record<number, string>>({});
   const [addingSubmissionComment, setAddingSubmissionComment] = useState(false);
   const commentEndRef = useRef<HTMLDivElement>(null);
-
-  // Score state
-  const [scoreInput, setScoreInput] = useState("");
-  const [savingScore, setSavingScore] = useState(false);
 
   // Active tab in group modal
   const [groupModalTab, setGroupModalTab] = useState<"overview" | "submissions" | "score-submissions" | "comments">("overview");
@@ -181,8 +170,6 @@ export default function SupervisorEvaluationsPage() {
     setShowGroupModal(true);
     setLoadingGroupDetails(true);
     setGroupModalTab("overview");
-    setNewComment("");
-    setScoreInput("");
     setExpandedSubmissions(new Set());
 
     try {
@@ -190,9 +177,6 @@ export default function SupervisorEvaluationsPage() {
       if (res.ok) {
         const data = await res.json();
         setGroupDetails(data);
-        if (data.assignment.score !== null && data.assignment.score !== undefined) {
-          setScoreInput(data.assignment.score.toString());
-        }
       } else {
         alert("Failed to load group details");
         setShowGroupModal(false);
@@ -203,47 +187,6 @@ export default function SupervisorEvaluationsPage() {
       setShowGroupModal(false);
     } finally {
       setLoadingGroupDetails(false);
-    }
-  };
-
-  const handleAddComment = async () => {
-    if (!newComment.trim() || !selectedGroupPanel) return;
-    setAddingComment(true);
-
-    try {
-      const res = await fetch(
-        `/api/supervisor/evaluations/${selectedGroupPanel.panelId}/${selectedGroupPanel.groupId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: newComment }),
-        }
-      );
-
-      if (res.ok) {
-        const data = await res.json();
-        setGroupDetails(prev => prev ? {
-          ...prev,
-          comments: [data.comment, ...prev.comments]
-        } : null);
-        setNewComment("");
-        // Update comment count in panels
-        setPanels(prev => prev.map(p => ({
-          ...p,
-          groups: p.groups.map(g =>
-            g.groupId === selectedGroupPanel.groupId && p.panelId === selectedGroupPanel.panelId
-              ? { ...g, commentCount: g.commentCount + 1 }
-              : g
-          )
-        })));
-      } else {
-        const error = await res.json();
-        alert(error.error || "Failed to add comment");
-      }
-    } catch (error) {
-      alert("Failed to add comment");
-    } finally {
-      setAddingComment(false);
     }
   };
 
@@ -285,7 +228,6 @@ export default function SupervisorEvaluationsPage() {
     // Optimistic
     setGroupDetails(prev => prev ? {
       ...prev,
-      comments: prev.comments.filter(c => c.commentId !== commentId),
       submissions: prev.submissions.map((s: any) => ({
         ...s,
         comments: (s.comments || []).filter((c: any) => c.commentId !== commentId)
@@ -307,51 +249,6 @@ export default function SupervisorEvaluationsPage() {
       }
     } catch {
       openGroupEvaluation(selectedGroupPanel.panelId, selectedGroupPanel.groupId);
-    }
-  };
-
-  const handleSaveScore = async () => {
-    if (!selectedGroupPanel || !scoreInput || !groupDetails) return;
-    const score = parseInt(scoreInput);
-    const maxScore = groupDetails.maxScore || 100;
-    if (isNaN(score) || score < 0 || score > maxScore) {
-      alert(`Score must be between 0 and ${maxScore}`);
-      return;
-    }
-    setSavingScore(true);
-
-    try {
-      const res = await fetch(
-        `/api/supervisor/evaluations/${selectedGroupPanel.panelId}/${selectedGroupPanel.groupId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "score", score, maxScore }),
-        }
-      );
-
-      if (res.ok) {
-        // Update local state
-        setGroupDetails(prev => prev ? {
-          ...prev,
-          assignment: { ...prev.assignment, score, scoredAt: new Date().toISOString() }
-        } : null);
-        setPanels(prev => prev.map(p => ({
-          ...p,
-          groups: p.groups.map(g =>
-            g.groupId === selectedGroupPanel.groupId && p.panelId === selectedGroupPanel.panelId
-              ? { ...g, score, scoredAt: new Date().toISOString() }
-              : g
-          )
-        })));
-      } else {
-        const error = await res.json();
-        alert(error.error || "Failed to save score");
-      }
-    } catch {
-      alert("Failed to save score");
-    } finally {
-      setSavingScore(false);
     }
   };
 
@@ -886,11 +783,6 @@ export default function SupervisorEvaluationsPage() {
                         {groupDetails.currentUserRole === "chair" ? "Panel Head" : "Panel Member"}
                       </span>
                     )}
-                    {groupDetails?.assignment.score !== null && groupDetails?.assignment.score !== undefined && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#1E6F3E] text-white font-bold">
-                        Score: {groupDetails.assignment.score}/{groupDetails.maxScore || 100}
-                      </span>
-                    )}
                     {/* Active Phase Indicator */}
                     {groupDetails?.activePhase && (
                       <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1.5 border border-amber-200 dark:border-amber-800">
@@ -941,7 +833,7 @@ export default function SupervisorEvaluationsPage() {
                       <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
                         groupModalTab === tab ? "bg-[#1E6F3E] text-white" : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
                       }`}>
-                        {groupDetails.comments.length}
+                        {groupDetails.submissions.reduce((count: number, submission: any) => count + (submission.comments?.length || 0), 0)}
                       </span>
                     )}
                   </button>
@@ -969,79 +861,50 @@ export default function SupervisorEvaluationsPage() {
                     {/* ========== OVERVIEW TAB ========== */}
                     {groupModalTab === "overview" && (
                       <div className="space-y-5">
-                        {/* Score Section - Panel Head Only */}
-                        {groupDetails.currentUserRole === "chair" && (
-                          <div className="p-5 rounded-2xl border-2 border-[#1E6F3E]/20 bg-gradient-to-br from-[#1E6F3E]/5 to-[#1E6F3E]/10 dark:from-[#1E6F3E]/10 dark:to-[#1E6F3E]/20">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-lg bg-[#1E6F3E] flex items-center justify-center">
-                                <Star className="w-4 h-4 text-white" />
-                              </div>
-                              Score Group
-                              <span className="text-xs font-normal text-gray-500 dark:text-zinc-400 ml-auto">
-                                Max: {groupDetails.maxScore || 100}
-                              </span>
-                            </h3>
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={groupDetails.maxScore || 100}
-                                  value={scoreInput}
-                                  onChange={(e) => setScoreInput(e.target.value)}
-                                  placeholder={`0 - ${groupDetails.maxScore || 100}`}
-                                  className="w-40 rounded-xl border-[#1E6F3E]/30 focus:border-[#1E6F3E] bg-white dark:bg-[#27272A] h-11 text-center text-lg font-bold"
-                                />
-                              </div>
-                              <Button
-                                onClick={handleSaveScore}
-                                disabled={savingScore || !scoreInput}
-                                className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl h-11 px-6 font-semibold shadow-sm"
-                              >
-                                {savingScore ? (
-                                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                ) : (
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                )}
-                                {savingScore ? "Saving..." : "Save Score"}
-                              </Button>
-                              {groupDetails.assignment.score !== null && groupDetails.assignment.score !== undefined && (
-                                <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#27272A] rounded-xl border border-gray-200 dark:border-zinc-700">
-                                  <span className="text-sm text-gray-500 dark:text-zinc-400">Current:</span>
-                                  <span className="text-lg font-bold text-[#1E6F3E]">{groupDetails.assignment.score}</span>
-                                  <span className="text-sm text-gray-400">/ {groupDetails.maxScore || 100}</span>
-                                  {groupDetails.assignment.scoredAt && (
-                                    <span className="text-xs text-gray-400 ml-1">
-                                      &middot; {new Date(groupDetails.assignment.scoredAt).toLocaleDateString()}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        {(() => {
+                          const phaseSubmission = groupDetails.submissions[0];
+                          const hasSupervisorScore = phaseSubmission?.supervisorScore !== null && phaseSubmission?.supervisorScore !== undefined;
+                          const hasPanelScore = phaseSubmission?.panelScore !== null && phaseSubmission?.panelScore !== undefined;
+                          const phaseTotalMarks = phaseSubmission?.totalMarks || 100;
+                          const combinedScore = hasSupervisorScore && hasPanelScore
+                            ? (phaseSubmission.supervisorScore * 0.45) + (phaseSubmission.panelScore * 0.55)
+                            : null;
 
-                        {/* Score display for non-chair */}
-                        {groupDetails.currentUserRole !== "chair" && groupDetails.assignment.score !== null && groupDetails.assignment.score !== undefined && (
-                          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#1E6F3E]/5 to-transparent border border-[#1E6F3E]/15">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-[#1E6F3E] flex items-center justify-center">
-                                <Star className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500 dark:text-zinc-400">Panel Score</p>
-                                <p className="text-xl font-bold text-[#1E6F3E]">
-                                  {groupDetails.assignment.score}<span className="text-sm font-normal text-gray-400">/{groupDetails.maxScore || 100}</span>
-                                </p>
-                              </div>
-                              {groupDetails.assignment.scoredAt && (
-                                <span className="text-xs text-gray-400 ml-auto">
-                                  Scored on {new Date(groupDetails.assignment.scoredAt).toLocaleDateString()}
+                          return (
+                            <div className="p-5 rounded-2xl border-2 border-[#1E6F3E]/20 bg-gradient-to-br from-[#1E6F3E]/5 to-[#1E6F3E]/10 dark:from-[#1E6F3E]/10 dark:to-[#1E6F3E]/20">
+                              <h3 className="text-base font-bold text-gray-900 dark:text-[#E4E4E7] mb-4 flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-[#1E6F3E] flex items-center justify-center">
+                                  <Star className="w-4 h-4 text-white" />
+                                </div>
+                                Phase Score
+                                <span className="text-xs font-normal text-gray-500 dark:text-zinc-400 ml-auto">
+                                  {groupDetails.activePhase ? `${groupDetails.activePhase.name} (${groupDetails.activePhase.weightage}%)` : "Active phase"}
                                 </span>
-                              )}
+                              </h3>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="p-4 rounded-xl bg-white dark:bg-[#27272A] border border-gray-200 dark:border-zinc-700">
+                                  <p className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">Supervisor</p>
+                                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                    {hasSupervisorScore ? phaseSubmission.supervisorScore : "Pending"}
+                                  </p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-white dark:bg-[#27272A] border border-gray-200 dark:border-zinc-700">
+                                  <p className="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Panel Members</p>
+                                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                    {hasPanelScore ? phaseSubmission.panelScore : "Pending"}
+                                  </p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-white dark:bg-[#27272A] border border-gray-200 dark:border-zinc-700">
+                                  <p className="text-xs font-bold text-[#1E6F3E] uppercase tracking-wider mb-1">Phase Total</p>
+                                  <p className="text-2xl font-bold text-[#1E6F3E]">
+                                    {combinedScore !== null ? combinedScore.toFixed(1) : "Pending"}
+                                  </p>
+                                  <p className="text-[10px] text-gray-400 mt-0.5">/{phaseTotalMarks} marks</p>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
 
                         {/* Quick Stats Row */}
                         <div className="grid grid-cols-3 gap-3">
@@ -1054,8 +917,10 @@ export default function SupervisorEvaluationsPage() {
                             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Submissions</p>
                           </div>
                           <div className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700 text-center">
-                            <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">{groupDetails.comments.length}</p>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Comments</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-[#E4E4E7]">
+                              {groupDetails.submissions.reduce((count: number, submission: any) => count + (submission.comments?.length || 0), 0)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Phase Comments</p>
                           </div>
                         </div>
 
@@ -1468,7 +1333,7 @@ export default function SupervisorEvaluationsPage() {
                               <Star className="w-4 h-4 text-white" />
                             </div>
                             <div>
-                              <h4 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Submission Scoring</h4>
+                              <h4 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Phase Scoring</h4>
                               <p className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">
                                 {groupDetails.isGroupSupervisor && groupDetails.currentUserRole === 'chair'
                                    ? "You can score as both the group's supervisor (45%) and a panel member. Panel members share the 55% panel portion equally."
@@ -1675,17 +1540,17 @@ export default function SupervisorEvaluationsPage() {
                                         </div>
                                       )}
 
-                                      {/* Panel Scoring (any member) */}
+                                      {/* Phase Scoring (any member) */}
                                       {groupDetails.currentUserRole && (
                                         <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/20 dark:border-[#1E6F3E]/30">
                                           <div className="flex items-center justify-between mb-3">
                                             <h5 className="text-sm font-bold text-[#1E6F3E] flex items-center gap-2">
                                               <Award className="w-4 h-4" />
-                                              Panel Scoring
+                                              Phase Scoring
                                             </h5>
                                             {hasPanelScore && (
                                               <span className="text-xs text-[#1E6F3E] bg-[#1E6F3E]/10 dark:bg-[#1E6F3E]/20 px-2 py-0.5 rounded-full font-medium">
-                                                Panel Avg: {sub.panelScore}/{totalMarks}
+                                                Phase Avg: {sub.panelScore}/{totalMarks}
                                               </span>
                                             )}
                                             {sub.panelMemberScores && (
@@ -1762,102 +1627,118 @@ export default function SupervisorEvaluationsPage() {
 
                     {/* ========== COMMENTS TAB ========== */}
                     {groupModalTab === "comments" && (
-                      <div className="flex flex-col" style={{ minHeight: "400px" }}>
-                        {/* Add Comment */}
-                        <div className="pb-4 mb-4 border-b border-gray-200 dark:border-zinc-700">
-                          <p className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Add a Comment</p>
-                          <div className="flex gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1E6F3E] to-[#166534] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">
-                              {session?.user?.name?.charAt(0) || "?"}
-                            </div>
-                            <div className="flex-1 flex gap-2">
-                              <Input
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Share your feedback or observations..."
-                                className="flex-1 rounded-xl border-gray-300 dark:border-zinc-600 h-10 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleAddComment();
-                                  }
-                                }}
-                              />
-                              <Button
-                                onClick={handleAddComment}
-                                disabled={addingComment || !newComment.trim()}
-                                className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl px-4 h-10 shadow-sm"
-                              >
-                                {addingComment ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Send className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
+                      <div className="flex flex-col gap-4" style={{ minHeight: "400px" }}>
+                        <div className="p-4 rounded-xl bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border border-[#1E6F3E]/15">
+                          <p className="text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Phase Comments</p>
+                          <p className="text-sm text-gray-600 dark:text-zinc-300">
+                            Comments are saved against the active phase submission, not the panel assignment.
+                          </p>
                         </div>
 
-                        {/* Comments List */}
-                        <div className="space-y-3 flex-1 overflow-y-auto">
-                          {groupDetails.comments.length === 0 ? (
+                        <div className="space-y-4 flex-1 overflow-y-auto">
+                          {groupDetails.submissions.length === 0 ? (
                             <div className="text-center py-16">
                               <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                                 <MessageSquare className="w-8 h-8 text-gray-300 dark:text-zinc-400" />
                               </div>
-                              <h4 className="text-base font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Comments Yet</h4>
+                              <h4 className="text-base font-semibold text-gray-700 dark:text-zinc-300 mb-1">No Phase Comments Yet</h4>
                               <p className="text-sm text-gray-500 dark:text-zinc-400">
-                                Be the first to share your feedback about this group
+                                Add a comment to the current phase submission.
                               </p>
                             </div>
                           ) : (
-                            groupDetails.comments.map((comment, cIdx) => (
+                            groupDetails.submissions.map((submission: any, sIdx: number) => (
                               <motion.div
-                                key={comment.commentId}
+                                key={submission.submissionId}
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: cIdx * 0.03 }}
-                                className={`p-4 rounded-xl border transition-colors ${
-                                  comment.isOwn
-                                    ? "bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border-[#1E6F3E]/20 hover:border-[#1E6F3E]/30"
-                                    : "bg-white dark:bg-zinc-700/50 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600"
-                                }`}
+                                transition={{ delay: sIdx * 0.03 }}
+                                className="rounded-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-[#27272A]"
                               >
-                                <div className="flex items-start gap-3">
-                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                                    comment.isOwn 
-                                      ? "bg-[#1E6F3E] text-white" 
-                                      : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
-                                  }`}>
-                                    {comment.userName?.charAt(0) || "?"}
+                                <div className="px-5 py-4 bg-gray-50 dark:bg-[#27272A]/80 border-b border-gray-200 dark:border-zinc-700 flex items-center justify-between gap-3">
+                                  <div>
+                                    <p className="font-bold text-gray-900 dark:text-[#E4E4E7]">{submission.title || `Evaluation ${sIdx + 1}`}</p>
+                                    <p className="text-xs text-gray-500 dark:text-zinc-400">Phase-scoped comments</p>
                                   </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">
-                                          {comment.userName}
-                                        </span>
-                                        {comment.isOwn && (
-                                          <span className="text-xs px-1.5 py-0.5 rounded bg-[#1E6F3E]/10 text-[#1E6F3E] font-medium">You</span>
-                                        )}
-                                        <span className="text-xs text-gray-400 dark:text-zinc-500">
-                                          {new Date(comment.createdAt).toLocaleDateString()} at{" "}
-                                          {new Date(comment.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                        </span>
-                                      </div>
-                                      {comment.isOwn && (
-                                        <button
-                                          onClick={() => handleDeleteComment(comment.commentId)}
-                                          className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"
-                                          title="Delete comment"
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#1E6F3E]/10 text-[#1E6F3E] font-semibold">
+                                    {submission.comments?.length || 0} comments
+                                  </span>
+                                </div>
+
+                                <div className="p-5 space-y-4">
+                                  <div className="flex gap-2">
+                                    <Input
+                                      value={newSubmissionComments[submission.submissionId] || ""}
+                                      onChange={(e) => setNewSubmissionComments(prev => ({ ...prev, [submission.submissionId]: e.target.value }))}
+                                      placeholder="Share phase feedback or observations..."
+                                      className="flex-1 rounded-xl border-gray-300 dark:border-zinc-600 h-10 focus:border-[#1E6F3E] focus:ring-[#1E6F3E]/20"
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                          e.preventDefault();
+                                          handleAddSubmissionComment(submission.submissionId);
+                                        }
+                                      }}
+                                    />
+                                    <Button
+                                      onClick={() => handleAddSubmissionComment(submission.submissionId)}
+                                      disabled={addingSubmissionComment || !newSubmissionComments[submission.submissionId]?.trim()}
+                                      className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-xl px-4 h-10 shadow-sm"
+                                    >
+                                      {addingSubmissionComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                    </Button>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    {(submission.comments || []).length === 0 ? (
+                                      <p className="text-sm text-gray-500 dark:text-zinc-400 italic">No comments on this phase yet.</p>
+                                    ) : (
+                                      submission.comments.map((comment: Comment, cIdx: number) => (
+                                        <motion.div
+                                          key={comment.commentId}
+                                          initial={{ opacity: 0, y: 5 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{ delay: cIdx * 0.03 }}
+                                          className={`p-4 rounded-xl border transition-colors ${
+                                            comment.isOwn
+                                              ? "bg-[#1E6F3E]/5 dark:bg-[#1E6F3E]/10 border-[#1E6F3E]/20 hover:border-[#1E6F3E]/30"
+                                              : "bg-white dark:bg-zinc-700/50 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-gray-600"
+                                          }`}
                                         >
-                                          <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      )}
-                                    </div>
-                                    <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                                      {comment.content}
-                                    </p>
+                                          <div className="flex items-start gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                                              comment.isOwn
+                                                ? "bg-[#1E6F3E] text-white"
+                                                : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-zinc-300"
+                                            }`}>
+                                              {comment.userName?.charAt(0) || "?"}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                  <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">{comment.userName}</span>
+                                                  {comment.isOwn && (
+                                                    <span className="text-xs px-1.5 py-0.5 rounded bg-[#1E6F3E]/10 text-[#1E6F3E] font-medium">You</span>
+                                                  )}
+                                                  <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                                    {new Date(comment.createdAt).toLocaleDateString()} at {new Date(comment.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                  </span>
+                                                </div>
+                                                {comment.isOwn && (
+                                                  <button
+                                                    onClick={() => handleDeleteComment(comment.commentId)}
+                                                    className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"
+                                                    title="Delete comment"
+                                                  >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
+                                              </div>
+                                              <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">{comment.content}</p>
+                                            </div>
+                                          </div>
+                                        </motion.div>
+                                      ))
+                                    )}
                                   </div>
                                 </div>
                               </motion.div>

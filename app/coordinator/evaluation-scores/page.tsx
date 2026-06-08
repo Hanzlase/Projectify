@@ -125,6 +125,7 @@ export default function CoordinatorEvaluationScoresPage() {
   // FYP Total Scores
   const [fypScores, setFypScores] = useState<FypGroupScore[]>([]);
   const [fypScoresCohort, setFypScoresCohort] = useState<"REGULAR" | "DELAYED">("REGULAR");
+  const [selectedFypTrack, setSelectedFypTrack] = useState<"ALL" | "FYP_1" | "FYP_2">("ALL");
   const [loadingFypScores, setLoadingFypScores] = useState(false);
   const [expandedFypGroups, setExpandedFypGroups] = useState<Set<number>>(new Set());
   const [activeView, setActiveView] = useState<"submissions" | "fyp-totals">("submissions");
@@ -772,6 +773,21 @@ export default function CoordinatorEvaluationScoresPage() {
                   Delayed Cohort
                 </button>
               </div>
+              <div className="flex gap-2 p-1 bg-gray-100 dark:bg-[#27272A] rounded-xl border border-gray-200/50 dark:border-zinc-700/50">
+                {(["ALL", "FYP_1", "FYP_2"] as const).map((track) => (
+                  <button
+                    key={track}
+                    onClick={() => setSelectedFypTrack(track)}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                      selectedFypTrack === track
+                        ? "bg-white dark:bg-zinc-700 text-[#1E6F3E] shadow-sm"
+                        : "text-gray-600 dark:text-zinc-400"
+                    }`}
+                  >
+                    {track === "ALL" ? "All Tracks" : track.replace("_", "-")}
+                  </button>
+                ))}
+              </div>
               {loadingFypScores && <Loader2 className="w-4 h-4 animate-spin text-[#1E6F3E]" />}
             </div>
 
@@ -789,6 +805,12 @@ export default function CoordinatorEvaluationScoresPage() {
               <div className="space-y-3">
                 {fypScores.map((group, idx) => {
                   const isExpanded = expandedFypGroups.has(group.groupId);
+                  const tracksToShow = selectedFypTrack === "ALL"
+                    ? (["fyp1", "fyp2"] as const)
+                    : selectedFypTrack === "FYP_1"
+                      ? (["fyp1"] as const)
+                      : (["fyp2"] as const);
+                  const selectedTrackData = selectedFypTrack === "FYP_1" ? group.fyp1 : selectedFypTrack === "FYP_2" ? group.fyp2 : null;
                   return (
                     <motion.div
                       key={group.groupId}
@@ -818,36 +840,56 @@ export default function CoordinatorEvaluationScoresPage() {
                               {group.students.map(s => s.name).join(", ")}
                             </p>
                           </div>
-                          <div className="text-center flex-shrink-0 min-w-[80px]">
-                            <p className="text-xs text-gray-400 mb-0.5">FYP-1</p>
-                            {group.fyp1 ? (
-                              group.fyp1.isComplete ? (
-                                <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp1.totalScore}%</p>
+                          {selectedFypTrack === "ALL" ? (
+                            <>
+                              <div className="text-center flex-shrink-0 min-w-[80px]">
+                                <p className="text-xs text-gray-400 mb-0.5">FYP-1</p>
+                                {group.fyp1 ? (
+                                  group.fyp1.isComplete ? (
+                                    <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp1.totalScore}%</p>
+                                  ) : (
+                                    <p className="text-sm font-semibold text-amber-600">
+                                      ~{group.fyp1.partialScore}%
+                                      <span className="text-[10px] text-gray-400 block">partial</span>
+                                    </p>
+                                  )
+                                ) : (
+                                  <p className="text-xs text-gray-400">N/A</p>
+                                )}
+                              </div>
+                              <div className="text-center flex-shrink-0 min-w-[80px]">
+                                <p className="text-xs text-gray-400 mb-0.5">FYP-2</p>
+                                {group.fyp2 ? (
+                                  group.fyp2.isComplete ? (
+                                    <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp2.totalScore}%</p>
+                                  ) : (
+                                    <p className="text-sm font-semibold text-amber-600">
+                                      ~{group.fyp2.partialScore}%
+                                      <span className="text-[10px] text-gray-400 block">partial</span>
+                                    </p>
+                                  )
+                                ) : (
+                                  <p className="text-xs text-gray-400">N/A</p>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-center flex-shrink-0 min-w-[120px]">
+                              <p className="text-xs text-gray-400 mb-0.5">{selectedFypTrack.replace("_", "-")}</p>
+                              {selectedTrackData ? (
+                                selectedTrackData.isComplete ? (
+                                  <p className="text-lg font-bold text-[#1E6F3E]">{selectedTrackData.totalScore}%</p>
+                                ) : (
+                                  <p className="text-sm font-semibold text-amber-600">
+                                    ~{selectedTrackData.partialScore}%
+                                    <span className="text-[10px] text-gray-400 block">partial</span>
+                                  </p>
+                                )
                               ) : (
-                                <p className="text-sm font-semibold text-amber-600">
-                                  ~{group.fyp1.partialScore}%
-                                  <span className="text-[10px] text-gray-400 block">partial</span>
-                                </p>
-                              )
-                            ) : (
-                              <p className="text-xs text-gray-400">N/A</p>
-                            )}
-                          </div>
-                          <div className="text-center flex-shrink-0 min-w-[80px]">
-                            <p className="text-xs text-gray-400 mb-0.5">FYP-2</p>
-                            {group.fyp2 ? (
-                              group.fyp2.isComplete ? (
-                                <p className="text-lg font-bold text-[#1E6F3E]">{group.fyp2.totalScore}%</p>
-                              ) : (
-                                <p className="text-sm font-semibold text-amber-600">
-                                  ~{group.fyp2.partialScore}%
-                                  <span className="text-[10px] text-gray-400 block">partial</span>
-                                </p>
-                              )
-                            ) : (
-                              <p className="text-xs text-gray-400">N/A</p>
-                            )}
-                          </div>
+                                <p className="text-xs text-gray-400">N/A</p>
+                              )}
+                            </div>
+                          )}
                           <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? "rotate-180" : ""}`} />
                         </button>
 
@@ -861,7 +903,7 @@ export default function CoordinatorEvaluationScoresPage() {
                               className="overflow-hidden"
                             >
                               <div className="px-5 pb-5 pt-2 border-t border-gray-100 dark:border-zinc-700 space-y-4">
-                                {["fyp1", "fyp2"].map((fypKey) => {
+                                {tracksToShow.map((fypKey) => {
                                   const fypData = (group as any)[fypKey];
                                   if (!fypData || fypData.phaseBreakdown.length === 0) return null;
                                   return (
@@ -876,7 +918,8 @@ export default function CoordinatorEvaluationScoresPage() {
                                         )}
                                       </h5>
                                       <div className="space-y-2">
-                                        {fypData.phaseBreakdown.map((phase: any) => (
+                                        <div className="grid gap-2">
+                                          {fypData.phaseBreakdown.map((phase: any) => (
                                           <div key={phase.phaseId} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-700">
                                             <div className="flex-1 min-w-0">
                                               <p className="text-sm font-semibold text-gray-800 dark:text-[#E4E4E7]">{phase.name}</p>
@@ -885,7 +928,7 @@ export default function CoordinatorEvaluationScoresPage() {
                                                   <span className="text-[11px] text-blue-600 dark:text-blue-400">Sup: {phase.supervisorScore}/{phase.totalMarks}</span>
                                                 )}
                                                 {phase.panelScore !== null && (
-                                                  <span className="text-[11px] text-purple-600 dark:text-purple-400">Panel: {phase.panelScore}/{phase.totalMarks}</span>
+                                                  <span className="text-[11px] text-purple-600 dark:text-purple-400">Phase Panel: {phase.panelScore}/{phase.totalMarks}</span>
                                                 )}
                                               </div>
                                             </div>
@@ -898,7 +941,8 @@ export default function CoordinatorEvaluationScoresPage() {
                                               )}
                                             </div>
                                           </div>
-                                        ))}
+                                          ))}
+                                        </div>
                                       </div>
                                     </div>
                                   );

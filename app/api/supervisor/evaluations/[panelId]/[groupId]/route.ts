@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { emitEvaluationComment } from '@/lib/socket-emitters';
 import { isGroupCompleted } from '@/lib/cohort-utils';
 
-// GET - Fetch group details for a panel assignment (submissions, comments, score)
+// GET - Fetch group details for a panel assignment (phase submissions and scores)
 export async function GET(
   request: NextRequest,
   { params }: { params: { panelId: string; groupId: string } }
@@ -31,24 +31,11 @@ export async function GET(
     // Get the assignment
     const assignment = await (prisma as any).groupPanelAssignment.findUnique({
       where: { panelId_groupId: { panelId, groupId } },
-      include: {
-        comments: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
     });
 
     if (!assignment) {
       return NextResponse.json({ error: 'Assignment not found' }, { status: 404 });
     }
-
-    // Get commenter details
-    const commentUserIds = (assignment.comments || []).map((c: any) => c.userId);
-    const commentUsers = await prisma.user.findMany({
-      where: { userId: { in: commentUserIds } },
-      select: { userId: true, name: true, profileImage: true }
-    });
-    const userMap = new Map(commentUsers.map(u => [u.userId, u]));
 
     // Get group details with project and students
     const group = await prisma.group.findUnique({
@@ -205,8 +192,6 @@ export async function GET(
         timeSlot: assignment.timeSlot,
         venue: assignment.venue,
         remarks: assignment.remarks,
-        score: assignment.score,
-        scoredAt: assignment.scoredAt,
       },
       maxScore,
       activePhase,  // null if no phases configured, or the active phase info
@@ -272,16 +257,6 @@ export async function GET(
           isOwn: c.userId === userId,
         })),
       })),
-      comments: (assignment.comments || []).map((c: any) => ({
-        commentId: c.commentId,
-        content: c.content,
-        createdAt: c.createdAt,
-        updatedAt: c.updatedAt,
-        userId: c.userId,
-        userName: userMap.get(c.userId)?.name || 'Unknown',
-        userImage: userMap.get(c.userId)?.profileImage || null,
-        isOwn: c.userId === userId,
-      })),
       currentUserRole: membership.role,
       isGroupSupervisor: group?.supervisorId === userId,
       panelMembers: panelMembers.map(pm => ({
@@ -297,7 +272,7 @@ export async function GET(
   }
 }
 
-// POST - Add a comment to a group's panel assignment
+// POST - Add a phase comment to a group's submission
 export async function POST(
   request: NextRequest,
   { params }: { params: { panelId: string; groupId: string } }
@@ -331,66 +306,16 @@ export async function POST(
       return NextResponse.json({ error: 'Comment cannot be empty' }, { status: 400 });
     }
 
-    // If submissionId is provided, create a submission-scoped comment
-    if (submissionId) {
-      const submission = await (prisma as any).evaluationSubmission.findUnique({ where: { submissionId: parseInt(submissionId) } });
-      if (!submission) return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
-
-      const comment = await (prisma as any).submissionComment.create({
-        data: {
-          submissionId: parseInt(submissionId),
-          userId,
-          content: content.trim(),
-        }
-      });
-
-      const user = await prisma.user.findUnique({ where: { userId }, select: { name: true, profileImage: true } });
-
-      const commentPayload = {
-        commentId: comment.commentId,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-        userId: comment.userId,
-        userName: user?.name || 'Unknown',
-        userImage: user?.profileImage || null,
-        isOwn: true,
-      };
-
-      // Emit to group students
-      try {
-        const groupStudents = await prisma.student.findMany({ where: { groupId }, select: { userId: true } });
-        const studentUserIds = groupStudents.map((s) => s.userId);
-        if (studentUserIds.length > 0) {
-          emitEvaluationComment(studentUserIds, {
-            commentId: comment.commentId,
-            panelId,
-            groupId,
-            submissionId: submissionId,
-            content: comment.content,
-            createdAt: comment.createdAt.toISOString(),
-            userId: comment.userId,
-            userName: user?.name || 'Unknown',
-            userImage: user?.profileImage || null,
-          });
-        }
-      } catch (_) {}
-
-      return NextResponse.json({ comment: commentPayload });
+    if (!submissionId) {
+      return NextResponse.json({ error: 'Submission comment requires a submissionId' }, { status: 400 });
     }
 
-    // Otherwise create assignment-level comment
-    const assignment = await prisma.groupPanelAssignment.findUnique({
-      where: { panelId_groupId: { panelId, groupId } }
-    });
+    const submission = await (prisma as any).evaluationSubmission.findUnique({ where: { submissionId: parseInt(submissionId) } });
+    if (!submission) return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
 
-    if (!assignment) {
-      return NextResponse.json({ error: 'Assignment not found' }, { status: 404 });
-    }
-
-    const comment = await (prisma as any).panelComment.create({
+    const comment = await (prisma as any).submissionComment.create({
       data: {
-        assignmentId: assignment.id,
+        submissionId: parseInt(submissionId),
         userId,
         content: content.trim(),
       }
@@ -413,7 +338,7 @@ export async function POST(
       isOwn: true,
     };
 
-    // Emit real-time event to all students in the group
+    // Emit to group students
     try {
       const groupStudents = await prisma.student.findMany({
         where: { groupId },
@@ -425,6 +350,7 @@ export async function POST(
           commentId: comment.commentId,
           panelId,
           groupId,
+          submissionId: submissionId,
           content: comment.content,
           createdAt: comment.createdAt.toISOString(),
           userId: comment.userId,
@@ -463,33 +389,8 @@ export async function PATCH(
 
     const body = await request.json();
 
-    // If scoring
     if (body.action === 'score') {
-      // Verify membership in the panel (allow any panel member to score)
-      const membership = await prisma.panelMember.findUnique({
-        where: { panelId_supervisorId: { panelId, supervisorId: userId } }
-      });
-
-      if (!membership) {
-        return NextResponse.json({ error: 'Not a member of this panel' }, { status: 403 });
-      }
-
-      const { score, maxScore: clientMaxScore } = body;
-      const maxAllowed = clientMaxScore || 100;
-      if (score === undefined || score === null || score < 0 || score > maxAllowed) {
-        return NextResponse.json({ error: `Score must be between 0 and ${maxAllowed}` }, { status: 400 });
-      }
-
-      await (prisma as any).groupPanelAssignment.update({
-        where: { panelId_groupId: { panelId, groupId } },
-        data: {
-          score: parseInt(score),
-          scoredById: userId,
-          scoredAt: new Date(),
-        }
-      });
-
-      return NextResponse.json({ success: true, score: parseInt(score) });
+      return NextResponse.json({ error: 'Phase scoring is handled on submissions only' }, { status: 400 });
     }
 
     // If updating a comment
@@ -500,16 +401,6 @@ export async function PATCH(
         return NextResponse.json({ error: 'Comment cannot be empty' }, { status: 400 });
       }
 
-      // Verify ownership
-      // Try panel comment first
-      const panelComment = await (prisma as any).panelComment.findUnique({ where: { commentId: parseInt(commentId) } });
-      if (panelComment) {
-        if (panelComment.userId !== userId) return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
-        const updated = await (prisma as any).panelComment.update({ where: { commentId: parseInt(commentId) }, data: { content: content.trim() } });
-        return NextResponse.json({ success: true, comment: updated });
-      }
-
-      // Try submission comment
       const subComment = await (prisma as any).submissionComment.findUnique({ where: { commentId: parseInt(commentId) } });
       if (subComment) {
         if (subComment.userId !== userId) return NextResponse.json({ error: 'Cannot edit this comment' }, { status: 403 });
@@ -546,15 +437,6 @@ export async function DELETE(
     }
     const { commentId } = await request.json();
 
-    // Try panel comment
-    const panelComment = await (prisma as any).panelComment.findUnique({ where: { commentId: parseInt(commentId) } });
-    if (panelComment) {
-      if (panelComment.userId !== userId) return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
-      await (prisma as any).panelComment.delete({ where: { commentId: parseInt(commentId) } });
-      return NextResponse.json({ success: true });
-    }
-
-    // Try submission comment
     const subComment = await (prisma as any).submissionComment.findUnique({ where: { commentId: parseInt(commentId) } });
     if (subComment) {
       if (subComment.userId !== userId) return NextResponse.json({ error: 'Cannot delete this comment' }, { status: 403 });
