@@ -63,6 +63,7 @@ export default function SupervisorProfile() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -75,6 +76,38 @@ export default function SupervisorProfile() {
     skills: '',
     achievements: '',
   });
+
+  const handleFacultySync = async () => {
+    setSyncing(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/profile/scrape-faculty', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const { profile: scrapedProfile } = data;
+        setFormData(prev => ({
+          ...prev,
+          specialization: scrapedProfile.specialization || prev.specialization,
+          description: scrapedProfile.description || prev.description,
+          domains: scrapedProfile.domains || prev.domains,
+          skills: scrapedProfile.skills || prev.skills,
+          achievements: scrapedProfile.achievements || prev.achievements,
+        }));
+        setSuccess('Profile details synced from faculty website! Please review the updated fields below and save to apply.');
+      } else {
+        setError(data.error || 'Failed to sync profile from faculty directory');
+      }
+    } catch (err) {
+      setError('An error occurred while syncing profile details. Please try again.');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -443,6 +476,37 @@ export default function SupervisorProfile() {
                   ) : (
                     /* Edit Form */
                     <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* Smart Profile Sync */}
+                      <div className="bg-gradient-to-r from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10 border border-emerald-500/10 dark:border-emerald-500/20 rounded-2xl p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-emerald-500/10 dark:bg-emerald-500/20 text-[#1a5d1a] dark:text-[#E4E4E7] rounded-xl flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 animate-pulse text-[#1a5d1a]" />
+                          </div>
+                          <div className="text-left">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">Smart Profile Sync</h4>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">Automatically pull and parse your research domains, skills, and bio from your university profile directory.</p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          disabled={syncing}
+                          onClick={handleFacultySync}
+                          className="w-full sm:w-auto bg-gradient-to-r from-[#1a5d1a] to-[#2d7a2d] hover:opacity-90 text-white rounded-xl h-10 px-4 text-xs font-semibold flex items-center shadow-lg shadow-[#1a5d1a]/15 transition-all"
+                        >
+                          {syncing ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Syncing...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Sync from Website
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name" className="text-gray-700 dark:text-zinc-300">Full Name</Label>
