@@ -1221,63 +1221,6 @@ export default function SupervisorEvaluationsPage() {
                                   </div>
                                 )}
 
-                                {/* Submission Comments (per-submission) */}
-                                <div>
-                                  <p className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <MessageSquare className="w-3.5 h-3.5" />
-                                    Comments ({(sub.comments || []).length})
-                                  </p>
-                                  {sub.comments && sub.comments.length > 0 ? (
-                                    <div className="space-y-2 mb-2">
-                                      {sub.comments.map((c: any) => (
-                                        <div key={c.commentId} className={`p-3 rounded-lg ${c.isOwn ? 'bg-[#1E6F3E]/5 border-[#1E6F3E]/10' : 'bg-gray-50 dark:bg-zinc-700/30 border-gray-100 dark:border-zinc-700'} border` }>
-                                          <div className="flex items-start gap-3">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${c.isOwn ? 'bg-[#1E6F3E] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-600'}`}>
-                                              {c.userName?.charAt(0) || '?'}
-                                            </div>
-                                            <div className="flex-1">
-                                              <div className="flex items-center justify-between mb-1">
-                                                <div className="flex items-center gap-2">
-                                                  <span className="text-sm font-bold text-gray-900 dark:text-[#E4E4E7]">{c.userName}</span>
-                                                  <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</span>
-                                                </div>
-                                                {c.isOwn && (
-                                                  <button onClick={() => handleDeleteComment(c.commentId)} className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500">
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                  </button>
-                                                )}
-                                              </div>
-                                              <p className="text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">{c.content}</p>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <p className="text-xs text-gray-400 italic mb-2">No comments on this submission yet.</p>
-                                  )}
-
-                                  {/* Add submission comment input */}
-                                  {(groupDetails.isGroupSupervisor || groupDetails.currentUserRole) && (
-                                    <div className="flex gap-2">
-                                      <Input
-                                        value={newSubmissionComments[sub.submissionId] || ''}
-                                        onChange={(e) => setNewSubmissionComments(prev => ({ ...prev, [sub.submissionId]: e.target.value }))}
-                                        placeholder="Add a comment about this submission..."
-                                        className="flex-1 rounded-xl h-10"
-                                        onKeyDown={(e) => {
-                                          if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleAddSubmissionComment(sub.submissionId);
-                                          }
-                                        }}
-                                      />
-                                      <Button onClick={() => handleAddSubmissionComment(sub.submissionId)} disabled={addingSubmissionComment || !(newSubmissionComments[sub.submissionId] || '').trim()} className="h-10">
-                                        {addingSubmissionComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                      </Button>
-                                    </div>
-                                  )}
-                                </div>
                                 {groupDetails.assignment.timeSlot && (
                                   <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                                     <Clock className="w-4 h-4 text-[#1E6F3E] flex-shrink-0" />
