@@ -229,7 +229,7 @@ export async function GET() {
     }));
 
     // Generate activity trend data for the last 6 months
-    const months = [];
+    const months: { name: string; monthIndex: number; year: number; meetings: number; reviews: number }[] = [];
     const currentDate = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
