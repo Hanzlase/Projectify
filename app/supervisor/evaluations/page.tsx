@@ -51,6 +51,10 @@ interface PanelAssignment {
   status: string;
   scheduledDate: string | null;
   evaluationType: string;
+  cohort?: "REGULAR" | "DELAYED";
+  fypPhase?: "FYP_1" | "FYP_2";
+  activePhase?: "FYP_1" | "FYP_2" | null;
+  trackLabel?: string;
   members?: Array<{
     supervisorId: number;
     name: string;
@@ -368,6 +372,28 @@ export default function SupervisorEvaluationsPage() {
     );
   };
 
+  const panelsByCohort = {
+    REGULAR: panels.filter((panel) => panel.cohort === "REGULAR"),
+    DELAYED: panels.filter((panel) => panel.cohort === "DELAYED"),
+  };
+
+  const cohortCards = [
+    {
+      key: "REGULAR" as const,
+      title: "Regular Cohort",
+      subtitle: "Current semester regular FYP panel",
+      panels: panelsByCohort.REGULAR,
+      accent: "#1E6F3E",
+    },
+    {
+      key: "DELAYED" as const,
+      title: "Delayed Cohort",
+      subtitle: "Current semester delayed FYP panel",
+      panels: panelsByCohort.DELAYED,
+      accent: "#0F766E",
+    },
+  ];
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -455,197 +481,204 @@ export default function SupervisorEvaluationsPage() {
           </div>
 
           {/* Panels List */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             {panels.length === 0 ? (
               <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                     <Award className="w-10 h-10 text-gray-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">
-                    No Panel Assignments Yet
-                  </h3>
-                  <p className="text-gray-600 dark:text-zinc-400">
-                    You haven't been assigned to any evaluation panels yet
-                  </p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-[#E4E4E7] mb-2">No Panel Assignments Yet</h3>
+                  <p className="text-gray-600 dark:text-zinc-400">You haven't been assigned to any evaluation panels yet</p>
                 </CardContent>
               </Card>
             ) : (
-              panels.map((panel, index) => (
-                <motion.div
-                  key={panel.panelId}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-[#E4E4E7]">
-                              {panel.panelName}
-                            </h3>
-                            {getStatusBadge(panel.status)}
-                            {getRoleBadge(panel.role)}
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-zinc-400">
-                            {panel.evaluationType}
-                          </p>
-                          {panel.scheduledDate && (
-                            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-zinc-400 mt-2">
-                              <Calendar className="w-4 h-4" />
-                              {new Date(panel.scheduledDate).toLocaleDateString()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedPanel(panel);
-                              setShowMembersModal(true);
-                            }}
-                            className="rounded-xl border-gray-200 dark:border-zinc-700"
-                          >
-                            <Users className="w-4 h-4 mr-2" />
-                            View Members
-                          </Button>
-                          <button
-                            onClick={() => togglePanel(panel.panelId)}
-                            className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
-                          >
-                            {expandedPanels.includes(panel.panelId) ? (
-                              <ChevronUp className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-                            ) : (
-                              <ChevronDown className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
+              cohortCards.map((section) => (
+                <div key={section.key} className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-[#E4E4E7]">{section.title}</h2>
+                      <p className="text-sm text-gray-500 dark:text-zinc-400">{section.subtitle}</p>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-300">
+                      {section.panels.length} panel{section.panels.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
 
-                      {/* Groups - Collapsible */}
-                      <AnimatePresence>
-                        {expandedPanels.includes(panel.panelId) && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
-                              <h4 className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] mb-3">
-                                Assigned Groups ({panel.groups.length})
-                              </h4>
-                              <div className="space-y-3">
-                                {panel.groups.map((group) => (
-                                  <div
-                                    key={group.groupId}
-                                    className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700"
+                  {section.panels.length === 0 ? (
+                    <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A]">
+                      <CardContent className="p-8 text-center text-gray-500 dark:text-zinc-400">
+                        No {section.title.toLowerCase()} assigned yet.
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="space-y-4">
+                      {section.panels.map((panel, index) => (
+                        <motion.div
+                          key={panel.panelId}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.08 }}
+                        >
+                          <Card className="border-0 shadow-sm rounded-xl bg-white dark:bg-[#27272A] hover:shadow-md transition-shadow overflow-hidden">
+                            <CardContent className="p-4 sm:p-6">
+                              <div className="flex items-start justify-between mb-4 gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-[#E4E4E7] truncate">
+                                      {panel.panelName}
+                                    </h3>
+                                    {getStatusBadge(panel.status)}
+                                    {getRoleBadge(panel.role)}
+                                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1E6F3E]/10 text-[#1E6F3E]">
+                                      {panel.trackLabel || `${panel.cohort === "REGULAR" ? "Regular" : "Delayed"} · ${panel.fypPhase === "FYP_2" ? "FYP-2" : "FYP-1"}`}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 dark:text-zinc-400">{panel.evaluationType}</p>
+                                  {panel.scheduledDate && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-zinc-400 mt-2">
+                                      <Calendar className="w-4 h-4" />
+                                      {new Date(panel.scheduledDate).toLocaleDateString()}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 flex-shrink-0">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedPanel(panel);
+                                      setShowMembersModal(true);
+                                    }}
+                                    className="rounded-xl border-gray-200 dark:border-zinc-700"
                                   >
-                                    <div className="flex items-start justify-between mb-3">
-                                      <div>
-                                        <h5 className="font-medium text-gray-900 dark:text-[#E4E4E7]">
-                                          {group.groupName}
-                                        </h5>
-                                        <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                                          {group.memberCount} students
-                                        </p>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        {/* Score badge */}
-                                        {group.score !== null && group.score !== undefined && (
-                                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20">
-                                            Score: {group.score}/100
-                                          </span>
-                                        )}
-                                        <Button
-                                          onClick={() => openGroupEvaluation(panel.panelId, group.groupId)}
-                                          size="sm"
-                                          className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-lg"
-                                        >
-                                          <Eye className="w-4 h-4 mr-1" />
-                                          Evaluate
-                                        </Button>
-                                      </div>
-                                    </div>
-
-                                    {/* Quick stats */}
-                                    <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-400 mb-3">
-                                      {group.submissionCount > 0 && (
-                                        <span className="flex items-center gap-1">
-                                          <FileText className="w-3 h-3 text-[#1E6F3E]" />
-                                          {group.submissionCount} submission{group.submissionCount > 1 ? 's' : ''}
-                                        </span>
-                                      )}
-                                      {group.commentCount > 0 && (
-                                        <span className="flex items-center gap-1">
-                                          <MessageSquare className="w-3 h-3 text-[#1E6F3E]" />
-                                          {group.commentCount} comment{group.commentCount > 1 ? 's' : ''}
-                                        </span>
-                                      )}
-                                      {group.hasProject && (
-                                        <span className="flex items-center gap-1">
-                                          <BookOpen className="w-3 h-3 text-[#1E6F3E]" />
-                                          Has project
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    {/* Evaluation Details */}
-                                    {(group.evaluationDate || group.timeSlot || group.venue) && (
-                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 text-sm">
-                                        {group.evaluationDate && (
-                                          <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
-                                            <Calendar className="w-4 h-4 text-[#1E6F3E]" />
-                                            {new Date(group.evaluationDate).toLocaleDateString()}
-                                          </div>
-                                        )}
-                                        {group.timeSlot && (
-                                          <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
-                                            <Clock className="w-4 h-4 text-[#1E6F3E]" />
-                                            {group.timeSlot}
-                                          </div>
-                                        )}
-                                        {group.venue && (
-                                          <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
-                                            <Building className="w-4 h-4 text-[#1E6F3E]" />
-                                            {group.venue}
-                                          </div>
-                                        )}
-                                      </div>
+                                    <Users className="w-4 h-4 mr-2" />
+                                    View Members
+                                  </Button>
+                                  <button
+                                    onClick={() => togglePanel(panel.panelId)}
+                                    className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
+                                  >
+                                    {expandedPanels.includes(panel.panelId) ? (
+                                      <ChevronUp className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
+                                    ) : (
+                                      <ChevronDown className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
                                     )}
+                                  </button>
+                                </div>
+                              </div>
 
-                                    {/* Students */}
-                                    <div className="border-t border-gray-200 dark:border-zinc-700 pt-3">
-                                      <p className="text-xs font-semibold text-gray-700 dark:text-zinc-300 mb-2">
-                                        Students:
-                                      </p>
-                                      <div className="space-y-1">
-                                        {group.students.map((student, idx) => (
+                              <AnimatePresence>
+                                {expandedPanels.includes(panel.panelId) && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-[#E4E4E7] mb-3">
+                                        Assigned Groups ({panel.groups.length})
+                                      </h4>
+                                      <div className="space-y-3">
+                                        {panel.groups.map((group) => (
                                           <div
-                                            key={idx}
-                                            className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-400"
+                                            key={group.groupId}
+                                            className="p-4 bg-gray-50 dark:bg-zinc-700/50 rounded-xl border border-gray-200 dark:border-zinc-700"
                                           >
-                                            <User className="w-3 h-3 text-[#1E6F3E]" />
-                                            <span>{student.name}</span>
-                                            <span className="text-xs text-gray-500">({student.rollNumber})</span>
+                                            <div className="flex items-start justify-between mb-3 gap-3">
+                                              <div>
+                                                <h5 className="font-medium text-gray-900 dark:text-[#E4E4E7]">{group.groupName}</h5>
+                                                <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">{group.memberCount} students</p>
+                                              </div>
+                                              <div className="flex items-center gap-2 flex-wrap justify-end">
+                                                {group.score !== null && group.score !== undefined && (
+                                                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#1E6F3E]/10 text-[#1E6F3E] dark:bg-[#1E6F3E]/20">
+                                                    Score: {group.score}/100
+                                                  </span>
+                                                )}
+                                                <Button
+                                                  onClick={() => openGroupEvaluation(panel.panelId, group.groupId)}
+                                                  size="sm"
+                                                  className="bg-[#1E6F3E] hover:bg-[#166534] text-white rounded-lg"
+                                                >
+                                                  <Eye className="w-4 h-4 mr-1" />
+                                                  Evaluate
+                                                </Button>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-400 mb-3 flex-wrap">
+                                              {group.submissionCount > 0 && (
+                                                <span className="flex items-center gap-1">
+                                                  <FileText className="w-3 h-3 text-[#1E6F3E]" />
+                                                  {group.submissionCount} submission{group.submissionCount > 1 ? 's' : ''}
+                                                </span>
+                                              )}
+                                              {group.commentCount > 0 && (
+                                                <span className="flex items-center gap-1">
+                                                  <MessageSquare className="w-3 h-3 text-[#1E6F3E]" />
+                                                  {group.commentCount} comment{group.commentCount > 1 ? 's' : ''}
+                                                </span>
+                                              )}
+                                              {group.hasProject && (
+                                                <span className="flex items-center gap-1">
+                                                  <BookOpen className="w-3 h-3 text-[#1E6F3E]" />
+                                                  Has project
+                                                </span>
+                                              )}
+                                            </div>
+
+                                            {(group.evaluationDate || group.timeSlot || group.venue) && (
+                                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 text-sm">
+                                                {group.evaluationDate && (
+                                                  <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
+                                                    <Calendar className="w-4 h-4 text-[#1E6F3E]" />
+                                                    {new Date(group.evaluationDate).toLocaleDateString()}
+                                                  </div>
+                                                )}
+                                                {group.timeSlot && (
+                                                  <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
+                                                    <Clock className="w-4 h-4 text-[#1E6F3E]" />
+                                                    {group.timeSlot}
+                                                  </div>
+                                                )}
+                                                {group.venue && (
+                                                  <div className="flex items-center gap-2 text-gray-600 dark:text-zinc-400">
+                                                    <Building className="w-4 h-4 text-[#1E6F3E]" />
+                                                    {group.venue}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+
+                                            <div className="border-t border-gray-200 dark:border-zinc-700 pt-3">
+                                              <p className="text-xs font-semibold text-gray-700 dark:text-zinc-300 mb-2">Students:</p>
+                                              <div className="space-y-1">
+                                                {group.students.map((student, idx) => (
+                                                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-400">
+                                                    <User className="w-3 h-3 text-[#1E6F3E]" />
+                                                    <span>{student.name}</span>
+                                                    <span className="text-xs text-gray-500">({student.rollNumber})</span>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
                                           </div>
                                         ))}
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))
             )}
           </div>
@@ -883,14 +916,14 @@ export default function SupervisorEvaluationsPage() {
                               </h3>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div className="p-4 rounded-xl bg-white dark:bg-[#27272A] border border-gray-200 dark:border-zinc-700">
-                                  <p className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">Supervisor</p>
-                                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                  <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Supervisor</p>
+                                  <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                                     {hasSupervisorScore ? phaseSubmission.supervisorScore : "Pending"}
                                   </p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-white dark:bg-[#27272A] border border-gray-200 dark:border-zinc-700">
-                                  <p className="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Panel Members</p>
-                                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Panel Members</p>
+                                  <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
                                     {hasPanelScore ? phaseSubmission.panelScore : "Pending"}
                                   </p>
                                 </div>

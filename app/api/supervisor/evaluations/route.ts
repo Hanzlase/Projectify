@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getActivePhase } from '@/lib/cohort-utils';
 
 // GET - Fetch supervisor's panel assignments
 export async function GET(request: NextRequest) {
@@ -12,6 +13,11 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+
+    const supervisor = await (prisma as any).fYPSupervisor.findFirst({
+      where: { userId },
+      include: { campus: true },
+    });
 
     // Get all panels where this supervisor is a member
     const panels = await (prisma as any).evaluationPanel.findMany({
@@ -114,6 +120,7 @@ export async function GET(request: NextRequest) {
     const transformedPanels = panels.map((panel: any) => {
       // Find current supervisor's role
       const currentMember = panel.panelMembers.find((pm: any) => pm.supervisorId === userId);
+      const activePhase = supervisor ? getActivePhase(panel.cohort, supervisor.campus.activeSemester) : null;
       
       return {
         panelId: panel.panelId,
@@ -122,6 +129,10 @@ export async function GET(request: NextRequest) {
         status: panel.status,
         scheduledDate: panel.scheduledDate,
         evaluationType: panel.evaluationType,
+        cohort: panel.cohort,
+        fypPhase: panel.fypPhase,
+        activePhase,
+        trackLabel: `${panel.cohort === 'REGULAR' ? 'Regular' : 'Delayed'} · ${panel.fypPhase === 'FYP_1' ? 'FYP-1' : 'FYP-2'}`,
         members: panel.panelMembers.map((pm: any) => {
           const user = supervisorMap.get(pm.supervisorId);
           return {
