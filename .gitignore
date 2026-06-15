@@ -92,3 +92,7 @@ __tests__/
 
 # Docs
 /docs/
+
+# Viva Defense / Implementation Guide
+/implementation.md
+
