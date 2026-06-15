@@ -854,12 +854,177 @@ const StatsSection = () => (
 // COMPONENT: TEAM SECTION
 // ============================================
 
+const DeveloperCard = ({
+  dev,
+  i,
+}: {
+  dev: {
+    name: string;
+    initials: string;
+    image: string;
+    role: string;
+    bio: string;
+    linkedin: string;
+    github: string;
+    email: string;
+  };
+  i: number;
+}) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.45, delay: i * 0.1 }}
+      className="h-full"
+    >
+      <div className="group h-full flex flex-col rounded-2xl border border-slate-200/80 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-400 overflow-hidden">
+        {/* Photo area — aspect-square looks perfect and fits facial profiles cleanly */}
+        <div className="relative w-full aspect-square overflow-hidden bg-slate-50 dark:bg-zinc-800 border-b border-slate-100 dark:border-zinc-700">
+          {!imgError && dev.image ? (
+            <img
+              src={dev.image}
+              alt={dev.name}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+            />
+          ) : (
+            /* Initials fallback — styled like a gorgeous dynamic avatar */
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-zinc-800 dark:to-zinc-900">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-emerald-600 flex items-center justify-center shadow-xl mb-3 group-hover:scale-110 transition-transform duration-500">
+                <span className="text-2xl font-black text-white">{dev.initials}</span>
+              </div>
+              <div className="w-16 h-1 rounded-full bg-slate-200 dark:bg-zinc-700" />
+            </div>
+          )}
+        </div>
+
+        {/* Card body */}
+        <div className="flex flex-col flex-1 px-5 pb-5 pt-4">
+          <div className="mb-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#E4E4E7] group-hover:text-[#1a5d1a] dark:group-hover:text-[#22C55E] transition-colors duration-300">
+              {dev.name}
+            </h3>
+            <p className="text-xs font-semibold text-[#1a5d1a] dark:text-green-400 uppercase tracking-wider mt-0.5">
+              {dev.role}
+            </p>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mb-5 leading-relaxed flex-1">
+            {dev.bio}
+          </p>
+
+          {/* Social buttons */}
+          <div className="flex flex-col gap-2 mt-auto">
+            <div className="flex gap-2">
+              <a
+                href={dev.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-[#0077B5]/8 hover:bg-[#0077B5] text-[#0077B5] hover:text-white border border-[#0077B5]/20 hover:border-[#0077B5] transition-all duration-200"
+              >
+                <Linkedin className="w-3.5 h-3.5" />
+                LinkedIn
+              </a>
+              <a
+                href={dev.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-900 dark:hover:bg-zinc-600 text-slate-600 dark:text-slate-300 hover:text-white border border-slate-200 dark:border-zinc-700 transition-all duration-200"
+              >
+                <Github className="w-3.5 h-3.5" />
+                GitHub
+              </a>
+            </div>
+            <a
+              href={`mailto:${dev.email}`}
+              className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-200 dark:border-emerald-700/40 hover:border-emerald-600 transition-all duration-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              {dev.email}
+            </a>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const SupervisorCard = ({
+  supervisor,
+}: {
+  supervisor: {
+    name: string;
+    initials: string;
+    image: string;
+    department: string;
+    bio: string;
+  };
+}) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div className="group relative rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+      {/* thin green top bar */}
+      <div className="h-[3px] w-full bg-gradient-to-r from-[#1a5d1a] via-emerald-500 to-[#1a5d1a]" />
+
+      <div className="p-6 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-7 sm:gap-10">
+        {/* Photo / initials */}
+        <div className="flex-shrink-0">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-xl ring-2 ring-[#1a5d1a]/20 group-hover:ring-[#1a5d1a]/40 transition-all duration-500 bg-slate-50 dark:bg-zinc-800">
+            {!imgError && supervisor.image ? (
+              <img
+                src={supervisor.image}
+                alt={supervisor.name}
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover object-center"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#1a5d1a] to-emerald-600 flex items-center justify-center">
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {supervisor.initials}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">
+              {supervisor.name}
+            </h3>
+            <span className="inline-flex items-center gap-1.5 self-center sm:self-auto px-3 py-1 rounded-full text-[11px] font-semibold bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-green-400 border border-[#1a5d1a]/20 dark:border-green-700/40">
+              <Star className="w-3 h-3 fill-current" />
+              Project Supervisor
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+            {supervisor.department}
+          </p>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-2xl">
+            {supervisor.bio}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TeamSection = () => {
   const developers = [
     {
       name: "Hanzla Sabir",
       initials: "HS",
       image: "/profileimage/Hanzla.png",
+      role: "Full Stack Developer",
+      bio: "Passionate full-stack developer focused on building scalable web architectures and intuitive user experiences.",
       linkedin: "https://www.linkedin.com/in/hanzlasheikh",
       github: "https://github.com/Hanzlase",
       email: "hanzlasabir658@gmail.com",
@@ -868,6 +1033,8 @@ const TeamSection = () => {
       name: "Saad Tariq",
       initials: "ST",
       image: "/profileimage/saad.png",
+      role: "Backend & Systems Engineer",
+      bio: "Systems thinker and backend specialist dedicated to robust architectures, APIs, and performance optimization.",
       linkedin: "https://linkedin.com/in/saad-a500b0287",
       github: "https://github.com/ramday",
       email: "saadtariq328@gmail.com",
@@ -876,6 +1043,8 @@ const TeamSection = () => {
       name: "Ahmad Raza",
       initials: "AR",
       image: "/profileimage/ahmad.png",
+      role: "Frontend & UI Developer",
+      bio: "UI/UX enthusiast and frontend engineer specializing in responsive, responsive interfaces and dynamic animations.",
       linkedin: "https://www.linkedin.com/in/ahmad-raza-53482b316/",
       github: "https://github.com/AhmadR-11",
       email: "ahmadraza792203@gmail.com",
@@ -887,6 +1056,7 @@ const TeamSection = () => {
     initials: "SA",
     image: "/profileimage/saqib.png",
     department: "Department of Software Engineering · FAST NUCES",
+    bio: "Providing expert guidance in software engineering methodologies, design patterns, and research alignment throughout the final year project lifecycle.",
   };
 
   return (
@@ -925,115 +1095,13 @@ const TeamSection = () => {
           transition={{ duration: 0.55 }}
           className="mb-10 sm:mb-14"
         >
-          <div className="group relative rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-            {/* thin green top bar */}
-            <div className="h-[3px] w-full bg-gradient-to-r from-[#1a5d1a] via-emerald-500 to-[#1a5d1a]" />
-
-            <div className="p-6 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-7 sm:gap-10">
-
-              {/* Photo / initials */}
-              <div className="flex-shrink-0">
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-xl ring-2 ring-[#1a5d1a]/20 group-hover:ring-[#1a5d1a]/40 transition-all duration-500">
-                  {supervisor.image ? (
-                    <img
-                      src={supervisor.image}
-                      alt={supervisor.name}
-                      className="w-full h-full object-cover object-center"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#1a5d1a] to-emerald-600 flex items-center justify-center">
-                      <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">{supervisor.initials}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Text */}
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
-                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#E4E4E7]">{supervisor.name}</h3>
-                  <span className="inline-flex items-center gap-1.5 self-center sm:self-auto px-3 py-1 rounded-full text-[11px] font-semibold bg-[#1a5d1a]/10 dark:bg-[#1a5d1a]/30 text-[#1a5d1a] dark:text-green-400 border border-[#1a5d1a]/20 dark:border-green-700/40">
-                    <Star className="w-3 h-3 fill-current" />
-                    Project Supervisor
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500">{supervisor.department}</p>
-              </div>
-            </div>
-          </div>
+          <SupervisorCard supervisor={supervisor} />
         </motion.div>
 
         {/* ── Developer cards ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
           {developers.map((dev, i) => (
-            <motion.div
-              key={dev.name}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.1 }}
-              className="h-full"
-            >
-              <div className="group h-full flex flex-col rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-[#27272A] shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-400 overflow-hidden">
-
-                {/* Photo area — tall, fills top of card */}
-                <div className="relative w-full aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-zinc-800">
-                  {dev.image ? (
-                    <img
-                      src={dev.image}
-                      alt={dev.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                    />
-                  ) : (
-                    /* Initials fallback — styled like the hero avatar */
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-zinc-800 dark:to-zinc-900">
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1a5d1a] to-emerald-600 flex items-center justify-center shadow-xl mb-3 group-hover:scale-110 transition-transform duration-500">
-                        <span className="text-2xl font-black text-white">{dev.initials}</span>
-                      </div>
-                      <div className="w-16 h-1 rounded-full bg-slate-200 dark:bg-zinc-700" />
-                    </div>
-                  )}
-                  {/* subtle gradient overlay at bottom of photo */}
-                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-[#27272A] to-transparent" />
-                </div>
-
-                {/* Card body */}
-                <div className="flex flex-col flex-1 px-5 pb-5 pt-3">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-[#E4E4E7] mb-4">{dev.name}</h3>
-
-                  {/* Social buttons */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex gap-2">
-                      <a
-                        href={dev.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-[#0077B5]/8 hover:bg-[#0077B5] text-[#0077B5] hover:text-white border border-[#0077B5]/20 hover:border-[#0077B5] transition-all duration-200"
-                      >
-                        <Linkedin className="w-3.5 h-3.5" />
-                        LinkedIn
-                      </a>
-                      <a
-                        href={dev.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-900 dark:hover:bg-zinc-600 text-slate-600 dark:text-slate-300 hover:text-white border border-slate-200 dark:border-zinc-700 transition-all duration-200"
-                      >
-                        <Github className="w-3.5 h-3.5" />
-                        GitHub
-                      </a>
-                    </div>
-                    <a
-                      href={`mailto:${dev.email}`}
-                      className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-200 dark:border-emerald-700/40 hover:border-emerald-600 transition-all duration-200"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-                      {dev.email}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <DeveloperCard key={dev.name} dev={dev} i={i} />
           ))}
         </div>
 
@@ -1052,6 +1120,8 @@ const TeamSection = () => {
     </section>
   );
 };
+
+
 
 // ============================================
 // COMPONENT: CTA (Angled)
