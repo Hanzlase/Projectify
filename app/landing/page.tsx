@@ -862,8 +862,6 @@ const DeveloperCard = ({
     name: string;
     initials: string;
     image: string;
-    role: string;
-    bio: string;
     linkedin: string;
     github: string;
     email: string;
@@ -903,18 +901,9 @@ const DeveloperCard = ({
 
         {/* Card body */}
         <div className="flex flex-col flex-1 px-5 pb-5 pt-4">
-          <div className="mb-3">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-[#E4E4E7] group-hover:text-[#1a5d1a] dark:group-hover:text-[#22C55E] transition-colors duration-300">
-              {dev.name}
-            </h3>
-            <p className="text-xs font-semibold text-[#1a5d1a] dark:text-green-400 uppercase tracking-wider mt-0.5">
-              {dev.role}
-            </p>
-          </div>
-
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mb-5 leading-relaxed flex-1">
-            {dev.bio}
-          </p>
+          <h3 className="text-base font-bold text-slate-900 dark:text-[#E4E4E7] group-hover:text-[#1a5d1a] dark:group-hover:text-[#22C55E] transition-colors duration-300 mb-4">
+            {dev.name}
+          </h3>
 
           {/* Social buttons */}
           <div className="flex flex-col gap-2 mt-auto">
@@ -963,7 +952,6 @@ const SupervisorCard = ({
     initials: string;
     image: string;
     department: string;
-    bio: string;
   };
 }) => {
   const [imgError, setImgError] = useState(false);
@@ -1005,11 +993,8 @@ const SupervisorCard = ({
               Project Supervisor
             </span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             {supervisor.department}
-          </p>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-2xl">
-            {supervisor.bio}
           </p>
         </div>
       </div>
@@ -1023,8 +1008,6 @@ const TeamSection = () => {
       name: "Hanzla Sabir",
       initials: "HS",
       image: "/profileimage/Hanzla.png",
-      role: "Full Stack Developer",
-      bio: "Passionate full-stack developer focused on building scalable web architectures and intuitive user experiences.",
       linkedin: "https://www.linkedin.com/in/hanzlasheikh",
       github: "https://github.com/Hanzlase",
       email: "hanzlasabir658@gmail.com",
@@ -1033,8 +1016,6 @@ const TeamSection = () => {
       name: "Saad Tariq",
       initials: "ST",
       image: "/profileimage/saad.png",
-      role: "Backend & Systems Engineer",
-      bio: "Systems thinker and backend specialist dedicated to robust architectures, APIs, and performance optimization.",
       linkedin: "https://linkedin.com/in/saad-a500b0287",
       github: "https://github.com/ramday",
       email: "saadtariq328@gmail.com",
@@ -1043,8 +1024,6 @@ const TeamSection = () => {
       name: "Ahmad Raza",
       initials: "AR",
       image: "/profileimage/ahmad.png",
-      role: "Frontend & UI Developer",
-      bio: "UI/UX enthusiast and frontend engineer specializing in responsive, responsive interfaces and dynamic animations.",
       linkedin: "https://www.linkedin.com/in/ahmad-raza-53482b316/",
       github: "https://github.com/AhmadR-11",
       email: "ahmadraza792203@gmail.com",
@@ -1056,7 +1035,6 @@ const TeamSection = () => {
     initials: "SA",
     image: "/profileimage/saqib.png",
     department: "Department of Software Engineering · FAST NUCES",
-    bio: "Providing expert guidance in software engineering methodologies, design patterns, and research alignment throughout the final year project lifecycle.",
   };
 
   return (
