@@ -230,8 +230,8 @@ app.prepare().then(() => {
     console.log(`> Ready on http://0.0.0.0:${port}`);
     console.log(`> Socket.IO server running on path /api/socketio`);
 
-    // Start meeting email reminder scheduler (runs in-process, no HTTP polling)
-    startMeetingReminderScheduler();
+    // Start meeting email reminder scheduler (disabled in-process polling to allow Neon DB to idle/suspend)
+    // startMeetingReminderScheduler();
   });
 
   // Handle server errors
